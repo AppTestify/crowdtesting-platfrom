@@ -66,8 +66,12 @@ const TesterSchema = new Schema({
   devices: [DeviceSchema],
   address: { type: AddressSchema, required: true },
   isApproved: { type: Boolean, default: false },
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: DBModels.USER,
+    required: true,
+  },
 });
 
-// Create the Mongoose model and export it
 export const Tester =
   mongoose.models.Tester || model<ITester>(DBModels.USER, TesterSchema);
