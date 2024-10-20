@@ -13,7 +13,7 @@ export default function AuthLayout({
 }) {
     return (
         <div className="w-full lg:grid lg:min-h-[100vh] lg:grid-cols-2 xl:min-h-[100vh]">
-            <div className="hidden bg-zinc-950 lg:flex lg:flex-col lg:justify-between p-10 pr-16">
+            <div className="hidden bg-primary lg:flex lg:flex-col lg:justify-between p-10 pr-16">
                 <div className="flex items-center gap-2">
                     <Icons.logo className="h-10 w-10 text-white" />
                     <h2 className="text-white font-medium text-xl">AppTestify</h2>
