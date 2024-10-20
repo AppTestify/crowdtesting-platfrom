@@ -1,29 +1,32 @@
-"use client";
-import { useSession } from "next-auth/react";
-import { Header } from "../_components/header";
-import BarComponent from "../_components/bar-chart-widget";
-import { SignUpForm } from "../_components/sing-up";
+import { Button } from "@/components/ui/button";
+
+
 
 export default function Home() {
+  // const router = useRouter();
   // eslint-disable-next-line
-  const { data: session }: any = useSession();
+  // const { data: session }: any = useSession();
 
-  if (session) {
-    return (
-      <>
-        <div className="in-h-screen pb-20 font-[family-name:var(--font-geist-sans)]">
-          <main>
-            <Header user={session.user} />
-            <h1>Cloud Testing</h1>
-            <BarComponent />
-          </main>
-        </div>
-      </>
-    );
-  }
+  // useEffect(() => {
+  //   if (!session) {
+  //     navigateToAuth();
+  //   }
+  // }, [])
+
+  // const navigateToAuth = () => {
+  //   router.push(`/auth`);
+  // }
+
   return (
-    <div className="flex justify-center items-center w-screen h-screen">
-      <SignUpForm />
-    </div>
+    <>
+      <div className="p-5 min-h-screen pb-20 font-[family-name:var(--font-geist-sans)] bg-zinc-950">
+        <main>
+          <h1 className="text-white text-2xl">Landing page</h1>
+          <a href="/auth/sign-up">
+            <Button variant="secondary" className="mt-2">Auth</Button></a>
+        </main>
+      </div>
+    </>
   );
+
 }

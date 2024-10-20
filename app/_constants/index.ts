@@ -2,3 +2,16 @@ export enum DBModels {
   USER = "User",
   TESTER = "Tester",
 }
+
+export const JWT_TOKEN_EXPIRE_LIMIT = "8h";
+export const JWT_SECRET = "smjsecret";
+export const DEFAULT_PASSWORD = "$$apptestify##$$";
+
+export const CALLBACK_URL = "/auth/sign-up";
+
+export enum AuthIntent {
+  SIGN_UP = "SIGN_UP",
+  SIGN_IN = "SIGN_IN",
+  SIGN_IN_CREDS = "SIGN_IN_CREDS",
+  SIGN_UP_CREDS = "SIGN_UP_CREDS",
+}

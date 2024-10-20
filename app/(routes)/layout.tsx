@@ -1,8 +1,7 @@
-"use client";
-
 import localFont from "next/font/local";
 import "./globals.css";
-import { SessionProvider } from "next-auth/react";
+import { Metadata } from "next";
+import { Toaster } from "sonner";
 
 const geistSans = localFont({
   src: "../_fonts/GeistVF.woff",
@@ -15,17 +14,23 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
+export const metadata: Metadata = {
+  title: "AppTestify Crowd Testing",
+  description: "Crowd Testing",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning={true}>
+      <Toaster richColors closeButton />
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <SessionProvider>{children}</SessionProvider>
+        {children}
       </body>
     </html>
   );

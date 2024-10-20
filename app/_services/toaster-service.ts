@@ -1,4 +1,5 @@
 import { toast } from "sonner";
+import { GENERIC_ERROR_MESSAGE } from "../_constants/errors";
 
 const toasterService = {
   success: (message: string, description = "") => {
@@ -7,8 +8,8 @@ const toasterService = {
     });
   },
 
-  error: (message: string, description = "") => {
-    toast.error(message, {
+  error: (message: string = GENERIC_ERROR_MESSAGE, description = "") => {
+    toast.error(message || GENERIC_ERROR_MESSAGE, {
       description,
     });
   },

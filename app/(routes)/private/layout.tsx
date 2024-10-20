@@ -1,6 +1,7 @@
 "use client";
 
 import { Navbar } from "@/app/_components/navbar";
+import { SessionProvider } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 
 
@@ -16,11 +17,13 @@ export default function PrivateLayout({
     const handleTabClick = (link: string) => {
         router.push(link);
     };
-    
+
     return (
-        <section >
-            <Navbar />
-            {children}
-        </section >
+        <SessionProvider>
+            <section>
+                <Navbar />
+                {children}
+            </section>
+        </SessionProvider>
     )
 }

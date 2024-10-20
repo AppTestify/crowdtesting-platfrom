@@ -8,11 +8,7 @@ export interface IUser extends Document {
   email: string;
   password: string;
   role: string;
-  placeOfBirth: string;
-  dateOfBirth: Date;
-  timeOfBirth: string;
-  notificationsReadAt: Date;
-  bookings: Types.ObjectId[];
+  isRoleSet: boolean;
 }
 
 const userSchema = new Schema<IUser>(

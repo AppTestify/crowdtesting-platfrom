@@ -23,44 +23,14 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 import { Icons } from "@/components/icons"
+import { signOut, useSession, } from "next-auth/react"
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import toasterService from "@/app/_services/toaster-service"
+import { logOutUserService } from "@/app/_services/auth-service"
+import Cookies from 'js-cookie';
+import { toTitleCase } from "@/app/_utils/sting-formtters"
 
-const components: { title: string; href: string; description: string }[] = [
-    {
-        title: "Alert Dialog",
-        href: "/docs/primitives/alert-dialog",
-        description:
-            "A modal dialog that interrupts the user with important content and expects a response.",
-    },
-    {
-        title: "Hover Card",
-        href: "/docs/primitives/hover-card",
-        description:
-            "For sighted users to preview content available behind a link.",
-    },
-    {
-        title: "Progress",
-        href: "/docs/primitives/progress",
-        description:
-            "Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.",
-    },
-    {
-        title: "Scroll-area",
-        href: "/docs/primitives/scroll-area",
-        description: "Visually or semantically separates content.",
-    },
-    {
-        title: "Tabs",
-        href: "/docs/primitives/tabs",
-        description:
-            "A set of layered sections of content—known as tab panels—that are displayed one at a time.",
-    },
-    {
-        title: "Tooltip",
-        href: "/docs/primitives/tooltip",
-        description:
-            "A popup that displays information related to an element when the element receives keyboard focus or the mouse hovers over it.",
-    },
-]
 
 const routes = [
     { id: "dashboard", label: "Dashboard", link: "/private/dashboard" },
@@ -69,6 +39,30 @@ const routes = [
 ];
 
 export function Navbar() {
+    const router = useRouter();
+    const { data } = useSession();
+    const [identity, setIdentity] = useState<string>("");
+
+    useEffect(() => {
+        if (data) {
+            const { user } = data;
+
+            if (user?.name) {
+                setIdentity(toTitleCase(user.name))
+            } else if (user?.email) {
+                setIdentity(user.email)
+            }
+        }
+    }, [data])
+
+
+    const logOutUser = () => {
+        signOut();
+        logOutUserService();
+        router.push('/auth/sign-in');
+        toasterService.success('Logged out successfully');
+    }
+
     return (
         <div className="flex px-2 py-2 w-full justify-between relative border-b">
             <NavigationMenu>
@@ -85,14 +79,12 @@ export function Navbar() {
                 </NavigationMenuList>
             </NavigationMenu>
             <DropdownMenu>
-                <DropdownMenuTrigger className="px-2">Jhon doe</DropdownMenuTrigger>
+                <DropdownMenuTrigger className="px-2">{identity}</DropdownMenuTrigger>
                 <DropdownMenuContent className="mr-2">
                     <DropdownMenuLabel>My Account</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem>Profile</DropdownMenuItem>
-                    <DropdownMenuItem>Billing</DropdownMenuItem>
-                    <DropdownMenuItem>Team</DropdownMenuItem>
-                    <DropdownMenuItem>Subscription</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => logOutUser()}>Logout</DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
         </div>
