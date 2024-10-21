@@ -65,3 +65,15 @@ export interface ITester extends Document {
   address: IAddress;
   isApproved: boolean;
 }
+
+
+export interface IAddressData {
+  _id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
