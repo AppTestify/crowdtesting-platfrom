@@ -15,7 +15,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
 import { StorageKey } from "@/app/_constants/localstorage-keys";
-import { IAddressData } from "@/app/_interface/tester";
+import { IUserInfoData } from "@/app/_interface/tester";
+import Experience from "./experience";
 
 const ProfileSchema = z.object({
   Firstname: z.string().min(2, {
@@ -114,7 +115,7 @@ export default function TesterProfile() {
     console.log("Additional Info:", data);
   }
 
-  const getInputFeildsEnable = (parsedData: IAddressData, isEdit: boolean) => {
+  const getInputFeildsEnable = (parsedData: IUserInfoData, isEdit: boolean) => {
     if (parsedData && parsedData.firstName && parsedData.lastName && !isEdit) {
       return true;
     }
@@ -129,10 +130,12 @@ export default function TesterProfile() {
   };
 
   return (
-    <>
-      <div className="grid grid-cols-12 gap-4 mt-6 p-4">
+    <div className="bg-gray-100 rounded">
+      <h2 className="scroll-m-20 pt-3 pl-7 pb-1 text-2xl font-semibold tracking-tight transition-colors  italic">
+        Tester's Profile
+      </h2>
+      <div className="grid grid-cols-12 gap-4  p-4  pt-0">
         {/* User Info Section */}
-
         <div className="col-span-6 p-4 rounded">
           <p className="text-xs italic font-bold">Profile Info</p>
           <Form {...profileForm}>
@@ -186,7 +189,11 @@ export default function TesterProfile() {
 
                 {isEdit && (
                   <>
-                    <Button type="button" onClick={handleCancel}>
+                    <Button
+                      variant="destructive"
+                      type="button"
+                      onClick={handleCancel}
+                    >
                       Cancel
                     </Button>
                     <Button type="submit">Save</Button>
@@ -281,7 +288,10 @@ export default function TesterProfile() {
             </form>
           </Form>
         </div>
+
+        {/* Experience Section */}
+        <Experience />
       </div>
-    </>
+    </div>
   );
 }

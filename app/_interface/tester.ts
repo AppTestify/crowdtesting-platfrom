@@ -67,7 +67,7 @@ export interface ITester extends Document {
 }
 
 
-export interface IAddressData {
+export interface IUserInfoData {
   _id: string;
   email: string;
   firstName: string;
