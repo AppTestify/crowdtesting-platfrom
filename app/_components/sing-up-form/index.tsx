@@ -43,7 +43,7 @@ export function SignUpForm({ role }: { role: UserRoles }) {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-
+    Cookies.set(CookieKey.ROLE, role);
     const response = await signIn(NextAuthProviders.CREDENTIALS, { email: values.email, password: values.password, authIntent: AuthIntent.SIGN_UP_CREDS, redirect: false, callbackUrl: `/auth/sign-up?e=${ErrorCode.ERR_SIGN_UP}` });
 
     if (response?.error) {
@@ -52,20 +52,6 @@ export function SignUpForm({ role }: { role: UserRoles }) {
       router.push('private/dashboard')
     }
   }
-
-  // async function onSubmit(values: z.infer<typeof formSchema>) {
-
-  //   try {
-  //     const response = await signUpService({ ...values, role });
-
-  //     if (response) {
-  //       toasterService.success(response.message)
-  //       router.push('/private/dashboard');
-  //     }
-  //   } catch (error: any) {
-  //     toasterService.error(error.message);
-  //   }
-  // }
 
   return (
     <Form {...form}>
