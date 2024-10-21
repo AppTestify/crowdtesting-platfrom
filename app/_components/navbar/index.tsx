@@ -57,7 +57,7 @@ export function Navbar() {
     const setClientSessionStorage = async (user: any) => {
         try {
             if (user?.email) {
-                const principalUser = getUserByEmailService(user?.email);
+                const principalUser = await getUserByEmailService(user?.email);
                 setItem(StorageKey.PRINCIPAL_USER, principalUser)
             }
         } catch (error) {
