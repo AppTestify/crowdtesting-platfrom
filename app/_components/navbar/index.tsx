@@ -30,6 +30,9 @@ import toasterService from "@/app/_services/toaster-service"
 import { logOutUserService } from "@/app/_services/auth-service"
 import Cookies from 'js-cookie';
 import { toTitleCase } from "@/app/_utils/sting-formtters"
+import { getUserByEmailService } from "@/app/_services/user.service"
+import { setItem } from "@/app/_services/localstorage"
+import { StorageKey } from "@/app/_constants/localstorage-keys"
 
 
 const routes = [
@@ -46,14 +49,30 @@ export function Navbar() {
     useEffect(() => {
         if (data) {
             const { user } = data;
-
-            if (user?.name) {
-                setIdentity(toTitleCase(user.name))
-            } else if (user?.email) {
-                setIdentity(user.email)
-            }
+            setUserIdentity(user);
+            setClientSessionStorage(user);
         }
-    }, [data])
+    }, [data]);
+
+    const setClientSessionStorage = async (user: any) => {
+        try {
+            if (user?.email) {
+                const principalUser = getUserByEmailService(user?.email);
+                setItem(StorageKey.PRINCIPAL_USER, principalUser)
+            }
+        } catch (error) {
+            console.error(`Error > setClientSessionStorage:`, error);
+        }
+    }
+
+    const setUserIdentity = async (user: any) => {
+        if (user?.name) {
+            setIdentity(toTitleCase(user.name));
+        } else if (user?.email) {
+            setIdentity(user.email)
+        }
+
+    }
 
 
     const logOutUser = () => {

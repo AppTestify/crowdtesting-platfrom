@@ -5,11 +5,9 @@ import {
   UPDATE_ROLE,
 } from "../_constants/api-endpoints";
 import { StorageKey } from "../_constants/localstorage-keys";
-import { UserRoles } from "../_constants/user-roles";
 import { ISignInPayload, ISignUpPayload } from "../_interface/auth";
-import { deleteSession } from "../_lib/session";
 import { genericPatch, genericPost } from "./generic-api-methods";
-import { getItem, removeItem } from "./localstorage";
+import { getItem } from "./localstorage";
 
 export const getPrincipalUser = () => {
   return getItem(StorageKey.PRINCIPAL_USER);

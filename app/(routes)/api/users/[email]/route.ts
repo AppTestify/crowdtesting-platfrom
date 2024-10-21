@@ -1,0 +1,42 @@
+import {
+  DB_CONNECTION_ERROR_MESSAGE,
+  USER_NOT_FOUND_ERROR_MESSAGE,
+} from "@/app/_constants/errors";
+import { HttpStatusCode } from "@/app/_constants/http-status-code";
+import { connectDatabase } from "@/app/_db";
+import { User } from "@/app/_models/user.model";
+import { errorHandler } from "@/app/_utils/error-handler";
+
+export async function GET(
+  req: Request,
+  { params }: { params: { email: string } }
+) {
+  try {
+    const isDBConnected = await connectDatabase();
+    if (!isDBConnected) {
+      return Response.json(
+        {
+          message: DB_CONNECTION_ERROR_MESSAGE,
+        },
+        { status: HttpStatusCode.INTERNAL_SERVER_ERROR }
+      );
+    }
+
+    const { email } = params;
+
+    const existingUser = await User.findOne({ email });
+
+    if (!existingUser) {
+      return Response.json(
+        { message: USER_NOT_FOUND_ERROR_MESSAGE },
+        { status: HttpStatusCode.NOT_FOUND }
+      );
+    }
+
+    const { password: _, ...userWithoutPassword } = existingUser.toObject();
+
+    return Response.json(userWithoutPassword);
+  } catch (error: any) {
+    return errorHandler(error);
+  }
+}
