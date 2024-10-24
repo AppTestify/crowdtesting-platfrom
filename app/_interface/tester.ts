@@ -77,3 +77,42 @@ export interface IUserInfoData {
   updatedAt: string;
   __v: number;
 }
+
+
+export interface Timezone {
+  zoneName: string;
+  gmtOffset: number;
+  gmtOffsetName: string;
+  abbreviation: string;
+  tzName: string;
+  _id: string;
+}
+
+export interface Country {
+  _id: string;
+  masterId: string;
+  description: string;
+  shortCode: string;
+  shortCode3: string;
+  phoneCode: string;
+  currency: string;
+  currencySymbol: string;
+  currencyName: string;
+  region: string;
+  emojiU: string;
+  timezone: Timezone[];
+  __v: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface States {
+  _id: string;
+  masterId: string;
+  description: string;
+  countryId: string;
+  shortCode: string;
+  __v: number;
+  createdAt: string;
+  updatedAt: string;
+}

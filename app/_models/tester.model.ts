@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema, model, Types } from "mongoose";
+import mongoose, { Schema, model } from "mongoose";
 import { ITester } from "../_interface/tester";
 import { DBModels } from "../_constants";
 

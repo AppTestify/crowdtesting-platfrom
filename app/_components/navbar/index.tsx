@@ -37,7 +37,7 @@ import { StorageKey } from "@/app/_constants/localstorage-keys";
 const routes = [
   { id: "dashboard", label: "Dashboard", link: "/private/dashboard" },
   { id: "projects", label: "Projects", link: "/private/projects" },
-  { id: "devices", label: "Devices", link: "/private/devices" },
+  // { id: "devices", label: "Devices", link: "/private/devices" },
 ];
 
 export function Navbar() {
