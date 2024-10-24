@@ -21,6 +21,8 @@ import UserInfo from "./userInfo";
 import Projects from "./past-projects";
 import PastProjects from "./past-projects";
 import Certifications from "./certifications";
+import { profileSideBarItems } from "@/app/_constants/profile-sidebar";
+// import profileSideBarItems from
 
 const Profile = () => {
   return (
@@ -38,24 +40,13 @@ const Profile = () => {
               orientation="vertical"
               className="flex flex-col space-y-2  pt-2"
             >
-              <TabsTrigger value="userInfo" className="p-2">
-                User Info
-              </TabsTrigger>
-              <TabsTrigger value="device" className="p-2">
-                Devices
-              </TabsTrigger>
-              <TabsTrigger value="pastProjects" className="p-2">
-                Past Projects
-              </TabsTrigger>
-              <TabsTrigger value="certifications" className="p-2">
-                Certifications
-              </TabsTrigger>
-              <TabsTrigger value="skill" className="p-2">
-                Skills
-              </TabsTrigger>
-              <TabsTrigger value="browser" className="p-2">
-                Browsers
-              </TabsTrigger>
+              {profileSideBarItems?.map((item) => {
+                return (
+                  <TabsTrigger value={item.value} className="p-2" key={item.id}>
+                    {item.label}
+                  </TabsTrigger>
+                );
+              })}
             </TabsList>
           </div>
 
@@ -67,6 +58,7 @@ const Profile = () => {
             <TabsContent value="pastProjects">
               <PastProjects />
             </TabsContent>
+
             <TabsContent value="certifications">
               <Certifications />
             </TabsContent>
@@ -86,6 +78,7 @@ const Profile = () => {
                 <Button>Save Experience</Button>
               </CardFooter>
             </TabsContent>
+            
             <TabsContent value="device">
               <CardContent className="space-y-2">
                 <div className="space-y-1">

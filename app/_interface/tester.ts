@@ -116,3 +116,9 @@ export interface States {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface ProfileSideBarItem {
+  id: number;
+  value: string;
+  label: string;
+}

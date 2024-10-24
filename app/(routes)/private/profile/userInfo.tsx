@@ -119,7 +119,7 @@ export default function UserInfo() {
   function handleCountryChange(countryId: string) {
     profileForm.setValue("Country", countryId);
     const filteredStates = states.filter(
-      (state) => state.masterId === countryId
+      (state) => state.countryId === countryId
     );
     setFilteredStates(filteredStates);
     profileForm.setValue("State", "");

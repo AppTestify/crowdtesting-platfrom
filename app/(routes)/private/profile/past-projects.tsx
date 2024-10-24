@@ -24,6 +24,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { truncateString } from "@/app/_constants/truncateString";
 import { useState } from "react";
+import { Icons } from "@/components/icons";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu-icon";
 
 const experienceArray = [
   {
@@ -104,7 +113,7 @@ export default function PastProjects() {
   return (
     <>
       <Input
-        placeholder="Search Project"
+        placeholder="Search Project..."
         onChange={(e) => setSearchTerm(e.target.value)}
         className="ml-auto w-45  mb-1 h-8"
       />
@@ -117,9 +126,10 @@ export default function PastProjects() {
         <TableHeader>
           <TableRow>
             <TableHead className="w-[150px]">Name</TableHead>
-            <TableHead className="w-[600px]">Description</TableHead>
+            <TableHead className="w-[500px]">Description</TableHead>
             <TableHead>Start Date</TableHead>
             <TableHead className="text-right">End Date</TableHead>
+            <TableHead className="text-right">Action</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -127,11 +137,24 @@ export default function PastProjects() {
             <TableRow key={experience.id}>
               <TableCell className="font-medium">{experience.name}</TableCell>
               <TableCell>
-                {truncateString(experience.description, 12)}
+                {truncateString(experience.description, 10)}
               </TableCell>
               <TableCell>{experience.startDate.toDateString()}</TableCell>
               <TableCell className="text-right">
                 {experience.endDate.toDateString()}
+              </TableCell>
+              <TableCell className="flex justify-center items-center  ml-3">
+                {/* <Icons.VerticalDotsIcon /> */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger>
+                    <Icons.VerticalDotsIcon />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem> <Icons.EditIcon /></DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem> <Icons.DeleteIcon /></DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </TableCell>
             </TableRow>
           ))}

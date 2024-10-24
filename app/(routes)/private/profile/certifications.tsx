@@ -171,7 +171,7 @@ export default function Certifications() {
   return (
     <>
       <Input
-        placeholder="Search Certificates"
+        placeholder="Search Certificates..."
         onChange={(e) => setCertificateSearchTerm(e.target.value)}
         className="ml-auto w-45  mb-1 h-8"
       />
