@@ -40,8 +40,9 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { FormLabel } from "@/components/ui/form";
 import { capitalizeFirstLetter } from "@/app/_constants/capitalize";
+import { ItemListingProps } from "@/app/_interface/tester";
 
-export default function ItemListing({ defualtItems, info }: any) {
+export default function ItemListing({ defualtItems, info }: ItemListingProps) {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState("");
   const [items, setItems] = React.useState(defualtItems || []);

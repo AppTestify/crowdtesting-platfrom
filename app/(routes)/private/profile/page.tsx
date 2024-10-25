@@ -24,8 +24,11 @@ import Certifications from "./certifications";
 import { profileSideBarItems } from "@/app/_constants/profile-sidebar";
 import AboutMe from "./about-me";
 import ItemListing from "./item-listing";
+import { Certificate, Skill } from "@/app/_interface/tester";
 
-const DefaultSkills = [
+
+
+const DefaultSkills: Skill[] = [
   {
     value: "manualTesting",
     label: "Manual Testing",
@@ -107,7 +110,7 @@ const DefaultSkills = [
     label: "Security Testing",
   },
 ];
-const Defaultcertificates = [
+const Defaultcertificates: Certificate[] = [
   {
     value: "istqb",
     label: "ISTQB (International Software Testing Qualifications Board)",

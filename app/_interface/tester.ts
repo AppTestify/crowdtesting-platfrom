@@ -122,3 +122,17 @@ export interface ProfileSideBarItem {
   value: string;
   label: string;
 }
+
+export interface Skill {
+  value: string;
+  label: string;
+}
+export interface Certificate {
+  value: string;
+  label: string;
+}
+
+export interface ItemListingProps {
+  defualtItems: Skill[]; 
+  info: string; 
+}
