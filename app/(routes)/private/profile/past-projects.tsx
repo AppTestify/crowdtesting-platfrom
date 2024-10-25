@@ -18,6 +18,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -110,6 +119,15 @@ export default function PastProjects() {
     return nameMatch || descriptionMatch || dateMatch;
   });
 
+  const deletePastProject = () => {
+    console.log("Delete");
+  };
+  const viewPastProject = () => {
+    console.log("view");
+  };
+  const editPastProject = () => {
+    console.log("Delete");
+  };
   return (
     <>
       <Input
@@ -119,7 +137,7 @@ export default function PastProjects() {
       />
       <Table>
         <TableCaption>
-          {filteredExperiences.length === 0
+          {filteredExperiences?.length === 0
             ? "No Project found"
             : "list of All your Projects."}
         </TableCaption>
@@ -144,23 +162,45 @@ export default function PastProjects() {
                 {experience.endDate.toDateString()}
               </TableCell>
               <TableCell className="flex justify-center items-center  ml-3">
-                {/* <Icons.VerticalDotsIcon /> */}
                 <DropdownMenu>
                   <DropdownMenuTrigger>
                     <Icons.VerticalDotsIcon />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
-                    <DropdownMenuItem> <Icons.EditIcon /></DropdownMenuItem>
+                    <DropdownMenuItem onClick={viewPastProject}>
+                      {" "}
+                     View <Icons.ViewIcon />
+                    </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem> <Icons.DeleteIcon /></DropdownMenuItem>
+                    <DropdownMenuItem onClick={editPastProject}>
+                      {" "}
+                      <Icons.EditIcon />
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={deletePastProject}>
+                      {" "}
+                      <Icons.DeleteIcon />
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
-        <TableFooter></TableFooter>
       </Table>
+
+      <Sheet>
+        <SheetTrigger>Open</SheetTrigger>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>Are you absolutely sure?</SheetTitle>
+            <SheetDescription>
+              This action cannot be undone. This will permanently delete your
+              account and remove your data from our servers.
+            </SheetDescription>
+          </SheetHeader>
+        </SheetContent>
+      </Sheet>
     </>
   );
 }

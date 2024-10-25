@@ -8,27 +8,17 @@ export const profileSideBarItems: ProfileSideBarItem[] = [
   },
   {
     id: 2,
-    value: "device",
-    label: "Devices",
-  },
-  {
-    id: 3,
-    value: "pastProjects",
-    label: "Past Projects",
-  },
-  {
-    id: 4,
     value: "certifications",
     label: "Certifications",
   },
   {
-    id: 5,
+    id: 3,
     value: "skill",
     label: "Skills",
   },
   {
-    id: 6,
-    value: "browser",
-    label: "Browsers",
+    id: 4,
+    value: "aboutMe",
+    label: "About Me",
   },
 ];

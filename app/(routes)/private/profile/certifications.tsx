@@ -177,9 +177,7 @@ export default function Certifications() {
       />
       <Table>
         <TableCaption>
-          {filteredCertificates?.length === 0
-            ? "No Certificat found"
-            : "list of All your Certificates."}
+          {filteredCertificates?.length === 0 && "No Certificat found."}
         </TableCaption>
         <TableHeader>
           <TableRow>

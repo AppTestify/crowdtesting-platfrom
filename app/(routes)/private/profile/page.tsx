@@ -22,8 +22,75 @@ import Projects from "./past-projects";
 import PastProjects from "./past-projects";
 import Certifications from "./certifications";
 import { profileSideBarItems } from "@/app/_constants/profile-sidebar";
-// import profileSideBarItems from
+import AboutMe from "./about-me";
+import CertificateListing from "./certificate-listing";
 
+// shared some skills use them 
+// const DefaultSkills = [
+//     {
+//       value: "manualTesting",
+//       label: "Manual Testing",
+//     },
+//     {
+//       value: "automationTesting",
+//       label: "Automation Testing",
+//     },
+//     {
+//       value: "sqlAndDataBase",
+//       label: "SQL and Database Skills",
+//     },
+//     {
+//       value: "apiTesting",
+//       label: "API Testing",
+//     },
+//     {
+//       value: "performancetesting",
+//       label: "Performance Testing",
+//     },
+//     {
+//       value: "cicdTool",
+//       label: "CI/CD Tools",
+//     },
+//     {
+//       value: "mobileTesting",
+//       label: "Mobile Testing",
+//     },
+//   ]
+const Defaultcertificates = [
+  {
+    value: "istqb",
+    label: "ISTQB (International Software Testing Qualifications Board)",
+  },
+  {
+    value: "cste",
+    label: "Certified Software Tester (CSTE)",
+  },
+  {
+    value: "csqa",
+    label: "Certified Software Quality Analyst (CSQA)",
+  },
+  {
+    value: "cast",
+    label: "Certified Associate in Software Testing (CAST)",
+  },
+  {
+    value: "cmst",
+    label: "Certified Manager of Software Testing (CMST)",
+  },
+  {
+    value: "icpTst",
+    label:
+      "Agile Testing Certification (ICAgile Certified Professional in Agile Testing - ICP-TST)",
+  },
+  {
+    value: "atm",
+    label: "Automation Testing Certifications",
+  },
+  {
+    value: "cmt",
+    label: "Certified Mobile Tester (CMT)",
+  },
+];
 const Profile = () => {
   return (
     <>
@@ -55,12 +122,9 @@ const Profile = () => {
               <UserInfo />
             </TabsContent>
 
-            <TabsContent value="pastProjects">
-              <PastProjects />
-            </TabsContent>
-
             <TabsContent value="certifications">
-              <Certifications />
+              {/* <Certifications /> */}
+              <CertificateListing Defaultcertificates={Defaultcertificates} />
             </TabsContent>
 
             <TabsContent value="skill">
@@ -78,37 +142,9 @@ const Profile = () => {
                 <Button>Save Experience</Button>
               </CardFooter>
             </TabsContent>
-            
-            <TabsContent value="device">
-              <CardContent className="space-y-2">
-                <div className="space-y-1">
-                  <Label htmlFor="job-title">Job Title</Label>
-                  <Input id="job-title" placeholder="Software Engineer" />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="years">Years of Experience</Label>
-                  <Input id="years" type="number" placeholder="5" />
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button>Save Experience</Button>
-              </CardFooter>
-            </TabsContent>
 
-            <TabsContent value="browser">
-              <CardContent className="space-y-2">
-                <div className="space-y-1">
-                  <Label htmlFor="job-title">Job Title</Label>
-                  <Input id="job-title" placeholder="Software Engineer" />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="years">Years of Experience</Label>
-                  <Input id="years" type="number" placeholder="5" />
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button>Save Experience</Button>
-              </CardFooter>
+            <TabsContent value="aboutMe">
+              <AboutMe />
             </TabsContent>
           </div>
         </Tabs>
