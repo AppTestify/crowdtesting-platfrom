@@ -40,7 +40,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { FormControl } from "@/components/ui/form";
 
-export default function CertificateListing({ Defaultcertificates }: any) {
+export default function CertificateListing({ Defaultcertificates, info }: any) {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState("");
   const [certificates, setCertificates] = React.useState(
@@ -53,7 +53,7 @@ export default function CertificateListing({ Defaultcertificates }: any) {
 
   const handleSelect = (currentValue: string, label: string) => {
     if (!selectedCertificates.includes(label)) {
-      setSelectedCertificates((prev) => [...prev, label]); // Store the label in the array
+      setSelectedCertificates((prev) => [...prev, label]);
     }
     setValue(currentValue === value ? "" : currentValue);
     setOpen(false);
@@ -62,18 +62,14 @@ export default function CertificateListing({ Defaultcertificates }: any) {
     setSelectedCertificates((prev) => prev.filter((item) => item !== label)); // Remove the selected label
   };
 
-  console.log("selectedCertificates", selectedCertificates);
-
   const saveCustomCertificate = () => {
     const newCertificate = {
-      value: customCertificate, 
-      label: customCertificate.toLowerCase(),
+      value: customCertificate?.toLowerCase(),
+      label: customCertificate,
     };
     setCertificates((prev) => [...prev, newCertificate]);
-    setCustomCertificate("")
+    setCustomCertificate("");
   };
-
-  console.log("certificates", certificates);
 
   return (
     <div className="p-8  pt-0">
@@ -85,7 +81,7 @@ export default function CertificateListing({ Defaultcertificates }: any) {
             aria-expanded={open}
             className="w-[1019px] justify-between"
           >
-            Select
+            Select 
             {/* {value
               ? certificates.find((certificat) => certificat.value === value)
                   ?.label
@@ -98,15 +94,15 @@ export default function CertificateListing({ Defaultcertificates }: any) {
             <CommandInput placeholder="Search" className="h-9" />
             <CommandList>
               <CommandEmpty>
-                No Certificate found,{" "}
+                No {info} found,{" "}
                 <span className="cursor-pointer">
                   <Sheet>
                     <SheetTrigger asChild>
-                      <span>Please add a new certificate.</span>
+                      <span>{`Please add a new ${info}`}</span>
                     </SheetTrigger>
                     <SheetContent>
                       <SheetHeader>
-                        <SheetTitle>Add Certificate</SheetTitle>
+                        <SheetTitle>Add {info}</SheetTitle>
                       </SheetHeader>
                       <div className="grid gap-4 py-4">
                         <div className=" items-center ">
@@ -126,8 +122,10 @@ export default function CertificateListing({ Defaultcertificates }: any) {
                       </div>
                       <SheetFooter>
                         <SheetClose asChild>
-                          <Button onClick={saveCustomCertificate} type="submit">
-                            Save changes
+                          <Button onClick={saveCustomCertificate} 
+                          disabled={!customCertificate}
+                          type="submit">
+                            Save
                           </Button>
                         </SheetClose>
                       </SheetFooter>
@@ -136,7 +134,14 @@ export default function CertificateListing({ Defaultcertificates }: any) {
                 </span>
               </CommandEmpty>
               <CommandGroup>
-                {certificates
+                {Array.from(
+                  new Map(
+                    certificates.map((certificate) => [
+                      certificate.value,
+                      certificate,
+                    ])
+                  ).values()
+                )
                   .filter(
                     (certificate) =>
                       !selectedCertificates.includes(certificate.label)
@@ -147,10 +152,10 @@ export default function CertificateListing({ Defaultcertificates }: any) {
                       value={certificate.value}
                       onSelect={() =>
                         handleSelect(certificate.value, certificate.label)
-                      } // Pass both value and label
+                      }
                       disabled={selectedCertificates.includes(
                         certificate.label
-                      )} // Disable if label is selected
+                      )}
                     >
                       {certificate.label}
                       <CheckIcon
@@ -171,24 +176,26 @@ export default function CertificateListing({ Defaultcertificates }: any) {
 
       <div className="w-[1019px] h-[300px] justify-between   mt-10 ">
         <CardHeader>
-          <CardDescription className="p-0">
-            No Certificates Selected
-          </CardDescription>
+          {selectedCertificates.length === 0 && (
+            <CardDescription className="ml-[-1.2rem]">
+              No {info} Selected
+            </CardDescription>
+          )}
 
-          <CardDescription className="pt-6">
+          <CardDescription className="pt-6 ml-[-1.2rem]">
             {selectedCertificates?.map((select, index) => {
               return (
                 <Badge
                   key={index}
                   variant="secondary"
-                  className="w-[auto] mr-2 mt-3"
+                  className="w-[auto] mr-2 mt-3 p-1.5 pl-3 rounded-full"
                 >
                   {select}
 
                   <span
-                    onClick={() => handleRemove(select)} // Use a span to ensure the click event is captured
+                    onClick={() => handleRemove(select)}
                     className="ml-5 cursor-pointer"
-                    role="button" // Improves accessibility
+                    role="button"
                     aria-label="Remove certificate"
                   >
                     <Icons.CrossIcon />

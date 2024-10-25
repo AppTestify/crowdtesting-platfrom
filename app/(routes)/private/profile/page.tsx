@@ -25,37 +25,37 @@ import { profileSideBarItems } from "@/app/_constants/profile-sidebar";
 import AboutMe from "./about-me";
 import CertificateListing from "./certificate-listing";
 
-// shared some skills use them 
-// const DefaultSkills = [
-//     {
-//       value: "manualTesting",
-//       label: "Manual Testing",
-//     },
-//     {
-//       value: "automationTesting",
-//       label: "Automation Testing",
-//     },
-//     {
-//       value: "sqlAndDataBase",
-//       label: "SQL and Database Skills",
-//     },
-//     {
-//       value: "apiTesting",
-//       label: "API Testing",
-//     },
-//     {
-//       value: "performancetesting",
-//       label: "Performance Testing",
-//     },
-//     {
-//       value: "cicdTool",
-//       label: "CI/CD Tools",
-//     },
-//     {
-//       value: "mobileTesting",
-//       label: "Mobile Testing",
-//     },
-//   ]
+// shared some skills use them
+const DefaultSkills = [
+  {
+    value: "manualTesting",
+    label: "Manual Testing",
+  },
+  {
+    value: "automationTesting",
+    label: "Automation Testing",
+  },
+  {
+    value: "sqlAndDataBase",
+    label: "SQL and Database Skills",
+  },
+  {
+    value: "apiTesting",
+    label: "API Testing",
+  },
+  {
+    value: "performancetesting",
+    label: "Performance Testing",
+  },
+  {
+    value: "cicdTool",
+    label: "CI/CD Tools",
+  },
+  {
+    value: "mobileTesting",
+    label: "Mobile Testing",
+  },
+];
 const Defaultcertificates = [
   {
     value: "istqb",
@@ -123,24 +123,11 @@ const Profile = () => {
             </TabsContent>
 
             <TabsContent value="certifications">
-              {/* <Certifications /> */}
-              <CertificateListing Defaultcertificates={Defaultcertificates} />
+              <CertificateListing Defaultcertificates={Defaultcertificates}  info={"Certificate"} />
             </TabsContent>
 
             <TabsContent value="skill">
-              <CardContent className="space-y-2">
-                <div className="space-y-1">
-                  <Label htmlFor="job-title">Job Title</Label>
-                  <Input id="job-title" placeholder="Software Engineer" />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="years">Years of Experience</Label>
-                  <Input id="years" type="number" placeholder="5" />
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button>Save Experience</Button>
-              </CardFooter>
+              <CertificateListing Defaultcertificates={DefaultSkills} info={"Skill"} />
             </TabsContent>
 
             <TabsContent value="aboutMe">
