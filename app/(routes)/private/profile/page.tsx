@@ -23,21 +23,68 @@ import PastProjects from "./past-projects";
 import Certifications from "./certifications";
 import { profileSideBarItems } from "@/app/_constants/profile-sidebar";
 import AboutMe from "./about-me";
-import CertificateListing from "./certificate-listing";
+import ItemListing from "./item-listing";
 
-// shared some skills use them
 const DefaultSkills = [
   {
     value: "manualTesting",
     label: "Manual Testing",
   },
   {
-    value: "automationTesting",
-    label: "Automation Testing",
+    value: "automatedTesting",
+    label: "Automated Testing",
+  },
+  {
+    value: "testCaseDesign",
+    label: "Test Case Design",
+  },
+  {
+    value: "regressionTesting",
+    label: "Regression Testing",
+  },
+  {
+    value: "functionaltesting",
+    label: "Functional Testing",
+  },
+  {
+    value: "performancetesting",
+    label: "Performance Testing",
+  },
+  {
+    value: "loadtesting",
+    label: "Load Testing",
+  },
+  {
+    value: "userAcceptancetesting",
+    label: "User Acceptance Testing (UAT)",
+  },
+  {
+    value: "bugTracking",
+    label: "Bug Tracking",
+  },
+  {
+    value: "crossBrowserTesting",
+    label: "Cross-Browser Testing",
+  },
+  {
+    value: "testMangTool",
+    label: "Test Management Tools",
+  },
+  {
+    value: "agileMethodologies",
+    label: "Agile Methodologies",
   },
   {
     value: "sqlAndDataBase",
     label: "SQL and Database Skills",
+  },
+  {
+    value: "versionControlSys",
+    label: "Version Control Systems",
+  },
+  {
+    value: "scriptingLanguage",
+    label: "Scripting Languages",
   },
   {
     value: "apiTesting",
@@ -49,11 +96,15 @@ const DefaultSkills = [
   },
   {
     value: "cicdTool",
-    label: "CI/CD Tools",
+    label: "Continuous Integration/Continuous Deployment",
   },
   {
     value: "mobileTesting",
     label: "Mobile Testing",
+  },
+  {
+    value: "securityTesting",
+    label: "Security Testing",
   },
 ];
 const Defaultcertificates = [
@@ -90,6 +141,10 @@ const Defaultcertificates = [
     value: "cmt",
     label: "Certified Mobile Tester (CMT)",
   },
+  {
+    value: "cst",
+    label: "Certified Selenium Tester",
+  },
 ];
 const Profile = () => {
   return (
@@ -123,11 +178,14 @@ const Profile = () => {
             </TabsContent>
 
             <TabsContent value="certifications">
-              <CertificateListing Defaultcertificates={Defaultcertificates}  info={"Certificate"} />
+              <ItemListing
+                defualtItems={Defaultcertificates}
+                info={"Certificate"}
+              />
             </TabsContent>
 
             <TabsContent value="skill">
-              <CertificateListing Defaultcertificates={DefaultSkills} info={"Skill"} />
+              <ItemListing defualtItems={DefaultSkills} info={"Skill"} />
             </TabsContent>
 
             <TabsContent value="aboutMe">

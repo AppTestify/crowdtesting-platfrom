@@ -38,41 +38,84 @@ import {
 } from "@/components/ui/sheet";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { FormControl } from "@/components/ui/form";
+import { FormLabel } from "@/components/ui/form";
+import { capitalizeFirstLetter } from "@/app/_constants/capitalize";
 
-export default function CertificateListing({ Defaultcertificates, info }: any) {
+export default function ItemListing({ defualtItems, info }: any) {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState("");
-  const [certificates, setCertificates] = React.useState(
-    Defaultcertificates || []
-  );
-  const [customCertificate, setCustomCertificate] = React.useState<string>();
-  const [selectedCertificates, setSelectedCertificates] = React.useState<
-    string[]
-  >([]);
+  const [items, setItems] = React.useState(defualtItems || []);
+  const [customItem, setCustomItem] = React.useState<string>("");
+  const [selectedItems, setSelectedItems] = React.useState<string[]>([]);
+  const [isOpen, setIsOpen] = React.useState<boolean>(false);
 
   const handleSelect = (currentValue: string, label: string) => {
-    if (!selectedCertificates.includes(label)) {
-      setSelectedCertificates((prev) => [...prev, label]);
+    if (!selectedItems.includes(label)) {
+      setSelectedItems((prev) => [...prev, label]);
     }
     setValue(currentValue === value ? "" : currentValue);
     setOpen(false);
   };
   const handleRemove = (label: string) => {
-    setSelectedCertificates((prev) => prev.filter((item) => item !== label)); // Remove the selected label
+    setSelectedItems((prev) => prev.filter((item) => item !== label)); // Remove the selected label
   };
 
-  const saveCustomCertificate = () => {
+  const saveCustomItem = () => {
     const newCertificate = {
-      value: customCertificate?.toLowerCase(),
-      label: customCertificate,
+      value: customItem?.toLowerCase(),
+      label: capitalizeFirstLetter(customItem),
     };
-    setCertificates((prev) => [...prev, newCertificate]);
-    setCustomCertificate("");
+    setItems((prev) => [...prev, newCertificate]);
+    setCustomItem("");
   };
+
+  const ItemSheet = (title: string, type: Number) => (
+    <Sheet open={isOpen} onOpenChange={setIsOpen}>
+      <SheetTrigger asChild>
+        {type === 1 ? (
+          <Button className="h-6 text-xs">{title}</Button>
+        ) : (
+          <span className="cursor-pointer">{title}</span>
+        )}
+      </SheetTrigger>
+      <SheetContent>
+        <SheetHeader>
+          <SheetTitle>Add {info}</SheetTitle>
+        </SheetHeader>
+        <div className="grid gap-4 py-4">
+          <div className="flex-1 items-center">
+            <Label htmlFor="name" className="text-right">
+              Name
+            </Label>
+            <Input
+              id="name"
+              value={customItem}
+              onChange={(e) => setCustomItem(e.target.value)}
+              className="w-full"
+            />
+          </div>
+        </div>
+        <SheetFooter>
+          <SheetClose asChild>
+            <Button
+              disabled={!customItem}
+              onClick={saveCustomItem}
+              type="submit"
+            >
+              Save changes
+            </Button>
+          </SheetClose>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
+  );
 
   return (
-    <div className="p-8  pt-0">
+    <div className="p-8 pt-0">
+      <div className=" w-[1018px] flex justify-between items-center mb-2 ">
+        <label className="text-sm">{info}</label>
+        {ItemSheet(`Add Custom ${info}`, 1)}
+      </div>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
@@ -81,11 +124,7 @@ export default function CertificateListing({ Defaultcertificates, info }: any) {
             aria-expanded={open}
             className="w-[1019px] justify-between"
           >
-            Select 
-            {/* {value
-              ? certificates.find((certificat) => certificat.value === value)
-                  ?.label
-              : "Select"} */}
+            Select
             <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
@@ -96,55 +135,17 @@ export default function CertificateListing({ Defaultcertificates, info }: any) {
               <CommandEmpty>
                 No {info} found,{" "}
                 <span className="cursor-pointer">
-                  <Sheet>
-                    <SheetTrigger asChild>
-                      <span>{`Please add a new ${info}`}</span>
-                    </SheetTrigger>
-                    <SheetContent>
-                      <SheetHeader>
-                        <SheetTitle>Add {info}</SheetTitle>
-                      </SheetHeader>
-                      <div className="grid gap-4 py-4">
-                        <div className=" items-center ">
-                          <div className="flex-1">
-                            <Label htmlFor="name" className="text-right">
-                              Name
-                            </Label>
-                            <Input
-                              value={customCertificate}
-                              onChange={(e) =>
-                                setCustomCertificate(e.target.value)
-                              }
-                              className="w-full"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                      <SheetFooter>
-                        <SheetClose asChild>
-                          <Button onClick={saveCustomCertificate} 
-                          disabled={!customCertificate}
-                          type="submit">
-                            Save
-                          </Button>
-                        </SheetClose>
-                      </SheetFooter>
-                    </SheetContent>
-                  </Sheet>
+                  {ItemSheet(`Please add a new ${info}`, 2)}
                 </span>
               </CommandEmpty>
               <CommandGroup>
                 {Array.from(
                   new Map(
-                    certificates.map((certificate) => [
-                      certificate.value,
-                      certificate,
-                    ])
+                    items.map((certificate) => [certificate.value, certificate])
                   ).values()
                 )
                   .filter(
-                    (certificate) =>
-                      !selectedCertificates.includes(certificate.label)
+                    (certificate) => !selectedItems.includes(certificate.label)
                   )
                   .map((certificate) => (
                     <CommandItem
@@ -153,9 +154,7 @@ export default function CertificateListing({ Defaultcertificates, info }: any) {
                       onSelect={() =>
                         handleSelect(certificate.value, certificate.label)
                       }
-                      disabled={selectedCertificates.includes(
-                        certificate.label
-                      )}
+                      disabled={selectedItems.includes(certificate.label)}
                     >
                       {certificate.label}
                       <CheckIcon
@@ -174,16 +173,16 @@ export default function CertificateListing({ Defaultcertificates, info }: any) {
         </PopoverContent>
       </Popover>
 
-      <div className="w-[1019px] h-[300px] justify-between   mt-10 ">
+      <div className="w-[1019px] h-[280px] justify-between   mt-3  ">
         <CardHeader>
-          {selectedCertificates.length === 0 && (
+          {selectedItems.length === 0 && (
             <CardDescription className="ml-[-1.2rem]">
               No {info} Selected
             </CardDescription>
           )}
 
           <CardDescription className="pt-6 ml-[-1.2rem]">
-            {selectedCertificates?.map((select, index) => {
+            {selectedItems?.map((select, index) => {
               return (
                 <Badge
                   key={index}
