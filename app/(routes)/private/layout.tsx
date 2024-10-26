@@ -1,29 +1,25 @@
 "use client";
 
 import { Navbar } from "@/app/_components/navbar";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { SessionProvider } from "next-auth/react";
-import { usePathname, useRouter } from "next/navigation";
-
-
+import { AppSidebar } from "@/app/_components/app-sidebar";
 
 export default function PrivateLayout({
     children,
 }: {
     children: React.ReactNode
 }) {
-    const pathname = usePathname();
-    const router = useRouter();
-
-    const handleTabClick = (link: string) => {
-        router.push(link);
-    };
 
     return (
         <SessionProvider>
-            <section>
-                <Navbar />
-                {children}
-            </section>
+            <SidebarProvider>
+                <AppSidebar />
+                <main className="w-full">
+                    <Navbar />
+                    {children}
+                </main>
+            </SidebarProvider>
         </SessionProvider>
     )
 }

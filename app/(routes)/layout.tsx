@@ -15,7 +15,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "AppTestify Crowd Testing",
+  title: "Crowd Testing",
   description: "Crowd Testing",
 };
 
@@ -26,10 +26,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning={true}>
-      <Toaster richColors closeButton />
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <Toaster richColors closeButton />
         {children}
       </body>
     </html>

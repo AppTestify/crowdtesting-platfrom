@@ -6,8 +6,8 @@ import { genericGet } from "./generic-api-methods";
 
 export const getUserByEmailService = async (email: string): Promise<any> => {
   try {
-    const response = await genericGet(GET_USER_ENDPOINT(email));
-    return response;
+    const response = await genericGet(GET_USER_ENDPOINT(email), process.env.URL);
+    return response || {};
   } catch (error) {
     console.error(`Error > getUserByEmailService:`, error);
     throw error;

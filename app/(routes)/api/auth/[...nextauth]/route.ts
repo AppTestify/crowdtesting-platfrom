@@ -10,6 +10,7 @@ import { UserRoles } from "@/app/_constants/user-roles";
 import { createSession } from "@/app/_lib/session";
 import { signInService, signUpService } from "@/app/_services/auth-service";
 import { genericPost } from "@/app/_services/generic-api-methods";
+import { getUserByEmailService } from "@/app/_services/user.service";
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GitHubProvider from "next-auth/providers/github";
@@ -44,13 +45,13 @@ const handler = NextAuth({
     strategy: "jwt",
   },
   callbacks: {
+    async signIn({ user }) {
+      return handleSignIn(user);
+    },
     async redirect({ url, baseUrl }) {
       if (url.startsWith("/")) return `${baseUrl}${url}`;
       else if (new URL(url).origin === baseUrl) return url;
       return baseUrl;
-    },
-    async signIn({ user }) {
-      return handleSignIn(user);
     },
     async jwt({ token, user }) {
       if (user) {
@@ -61,7 +62,9 @@ const handler = NextAuth({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async session({ session, token }: any) {
       session.user.id = token.id;
-      return session;
+      const dbUser = await getUserByEmailService(session?.user?.email);
+      session.user = { ...dbUser, ...session.user };
+      return { ...session};
     },
   },
 });
@@ -85,7 +88,7 @@ const handleSignIn = async (user: any) => {
     return await createUserAndSession({ ...user, role: role });
   } else {
     await createSession(user);
-    return true;
+    return user;
   }
 };
 

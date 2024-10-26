@@ -33,6 +33,7 @@ import { toTitleCase } from "@/app/_utils/sting-formtters"
 import { getUserByEmailService } from "@/app/_services/user.service"
 import { setItem } from "@/app/_services/localstorage"
 import { StorageKey } from "@/app/_constants/localstorage-keys"
+import { SidebarTrigger } from "@/components/ui/sidebar"
 
 
 const routes = [
@@ -58,7 +59,7 @@ export function Navbar() {
         try {
             if (user?.email) {
                 const principalUser = await getUserByEmailService(user?.email);
-                setItem(StorageKey.PRINCIPAL_USER, principalUser)
+                setItem(StorageKey.PRINCIPAL_USER, principalUser);
             }
         } catch (error) {
             console.error(`Error > setClientSessionStorage:`, error);
@@ -71,7 +72,6 @@ export function Navbar() {
         } else if (user?.email) {
             setIdentity(user.email)
         }
-
     }
 
 
@@ -83,9 +83,10 @@ export function Navbar() {
     }
 
     return (
-        <div className="flex px-2 py-2 w-full justify-between relative border-b">
+        <div className="flex px-2 py-3 w-full justify-between relative border-b">
             <NavigationMenu>
-                <NavigationMenuList>
+                <SidebarTrigger />
+                {/* <NavigationMenuList>
                     {routes.map((route) => (
                         <NavigationMenuItem key={route.id}>
                             <Link href={`${route.link}`} legacyBehavior passHref>
@@ -95,7 +96,7 @@ export function Navbar() {
                             </Link>
                         </NavigationMenuItem>
                     ))}
-                </NavigationMenuList>
+                </NavigationMenuList> */}
             </NavigationMenu>
             <DropdownMenu>
                 <DropdownMenuTrigger className="px-2">{identity}</DropdownMenuTrigger>

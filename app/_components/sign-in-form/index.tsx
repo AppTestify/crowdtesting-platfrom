@@ -23,6 +23,8 @@ import { NextAuthProviders } from "@/app/_constants/next-auth-providers";
 import Cookies from 'js-cookie';
 import { CookieKey } from "@/app/_constants/cookie-keys";
 import { AuthIntent } from "@/app/_constants";
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -31,8 +33,10 @@ const formSchema = z.object({
     .min(1, { message: "Password is required" }),
 });
 
-export function SignInForm() {
+export function SignInForm({ setIsGoogleSignInDisable }: { setIsGoogleSignInDisable: (value: boolean) => void; }) {
   const router = useRouter();
+
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -43,14 +47,27 @@ export function SignInForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    startLoading();
+
     Cookies.set(CookieKey.AUTH_INTENT, AuthIntent.SIGN_IN_CREDS);
     const response = await signIn(NextAuthProviders.CREDENTIALS, { email: values.email, password: values.password, authIntent: AuthIntent.SIGN_IN_CREDS, redirect: false, callbackUrl: `/auth/sign-in/` });
 
     if (response?.error) {
+      stopLoading();
       toasterService.error(response.error)
     } else {
       router.push('private/dashboard')
     }
+  }
+
+  const startLoading = () => {
+    setIsLoading(true);
+    setIsGoogleSignInDisable(true);
+  }
+
+  const stopLoading = () => {
+    setIsLoading(false);
+    setIsGoogleSignInDisable(false);
   }
 
   return (
@@ -85,7 +102,9 @@ export function SignInForm() {
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full">
+
+        <Button type="submit" className="w-full" disabled={isLoading}>
+          {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
           Login
         </Button>
       </form>

@@ -1,9 +1,10 @@
 import { GENERIC_ERROR_MESSAGE } from "../_constants/errors";
 import { HTTP_METHODS } from "../_constants/http-methods";
 
-export const genericGet = async (endpoint: string): Promise<any> => {
+export const genericGet = async (endpoint: string, baseURL?: string): Promise<any> => {
   try {
-    const response = await fetch(endpoint);
+    const formattedEndpoint = baseURL ? `${baseURL}/${endpoint}` : endpoint;
+    const response = await fetch(formattedEndpoint);
 
     if (!response.ok) {
       const errorData = await response.json();
