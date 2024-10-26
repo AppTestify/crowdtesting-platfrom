@@ -19,10 +19,14 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
 import Link from "next/link"
+import { useState } from "react"
+import { usePathname, useRouter } from "next/navigation"
 
 export function NavMain({
   items,
 }: any) {
+  const pathname = usePathname();
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Application</SidebarGroupLabel>
@@ -30,7 +34,7 @@ export function NavMain({
         <SidebarMenu>
           {items.map((item: any) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild>
+              <SidebarMenuButton asChild isActive={pathname === item.url} tooltip={item.title}>
                 <Link href={item.url}>
                   <item.icon />
                   <span>{item.title}</span>

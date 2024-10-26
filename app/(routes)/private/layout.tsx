@@ -1,7 +1,7 @@
 "use client";
 
 import { Navbar } from "@/app/_components/navbar";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { SessionProvider } from "next-auth/react";
 import { AppSidebar } from "@/app/_components/app-sidebar";
 
@@ -15,10 +15,15 @@ export default function PrivateLayout({
         <SessionProvider>
             <SidebarProvider>
                 <AppSidebar />
-                <main className="w-full">
+                <SidebarInset>
                     <Navbar />
-                    {children}
-                </main>
+
+                    
+                    <main className="w-full">
+                        {children}
+                    </main>
+                </SidebarInset>
+
             </SidebarProvider>
         </SessionProvider>
     )

@@ -8,6 +8,7 @@ export interface IUser extends Document {
   email: string;
   password: string;
   role: string;
+  isVerified: boolean;
   isActive: boolean;
 }
 
@@ -36,6 +37,10 @@ const userSchema = new Schema<IUser>(
     role: {
       type: String,
       default: UserRoles.CLIENT,
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
     },
     isActive: {
       type: Boolean,
