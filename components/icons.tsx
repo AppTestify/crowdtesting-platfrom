@@ -1,8 +1,17 @@
-type IconProps = React.HTMLAttributes<SVGElement>
+type IconProps = React.HTMLAttributes<SVGElement>;
 
 export const Icons = {
   logo: (props: IconProps) => (
-    <svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      strokeWidth="1.5"
+      stroke="currentColor"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path stroke="none" d="M0 0h24v24H0z" fill="none" />
       <path d="M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3" />
     </svg>
@@ -124,4 +133,112 @@ export const Icons = {
       <path d="M21 12a9 9 0 1 1-6.219-8.56" />
     </svg>
   ),
-}
+  VerticalDotsIcon: (props: IconProps) => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      className="icon icon-tabler icons-tabler-outline icon-tabler-dots-vertical"
+    >
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+      <path d="M12 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+      <path d="M12 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+    </svg>
+  ),
+  DeleteIcon: (props: IconProps) => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      width="16"
+      height="16"
+      stroke-width="0.5"
+    >
+      {" "}
+      <path d="M4 7l16 0"></path> <path d="M10 11l0 6"></path>{" "}
+      <path d="M14 11l0 6"></path>{" "}
+      <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>{" "}
+      <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>{" "}
+    </svg>
+  ),
+  EditIcon: (props: IconProps) => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      width="16"
+      height="16"
+      stroke-width="0.5"
+    >
+      {" "}
+      <path d="M3 19h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4"></path>{" "}
+      <path d="M12.5 5.5l4 4"></path> <path d="M4.5 13.5l4 4"></path>{" "}
+      <path d="M21 15v4h-8l4 -4z"></path>{" "}
+    </svg>
+  ),
+  ViewIcon: (props: IconProps) => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      width="16"
+      height="16"
+      stroke-width="0.5"
+    >
+      {" "}
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"></path>{" "}
+      <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6"></path>{" "}
+    </svg>
+  ),
+  FileIcon: (props: IconProps) => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      width="16"
+      height="16"
+      stroke-width="0.5"
+    >
+      {" "}
+      <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>{" "}
+      <path d="M5 8v-3a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2h-5"></path>{" "}
+      <path d="M6 14m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"></path>{" "}
+      <path d="M4.5 17l-1.5 5l3 -1.5l3 1.5l-1.5 -5"></path>{" "}
+    </svg>
+  ),
+  CrossIcon: (props: IconProps) => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      width="16"
+      height="16"
+      stroke-width="0.5"
+    >
+      {" "}
+      <path d="M18 6l-12 12"></path> <path d="M6 6l12 12"></path>{" "}
+    </svg>
+  ),
+};
