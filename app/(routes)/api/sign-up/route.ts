@@ -15,6 +15,7 @@ import { connectDatabase } from "@/app/_db";
 import { createSession } from "@/app/_lib/session";
 import { User } from "@/app/_models/user.model";
 import { signUpSchema } from "@/app/_schemas/auth.schema";
+import { sendVerificationEmail } from "@/app/_utils/email";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
@@ -53,7 +54,12 @@ export async function POST(req: Request) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ email, password: hashedPassword, role });
+    const newUser = new User({
+      email,
+      password: hashedPassword,
+      role,
+      accountActivationMailSentAt: new Date(),
+    });
     await newUser.save();
 
     const { password: _, ...userWithoutPassword } = newUser.toObject();
@@ -64,6 +70,8 @@ export async function POST(req: Request) {
     );
 
     await createSession(userWithoutPassword);
+
+    sendVerificationEmail(userWithoutPassword);
 
     return Response.json({
       message: "Signed up successfully",

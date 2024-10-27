@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/sidebar"
 import { navMain, teams } from "@/app/_constants/sidebar"
 import { useSession } from "next-auth/react"
-import { toTitleCase } from "@/app/_utils/sting-formatters"
+import { toTitleCase } from "@/app/_utils/string-formatters"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const { data } = useSession();

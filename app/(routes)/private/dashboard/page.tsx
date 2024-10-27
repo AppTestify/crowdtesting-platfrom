@@ -3,7 +3,6 @@
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react"
 import ActivateAccountAlert from "@/app/_components/warning-alert";
-import { IUser } from "@/app/_interface/user";
 
 export default function Dashboard() {
     const { data } = useSession();
@@ -17,7 +16,7 @@ export default function Dashboard() {
 
     return (
         <main className="mx-4 mt-4">
-            {!user?.isVerified ? <ActivateAccountAlert /> : null}
+            {user && !user.isVerified ? <ActivateAccountAlert user={user} /> : null}
         </main>
     )
 }

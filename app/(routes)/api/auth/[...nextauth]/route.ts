@@ -17,6 +17,7 @@ import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 import { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 const handler = NextAuth({
   providers: [
@@ -63,8 +64,11 @@ const handler = NextAuth({
     async session({ session, token }: any) {
       session.user.id = token.id;
       const dbUser = await getUserByEmailService(session?.user?.email);
+      if (!dbUser) {
+        redirect("/auth/sign-in");
+      }
       session.user = { ...dbUser, ...session.user };
-      return { ...session};
+      return { ...session };
     },
   },
 });

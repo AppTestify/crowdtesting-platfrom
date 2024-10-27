@@ -14,6 +14,7 @@ import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
 import { User } from "@/app/_models/user.model";
 import { googleSignUpSchema } from "@/app/_schemas/auth.schema";
+import { sendVerificationEmail } from "@/app/_utils/email";
 import jwt from "jsonwebtoken";
 
 export async function POST(req: Request) {
@@ -61,6 +62,7 @@ export async function POST(req: Request) {
       { expiresIn: JWT_TOKEN_EXPIRE_LIMIT }
     );
 
+    sendVerificationEmail(userWithoutPassword);
     return Response.json({
       message: "User created successfully",
       token,

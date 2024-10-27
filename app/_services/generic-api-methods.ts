@@ -1,7 +1,10 @@
 import { GENERIC_ERROR_MESSAGE } from "../_constants/errors";
 import { HTTP_METHODS } from "../_constants/http-methods";
 
-export const genericGet = async (endpoint: string, baseURL?: string): Promise<any> => {
+export const genericGet = async (
+  endpoint: string,
+  baseURL?: string
+): Promise<any> => {
   try {
     const formattedEndpoint = baseURL ? `${baseURL}/${endpoint}` : endpoint;
     const response = await fetch(formattedEndpoint);
@@ -54,6 +57,55 @@ export const genericPatch = async (
     body: JSON.stringify(body),
   };
 
+  try {
+    const formattedEndpoint = baseURL ? `${baseURL}/${endpoint}` : endpoint;
+    const response = await fetch(formattedEndpoint, config);
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || GENERIC_ERROR_MESSAGE);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(`Error fetching data from ${endpoint}:`, error);
+    throw error;
+  }
+};
+
+export const genericPut = async (
+  endpoint: string,
+  body: any = null,
+  baseURL?: string
+): Promise<any> => {
+  const config: RequestInit = {
+    method: HTTP_METHODS.PUT,
+    body: JSON.stringify(body),
+  };
+
+  try {
+    const formattedEndpoint = baseURL ? `${baseURL}/${endpoint}` : endpoint;
+    const response = await fetch(formattedEndpoint, config);
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || GENERIC_ERROR_MESSAGE);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(`Error fetching data from ${endpoint}:`, error);
+    throw error;
+  }
+};
+
+export const genericDelete = async (
+  endpoint: string,
+  baseURL?: string
+): Promise<any> => {
+  const config: RequestInit = {
+    method: HTTP_METHODS.DELETE,
+  };
   try {
     const formattedEndpoint = baseURL ? `${baseURL}/${endpoint}` : endpoint;
     const response = await fetch(formattedEndpoint, config);

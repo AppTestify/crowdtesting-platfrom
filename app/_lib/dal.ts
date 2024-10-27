@@ -2,17 +2,17 @@ import "server-only";
 
 import { cookies } from "next/headers";
 import { decrypt } from "./session";
-import { redirect } from "next/navigation";
 import { cache } from "react";
 import { IUser } from "../_models/user.model";
 import { UserRoles } from "../_constants/user-roles";
+import { CookieKey } from "../_constants/cookie-keys";
 
 export const verifySession = cache(async () => {
-  const cookie = cookies().get("session")?.value;
+  const cookie = cookies().get(CookieKey.SESSION)?.value;
   const session = await decrypt(cookie);
 
   if (!session?.user) {
-    redirect("/auth");
+    return { isAuth: false, user: null };
   }
 
   return { isAuth: true, user: JSON.parse(session.user.toString()) };

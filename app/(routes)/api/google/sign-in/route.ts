@@ -11,6 +11,7 @@ import {
 } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
+import { createSession } from "@/app/_lib/session";
 import { User } from "@/app/_models/user.model";
 import { googleSignInSchema } from "@/app/_schemas/auth.schema";
 

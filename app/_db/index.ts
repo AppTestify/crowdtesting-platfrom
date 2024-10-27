@@ -1,5 +1,8 @@
 import mongoose from "mongoose";
 import { User } from "../_models/user.model";
+import { Tester } from "../_models/tester.model";
+import { Device } from "../_models/device.model";
+import { Browser } from "../_models/browser.model";
 
 export const connectDatabase = async () => {
   try {
@@ -17,4 +20,7 @@ export const connectDatabase = async () => {
 
 export const registerModels = () => {
   const userModel = User;
+  const testerModel = Tester;
+  const deviceModel = Device;
+  const broswerModel = Browser;
 };

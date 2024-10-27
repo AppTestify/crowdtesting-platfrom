@@ -74,4 +74,4 @@ const TesterSchema = new Schema({
 });
 
 export const Tester =
-  mongoose.models.Tester || model<ITester>(DBModels.USER, TesterSchema);
+  mongoose.models.Tester || model<ITester>(DBModels.TESTER, TesterSchema);

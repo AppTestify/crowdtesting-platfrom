@@ -1,11 +1,17 @@
 import {
+  ACCOUNT_VERIFICATION_ENDPOINT,
+  ACCOUNT_VERIFICATION_RESEND_ENDPOINT,
   LOGOUT,
   SIGN_IN_ENDPOINT,
   SIGN_UP_ENDPOINT,
   UPDATE_ROLE,
 } from "../_constants/api-endpoints";
 import { StorageKey } from "../_constants/localstorage-keys";
-import { ISignInPayload, ISignUpPayload } from "../_interface/auth";
+import {
+  IAccountVerificationPayload,
+  ISignInPayload,
+  ISignUpPayload,
+} from "../_interface/auth";
 import { genericPatch, genericPost } from "./generic-api-methods";
 import { getItem } from "./localstorage";
 
@@ -60,6 +66,31 @@ export const signInService = async (body: ISignInPayload): Promise<any> => {
     return response;
   } catch (error: any) {
     console.error(`Error > signInService:`, error.message);
+    throw error;
+  }
+};
+
+export const accountVerificationService = async (
+  body: IAccountVerificationPayload
+): Promise<any> => {
+  try {
+    const response = await genericPost(ACCOUNT_VERIFICATION_ENDPOINT, body);
+    return response;
+  } catch (error) {
+    console.error(`Error > accountVerificationService:`, error);
+    throw error;
+  }
+};
+
+export const resendAccountVerificationMailService = async (): Promise<any> => {
+  try {
+    const response = await genericPost(
+      ACCOUNT_VERIFICATION_RESEND_ENDPOINT,
+      {}
+    );
+    return response;
+  } catch (error) {
+    console.error(`Error > resendAccountVerificationMailService:`, error);
     throw error;
   }
 };

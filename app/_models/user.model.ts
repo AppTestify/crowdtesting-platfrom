@@ -10,6 +10,7 @@ export interface IUser extends Document {
   role: string;
   isVerified: boolean;
   isActive: boolean;
+  accountActivationMailSentAt: Date;
 }
 
 const userSchema = new Schema<IUser>(
@@ -45,6 +46,10 @@ const userSchema = new Schema<IUser>(
     isActive: {
       type: Boolean,
       default: false,
+    },
+    accountActivationMailSentAt: {
+      type: Date,
+      default: null,
     },
   },
   {

@@ -1,9 +1,9 @@
 "use client"
 
 import * as React from "react"
-import { useSession, } from "next-auth/react"
+import { signOut, useSession, } from "next-auth/react"
 import { useEffect, useState } from "react"
-import { usePathname, useRouter } from "next/navigation"
+import { redirect, usePathname, useRouter } from "next/navigation"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb"
@@ -21,7 +21,7 @@ export function Navbar() {
             if (user?.isVerified) {
                 setIsAccountActive(true)
             }
-        }
+        } 
     }, [data]);
 
     const getActivePageTitle = () => {
@@ -44,7 +44,7 @@ export function Navbar() {
                     </Breadcrumb>
                 </div>
                 {data?.user && <Badge variant={isAccountActive ? 'default' : 'secondary'}>
-                    {isAccountActive ? 'Account Active' : 'Account Inactive' }</Badge>}
+                    {isAccountActive ? 'Account Active' : 'Account Inactive'}</Badge>}
             </div>
         </header>
     )

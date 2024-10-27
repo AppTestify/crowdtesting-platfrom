@@ -5,12 +5,14 @@ import { CookieKey } from "./app/_constants/cookie-keys";
 
 const protectedRoutePattern = "/private";
 const authRoutePattern = "/auth";
+const verificationRoutePattern = "/auth/verify";
 const publicRoutes = ["/auth", "/"];
 
 export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
   const isProtectedRoute = path.startsWith(protectedRoutePattern);
   const isAuthRoute = path.startsWith(authRoutePattern);
+  const isVerificationRoute = path.startsWith(verificationRoutePattern);
   const isPublicRoute = publicRoutes.includes(path);
 
   if (isProtectedRoute) {
@@ -22,7 +24,7 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  if (isAuthRoute) {
+  if (isAuthRoute && !isVerificationRoute) {
     const cookie = cookies().get(CookieKey.SESSION)?.value;
     const session = await decrypt(cookie);
 

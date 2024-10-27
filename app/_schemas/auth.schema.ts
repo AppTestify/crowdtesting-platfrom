@@ -23,3 +23,7 @@ export const googleSignUpSchema = z.object({
 export const googleSignInSchema = z.object({
   email: z.string(),
 });
+
+export const accountVerificationSchema = z.object({
+  token: z.string(),
+});
