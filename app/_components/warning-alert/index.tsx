@@ -72,19 +72,24 @@ export default function ActivateAccountAlert({ user }: { user: any }) {
             </AlertDescription>
           </div>
           <div className="flex items-center gap-2">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Clock className="h-5 w-5 text-gray-600" />
-                </TooltipTrigger>
-                <TooltipContent side="right" align="center">
-                  <span>
-                    Last sent at{" "}
-                    {formatDate(user.accountActivationMailSentAt, true)}{" "}
-                  </span>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            {user.accountActivationMailSentAt || isDisabled ? (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Clock className="h-4 w-4 text-gray-600" />
+                  </TooltipTrigger>
+                  <TooltipContent side="right" align="center">
+                    <span>
+                      Last sent at{" "}
+                      {formatDate(
+                        user.accountActivationMailSentAt || new Date(),
+                        true
+                      )}{" "}
+                    </span>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ) : null}
 
             <Button
               size={"sm"}

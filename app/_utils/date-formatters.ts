@@ -11,5 +11,8 @@ export const formatDate = (date: string, isTime = false) => {
 };
 
 export const checkIfOneDayPassed = (date: string) => {
+  if (!date) {
+    return true;
+  }
   return moment().diff(moment(date), "days") >= 1;
 };
