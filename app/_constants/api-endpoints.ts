@@ -7,6 +7,7 @@ export const ACCOUNT_VERIFICATION_RESEND_ENDPOINT = "/api/verify/resend";
 export const LOGOUT = "/api/logout";
 export const UPDATE_ROLE = "/api/users/role";
 export const DEVICES_ENDPOINT = "/api/device";
+export const PROJECTS_ENDPOINT = "/api/project";
 export const BROWSERS_ENDPOINT = "/api/browser";
 export const DEVICES_BULK_DELETE_ENDPOINT = "/api/device/bulk/delete";
 

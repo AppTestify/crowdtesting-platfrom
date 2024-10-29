@@ -3,6 +3,7 @@ import { User } from "../_models/user.model";
 import { Tester } from "../_models/tester.model";
 import { Device } from "../_models/device.model";
 import { Browser } from "../_models/browser.model";
+import { Project } from "../_models/project.model";
 
 export const connectDatabase = async () => {
   try {
@@ -23,4 +24,5 @@ export const registerModels = () => {
   const testerModel = Tester;
   const deviceModel = Device;
   const broswerModel = Browser;
+  const projectModel = Project;
 };
