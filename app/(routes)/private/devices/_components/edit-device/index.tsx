@@ -192,7 +192,7 @@ export function EditDevice({
                   options={formattedBrowsers}
                   onValueChange={setSelectedBrowsers}
                   defaultValue={selectedBrowsers}
-                  placeholder="Select browsers"
+                  placeholder=""
                   variant="secondary"
                   animation={2}
                   maxCount={3}

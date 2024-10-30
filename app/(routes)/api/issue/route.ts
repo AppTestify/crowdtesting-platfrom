@@ -1,16 +1,10 @@
-import {
-    DB_CONNECTION_ERROR_MESSAGE,
-    INVALID_INPUT_ERROR_MESSAGE,
-    USER_UNAUTHORIZED_ERROR_MESSAGE,
-    USER_UNAUTHORIZED_SERVER_ERROR_MESSAGE
-} from "@/app/_constants/errors";
+import { DB_CONNECTION_ERROR_MESSAGE, INVALID_INPUT_ERROR_MESSAGE, USER_UNAUTHORIZED_ERROR_MESSAGE, USER_UNAUTHORIZED_SERVER_ERROR_MESSAGE } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
 import { isAdmin, verifySession } from "@/app/_lib/dal";
-import { Project } from "@/app/_models/project.model";
-import { projectSchema } from "@/app/_schemas/project.schema";
+import { Issue } from "@/app/_models/issue.model";
+import { issueSchema } from "@/app/_schemas/issue.schema";
 import { normaliseIds } from "@/app/_utils/data-formatters";
-import { formatDate } from "@/app/_utils/date-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 
@@ -36,7 +30,7 @@ export async function POST(req: Request) {
         }
 
         const body = await req.json();
-        const response = projectSchema.safeParse(body);
+        const response = issueSchema.safeParse(body);
 
         if (!response.success) {
             return Response.json(
@@ -48,15 +42,16 @@ export async function POST(req: Request) {
             );
         }
 
-        const newProject = new Project({
+        const newIssue = new Issue({
             ...response.data,
-            userId: session.user._id,
+            userId: session.user._id
         });
-        const saveProject = await newProject.save();
+
+        const savedIssue = await newIssue.save();
 
         return Response.json({
-            message: "Project added successfully",
-            id: saveProject._id
+            message: "Issue added successfully",
+            id: savedIssue?._id,
         });
 
     } catch (error: any) {
@@ -88,18 +83,19 @@ export async function GET(req: Request) {
 
         if (!(await isAdmin(session.user))) {
             response = normaliseIds(
-                await Project.find({ userId: session.user._id })
+                await Issue.find({ userId: session.user._id })
                     .sort({ createdAt: -1 })
                     .lean()
             );
         } else {
             response = normaliseIds(
-                await Project.find({})
-                    .populate("userId")
+                await Issue.find({})
+                    .populate("userId", "projectId")
                     .sort({ createdAt: -1 })
                     .lean()
             );
         }
+
         return Response.json(response);
     } catch (error: any) {
         return errorHandler(error);

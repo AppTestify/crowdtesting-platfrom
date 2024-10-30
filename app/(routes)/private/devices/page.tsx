@@ -193,8 +193,8 @@ export default function Devices() {
 
   return (
     <main className="mx-4 mt-4">
-      <div className="">
-        <h2 className="text-medium">Available Devices</h2>
+      <div>
+        <h2 className="font-medium text-xl text-primary">Available Devices</h2>
         <span className="text-xs text-gray-600">
           Your devices will help us recommend and assign projects that match
           your expertise.

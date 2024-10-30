@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const ProjectSchema = z.object({
+export const projectSchema = z.object({
     title: z.string().min(1, "Title is required"),
     startDate: z
         .string()
@@ -10,8 +10,12 @@ export const ProjectSchema = z.object({
         .min(1, "End date is required"),
     description: z.string().optional(),
     isActive: z.boolean()
-})
+});
 
 export const projectsBulkDeleteSchema = z.object({
     ids: z.array(z.string()).nonempty("Atleast one project is required")
-})
+});
+
+export const projectStatusSchema = z.object({
+    isActive: z.boolean()
+});

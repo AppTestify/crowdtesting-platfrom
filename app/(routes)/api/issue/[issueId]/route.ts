@@ -1,26 +1,21 @@
-import {
-    DB_CONNECTION_ERROR_MESSAGE,
-    INVALID_INPUT_ERROR_MESSAGE,
-    USER_UNAUTHORIZED_ERROR_MESSAGE,
-    USER_UNAUTHORIZED_SERVER_ERROR_MESSAGE
-} from "@/app/_constants/errors";
+import { DB_CONNECTION_ERROR_MESSAGE, GENERIC_ERROR_MESSAGE, INVALID_INPUT_ERROR_MESSAGE, USER_UNAUTHORIZED_SERVER_ERROR_MESSAGE } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
-import { isAdmin, verifySession } from "@/app/_lib/dal";
-import { Project } from "@/app/_models/project.model";
-import { projectSchema } from "@/app/_schemas/project.schema";
-import { normaliseIds } from "@/app/_utils/data-formatters";
-import { formatDate } from "@/app/_utils/date-formatters";
+import { verifySession } from "@/app/_lib/dal";
+import { IssueAttachment } from "@/app/_models/issue-attachment.model";
+import { Issue } from "@/app/_models/issue.model";
+import { issueSchema } from "@/app/_schemas/issue.schema";
 import { errorHandler } from "@/app/_utils/error-handler";
 
-
-export async function POST(req: Request) {
+export async function PUT(
+    req: Request,
+    { params }: { params: { issueId: string } }
+) {
     try {
         const session = await verifySession();
-
         if (!session) {
             return Response.json(
-                { message: USER_UNAUTHORIZED_ERROR_MESSAGE },
+                { message: USER_UNAUTHORIZED_SERVER_ERROR_MESSAGE },
                 { status: HttpStatusCode.UNAUTHORIZED }
             );
         }
@@ -36,7 +31,7 @@ export async function POST(req: Request) {
         }
 
         const body = await req.json();
-        const response = projectSchema.safeParse(body);
+        const response = issueSchema.safeParse(body);
 
         if (!response.success) {
             return Response.json(
@@ -48,23 +43,27 @@ export async function POST(req: Request) {
             );
         }
 
-        const newProject = new Project({
-            ...response.data,
-            userId: session.user._id,
+        const { issueId } = params
+        const updateResponse = await Issue.findByIdAndUpdate(issueId, {
+            ...response.data
         });
-        const saveProject = await newProject.save();
+
+        if (!updateResponse) {
+            throw new Error(GENERIC_ERROR_MESSAGE);
+        }
 
         return Response.json({
-            message: "Project added successfully",
-            id: saveProject._id
-        });
-
+            message: "Issue updated successfully"
+        })
     } catch (error: any) {
         return errorHandler(error);
     }
 }
 
-export async function GET(req: Request) {
+export async function DELETE(
+    req: Request,
+    { params }: { params: { issueId: string } }
+) {
     try {
         const session = await verifySession();
         if (!session || !session.isAuth) {
@@ -84,23 +83,15 @@ export async function GET(req: Request) {
             );
         }
 
-        let response = null;
+        const { issueId } = params;
+        const response = await Issue.findByIdAndDelete(issueId);
 
-        if (!(await isAdmin(session.user))) {
-            response = normaliseIds(
-                await Project.find({ userId: session.user._id })
-                    .sort({ createdAt: -1 })
-                    .lean()
-            );
-        } else {
-            response = normaliseIds(
-                await Project.find({})
-                    .populate("userId")
-                    .sort({ createdAt: -1 })
-                    .lean()
-            );
+        if (!response) {
+            throw new Error(GENERIC_ERROR_MESSAGE);
         }
-        return Response.json(response);
+        await IssueAttachment.deleteMany({ issueId: issueId })
+
+        return Response.json({ message: "Issue deleted successfully" });
     } catch (error: any) {
         return errorHandler(error);
     }

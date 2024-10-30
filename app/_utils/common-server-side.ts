@@ -45,3 +45,13 @@ export const extractDataFromVerificationToken = (token: string) => {
 export const checkExpired = (date: string, expireLimit: number) => {
   return moment().diff(moment(date), "days") >= expireLimit;
 };
+
+export const getFileMetaData = async (file: File) => {
+  const fileBuffer = await file.arrayBuffer().then((buffer) => Buffer.from(buffer));
+  const data = {
+    data: fileBuffer,
+    name: file.name,
+    contentType: file.type,
+  }
+  return data;
+}

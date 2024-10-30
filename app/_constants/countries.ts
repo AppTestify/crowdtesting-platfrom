@@ -1,4 +1,4 @@
-export interface Country {
+export interface ICountry {
   _id: string;
   masterId: string;
   description: string;
@@ -25,7 +25,7 @@ export interface Timezone {
   _id: string;
 }
 
-export const countries: Country[] = [
+export const countries: ICountry[] = [
   {
     _id: "659eacf8f033375055a193d3",
     masterId: "1",
