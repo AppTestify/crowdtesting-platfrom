@@ -17,8 +17,8 @@ import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
 import { StorageKey } from "@/app/_constants/localstorage-keys";
 import { IUserInfoData } from "@/app/_interface/tester";
-import { countries } from "../../../_constants/countries";
-import { states } from "../../../_constants/states";
+import { countries } from "../../../../_constants/countries";
+import { states } from "../../../../_constants/states";
 import {
   Select,
   SelectContent,
@@ -127,9 +127,9 @@ export default function UserInfo() {
 
   return (
     <>
-      <div className="grid grid-cols-12 gap-4  p-4  pt-0">
+      <div className="grid grid-cols-12 gap-4 mt-4">
         {/* User Info Section */}
-        <div className="col-span-12 p-4 pt-0 rounded">
+        <div className="col-span-12">
           <Form {...profileForm}>
             <form
               onSubmit={profileForm.handleSubmit(onProfileSubmit)}

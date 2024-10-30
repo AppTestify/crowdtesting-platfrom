@@ -112,8 +112,8 @@ export default function ItemListing({ defualtItems, info }: ItemListingProps) {
   );
 
   return (
-    <div className="p-8 pt-0">
-      <div className=" w-[1018px] flex justify-between items-center mb-2 ">
+    <div className="">
+      <div className="flex justify-between items-center mb-2 ">
         <label className="text-sm">{info}</label>
         {ItemSheet(`Add Custom ${info}`, 1)}
       </div>
@@ -123,13 +123,13 @@ export default function ItemListing({ defualtItems, info }: ItemListingProps) {
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-[1019px] justify-between"
+            className="w-full justify-between"
           >
             Select
             <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[1019px] p-0">
+        <PopoverContent className="p-0">
           <Command>
             <CommandInput placeholder="Search" className="h-9" />
             <CommandList>
@@ -174,7 +174,7 @@ export default function ItemListing({ defualtItems, info }: ItemListingProps) {
         </PopoverContent>
       </Popover>
 
-      <div className="w-[1019px] h-[280px] justify-between   mt-3  ">
+      <div className="h-[280px] justify-between">
         <CardHeader>
           {selectedItems.length === 0 && (
             <CardDescription className="ml-[-1.2rem]">

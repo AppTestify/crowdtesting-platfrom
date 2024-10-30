@@ -11,6 +11,7 @@ export interface IUser extends Document {
   isVerified: boolean;
   isActive: boolean;
   accountActivationMailSentAt: Date;
+  profilePicture: string;
 }
 
 const userSchema = new Schema<IUser>(
@@ -50,6 +51,11 @@ const userSchema = new Schema<IUser>(
     accountActivationMailSentAt: {
       type: Date,
       default: null,
+    },
+    profilePicture: {
+      type: String,
+      ref: DBModels.PROFILE_PICTURE,
+      required: false,
     },
   },
   {

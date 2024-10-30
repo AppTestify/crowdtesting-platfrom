@@ -12,13 +12,13 @@ const CertificationSchema = new Schema({
 const AddressSchema = new Schema({
   street: { type: String, required: true },
   city: { type: String, required: true },
-  state: { type: String, required: true },
   postalCode: { type: String, required: true },
   country: { type: String, required: true },
 });
 
 const TesterSchema = new Schema({
   skills: [{ type: String, required: true }],
+  bio: { type: String },
   certifications: [CertificationSchema],
   address: { type: AddressSchema, required: true },
   user: {
