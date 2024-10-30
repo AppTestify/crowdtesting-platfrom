@@ -3,7 +3,10 @@ export enum DBModels {
   TESTER = "Tester",
   DEVICE = "Device",
   BROWSER = "Browser",
-  PROFILE_PICTURE = "ProfilePicture"
+  PROFILE_PICTURE = "ProfilePicture",
+  PROJECT = "Project",
+  ISSUE = "Issue",
+  ISSUE_ATTACHMENT = "IssueAttachment",
 }
 
 export const JWT_TOKEN_EXPIRE_LIMIT = "8h";
