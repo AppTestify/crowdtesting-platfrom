@@ -3,7 +3,7 @@ import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
 import { isAdmin, verifySession } from "@/app/_lib/dal";
 import { Issue } from "@/app/_models/issue.model";
-import { IssueSchema } from "@/app/_schemas/issue.schema";
+import { issueSchema } from "@/app/_schemas/issue.schema";
 import { normaliseIds } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 
@@ -30,7 +30,7 @@ export async function POST(req: Request) {
         }
 
         const body = await req.json();
-        const response = IssueSchema.safeParse(body);
+        const response = issueSchema.safeParse(body);
 
         if (!response.success) {
             return Response.json(

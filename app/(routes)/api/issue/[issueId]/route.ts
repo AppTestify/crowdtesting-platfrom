@@ -4,7 +4,7 @@ import { connectDatabase } from "@/app/_db";
 import { verifySession } from "@/app/_lib/dal";
 import { IssueAttachment } from "@/app/_models/issue-attachment.model";
 import { Issue } from "@/app/_models/issue.model";
-import { IssueSchema } from "@/app/_schemas/issue.schema";
+import { issueSchema } from "@/app/_schemas/issue.schema";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function PUT(
@@ -31,7 +31,7 @@ export async function PUT(
         }
 
         const body = await req.json();
-        const response = IssueSchema.safeParse(body);
+        const response = issueSchema.safeParse(body);
 
         if (!response.success) {
             return Response.json(

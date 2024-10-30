@@ -8,7 +8,7 @@ import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
 import { isAdmin, verifySession } from "@/app/_lib/dal";
 import { Project } from "@/app/_models/project.model";
-import { ProjectSchema } from "@/app/_schemas/project.schema";
+import { projectSchema } from "@/app/_schemas/project.schema";
 import { normaliseIds } from "@/app/_utils/data-formatters";
 import { formatDate } from "@/app/_utils/date-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
         }
 
         const body = await req.json();
-        const response = ProjectSchema.safeParse(body);
+        const response = projectSchema.safeParse(body);
 
         if (!response.success) {
             return Response.json(
