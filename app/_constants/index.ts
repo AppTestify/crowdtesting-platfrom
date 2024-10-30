@@ -4,6 +4,8 @@ export enum DBModels {
   DEVICE = "Device",
   BROWSER = "Browser",
   PROJECT = "Project",
+  ISSUE = "Issue",
+  ISSUE_ATTACHMENT = "IssueAttachment",
 }
 
 export const JWT_TOKEN_EXPIRE_LIMIT = "8h";
