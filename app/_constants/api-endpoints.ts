@@ -10,6 +10,7 @@ export const DEVICES_ENDPOINT = "/api/device";
 export const PROJECTS_ENDPOINT = "/api/project";
 export const BROWSERS_ENDPOINT = "/api/browser";
 export const DEVICES_BULK_DELETE_ENDPOINT = "/api/device/bulk/delete";
+export const PROJECTS_BULK_DELETE_ENDPOINT = "/api/project/bulk/delete";
 
 export const GET_USER_ENDPOINT = (email: string) => {
   return `/api/users/${email}`;

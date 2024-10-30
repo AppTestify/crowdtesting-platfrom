@@ -5,5 +5,6 @@ export interface IProjectPayload {
     startDate: Date;
     endDate: Date;
     description?: string;
-    isActive?: Boolean;
+    isActive?: boolean;
+    id:string;
 }
