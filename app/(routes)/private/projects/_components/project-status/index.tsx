@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { updateProjectStausService } from "@/app/_services/project.service";
+import toasterService from "@/app/_services/toaster-service";
 
 export function SwitchProject({
   isActive,
@@ -9,19 +10,23 @@ export function SwitchProject({
   refreshProjects,
 }: {
   isActive: boolean;
+  projectId: string;
+  refreshProjects: () => void;
 }) {
   const [status, setStatus] = useState(isActive);
 
   const toggleStatus = async () => {
     try {
-      const newStatus = !status; // Toggle the current status
-      setStatus(newStatus); // Update the local state
-      await updateProjectStausService(projectId,newStatus);
-      // toast({ title: `Project is now ${!status ? "active" : "inactive"}.` });
-      refreshProjects(); // Fetches updated project data after change
+      const newStatus = !status;
+      setStatus(newStatus);
+      const response = await updateProjectStausService(projectId, newStatus);
+      if (response) {
+        refreshProjects();
+        toasterService.success(response.message);
+      }
+      refreshProjects();
     } catch (error) {
-      console.error("Error updating project status:", error);
-      // toast({ title: "Error", description: "Failed to update project status.", variant: "destructive" });
+      toasterService.error();
     }
   };
   return (
@@ -42,6 +47,8 @@ const ProjectStatus = ({
   refreshProjects,
 }: {
   status: boolean;
+  projectId: string;
+  refreshProjects: () => void;
 }) => {
   return (
     <div>

@@ -1,22 +1,9 @@
 "use client";
 import { ConfirmationDialog } from "@/app/_components/confirmation-dialog";
-import { IDevice } from "@/app/_interface/device";
-import {
-  deleteDeviceService,
-  devicesBulkDeleteService,
-} from "@/app/_services/device.service";
 import { projectsBulkDeleteService } from "@/app/_services/project.service";
 import toasterService from "@/app/_services/toaster-service";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Row } from "@tanstack/react-table";
-import { Edit, Loader2, MoreHorizontal, Trash } from "lucide-react";
+import { Trash } from "lucide-react";
 import { useState } from "react";
 
 export function BulkDelete({

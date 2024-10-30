@@ -1,5 +1,5 @@
 import { PROJECTS_BULK_DELETE_ENDPOINT, PROJECTS_ENDPOINT } from "../_constants/api-endpoints";
-import { IProjectPayload } from "../_interface/project";
+import { IProjectBulkDeletePayload, IProjectPayload } from "../_interface/project";
 import { genericDelete, genericGet, genericPost, genericPut } from "./generic-api-methods";
 
 
@@ -34,8 +34,10 @@ export const deleteProjectService = async (id: string): Promise<unknown> => {
   }
 };
 
+
+
 export const projectsBulkDeleteService = async (
-  body: IProjectPayload
+  body: IProjectBulkDeletePayload
 ): Promise<unknown> => {
   try {
     const response = await genericPost(PROJECTS_BULK_DELETE_ENDPOINT, body);
@@ -66,7 +68,7 @@ export const updateProjectStausService = async (
     const response = await genericPut(`${PROJECTS_ENDPOINT}/${id}/status`, { isActive });
     return response || {};
   } catch (error) {
-    console.error(`Error > updateProjectService:`, error);
+    console.error(`Error > updateProjectStatusService:`, error);
     throw error;
   }
 };

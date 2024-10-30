@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import RichTextEditor, { EditorState } from "react-rte";
+import RichTextEditor from "react-rte";
+
 
 interface TextEditorProps {
   markup: string;
@@ -7,13 +8,11 @@ interface TextEditorProps {
 }
 
 const TextEditor: React.FC<TextEditorProps> = ({ markup, onChange }) => {
-  const [value, setValue] = useState<EditorState>(
-    RichTextEditor.createValueFromString(markup, "html")
-  );
+  const [value, setValue] = useState(RichTextEditor.createValueFromString(markup, "html"));
 
   const editorRef = useRef<HTMLDivElement | null>(null); 
 
-  const handleChange = (newValue: EditorState) => {
+  const handleChange = (newValue: any) => {
     setValue(newValue);
     if (onChange) {
       onChange(newValue.toString("html"));

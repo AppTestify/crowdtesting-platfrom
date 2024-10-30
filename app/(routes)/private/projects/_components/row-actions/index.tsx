@@ -1,6 +1,7 @@
 "use client";
 import { ConfirmationDialog } from "@/app/_components/confirmation-dialog";
-import { IDevice } from "@/app/_interface/device";
+import { IProjectPayload } from "@/app/_interface/project";
+import { deleteProjectService } from "@/app/_services/project.service";
 import toasterService from "@/app/_services/toaster-service";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,12 +12,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Row } from "@tanstack/react-table";
-import { Edit, Loader2, MoreHorizontal, Trash } from "lucide-react";
+import { Edit, MoreHorizontal, Trash } from "lucide-react";
 import { useState } from "react";
-import EditProject, { EditDevice } from "../edit-device";
-import { IBrowser } from "@/app/_interface/browser";
-import { IProjectPayload } from "@/app/_interface/project";
-import { deleteProjectService } from "@/app/_services/project.service";
+import EditProject from "../edit-project";
 
 export function RowActions({
   row,
@@ -51,7 +49,7 @@ export function RowActions({
   return (
     <>
       <EditProject
-        project={row.original as IDevice}
+        project={row.original}
         sheetOpen={isEditOpen}
         setSheetOpen={setIsEditOpen}
         refreshProjects={refreshProjects}

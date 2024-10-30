@@ -3,11 +3,10 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CalendarIcon, Loader2, Plus } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import {
-  addProjectService,
-  getProjectsService,
+  addProjectService
 } from "@/app/_services/project.service";
 import toasterService from "@/app/_services/toaster-service";
 import { Calendar } from "@/components/ui/calendar";
@@ -19,7 +18,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Label } from "@/components/ui/label";
 import {
   Popover,
   PopoverContent,
@@ -34,7 +32,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
@@ -50,7 +47,7 @@ const projectSchema = z.object({
   isActive: z.boolean().optional(),
 });
 
-export function AddProject({ refreshProjects }) {
+export function AddProject({ refreshProjects }: {  refreshProjects: () => void; }) {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 

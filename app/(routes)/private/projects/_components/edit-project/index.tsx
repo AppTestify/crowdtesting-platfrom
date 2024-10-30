@@ -1,47 +1,42 @@
-import React, { useState } from "react";
-import { CalendarIcon, Loader2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { format } from "date-fns";
+import { CalendarIcon, Loader2 } from "lucide-react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { cn } from "@/lib/utils";
-import { format } from "date-fns";
 
-import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { IProjectPayload } from "@/app/_interface/project";
+import { updateProjectService } from "@/app/_services/project.service";
+import toasterService from "@/app/_services/toaster-service";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
+  FormMessage
 } from "@/components/ui/form";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle
+} from "@/components/ui/sheet";
 import TextEditor from "../text-editor";
-import { updateProjectService } from "@/app/_services/project.service";
-import toasterService from "@/app/_services/toaster-service";
 
 const projectSchema = z.object({
   title: z.string().min(1, "Required"),
-  //   startDate: z.date(),
-  //   endDate: z.date(),
   startDate: z.preprocess((val) => {
     return typeof val === "string" ? new Date(val) : val;
   }, z.date()),
@@ -58,13 +53,11 @@ const EditProject = ({
   setSheetOpen,
   refreshProjects,
 }: {
-  device: IDevice;
-  browsers: IBrowser[];
+  project: IProjectPayload;
   sheetOpen: boolean;
   setSheetOpen: React.Dispatch<React.SetStateAction<boolean>>;
   refreshProjects: () => void;
 }) => {
-  console.log("project edit", project);
   const projectId = project?.id;
   const { title, startDate, endDate, description } = project;
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -80,7 +73,7 @@ const EditProject = ({
     },
   });
 
-  async function onSubmit(values: z.infer<typeof deviceSchema>) {
+  async function onSubmit(values: z.infer<typeof projectSchema>) {
     setIsLoading(true);
     try {
       const response = await updateProjectService(projectId, {
@@ -99,15 +92,6 @@ const EditProject = ({
       setIsLoading(false);
     }
   }
-
-//   const resetForm = () => {
-//     form.reset({
-//       title: title || "",
-//       startDate: startDate || new Date(),
-//       endDate: endDate || new Date(),
-//       description: description || "",
-//     });
-//   };
 
   return (
     <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>

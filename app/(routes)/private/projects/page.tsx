@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { AddProject } from "./_components/add-project";
 import {
   ColumnDef,
-  ColumnFiltersState,
   SortingState,
   VisibilityState,
   flexRender,
@@ -79,13 +78,6 @@ export default function Projects() {
         <div className="capitalize">{formatDate(row.getValue("endDate"))}</div>
       ),
     },
-    // {
-    //   accessorKey: "description",
-    //   header: "Description",
-    //   cell: ({ row }) => (
-    //     <div className="capitalize">{row.getValue("description")}</div>
-    //   ),
-    // },
     {
       accessorKey: "isActive",
       header: "Status",
@@ -110,9 +102,10 @@ export default function Projects() {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [globalFilter, setGlobalFilter] = useState<any>([]);
+  const [globalFilter, setGlobalFilter] = useState<unknown>([]);
   const [projects, setProjects] = useState<IProjectPayload[]>([]);
 
+  
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(7);
 
@@ -123,9 +116,10 @@ export default function Projects() {
   const getProjects = async () => {
     setIsLoading(true);
     const projects = await getProjectsService();
-    setProjects(projects);
+    setProjects(projects  as IProjectPayload[]);
     setIsLoading(false);
   };
+  
 
   const refreshProjects = () => {
     getProjects();
