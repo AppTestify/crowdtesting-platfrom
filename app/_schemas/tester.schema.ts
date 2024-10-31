@@ -3,8 +3,8 @@ import { z } from "zod";
 export const certificationSchema = z.object({
     name: z.string().min(1, "Name is required"),
     description: z.string().min(1, "Description is required"),
-    issuedBy: z.string().min(1, "IssueBy is required"),
-    issueDate: z.string().min(1, "IssueDate is required"),
+    issuedBy: z.string().optional(),
+    issueDate: z.string().optional(),
 });
 
 export const addressSchema = z.object({
