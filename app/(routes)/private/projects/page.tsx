@@ -167,7 +167,7 @@ export default function Projects() {
   return (
     <main className="mx-4 mt-4">
       <div className="">
-        <h2 className="text-medium">Projects</h2>
+      <h2 className="font-medium text-xl text-primary">Projects</h2>
         <span className="text-xs text-gray-600">
           Let us harness your expertise! Our system will analyze your skills to
           connect you with projects that are a perfect fit for your background
