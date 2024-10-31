@@ -12,9 +12,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Row } from "@tanstack/react-table";
-import { Edit, MoreHorizontal, Trash } from "lucide-react";
+import { Edit, MoreHorizontal, TextSearch, Trash } from "lucide-react";
 import { useState } from "react";
 import EditProject from "../edit-project";
+import Link from "next/link";
 
 export function RowActions({
   row,
@@ -75,6 +76,14 @@ export function RowActions({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
+          <Link href={`/private/projects/${deviceId}/issue`}>
+            <DropdownMenuItem
+              className="mb-1"
+            >
+              <TextSearch className="h-2 w-2" /> Issue
+            </DropdownMenuItem>
+          </Link>
+          <DropdownMenuSeparator className="border-b" />
           <DropdownMenuItem
             className="mb-1"
             onClick={() => {

@@ -30,6 +30,7 @@ import { RowActions } from "./_components/row-actions";
 import { BulkDelete } from "./_components/bulk-delete";
 import ProjectStatus from "./_components/project-status";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function Projects() {
   const columns: ColumnDef<IProjectPayload>[] = [
@@ -59,7 +60,9 @@ export default function Projects() {
       accessorKey: "title",
       header: "Title",
       cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("title")}</div>
+        <Link href={`/private/projects/${row.original.id}/issue`}>
+          <div className="capitalize">{row.getValue("title")}</div>
+        </Link>
       ),
     },
     {
@@ -75,7 +78,9 @@ export default function Projects() {
       accessorKey: "endDate",
       header: "End Date",
       cell: ({ row }) => (
-        <div className="capitalize">{formatDate(row.getValue("endDate"))}</div>
+        <div className="capitalize">
+          {formatDate(row.getValue("endDate"))}
+        </div>
       ),
     },
     {
@@ -105,7 +110,7 @@ export default function Projects() {
   const [globalFilter, setGlobalFilter] = useState<unknown>([]);
   const [projects, setProjects] = useState<IProjectPayload[]>([]);
 
-  
+
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(7);
 
@@ -116,10 +121,10 @@ export default function Projects() {
   const getProjects = async () => {
     setIsLoading(true);
     const projects = await getProjectsService();
-    setProjects(projects  as IProjectPayload[]);
+    setProjects(projects as IProjectPayload[]);
     setIsLoading(false);
   };
-  
+
 
   const refreshProjects = () => {
     getProjects();
@@ -167,7 +172,7 @@ export default function Projects() {
   return (
     <main className="mx-4 mt-4">
       <div className="">
-      <h2 className="font-medium text-xl text-primary">Projects</h2>
+        <h2 className="font-medium text-xl text-primary">Projects</h2>
         <span className="text-xs text-gray-600">
           Let us harness your expertise! Our system will analyze your skills to
           connect you with projects that are a perfect fit for your background
@@ -205,9 +210,9 @@ export default function Projects() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}

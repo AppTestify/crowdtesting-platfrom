@@ -4,7 +4,7 @@ import { genericDelete, genericGet, genericPost, genericPut } from "./generic-ap
 
 
 
-export const getProjectsService = async (): Promise<unknown> => {
+export const getProjectsService = async (): Promise<any> => {
     try {
       const response = await genericGet(PROJECTS_ENDPOINT);
       return response || [];
@@ -14,7 +14,7 @@ export const getProjectsService = async (): Promise<unknown> => {
     }
   };
 
-export const addProjectService = async (body: IProjectPayload): Promise<unknown> => {
+export const addProjectService = async (body: IProjectPayload): Promise<any> => {
     try {
         const response = await genericPost(PROJECTS_ENDPOINT, body);
         return response || {};
@@ -24,7 +24,7 @@ export const addProjectService = async (body: IProjectPayload): Promise<unknown>
     }
 };
 
-export const deleteProjectService = async (id: string): Promise<unknown> => {
+export const deleteProjectService = async (id: string): Promise<any> => {
   try {
     const response = await genericDelete(`${PROJECTS_ENDPOINT}/${id}`);
     return response || {};
@@ -38,7 +38,7 @@ export const deleteProjectService = async (id: string): Promise<unknown> => {
 
 export const projectsBulkDeleteService = async (
   body: IProjectBulkDeletePayload
-): Promise<unknown> => {
+): Promise<any> => {
   try {
     const response = await genericPost(PROJECTS_BULK_DELETE_ENDPOINT, body);
     return response || {};
@@ -51,7 +51,7 @@ export const projectsBulkDeleteService = async (
 export const updateProjectService = async (
   id: string,
   body: IProjectPayload
-): Promise<unknown> => {
+): Promise<any> => {
   try {
     const response = await genericPut(`${PROJECTS_ENDPOINT}/${id}`, body);
     return response || {};
@@ -60,10 +60,11 @@ export const updateProjectService = async (
     throw error;
   }
 };
+
 export const updateProjectStausService = async (
   id: string,
   isActive: boolean 
-): Promise<unknown> => {
+): Promise<any> => {
   try {
     const response = await genericPut(`${PROJECTS_ENDPOINT}/${id}/status`, { isActive });
     return response || {};

@@ -1,6 +1,7 @@
 
 
 export interface IProjectPayload {
+    id: string;
     title: string;
     startDate: Date;
     endDate: Date;
@@ -12,4 +13,4 @@ export interface IProjectPayload {
 
 export interface IProjectBulkDeletePayload {
     ids: string[];
-  }
+}
