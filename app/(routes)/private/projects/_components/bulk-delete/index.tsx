@@ -1,8 +1,6 @@
 "use client";
 import { ConfirmationDialog } from "@/app/_components/confirmation-dialog";
-import {
-  devicesBulkDeleteService
-} from "@/app/_services/device.service";
+import { projectsBulkDeleteService } from "@/app/_services/project.service";
 import toasterService from "@/app/_services/toaster-service";
 import { Button } from "@/components/ui/button";
 import { Trash } from "lucide-react";
@@ -10,29 +8,29 @@ import { useState } from "react";
 
 export function BulkDelete({
   ids,
-  refreshDevices,
+  refreshProjects,
 }: {
   ids: string[];
-  refreshDevices: () => void;
+  refreshProjects: () => void;
 }) {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const deleteDevice = async () => {
+  const deleteProject = async () => {
     try {
       setIsLoading(true);
-      const response = await devicesBulkDeleteService({ ids });
+      const response = await projectsBulkDeleteService({ ids });
 
       if (response?.message) {
         setIsLoading(false);
-        refreshDevices();
+        refreshProjects();
         setIsDeleteOpen(false);
         toasterService.success(response.message);
       }
     } catch (error) {
       toasterService.error();
       setIsDeleteOpen(false);
-      console.log("Error > deleteDevice");
+      console.log("Error > deleteProject");
     }
   };
 
@@ -41,10 +39,10 @@ export function BulkDelete({
       <ConfirmationDialog
         isOpen={isDeleteOpen}
         setIsOpen={setIsDeleteOpen}
-        title="Delete selected devices"
-        description="Are you sure you want delete the selected devices?"
+        title="Delete selected projects"
+        description="Are you sure you want delete the selected projects?"
         isLoading={isLoading}
-        successAction={deleteDevice}
+        successAction={deleteProject}
         successLabel="Delete"
         successLoadingLabel="Deleting"
         successVariant={"destructive"}
@@ -57,7 +55,7 @@ export function BulkDelete({
           setIsLoading(false);
         }}
       >
-        <Trash /> Delete devices
+        <Trash /> Delete projects
       </Button>
     </>
   );

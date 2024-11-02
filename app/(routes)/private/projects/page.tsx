@@ -1,40 +1,280 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
-import { AddProject } from "./_components/add-device";
-// import { useState } from "react";
+import { AddProject } from "./_components/add-project";
+import {
+  ColumnDef,
+  SortingState,
+  VisibilityState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { IProjectPayload } from "@/app/_interface/project";
+import { Checkbox } from "@/components/ui/checkbox";
+import { getProjectsService } from "@/app/_services/project.service";
+import { formatDate } from "@/app/_constants/date-formatter";
+import { RowActions } from "./_components/row-actions";
+import { BulkDelete } from "./_components/bulk-delete";
+import ProjectStatus from "./_components/project-status";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function Projects() {
+  const columns: ColumnDef<IProjectPayload>[] = [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "title",
+      header: "Title",
+      cell: ({ row }) => (
+        <Link href={`/private/projects/${row.original.id}/issue`}>
+          <div className="capitalize">{row.getValue("title")}</div>
+        </Link>
+      ),
+    },
+    {
+      accessorKey: "startDate",
+      header: "Start Date",
+      cell: ({ row }) => (
+        <div className="capitalize">
+          {formatDate(row.getValue("startDate"))}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "endDate",
+      header: "End Date",
+      cell: ({ row }) => (
+        <div className="capitalize">
+          {formatDate(row.getValue("endDate"))}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "isActive",
+      header: "Status",
+      cell: ({ row }) => (
+        <ProjectStatus
+          status={row.getValue("isActive")}
+          projectId={row.original.id}
+          refreshProjects={refreshProjects}
+        />
+      ),
+    },
+    {
+      id: "actions",
+      enableHiding: false,
+      cell: ({ row }) => (
+        <RowActions row={row} refreshProjects={refreshProjects} />
+      ),
+    },
+  ];
 
-    // const [globalFilter, setGlobalFilter] = useState<any>([]);
-    return (
-        <main className="mx-4 mt-4">
-            <div className="">
-                <h2 className="text-medium">Available Projects</h2>
-                <span className="text-xs text-gray-600">
-                    Let us harness your expertise! Our system will analyze your skills to connect you with
-                    projects that are a perfect fit for your background and talents.
-                </span>
-            </div>
-            <div className="w-full">
-                <div className="flex items-center py-4 justify-between">
-                    <Input
-                        placeholder="Filter projects"
-                        // value={(globalFilter as string) ?? ""}
-                        // onChange={(event) => {
-                        //     table.setGlobalFilter(String(event.target.value));
-                        // }}
-                        className="max-w-sm"
-                    />
-                    <div className="flex gap-2 ml-2">
-                        {/* {getSelectedRows().length ? (
-                            <BulkDelete
-                                ids={getSelectedRows()}
-                                refreshDevices={refreshDevices}
-                            />
-                        ) : null} */}
-                        <AddProject  />
-                    </div>
-                </div>
-            </div>
-        </main>
-    )
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = useState({});
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [globalFilter, setGlobalFilter] = useState<unknown>([]);
+  const [projects, setProjects] = useState<IProjectPayload[]>([]);
+
+
+  const [pageIndex, setPageIndex] = useState(0);
+  const [pageSize, setPageSize] = useState(7);
+
+  useEffect(() => {
+    getProjects();
+  }, []);
+
+  const getProjects = async () => {
+    setIsLoading(true);
+    const projects = await getProjectsService();
+    setProjects(projects as IProjectPayload[]);
+    setIsLoading(false);
+  };
+
+
+  const refreshProjects = () => {
+    getProjects();
+    setRowSelection({});
+  };
+
+  const table = useReactTable({
+    data: projects,
+    columns,
+    onSortingChange: setSorting,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
+    globalFilterFn: "includesString",
+    state: {
+      sorting,
+      globalFilter,
+      columnVisibility,
+      rowSelection,
+      pagination: {
+        pageIndex,
+        pageSize,
+      },
+    },
+    onGlobalFilterChange: setGlobalFilter,
+    onPaginationChange: (updater) => {
+      const newPagination =
+        typeof updater === "function"
+          ? updater({ pageIndex, pageSize })
+          : updater;
+      setPageIndex(newPagination.pageIndex);
+      setPageSize(newPagination.pageSize);
+    },
+  });
+
+  const getSelectedRows = () => {
+    return table.getFilteredSelectedRowModel().rows.map((row) => {
+      return row.original.id;
+    });
+  };
+
+  return (
+    <main className="mx-4 mt-4">
+      <div className="">
+        <h2 className="font-medium text-xl text-primary">Projects</h2>
+        <span className="text-xs text-gray-600">
+          Let us harness your expertise! Our system will analyze your skills to
+          connect you with projects that are a perfect fit for your background
+          and talents.
+        </span>
+      </div>
+      <div className="w-full">
+        <div className="flex items-center py-4 justify-between">
+          <Input
+            placeholder="Filter projects"
+            value={(globalFilter as string) ?? ""}
+            onChange={(event) => {
+              table.setGlobalFilter(String(event.target.value));
+            }}
+            className="max-w-sm"
+          />
+          <div className="flex gap-2 ml-2">
+            {getSelectedRows().length ? (
+              <BulkDelete
+                ids={getSelectedRows()}
+                refreshProjects={refreshProjects}
+              />
+            ) : null}
+            <AddProject refreshProjects={refreshProjects} />
+          </div>
+        </div>
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead key={header.id}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                      </TableHead>
+                    );
+                  })}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    {!isLoading ? "No results" : "Loading"}
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+        <div className="flex items-center justify-end space-x-2 py-4">
+          <div className="flex-1 text-sm text-muted-foreground">
+            {table.getFilteredSelectedRowModel().rows.length} of{" "}
+            {table.getFilteredRowModel().rows.length} row(s) selected.
+          </div>
+
+          <div className="flex space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      </div>
+    </main>
+  );
 }

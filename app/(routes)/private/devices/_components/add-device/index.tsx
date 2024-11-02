@@ -1,23 +1,22 @@
-import React, { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Loader2, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { useEffect, useState } from "react";
 
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import {
     Sheet,
     SheetClose,
     SheetContent,
     SheetDescription,
-    SheetFooter,
     SheetHeader,
     SheetTitle,
-    SheetTrigger,
-} from "@/components/ui/sheet"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
+    SheetTrigger
+} from "@/components/ui/sheet";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 const deviceSchema = z.object({
     name: z.string().min(1, "Required"),
@@ -28,12 +27,12 @@ const deviceSchema = z.object({
     network: z.string().optional(),
 });
 
-import { MultiSelect } from "@/components/ui/multi-select";
-import { IBrowser } from "@/app/_interface/browser";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { countries } from "@/app/_constants/countries";
-import toasterService from "@/app/_services/toaster-service";
+import { IBrowser } from "@/app/_interface/browser";
 import { addDeviceService } from "@/app/_services/device.service";
+import toasterService from "@/app/_services/toaster-service";
+import { MultiSelect } from "@/components/ui/multi-select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getFormattedBrowsers } from "../../_utils";
 
 export function AddDevice({ browsers, refreshDevices }: { browsers: IBrowser[], refreshDevices: () => void; }) {
