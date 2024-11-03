@@ -30,7 +30,10 @@ import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { logOutUserService } from "@/app/_services/auth-service";
 import toasterService from "@/app/_services/toaster-service";
-import { getAvatarFallbackText } from "@/app/_utils/string-formatters";
+import {
+  getAvatarFallbackText,
+  getFormattedBase64ForSrc,
+} from "@/app/_utils/string-formatters";
 
 export function NavUser({
   user,
@@ -38,6 +41,7 @@ export function NavUser({
   user: {
     name: string;
     email: string;
+    profilePicture?: any;
   } | null;
 }) {
   const { isMobile } = useSidebar();
@@ -60,6 +64,11 @@ export function NavUser({
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
+                <AvatarImage
+                  src={getFormattedBase64ForSrc(user?.profilePicture)}
+                  alt="@profilePicture"
+                />
+
                 <AvatarFallback className="rounded-lg">
                   {getAvatarFallbackText(user)}
                 </AvatarFallback>

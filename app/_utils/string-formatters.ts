@@ -1,5 +1,3 @@
-import { IUser } from "../_interface/user";
-
 export const toTitleCase = (str: string) => {
   if (!str) {
     return "";
@@ -16,7 +14,7 @@ export const getAvatarFallbackText = (
     email: string;
   } | null
 ) => {
-  if (user?.name) {
+  if (user?.name.trim()) {
     const initials = user.name
       .split(" ")
       .map((word) => word.charAt(0))
@@ -25,4 +23,11 @@ export const getAvatarFallbackText = (
     return initials.toUpperCase() || "AV";
   }
   return user?.email?.slice(0, 2).toUpperCase() || "AV";
+};
+
+export const getFormattedBase64ForSrc = (file: any) => {
+  if (!file) {
+    return "";
+  }
+  return `data:${file.contentType};base64,${file.data}`;
 };

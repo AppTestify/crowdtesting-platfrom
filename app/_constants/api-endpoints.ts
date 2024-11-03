@@ -11,9 +11,17 @@ export const PROJECTS_ENDPOINT = "/api/project";
 export const BROWSERS_ENDPOINT = "/api/browser";
 export const DEVICES_BULK_DELETE_ENDPOINT = "/api/device/bulk/delete";
 export const PROJECTS_BULK_DELETE_ENDPOINT = "/api/project/bulk/delete";
-export const ISSUES_ENDPOINT = "/api/issue";
-export const ISSUES_PROJECT_ENDPOINT = "/api/issue/project";
+export const ISSUES_ENDPOINT = "/api/project/issue";
+export const PROFILE_PICTURE_ENDPOINT = "/api/users/profile-picture";
+export const PAYMENT_ENDPOINT = "/api/users/payment";
+export const TESTER_ENDPOINT = "/api/users/testers";
+export const TESTER_PROFILE_ENDPOINT = "/api/users/testers/profile";
+export const FILES_ENDPOINT = "/api/users/file";
 
 export const GET_USER_ENDPOINT = (email: string) => {
   return `/api/users/${email}`;
+};
+
+export const GET_ISSUES_ENPOINT = (projectId: string) => {
+  return `/api/project/${projectId}/issue`;
 };

@@ -17,8 +17,6 @@ export default function PrivateLayout({
                 <AppSidebar />
                 <SidebarInset>
                     <Navbar />
-
-                    
                     <main className="w-full">
                         {children}
                     </main>

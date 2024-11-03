@@ -76,14 +76,6 @@ export function RowActions({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <Link href={`/private/projects/${deviceId}/issue`}>
-            <DropdownMenuItem
-              className="mb-1"
-            >
-              <TextSearch className="h-2 w-2" /> Issue
-            </DropdownMenuItem>
-          </Link>
-          <DropdownMenuSeparator className="border-b" />
           <DropdownMenuItem
             className="mb-1"
             onClick={() => {

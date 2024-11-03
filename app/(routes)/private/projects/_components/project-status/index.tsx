@@ -19,12 +19,7 @@ export function SwitchProject({
     try {
       const newStatus = !status;
       setStatus(newStatus);
-      const response = await updateProjectStausService(projectId, newStatus);
-      if (response) {
-        refreshProjects();
-        toasterService.success(response.message);
-      }
-      refreshProjects();
+      await updateProjectStausService(projectId, newStatus);
     } catch (error) {
       toasterService.error();
     }
@@ -36,7 +31,7 @@ export function SwitchProject({
         checked={status}
         onCheckedChange={toggleStatus}
       />
-      <Label htmlFor="project-mode">{isActive ? "Active" : "Inactive"}</Label>
+      <Label htmlFor="project-mode">{status ? "Active" : "In active"}</Label>
     </div>
   );
 }

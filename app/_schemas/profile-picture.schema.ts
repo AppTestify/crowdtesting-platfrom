@@ -1,7 +1,8 @@
+import { File } from "buffer";
 import { z } from "zod";
 
 export const profilePictureSchema = z.object({
-    profileImage: z
+    profilePicture: z
         .instanceof(File)
         .refine((file) => ["image/png", "image/jpeg"].includes(file.type), {
             message: "Image must be a PNG or JPG",

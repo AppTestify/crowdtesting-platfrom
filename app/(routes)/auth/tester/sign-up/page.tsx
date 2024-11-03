@@ -58,10 +58,10 @@ export default function SignUp() {
                     </div>
                     <div className="w-full">
                         <SignUpForm role={UserRoles.TESTER} setIsGoogleSignInDisable={setIsGoogleSignInDisable} />
-                        <Button variant="outline" className="w-full" disabled={isGoogleSignInDisable || isLoading} onClick={() => handleGoogleSignUp()}>
+                        {/* <Button variant="outline" className="w-full" disabled={isGoogleSignInDisable || isLoading} onClick={() => handleGoogleSignUp()}>
                             {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                             Sign up with Google
-                        </Button>
+                        </Button> */}
                     </div>
                     <div className="text-muted-foreground text-left md:text-center">
                         By clicking continue, you agree to our <a href="#" className="underline cursor-pointer">Terms of Service</a> and <a href="#" className="underline cursor-pointer">Privacy Policy</a>.

@@ -121,3 +121,51 @@ export const genericDelete = async (
     throw error;
   }
 };
+
+export const genericPostFormData = async (
+  endpoint: string,
+  formData: FormData,
+  baseURL?: string
+): Promise<any> => {
+  const config: RequestInit = {
+    method: "POST",
+    body: formData,
+  };
+
+  try {
+    const formattedEndpoint = baseURL ? `${baseURL}/${endpoint}` : endpoint;
+    const response = await fetch(formattedEndpoint, config);
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(
+        errorData.message || "An error occurred while processing the request"
+      );
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(`Error fetching data from ${endpoint}:`, error);
+    throw error;
+  }
+};
+
+export const genericFileGet = async (
+  endpoint: string,
+  baseURL?: string
+): Promise<any> => {
+  try {
+    const formattedEndpoint = baseURL ? `${baseURL}/${endpoint}` : endpoint;
+    const response = await fetch(formattedEndpoint);
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || GENERIC_ERROR_MESSAGE);
+    }
+
+    return response;
+  } catch (error) {
+    console.error(`Error fetching data from ${endpoint}:`, error);
+    throw error;
+  }
+};

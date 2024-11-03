@@ -6,6 +6,7 @@ import { Browser } from "../_models/browser.model";
 import { Project } from "../_models/project.model";
 import { Issue } from "../_models/issue.model";
 import { IssueAttachment } from "../_models/issue-attachment.model";
+import { ProfilePicture } from "../_models/profile.picture";
 
 export const connectDatabase = async () => {
   try {
@@ -29,4 +30,5 @@ export const registerModels = () => {
   const projectModel = Project;
   const issueModel = Issue;
   const issueAttachmentModel = IssueAttachment;
+  const profilePicture = ProfilePicture;
 };

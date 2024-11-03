@@ -12,6 +12,8 @@ export interface IUser extends Document {
   isActive: boolean;
   accountActivationMailSentAt: Date;
   profilePicture: string;
+  paypalId: string;
+  projects: Types.ObjectId[];
 }
 
 const userSchema = new Schema<IUser>(
@@ -57,6 +59,11 @@ const userSchema = new Schema<IUser>(
       ref: DBModels.PROFILE_PICTURE,
       required: false,
     },
+    paypalId: {
+      type: String,
+      required: false,
+    },
+    projects: [{ type: Schema.Types.ObjectId, ref: DBModels.PROJECT }],
   },
   {
     timestamps: true,

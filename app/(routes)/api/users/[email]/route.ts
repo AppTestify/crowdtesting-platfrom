@@ -24,8 +24,11 @@ export async function GET(
 
     const { email } = params;
 
-    const existingUser = await User.findOne({ email });
-
+    const existingUser = await User.findOne({ email }).populate(
+      "profilePicture",
+      "data contentType"
+    );
+    
     if (!existingUser) {
       return Response.json(
         { message: USER_NOT_FOUND_ERROR_MESSAGE },

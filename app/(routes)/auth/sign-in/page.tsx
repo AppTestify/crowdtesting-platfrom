@@ -59,10 +59,10 @@ export default function SignIn() {
                     </div>
                     <div>
                         <SignInForm setIsGoogleSignInDisable={setIsGoogleSignInDisable} />
-                        <Button variant="outline" className="w-full" disabled={isGoogleSignInDisable || isLoading} onClick={() => handleGoogleSignIn()}>
+                        {/* <Button variant="outline" className="w-full" disabled={isGoogleSignInDisable || isLoading} onClick={() => handleGoogleSignIn()}>
                             {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                             Login with Google
-                        </Button>
+                        </Button> */}
                     </div>
                     <div className="text-muted-foreground text-left md:text-center">
                         By clicking continue, you agree to our <a href="#" className="underline cursor-pointer">Terms of Service</a> and <a href="#" className="underline cursor-pointer">Privacy Policy</a>.

@@ -1,0 +1,79 @@
+import { FILES_ENDPOINT } from "../_constants/api-endpoints";
+import {
+  genericDelete,
+  genericFileGet,
+  genericGet,
+  genericPostFormData,
+} from "./generic-api-methods";
+
+export const getFilesByUserIdService = async (): Promise<any> => {
+  try {
+    const response = await genericGet(FILES_ENDPOINT);
+
+    return response || {};
+  } catch (error) {
+    console.error(`Error > getFilesByUserId:`, error);
+    throw error;
+  }
+};
+
+export const uploadFileService = async (
+  file: File,
+  fileType: string
+): Promise<any> => {
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("fileType", fileType);
+
+    const response = await genericPostFormData(FILES_ENDPOINT, formData);
+    return response || {};
+  } catch (error) {
+    console.error(`Error > uploadFileService:`, error);
+    throw error;
+  }
+};
+
+export const deleteFileService = async (fileId: string): Promise<any> => {
+  try {
+    const response = await genericDelete(`${FILES_ENDPOINT}/${fileId}`);
+    return response || {};
+  } catch (error) {
+    console.error(`Error > deleteFileService:`, error);
+    throw error;
+  }
+};
+
+export const getFileService = async (fileId: string): Promise<any> => {
+  try {
+    const response = await genericFileGet(`${FILES_ENDPOINT}/${fileId}`);
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    const contentDisposition = response.headers.get("Content-Disposition");
+    let filename = "downloadedFile";
+
+    if (contentDisposition) {
+      const match = contentDisposition.match(/filename="?(.+)"?/);
+      if (match && match[1]) {
+        filename = decodeURIComponent(match[1]).replace(/["']/g, "").trim();
+      }
+    }
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+
+    return {
+      message: "Document downloaded successfully",
+    };
+  } catch (error) {
+    console.error(`Error > getFileService:`, error);
+    throw error;
+  }
+};
