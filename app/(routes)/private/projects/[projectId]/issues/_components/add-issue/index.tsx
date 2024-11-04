@@ -3,6 +3,10 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
+  ChevronDown,
+  ChevronRight,
+  ChevronUp,
+  Equal,
   Loader2,
   Plus,
 } from "lucide-react";
@@ -40,14 +44,16 @@ import {
 } from "@/components/ui/select";
 import {
   IssueStatus,
+  Priority,
   PRIORITY_LIST,
   SEVERITY_LIST,
 } from "@/app/_constants/issue";
-import { Textarea } from "@/components/ui/text-area";
 import { useParams } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import IssueAttachments from "../attachments/issue-attachment";
 import { IssueTab } from "../../_constants";
+import TextEditor from "../../../../_components/text-editor";
+import { displayIcon } from "@/app/_utils/common-functionality";
 
 const projectSchema = z.object({
   title: z.string().min(1, "Required"),
@@ -170,7 +176,7 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
                             onValueChange={field.onChange}
                             value={field.value}
                           >
-                            <SelectTrigger className="w-[250px]">
+                            <SelectTrigger className="w-full">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -198,14 +204,16 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
                             onValueChange={field.onChange}
                             value={field.value}
                           >
-                            <SelectTrigger className="w-[250px]">
+                            <SelectTrigger className="w-full">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
                               <SelectGroup>
                                 {PRIORITY_LIST.map((priority) => (
                                   <SelectItem value={priority}>
-                                    {priority}
+                                    <div className="flex items-center">
+                                      {displayIcon(priority)} {priority}
+                                    </div>
                                   </SelectItem>
                                 ))}
                               </SelectGroup>
@@ -225,10 +233,12 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
                         <FormItem>
                           <FormLabel>Description</FormLabel>
                           <FormControl>
-                            <Textarea
-                              {...field}
-                              className="h-[150px]"
-                              placeholder="Type issue description"
+                            <TextEditor
+                              markup={field.value || ""}
+                              onChange={(value) => {
+                                form.setValue("description", value);
+                                form.trigger("description");
+                              }}
                             />
                           </FormControl>
                           <FormMessage />

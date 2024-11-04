@@ -70,7 +70,7 @@ export default function Projects() {
       header: "Start Date",
       cell: ({ row }) => (
         <div className="capitalize">
-          {formatDate(row.getValue("startDate"))}
+          {row.getValue("startDate")}
         </div>
       ),
     },
@@ -79,7 +79,7 @@ export default function Projects() {
       header: "End Date",
       cell: ({ row }) => (
         <div className="capitalize">
-          {formatDate(row.getValue("endDate"))}
+          {row.getValue("endDate")}
         </div>
       ),
     },
@@ -121,7 +121,12 @@ export default function Projects() {
   const getProjects = async () => {
     setIsLoading(true);
     const projects = await getProjectsService();
-    setProjects(projects as IProjectPayload[]);
+    const formattedProjects = projects.map((project: any) => ({
+      ...project,
+      startDate: formatDate(project.startDate),
+      endDate: formatDate(project.endDate),
+    }));
+    setProjects(formattedProjects as IProjectPayload[]);
     setIsLoading(false);
   };
 

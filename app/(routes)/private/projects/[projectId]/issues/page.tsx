@@ -27,6 +27,7 @@ import { IIssue, IIssuePayload } from "@/app/_interface/issue";
 import { AddIssue } from "./_components/add-issue";
 import { IssueRowActions } from "./_components/row-actions";
 import { useParams } from "next/navigation";
+import { displayIcon, statusBadge } from "@/app/_utils/common-functionality";
 
 export default function Issues() {
   const columns: ColumnDef<IIssue>[] = [
@@ -48,21 +49,14 @@ export default function Issues() {
       accessorKey: "priority",
       header: "Priority",
       cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("priority")}</div>
-      ),
-    },
-    {
-      accessorKey: "description",
-      header: "Description",
-      cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("description")}</div>
+        <div className="capitalize flex items-center">{displayIcon(row.getValue("priority"))} {row.getValue("priority")}</div>
       ),
     },
     {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("status")}</div>
+        <div className="capitalize">{statusBadge(row.getValue("status"))}</div>
       ),
     },
     {
@@ -168,9 +162,9 @@ export default function Issues() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}

@@ -7,7 +7,6 @@ export interface IProjectPayload {
     endDate: Date;
     description?: string;
     isActive?: boolean;
-    // id:string;
 }
 
 
