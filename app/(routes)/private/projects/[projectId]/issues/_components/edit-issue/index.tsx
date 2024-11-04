@@ -23,7 +23,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { IIssue} from "@/app/_interface/issue";
+import { IIssue } from "@/app/_interface/issue";
 import {
   Select,
   SelectContent,
@@ -40,7 +40,7 @@ import {
 import { updateIssueService } from "@/app/_services/issue.service";
 import { Textarea } from "@/components/ui/text-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import IssueAttachments from "../attachments";
+import IssueAttachments from "../attachments/issue-attachment";
 
 const issueSchema = z.object({
   title: z.string().min(1, "Required"),
@@ -269,7 +269,7 @@ const EditIssue = ({
             </div>
           </TabsContent>
           <TabsContent value="attachments">
-            <IssueAttachments />
+            <IssueAttachments issueId={issueId} isUpdate={true} />
           </TabsContent>
         </Tabs>
       </SheetContent>

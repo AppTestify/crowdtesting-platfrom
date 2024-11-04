@@ -3,14 +3,10 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Delete,
-  DeleteIcon,
-  Download,
   Loader2,
-  Paperclip,
   Plus,
 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import toasterService from "@/app/_services/toaster-service";
 import {
@@ -39,7 +35,6 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -51,7 +46,7 @@ import {
 import { Textarea } from "@/components/ui/text-area";
 import { useParams } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import IssueAttachments from "../attachments";
+import IssueAttachments from "../attachments/issue-attachment";
 import { IssueTab } from "../../_constants";
 
 const projectSchema = z.object({
@@ -86,6 +81,13 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
     setTab(value);
   };
 
+  useEffect(() => {
+    if (sheetOpen) {
+      setIssueId("");
+      setTab(IssueTab.SUMMARY);
+    }
+  }, [sheetOpen]);
+
   async function onSubmit(values: z.infer<typeof projectSchema>) {
     setIsLoading(true);
     try {
@@ -93,6 +95,7 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
       if (response) {
         setIssueId(response.id);
         setTab(IssueTab.ATTACHMENTS);
+        refreshIssues();
         toasterService.success(response.message);
       }
     } catch (error) {
@@ -264,7 +267,7 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
             </div>
           </TabsContent>
           <TabsContent value={IssueTab.ATTACHMENTS}>
-            <IssueAttachments />
+            <IssueAttachments issueId={issueId} isUpdate={false} />
           </TabsContent>
         </Tabs>
       </SheetContent>
