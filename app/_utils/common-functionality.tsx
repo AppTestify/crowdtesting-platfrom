@@ -5,11 +5,11 @@ import { Badge } from "@/components/ui/badge";
 export const displayIcon = (priority: string) => {
     switch (priority) {
         case Priority.LOW:
-            return <ChevronDown className="text-green-400" />;
+            return <ChevronDown className="text-green-400 w-6" />;
         case Priority.NORMAL:
-            return <Equal className="text-yellow-400" />;
+            return <Equal className="text-yellow-400 w-6" />;
         case Priority.HIGH:
-            return <ChevronUp className="text-red-400" />;
+            return <ChevronUp className="text-red-400 w-6" />;
         default:
             return null;
     }

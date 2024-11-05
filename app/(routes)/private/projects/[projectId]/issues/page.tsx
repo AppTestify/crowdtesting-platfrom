@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { getIssuesService } from "@/app/_services/issue.service";
-import { IIssue, IIssuePayload } from "@/app/_interface/issue";
+import { IIssue } from "@/app/_interface/issue";
 import { AddIssue } from "./_components/add-issue";
 import { IssueRowActions } from "./_components/row-actions";
 import { useParams } from "next/navigation";
@@ -49,7 +49,7 @@ export default function Issues() {
       accessorKey: "priority",
       header: "Priority",
       cell: ({ row }) => (
-        <div className="capitalize flex items-center">{displayIcon(row.getValue("priority"))} {row.getValue("priority")}</div>
+        <div className="capitalize flex items-center"><span className="mr-1">{displayIcon(row.getValue("priority"))} </span>{row.getValue("priority")}</div>
       ),
     },
     {

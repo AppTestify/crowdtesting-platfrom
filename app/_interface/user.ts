@@ -11,4 +11,15 @@ export interface IProfilePicture {
   _id: string;
   data: string;
   contentType: string;
+  name: string;
+}
+
+export interface IUserByAdmin {
+  firstName?: string;
+  lastName?: string;
+  email: string;
+  role: string;
+  isActive?: boolean;
+  id?: string;
+  profilePicture?: IProfilePicture;
 }

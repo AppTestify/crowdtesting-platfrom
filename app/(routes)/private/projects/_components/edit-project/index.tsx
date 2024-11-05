@@ -34,6 +34,7 @@ import {
   SheetTitle
 } from "@/components/ui/sheet";
 import TextEditor from "../text-editor";
+import { formatSimpleDate } from "@/app/_constants/date-formatter";
 
 const projectSchema = z.object({
   title: z.string().min(1, "Required"),
@@ -93,6 +94,10 @@ const EditProject = ({
     }
   }
 
+  const formatDate = (date: Date) => {
+    return formatSimpleDate(date);
+  }
+
   return (
     <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
       <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px]">
@@ -138,8 +143,8 @@ const EditProject = ({
                                 !field.value && "text-muted-foreground"
                               )}
                             >
-                              {field.value ? (
-                                format(field.value, "PPP")
+                              {field?.value ? (
+                                formatDate(field.value)
                               ) : (
                                 <span>Start date</span>
                               )}
@@ -178,8 +183,8 @@ const EditProject = ({
                                 !field.value && "text-muted-foreground"
                               )}
                             >
-                              {field.value ? (
-                                format(field.value, "PPP")
+                              {field?.value ? (
+                                formatDate(field.value)
                               ) : (
                                 <span>End date</span>
                               )}

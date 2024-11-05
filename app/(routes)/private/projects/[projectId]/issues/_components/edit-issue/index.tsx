@@ -182,7 +182,8 @@ const EditIssue = ({
                                 {PRIORITY_LIST.map((priority) => (
                                   <SelectItem value={priority}>
                                     <div className="flex items-center">
-                                      {displayIcon(priority)} {priority}
+                                      <span className="mr-1">{displayIcon(priority)}</span>
+                                      {priority}
                                     </div>
                                   </SelectItem>
                                 ))}
@@ -274,7 +275,7 @@ const EditIssue = ({
             </div>
           </TabsContent>
           <TabsContent value="attachments">
-            <IssueAttachments issueId={issueId} isUpdate={true} />
+            <IssueAttachments issueId={issueId} isUpdate={true} isView={false} />
           </TabsContent>
         </Tabs>
       </SheetContent>

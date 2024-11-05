@@ -14,10 +14,12 @@ export function AttachmentRowActions({
     row,
     refreshAttachments,
     issueId,
+    isView
 }: {
     row: Row<IIssueAttachmentDisplay>;
     refreshAttachments: () => void;
     issueId: string;
+    isView: boolean;
 }) {
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -73,16 +75,18 @@ export function AttachmentRowActions({
                 <Button variant="ghost" size="icon" onClick={() => getFile()}>
                     <Download className="h-4 w-4" />
                 </Button>
-                <Button
-                    onClick={() => {
-                        setIsDeleteOpen(true);
-                        setIsLoading(false);
-                    }}
-                    variant="ghost"
-                    size="icon"
-                >
-                    <Trash className="h-4 w-4 text-destructive" />
-                </Button>
+                {!isView ?
+                    <Button
+                        onClick={() => {
+                            setIsDeleteOpen(true);
+                            setIsLoading(false);
+                        }}
+                        variant="ghost"
+                        size="icon"
+                    >
+                        <Trash className="h-4 w-4 text-destructive" />
+                    </Button>
+                    : ''}
             </div>
         </>
     );

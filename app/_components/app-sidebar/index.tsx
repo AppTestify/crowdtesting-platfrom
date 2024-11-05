@@ -12,7 +12,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { navMain, teams } from "@/app/_constants/sidebar";
+import { getSidebarItems, navMain, teams } from "@/app/_constants/sidebar";
 import { useSession } from "next-auth/react";
 import { toTitleCase } from "@/app/_utils/string-formatters";
 
@@ -23,11 +23,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     email: string;
     profilePicture?: any;
   } | null>(null);
+  const [user, setUser] = React.useState<any>();
 
   React.useEffect(() => {
     if (data) {
       const { user } = data;
       setUserIdentity(user);
+      setUser(user);
     }
   }, [data]);
 
@@ -54,7 +56,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <TeamSwitcher teams={teams} />
         </SidebarHeader>
         <SidebarContent>
-          <NavMain items={navMain} />
+          <NavMain items={getSidebarItems(user)} />
         </SidebarContent>
         <SidebarFooter>
           <NavUser user={identity} />

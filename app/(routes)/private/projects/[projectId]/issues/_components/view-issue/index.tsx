@@ -46,7 +46,8 @@ const ViewIssue = ({
                     <div className="flex">
                         <SheetTitle className="text-left">{issueData?.title}</SheetTitle>
                         <div className="ml-6 flex items-center">
-                            {displayIcon(issue?.priority)} {issue?.priority}
+                            <span className="mr-1">{displayIcon(issue?.priority)}</span>
+                            {issue?.priority}
                         </div>
                     </div>
                 </SheetHeader>
@@ -58,11 +59,11 @@ const ViewIssue = ({
                     </TabsList>
                     <TabsContent value="summary">
                         <div>
-                            <div className="flex mx-8 mt-4">
+                            <div className="flex mt-4">
                                 <p>Severity: {issue?.severity}</p>
                                 <p className="ml-8">Status: {statusBadge(issue?.status)}</p>
                             </div>
-                            <div className="mt-3"
+                            <div className="mt-4"
                                 dangerouslySetInnerHTML={{
                                     __html: issueData?.description || '',
                                 }}
@@ -70,7 +71,7 @@ const ViewIssue = ({
                         </div>
                     </TabsContent>
                     <TabsContent value="attachments">
-                        <IssueAttachments issueId={issueId} isUpdate={true} />
+                        <IssueAttachments issueId={issueId} isUpdate={true} isView={true} />
                     </TabsContent>
                 </Tabs>
             </SheetContent>

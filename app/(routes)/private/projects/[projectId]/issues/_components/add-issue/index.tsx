@@ -212,7 +212,8 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
                                 {PRIORITY_LIST.map((priority) => (
                                   <SelectItem value={priority}>
                                     <div className="flex items-center">
-                                      {displayIcon(priority)} {priority}
+                                      <span className="mr-1">{displayIcon(priority)}</span>
+                                      {priority}
                                     </div>
                                   </SelectItem>
                                 ))}
@@ -277,7 +278,7 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
             </div>
           </TabsContent>
           <TabsContent value={IssueTab.ATTACHMENTS}>
-            <IssueAttachments issueId={issueId} isUpdate={false} />
+            <IssueAttachments issueId={issueId} isUpdate={false} isView={false} />
           </TabsContent>
         </Tabs>
       </SheetContent>

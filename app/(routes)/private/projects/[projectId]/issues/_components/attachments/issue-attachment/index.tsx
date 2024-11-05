@@ -12,7 +12,7 @@ import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { AttachmentRowActions } from "../row-actions";
 
-export default function IssueAttachments({ issueId, isUpdate }: IssueAttachmentsProps) {
+export default function IssueAttachments({ issueId, isUpdate, isView }: IssueAttachmentsProps) {
   const columns: ColumnDef<IIssueAttachmentDisplay>[] = [
     {
       accessorKey: "id",
@@ -42,7 +42,7 @@ export default function IssueAttachments({ issueId, isUpdate }: IssueAttachments
       id: "actions",
       enableHiding: false,
       cell: ({ row }) => (
-        <AttachmentRowActions row={row} refreshAttachments={refreshAttachments} issueId={issueId} />
+        <AttachmentRowActions row={row} refreshAttachments={refreshAttachments} issueId={issueId} isView={isView} />
       ),
     },
   ];
@@ -129,31 +129,39 @@ export default function IssueAttachments({ issueId, isUpdate }: IssueAttachments
   return (
     <div className="mt-4">
       <div className="flex w-full items-center gap-2">
-        <div className="w-full">
-          <Label htmlFor="attachments">Attachments</Label>
-          <Input
-            className="mt-2"
-            id="attachments"
-            type="file"
-            multiple
-            onChange={handleFileChange}
-          />
-        </div>
-        <div className="flex flex-col">
-          <Label htmlFor="attachments" className="invisible">
-            Upload
-          </Label>
-          <Button
-            disabled={isLoading || attachments.length === 0}
-            className="mt-4"
-            onClick={uploadAttachment}
-          >
-            {isLoading ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : null}
-            {isLoading ? "Uploading" : "Upload"}
-          </Button>
-        </div>
+        {!isView ?
+          <>
+            <div className="w-full">
+              <Label htmlFor="attachments">Attachments</Label>
+              <Input
+                className="mt-2"
+                id="attachments"
+                type="file"
+                multiple
+                onChange={handleFileChange}
+              />
+            </div>
+            <div className="flex flex-col">
+              <Label htmlFor="attachments" className="invisible">
+                Upload
+              </Label>
+              <Button
+                disabled={isLoading || attachments.length === 0}
+                className="mt-4"
+                onClick={uploadAttachment}
+              >
+                {isLoading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : null}
+                {isLoading ? "Uploading" : "Upload"}
+              </Button>
+            </div>
+          </>
+          :
+          <div className="w-full">
+            <Label >Attachments</Label>
+          </div>
+        }
       </div>
       <div className="mt-6 rounded-md border">
         <Table>

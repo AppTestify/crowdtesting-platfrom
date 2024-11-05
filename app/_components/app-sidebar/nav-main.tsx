@@ -32,7 +32,7 @@ export function NavMain({
       <SidebarGroupLabel>Application</SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>
-          {items.map((item: any) => (
+          {items?.map((item: any) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild isActive={pathname === item.url} tooltip={item.title}>
                 <Link href={item.url}>

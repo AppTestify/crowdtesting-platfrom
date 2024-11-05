@@ -17,6 +17,7 @@ export const PAYMENT_ENDPOINT = "/api/users/payment";
 export const TESTER_ENDPOINT = "/api/users/testers";
 export const TESTER_PROFILE_ENDPOINT = "/api/users/testers/profile";
 export const FILES_ENDPOINT = "/api/users/file";
+export const USERS_ENDPOINT = "/api/users";
 
 export const GET_USER_ENDPOINT = (email: string) => {
   return `/api/users/${email}`;

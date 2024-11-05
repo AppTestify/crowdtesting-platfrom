@@ -8,3 +8,10 @@ export const userRoleUpdateSchema = z.object({
 export const paymentSchema = z.object({
   paypalId: z.string().min(1, "Paypal ID is required"),
 });
+
+export const userSchema = z.object({
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+  role: z.string().min(1, "Role is required"),
+  isActive: z.boolean()
+})

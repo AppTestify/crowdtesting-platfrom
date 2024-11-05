@@ -3,13 +3,15 @@ import {
   GET_USER_ENDPOINT,
   PAYMENT_ENDPOINT,
   PROFILE_PICTURE_ENDPOINT,
-  SIGN_UP_ENDPOINT,
+  USERS_ENDPOINT,
 } from "../_constants/api-endpoints";
+import { IUserByAdmin } from "../_interface/user";
 import {
   genericDelete,
   genericGet,
   genericPost,
   genericPostFormData,
+  genericPut,
 } from "./generic-api-methods";
 
 export const getUserByEmailService = async (email: string): Promise<any> => {
@@ -60,6 +62,46 @@ export const updatePaymentService = async (
     return response || {};
   } catch (error) {
     console.error(`Error > updatePaymentService:`, error);
+    throw error;
+  }
+};
+
+export const getUsersService = async (index: Number, pageSize: Number): Promise<any> => {
+  try {
+    const response = await genericGet(`${USERS_ENDPOINT}?page=${index}&limit=${pageSize}`);
+    return response || [];
+  } catch (error) {
+    console.error(`Error > getUsersService:`, error);
+    throw error;
+  }
+};
+
+export const addUserService = async (body: IUserByAdmin): Promise<any> => {
+  try {
+    const response = await genericPost(USERS_ENDPOINT, body);
+    return response || {};
+  } catch (error) {
+    console.error(`Error > addUserService:`, error);
+    throw error;
+  }
+};
+
+export const deleteUserService = async (userId: string): Promise<any> => {
+  try {
+    const response = await genericDelete(`${USERS_ENDPOINT}/id/${userId}`);
+    return response || {};
+  } catch (error) {
+    console.error(`Error > deleteUserService:`, error);
+    throw error;
+  }
+};
+
+export const updateUserService = async (userId: string | undefined, body: IUserByAdmin): Promise<any> => {
+  try {
+    const response = await genericPut(`${USERS_ENDPOINT}/id/${userId}`, body);
+    return response || {};
+  } catch (error) {
+    console.error(`Error > updateUserService:`, error);
     throw error;
   }
 };

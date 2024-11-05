@@ -27,3 +27,10 @@ export const googleSignInSchema = z.object({
 export const accountVerificationSchema = z.object({
   token: z.string(),
 });
+
+export const adminUserCreateSchema = z.object({
+  email: z.string().email({ message: "Invalid email address" }),
+  role: z.string(),
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+});

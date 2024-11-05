@@ -25,6 +25,7 @@ export interface IIssueAttachment {
 export interface IssueAttachmentsProps {
   issueId: string;
   isUpdate: boolean;
+  isView: boolean;
 }
 
 export interface IIssueAttachmentDisplay {
