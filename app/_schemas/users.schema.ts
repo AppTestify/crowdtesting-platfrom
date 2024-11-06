@@ -15,3 +15,11 @@ export const userSchema = z.object({
   role: z.string().min(1, "Role is required"),
   isActive: z.boolean()
 })
+
+export const usersBulkDeleteSchema = z.object({
+  ids: z.array(z.string()).nonempty("Atleast one user is required")
+});
+
+export const userStatusSchema = z.object({
+  isActive: z.boolean()
+});

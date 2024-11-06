@@ -3,9 +3,10 @@ import {
   GET_USER_ENDPOINT,
   PAYMENT_ENDPOINT,
   PROFILE_PICTURE_ENDPOINT,
+  USERS_BULK_DELETE_ENDPOINT,
   USERS_ENDPOINT,
 } from "../_constants/api-endpoints";
-import { IUserByAdmin } from "../_interface/user";
+import { IUserByAdmin, IUsersBulkDeletePayload } from "../_interface/user";
 import {
   genericDelete,
   genericGet,
@@ -102,6 +103,31 @@ export const updateUserService = async (userId: string | undefined, body: IUserB
     return response || {};
   } catch (error) {
     console.error(`Error > updateUserService:`, error);
+    throw error;
+  }
+};
+
+export const usersBulkDeleteService = async (
+  body: IUsersBulkDeletePayload
+): Promise<any> => {
+  try {
+    const response = await genericPost(USERS_BULK_DELETE_ENDPOINT, body);
+    return response || {};
+  } catch (error) {
+    console.error(`Error > usersBulkDeleteService:`, error);
+    throw error;
+  }
+};
+
+export const updateUserStausService = async (
+  userId: string | undefined,
+  isActive: boolean
+): Promise<any> => {
+  try {
+    const response = await genericPut(`${USERS_ENDPOINT}/id/${userId}/status`, { isActive });
+    return response || {};
+  } catch (error) {
+    console.error(`Error > updateuserStatusService:`, error);
     throw error;
   }
 };

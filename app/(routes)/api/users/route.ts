@@ -40,17 +40,17 @@ export async function GET(req: Request) {
         const url = new URL(req.url);
         const page = parseInt(url.searchParams.get('page') || '1', 10);
         const limit = parseInt(url.searchParams.get('limit') || '10', 10);
-        // const skip = (page == 0 ? 1 : page - 1) * limit;
+        const skip = (page == 0 ? 1 : page - 1) * limit;
 
         const response = normaliseIds(
-            await User.find({})
+            await User.find({ _id: { $ne: session.user._id } })
                 .populate("profilePicture")
                 .sort({ createdAt: -1 })
-                // .skip(skip)
+                .skip(skip)
                 .limit(Number(limit))
                 .lean()
         );
-        const totalUsers = await User.countDocuments();
+        const totalUsers = await User.countDocuments({ _id: { $ne: session.user._id } });
         return Response.json({ "users": response, "total": totalUsers });
     } catch (error: any) {
         return errorHandler(error);

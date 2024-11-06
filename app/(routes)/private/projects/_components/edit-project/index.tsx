@@ -79,8 +79,8 @@ const EditProject = ({
     try {
       const response = await updateProjectService(projectId, {
         ...values,
-        startDate: values.startDate.toISOString(),
-        endDate: values.endDate.toISOString(),
+        startDate: values.startDate,
+        endDate: values.endDate,
       });
       if (response) {
         refreshProjects();
@@ -144,7 +144,7 @@ const EditProject = ({
                               )}
                             >
                               {field?.value ? (
-                                formatDate(field.value)
+                                format(formatDate(field.value), "PPP")
                               ) : (
                                 <span>Start date</span>
                               )}
@@ -184,7 +184,7 @@ const EditProject = ({
                               )}
                             >
                               {field?.value ? (
-                                formatDate(field.value)
+                                format(formatDate(field.value), "PPP")
                               ) : (
                                 <span>End date</span>
                               )}

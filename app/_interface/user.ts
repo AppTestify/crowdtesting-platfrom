@@ -22,4 +22,9 @@ export interface IUserByAdmin {
   isActive?: boolean;
   id?: string;
   profilePicture?: IProfilePicture;
+  createdAt?: string;
+}
+
+export interface IUsersBulkDeletePayload {
+  ids: string[];
 }

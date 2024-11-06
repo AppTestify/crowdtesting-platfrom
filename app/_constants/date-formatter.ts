@@ -13,5 +13,5 @@ export function formatSimpleDate(dateString: string | Date): string {
     throw new Error("Invalid date format");
   }
 
-  return date.format("D/MM/YY");
+  return date.format("MM/D/YY");
 }

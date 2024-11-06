@@ -26,7 +26,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { USER_ROLE_LIST } from "@/app/_constants/user-roles";
 import { addUserService } from "@/app/_services/user.service";
 
@@ -86,7 +86,7 @@ export function AddUser({ refreshUsers }: { refreshUsers: () => void; }) {
             </SheetTrigger>
             <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px]">
                 <SheetHeader>
-                    <SheetTitle className="text-left">Add new User</SheetTitle>
+                    <SheetTitle className="text-left">Add new user</SheetTitle>
                     <SheetDescription className="text-left">
                         Unlock your potential! We'll match your unique skills and experience with projects tailored just for you,
                         helping you shine in roles that showcase your talents.

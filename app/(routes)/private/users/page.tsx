@@ -27,6 +27,14 @@ import { getUsersService } from "@/app/_services/user.service";
 import { IUserByAdmin } from "@/app/_interface/user";
 import { UserRowActions } from "./_components/row-actions";
 import { AddUser } from "./_components/add-user";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getAvatarFallbackText, getFormattedBase64ForSrc } from "@/app/_utils/string-formatters";
+import { UserBulkDelete } from "./_components/bulk-delete";
+import UserStatus from "./_components/user-status";
+import { Badge } from "@/components/ui/badge";
+import { USER_ROLE_LIST, UserRoles } from "@/app/_constants/user-roles";
+import { formatDistanceToNow } from "date-fns";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function Users() {
     const columns: ColumnDef<IUserByAdmin>[] = [
@@ -57,15 +65,19 @@ export default function Users() {
             header: "Profile Picture",
             cell: ({ row }) => (
                 <div className="flex">
-                    <img
-                        src={
-                            row.original?.profilePicture?.data
-                                ? `data:image/png;base64,${row.original?.profilePicture?.data}`
-                                : "https://forum.truckersmp.com/uploads/monthly_2021_09/imported-photo-263413.thumb.png.b03192243a3bc875b725619c6e24c3c1.png"
-                        }
-                        alt={row.original?.profilePicture?.name}
-                        className="rounded-full h-8 w-8"
-                    />
+                    <Avatar className="h-10 w-10">
+                        <AvatarImage
+                            src={getFormattedBase64ForSrc(row.original?.profilePicture)}
+                            alt="@profilePicture"
+                        />
+                        <AvatarFallback>
+                            {getAvatarFallbackText({
+                                ...row.original,
+                                name: `${row.original?.firstName || ""} ${row.original?.lastName || ""
+                                    }`,
+                            })}
+                        </AvatarFallback>
+                    </Avatar>
                 </div>
             ),
         },
@@ -81,8 +93,30 @@ export default function Users() {
             header: "Role",
             cell: ({ row }) => (
                 <div className="capitalize">
-                    {row.getValue("role")}
+                    {showRoleInBadges(row.getValue("role"))}
                 </div>
+            ),
+        },
+        {
+            accessorKey: "since",
+            header: "Since",
+            cell: ({ row }) => (
+                <div className="capitalize">
+                    {row.original?.createdAt
+                        ? formatDistanceToNow(new Date(row.original.createdAt), { addSuffix: true })
+                        : "Date not available"}
+                </div>
+            ),
+        },
+        {
+            accessorKey: "isActive",
+            header: "Status",
+            cell: ({ row }) => (
+                <UserStatus
+                    status={row.getValue("isActive")}
+                    userId={row.original?.id}
+                    refreshUsers={refreshUsers}
+                />
             ),
         },
         {
@@ -99,19 +133,33 @@ export default function Users() {
     const [rowSelection, setRowSelection] = useState({});
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [globalFilter, setGlobalFilter] = useState<unknown>([]);
-    const [projects, setProjects] = useState<IUserByAdmin[]>([]);
+    const [users, setUsers] = useState<IUserByAdmin[]>([]);
     const [pageIndex, setPageIndex] = useState(1);
-    const [pageSize, setPageSize] = useState(7);
+    const [pageSize, setPageSize] = useState(10);
     const [totalPageCount, setTotalPageCount] = useState(0);
+    const [filteredUsers, setFilteredUsers] = useState<IUserByAdmin[]>([]);
 
     useEffect(() => {
         getUsers();
-    }, []);
+    }, [pageIndex, pageSize]);
+
+    // filter by role
+    const filterUsersByRole = (role: string | null) => {
+        if (role) {
+            if (role === "ALL") {
+                setFilteredUsers(users);
+                return;
+            }
+            const filteredList = users.filter(user => user.role === role);
+            setFilteredUsers(filteredList);
+        }
+    };
 
     const getUsers = async () => {
         setIsLoading(true);
         const users = await getUsersService(pageIndex, pageSize);
-        setProjects(users?.users);
+        setUsers(users?.users);
+        setFilteredUsers(users?.users);
         setTotalPageCount(users?.total)
         setIsLoading(false);
     };
@@ -123,7 +171,7 @@ export default function Users() {
     };
 
     const table = useReactTable({
-        data: projects,
+        data: filteredUsers,
         columns,
         onSortingChange: setSorting,
         getCoreRowModel: getCoreRowModel(),
@@ -132,34 +180,45 @@ export default function Users() {
         getFilteredRowModel: getFilteredRowModel(),
         onColumnVisibilityChange: setColumnVisibility,
         onRowSelectionChange: setRowSelection,
-        pageCount: Math.ceil(totalPageCount / pageSize),
         globalFilterFn: "includesString",
         state: {
             sorting,
             globalFilter,
             columnVisibility,
             rowSelection,
-            pagination: {
-                pageIndex,
-                pageSize,
-            },
         },
         onGlobalFilterChange: setGlobalFilter,
-        onPaginationChange: (updater) => {
-            const newPagination =
-                typeof updater === "function"
-                    ? updater({ pageIndex, pageSize })
-                    : updater;
-            setPageIndex(newPagination.pageIndex);
-            setPageSize(newPagination.pageSize);
-        },
     });
 
     const getSelectedRows = () => {
-        return table.getFilteredSelectedRowModel().rows.map((row) => {
-            return row.original.id;
-        });
+        return table.getFilteredSelectedRowModel().rows.map((row) => row.original?.id)
+            .filter((id): id is string => id !== undefined);
     };
+
+    const handlePreviousPage = () => {
+        if (pageIndex > 1) {
+            setPageIndex(pageIndex - 1);
+        }
+    };
+
+    const handleNextPage = () => {
+        if (pageIndex < Math.ceil(totalPageCount / pageSize)) {
+            setPageIndex(pageIndex + 1);
+        }
+    };
+
+    const showRoleInBadges = (role: UserRoles) => {
+        switch (role) {
+            case UserRoles.ADMIN:
+                return <Badge className="bg-red-400 hover:bg-red-400">{UserRoles.ADMIN}</Badge>;
+            case UserRoles.CLIENT:
+                return <Badge className="bg-green-400 hover:bg-green-400">{UserRoles.CLIENT}</Badge>;
+            case UserRoles.TESTER:
+                return <Badge className="bg-blue-400 hover:bg-blue-400">{UserRoles.TESTER}</Badge>;
+            default:
+                return null;
+        }
+    }
 
     return (
         <main className="mx-4 mt-4">
@@ -181,12 +240,39 @@ export default function Users() {
                         className="max-w-sm"
                     />
                     <div className="flex gap-2 ml-2">
-                        {/* {getSelectedRows().length ? (
-                            <BulkDelete
+                        {getSelectedRows().length ? (
+                            <UserBulkDelete
                                 ids={getSelectedRows()}
                                 refreshUsers={refreshUsers}
                             />
-                        ) : null} */}
+                        ) : null}
+                        <div className="">
+                            <Select
+                                onValueChange={(value) => {
+                                    filterUsersByRole(value);
+                                }}
+                            >
+                                <SelectTrigger className="w-[180px]">
+                                    <SelectValue placeholder="Search by role" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectGroup>
+                                        <SelectItem value="ALL" key="ALL">
+                                            <div className="flex items-center">
+                                                All Roles
+                                            </div>
+                                        </SelectItem>
+                                        {USER_ROLE_LIST.map((role) => (
+                                            <SelectItem value={role} key={role}>
+                                                <div className="flex items-center">
+                                                    {role}
+                                                </div>
+                                            </SelectItem>
+                                        ))}
+                                    </SelectGroup>
+                                </SelectContent>
+                            </Select>
+                        </div>
                         <AddUser refreshUsers={refreshUsers} />
                     </div>
                 </div>
@@ -250,16 +336,16 @@ export default function Users() {
                         <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => table.previousPage()}
-                            disabled={!table.getCanPreviousPage()}
+                            onClick={handlePreviousPage}
+                            disabled={pageIndex === 1}
                         >
                             Previous
                         </Button>
                         <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => table.nextPage()}
-                            disabled={!table.getCanNextPage()}
+                            onClick={handleNextPage}
+                            disabled={pageIndex >= Math.ceil(totalPageCount / pageSize)}
                         >
                             Next
                         </Button>

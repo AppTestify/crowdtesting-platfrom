@@ -34,8 +34,6 @@ import {
 import { IUserByAdmin } from "@/app/_interface/user";
 import { USER_ROLE_LIST } from "@/app/_constants/user-roles";
 import { updateUserService } from "@/app/_services/user.service";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 
 const userSchema = z.object({
     firstName: z.string().optional(),
@@ -59,7 +57,6 @@ const EditUser = ({
     const userId = user?.id;
     const { firstName, lastName, email, role, isActive } = user;
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [isUserActive, setIsUserActive] = useState(isActive || false);
     const form = useForm<z.infer<typeof userSchema>>({
         resolver: zodResolver(userSchema),
         defaultValues: {
@@ -67,7 +64,7 @@ const EditUser = ({
             lastName: lastName || "",
             email: email || "",
             role: role || "",
-            isActive: isUserActive,
+            isActive: isActive,
         },
     });
 
@@ -77,7 +74,6 @@ const EditUser = ({
             const response = await updateUserService(userId, {
                 ...values,
                 email: email || "",
-                isActive: isUserActive
             });
             if (response) {
                 refreshUsers();
@@ -91,16 +87,11 @@ const EditUser = ({
         }
     }
 
-    const handleToggle = (checked: boolean) => {
-        setIsUserActive(checked);
-    };
-
-
     return (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
             <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px]">
                 <SheetHeader>
-                    <SheetTitle className="text-left">Edit User</SheetTitle>
+                    <SheetTitle className="text-left">Edit user</SheetTitle>
                     <SheetDescription className="text-left">
                         Unlock your potential! We'll match your unique skills and experience with projects tailored just for you,
                         helping you shine in roles that showcase your talents.
@@ -184,14 +175,6 @@ const EditUser = ({
                                         </FormItem>
                                     )}
                                 />
-                            </div>
-                            <div className="mt-6 w-full flex justify-end gap-2">
-                                <Switch
-                                    id="project-mode"
-                                    checked={isUserActive}
-                                    onCheckedChange={handleToggle}
-                                />
-                                <Label htmlFor="project-mode">{isUserActive ? "Active" : "In active"}</Label>
                             </div>
                             <div className="mt-6 w-full flex justify-end gap-2">
                                 <SheetClose asChild>
