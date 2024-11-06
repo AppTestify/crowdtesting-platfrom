@@ -115,3 +115,46 @@ export async function PUT(
         return errorHandler(error);
     }
 }
+
+export async function GET(
+    req: Request,
+    { params }: { params: { userId: string } }
+) {
+    try {
+        const session = await verifySession();
+        if (!session || !session.isAuth) {
+            return Response.json(
+                { message: USER_UNAUTHORIZED_SERVER_ERROR_MESSAGE },
+                { status: HttpStatusCode.UNAUTHORIZED }
+            );
+        }
+
+        if (!(await isAdmin(session?.user))) {
+            return Response.json(
+                { message: USER_UNAUTHORIZED_ERROR_MESSAGE },
+                { status: HttpStatusCode.UNAUTHORIZED }
+            );
+        }
+
+        const isDBConnected = await connectDatabase();
+        if (!isDBConnected) {
+            return Response.json(
+                {
+                    message: DB_CONNECTION_ERROR_MESSAGE,
+                },
+                { status: HttpStatusCode.INTERNAL_SERVER_ERROR }
+            );
+        }
+
+        const { userId } = params;
+        const response = await User.findById(userId).populate('profilePicture');
+
+        if (!response) {
+            throw new Error(GENERIC_ERROR_MESSAGE);
+        }
+
+        return Response.json(response);
+    } catch (error: any) {
+        return errorHandler(error);
+    }
+}

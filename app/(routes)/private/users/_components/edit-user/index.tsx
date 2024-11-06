@@ -54,7 +54,7 @@ const EditUser = ({
     setSheetOpen: React.Dispatch<React.SetStateAction<boolean>>;
     refreshUsers: () => void;
 }) => {
-    const userId = user?.id;
+    const userId = user?.id as string;
     const { firstName, lastName, email, role, isActive } = user;
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const form = useForm<z.infer<typeof userSchema>>({

@@ -29,12 +29,16 @@ import { z } from "zod";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { USER_ROLE_LIST } from "@/app/_constants/user-roles";
 import { addUserService } from "@/app/_services/user.service";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { HttpStatusCode } from "@/app/_constants/http-status-code";
 
 const userSchema = z.object({
     firstName: z.string().optional(),
     lastName: z.string().optional(),
     email: z.string().min(1, "Required").email('Invalid email address'),
-    role: z.string().min(1, 'Required')
+    role: z.string().min(1, 'Required'),
+    sendCredentials: z.boolean()
 });
 
 export function AddUser({ refreshUsers }: { refreshUsers: () => void; }) {
@@ -48,6 +52,7 @@ export function AddUser({ refreshUsers }: { refreshUsers: () => void; }) {
             lastName: "",
             email: "",
             role: "",
+            sendCredentials: false
         },
     });
 
@@ -56,6 +61,10 @@ export function AddUser({ refreshUsers }: { refreshUsers: () => void; }) {
         try {
             const response = await addUserService({ ...values });
             if (response) {
+                if (response.status === HttpStatusCode.BAD_REQUEST) {
+                    toasterService.error(response?.message);
+                    return;
+                }
                 refreshUsers();
                 toasterService.success(response?.message);
             }
@@ -165,6 +174,30 @@ export function AddUser({ refreshUsers }: { refreshUsers: () => void; }) {
                                                     </SelectGroup>
                                                 </SelectContent>
                                             </Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+                                <FormField
+                                    control={form.control}
+                                    name="sendCredentials"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="text-lg font-semibold text-gray-700">Send Credentials</FormLabel>
+                                            <FormControl>
+                                                <div className="flex items-center space-x-2 mt-2">
+                                                    <Checkbox
+                                                        id="terms"
+                                                        className="h-5 w-5 text-blue-500 border-gray-300 "
+                                                        checked={field.value}
+                                                        onCheckedChange={field.onChange}
+                                                    />
+                                                    <Label htmlFor="terms" className="text-gray-600">Send Credentials</Label>
+                                                </div>
+                                            </FormControl>
                                             <FormMessage />
                                         </FormItem>
                                     )}

@@ -1,6 +1,7 @@
 import { IPaymentPayload } from "../(routes)/private/profile/_components/payment";
 import {
   GET_USER_ENDPOINT,
+  GET_USER_ENPOINT,
   PAYMENT_ENDPOINT,
   PROFILE_PICTURE_ENDPOINT,
   USERS_BULK_DELETE_ENDPOINT,
@@ -89,7 +90,7 @@ export const addUserService = async (body: IUserByAdmin): Promise<any> => {
 
 export const deleteUserService = async (userId: string): Promise<any> => {
   try {
-    const response = await genericDelete(`${USERS_ENDPOINT}/id/${userId}`);
+    const response = await genericDelete(`${GET_USER_ENPOINT(userId)}`);
     return response || {};
   } catch (error) {
     console.error(`Error > deleteUserService:`, error);
@@ -97,9 +98,9 @@ export const deleteUserService = async (userId: string): Promise<any> => {
   }
 };
 
-export const updateUserService = async (userId: string | undefined, body: IUserByAdmin): Promise<any> => {
+export const updateUserService = async (userId: string, body: IUserByAdmin): Promise<any> => {
   try {
-    const response = await genericPut(`${USERS_ENDPOINT}/id/${userId}`, body);
+    const response = await genericPut(`${GET_USER_ENPOINT(userId)}`, body);
     return response || {};
   } catch (error) {
     console.error(`Error > updateUserService:`, error);
@@ -120,14 +121,34 @@ export const usersBulkDeleteService = async (
 };
 
 export const updateUserStausService = async (
-  userId: string | undefined,
+  userId: string,
   isActive: boolean
 ): Promise<any> => {
   try {
-    const response = await genericPut(`${USERS_ENDPOINT}/id/${userId}/status`, { isActive });
+    const response = await genericPut(`${GET_USER_ENPOINT(userId)}/status`, { isActive });
     return response || {};
   } catch (error) {
     console.error(`Error > updateuserStatusService:`, error);
+    throw error;
+  }
+};
+
+export const sendUserCredentialsService = async (userId: string): Promise<any> => {
+  try {
+    const response = await genericGet(`${GET_USER_ENPOINT(userId)}/send-credentials`);
+    return response || [];
+  } catch (error) {
+    console.error(`Error > sendUserCredentialsService:`, error);
+    throw error;
+  }
+};
+
+export const getUserService = async (userId: string): Promise<any> => {
+  try {
+    const response = await genericGet(`${GET_USER_ENPOINT(userId)}`);
+    return response || [];
+  } catch (error) {
+    console.error(`Error > getUsersService:`, error);
     throw error;
   }
 };

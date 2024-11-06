@@ -10,11 +10,12 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Row } from "@tanstack/react-table";
-import { Edit, MoreHorizontal, Trash } from "lucide-react";
+import { Edit, Eye, MoreHorizontal, Send, Trash } from "lucide-react";
 import { useState } from "react";
 import { IUserByAdmin } from "@/app/_interface/user";
-import { deleteUserService } from "@/app/_services/user.service";
+import { deleteUserService, sendUserCredentialsService } from "@/app/_services/user.service";
 import EditUser from "../edit-user";
+import ViewTesterIssue from "../view-user";
 
 export function UserRowActions({
     row,
@@ -24,6 +25,7 @@ export function UserRowActions({
     refreshUsers: () => void;
 }) {
     const [isEditOpen, setIsEditOpen] = useState(false);
+    const [isViewOpen, setIsViewOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const userId = row.original.id as string;
@@ -46,6 +48,20 @@ export function UserRowActions({
         }
     };
 
+    const sendUserCredentials = async () => {
+        try {
+            setIsLoading(true);
+            const response = await sendUserCredentialsService(userId);
+
+            if (response?.message) {
+                setIsLoading(false);
+                toasterService.success(response.message);
+            }
+        } catch (error) {
+            toasterService.error();
+        }
+    }
+
     return (
         <>
             <EditUser
@@ -53,6 +69,12 @@ export function UserRowActions({
                 sheetOpen={isEditOpen}
                 setSheetOpen={setIsEditOpen}
                 refreshUsers={refreshUsers}
+            />
+
+            <ViewTesterIssue
+                user={row.original as IUserByAdmin}
+                sheetOpen={isViewOpen}
+                setSheetOpen={setIsViewOpen}
             />
 
             <ConfirmationDialog
@@ -78,6 +100,27 @@ export function UserRowActions({
                     <DropdownMenuItem
                         className="mb-1"
                         onClick={() => {
+                            row.original.role == "TESTER" ?
+                                setIsViewOpen(true)
+                                : null
+                        }}
+                    >
+                        <Eye className="h-2 w-2" /> View
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator className="border-b" />
+                    <DropdownMenuItem
+                        className="mb-1"
+                        onClick={() => {
+                            sendUserCredentials();
+                        }}
+                    >
+                        <Send className="h-2 w-2 text-blue-400" />
+                        <span className="text-blue-400">Send</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator className="border-b" />
+                    <DropdownMenuItem
+                        className="mb-1"
+                        onClick={() => {
                             setIsEditOpen(true);
                         }}
                     >
@@ -95,7 +138,7 @@ export function UserRowActions({
                         <span className="text-destructive">Delete</span>
                     </DropdownMenuItem>
                 </DropdownMenuContent>
-            </DropdownMenu>
+            </DropdownMenu >
         </>
     );
 }

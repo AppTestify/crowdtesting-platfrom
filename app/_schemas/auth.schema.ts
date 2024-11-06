@@ -33,4 +33,5 @@ export const adminUserCreateSchema = z.object({
   role: z.string(),
   firstName: z.string().optional(),
   lastName: z.string().optional(),
+  sendCredentials: z.boolean(),
 });

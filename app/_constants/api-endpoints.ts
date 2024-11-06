@@ -31,3 +31,7 @@ export const GET_ISSUES_ENPOINT = (projectId: string) => {
 export const GET_ISSUE_ENPOINT = (projectId: string, issueId: string) => {
   return `/api/project/${projectId}/issue/${issueId}`;
 };
+
+export const GET_USER_ENPOINT = (userId: string) => {
+  return `${USERS_ENDPOINT}/id/${userId}`;
+};

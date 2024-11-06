@@ -23,8 +23,15 @@ export interface IUserByAdmin {
   id?: string;
   profilePicture?: IProfilePicture;
   createdAt?: string;
+  sendCredentials?: boolean;
 }
 
 export interface IUsersBulkDeletePayload {
   ids: string[];
+}
+
+export interface IUserCredentialsEmail {
+  email: string;
+  password: string;
+  role:string;
 }
