@@ -6,3 +6,7 @@ export interface IDocument {
   fileType: string;
   userId: string;
 }
+
+export interface IUserDocument {
+  documnets: IDocument[];
+}

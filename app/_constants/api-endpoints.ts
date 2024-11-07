@@ -35,3 +35,7 @@ export const GET_ISSUE_ENPOINT = (projectId: string, issueId: string) => {
 export const GET_USER_ENPOINT = (userId: string) => {
   return `${USERS_ENDPOINT}/id/${userId}`;
 };
+
+export const PAGINATION_QUERY_ENDPOINT = (index: Number, pageSize: Number) => {
+  return `?page=${index}&limit=${pageSize}`;
+}

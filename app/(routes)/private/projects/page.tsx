@@ -31,6 +31,7 @@ import { BulkDelete } from "./_components/bulk-delete";
 import ProjectStatus from "./_components/project-status";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { PAGINATION_LIMIT } from "@/app/_utils/common";
 
 export default function Projects() {
   const columns: ColumnDef<IProjectPayload>[] = [
@@ -109,24 +110,24 @@ export default function Projects() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [globalFilter, setGlobalFilter] = useState<unknown>([]);
   const [projects, setProjects] = useState<IProjectPayload[]>([]);
-
-
-  const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize, setPageSize] = useState(7);
+  const [pageIndex, setPageIndex] = useState(1);
+  const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
+  const [totalPageCount, setTotalPageCount] = useState(0);
 
   useEffect(() => {
     getProjects();
-  }, []);
+  }, [pageIndex, pageSize]);
 
   const getProjects = async () => {
     setIsLoading(true);
-    const projects = await getProjectsService();
-    const formattedProjects = projects.map((project: any) => ({
+    const response = await getProjectsService(pageIndex, pageSize);
+    const formattedProjects = response?.projects?.map((project: any) => ({
       ...project,
       startDate: formatDate(project.startDate),
       endDate: formatDate(project.endDate),
     }));
     setProjects(formattedProjects as IProjectPayload[]);
+    setTotalPageCount(response?.total)
     setIsLoading(false);
   };
 
@@ -152,26 +153,26 @@ export default function Projects() {
       globalFilter,
       columnVisibility,
       rowSelection,
-      pagination: {
-        pageIndex,
-        pageSize,
-      },
     },
     onGlobalFilterChange: setGlobalFilter,
-    onPaginationChange: (updater) => {
-      const newPagination =
-        typeof updater === "function"
-          ? updater({ pageIndex, pageSize })
-          : updater;
-      setPageIndex(newPagination.pageIndex);
-      setPageSize(newPagination.pageSize);
-    },
   });
 
   const getSelectedRows = () => {
     return table.getFilteredSelectedRowModel().rows.map((row) => {
       return row.original.id;
     });
+  };
+
+  const handlePreviousPage = () => {
+    if (pageIndex > 1) {
+      setPageIndex(pageIndex - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (pageIndex < Math.ceil(totalPageCount / pageSize)) {
+      setPageIndex(pageIndex + 1);
+    }
   };
 
   return (
@@ -264,16 +265,16 @@ export default function Projects() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
+              onClick={handlePreviousPage}
+              disabled={pageIndex === 1}
             >
               Previous
             </Button>
             <Button
               variant="outline"
               size="sm"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
+              onClick={handleNextPage}
+              disabled={pageIndex >= Math.ceil(totalPageCount / pageSize)}
             >
               Next
             </Button>

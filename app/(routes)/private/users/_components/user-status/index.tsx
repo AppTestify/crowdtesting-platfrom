@@ -10,7 +10,7 @@ export function SwitchUser({
     refreshUsers,
 }: {
     isActive: boolean;
-    userId: string | undefined;
+    userId: string;
     refreshUsers: () => void;
 }) {
     const [status, setStatus] = useState(isActive);
@@ -42,7 +42,7 @@ const UserStatus = ({
     refreshUsers,
 }: {
     status: boolean;
-    userId: string | undefined;
+    userId: string;
     refreshUsers: () => void;
 }) => {
     return (

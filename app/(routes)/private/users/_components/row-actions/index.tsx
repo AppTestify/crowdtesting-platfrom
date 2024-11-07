@@ -50,11 +50,9 @@ export function UserRowActions({
 
     const sendUserCredentials = async () => {
         try {
-            setIsLoading(true);
             const response = await sendUserCredentialsService(userId);
 
             if (response?.message) {
-                setIsLoading(false);
                 toasterService.success(response.message);
             }
         } catch (error) {
@@ -114,8 +112,7 @@ export function UserRowActions({
                             sendUserCredentials();
                         }}
                     >
-                        <Send className="h-2 w-2 text-blue-400" />
-                        <span className="text-blue-400">Send</span>
+                        <Send className="h-2 w-2 " /> Send
                     </DropdownMenuItem>
                     <DropdownMenuSeparator className="border-b" />
                     <DropdownMenuItem

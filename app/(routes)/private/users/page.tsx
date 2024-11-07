@@ -35,6 +35,9 @@ import { Badge } from "@/components/ui/badge";
 import { USER_ROLE_LIST, UserRoles } from "@/app/_constants/user-roles";
 import { formatDistanceToNow } from "date-fns";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { STATUS_LIST, UserStatusList } from "@/app/_constants/user-status";
+import { ListRestart } from "lucide-react";
+import { PAGINATION_LIMIT } from "@/app/_utils/common";
 
 export default function Users() {
     const columns: ColumnDef<IUserByAdmin>[] = [
@@ -114,7 +117,7 @@ export default function Users() {
             cell: ({ row }) => (
                 <UserStatus
                     status={row.getValue("isActive")}
-                    userId={row.original?.id}
+                    userId={row.original?.id as string}
                     refreshUsers={refreshUsers}
                 />
             ),
@@ -135,25 +138,42 @@ export default function Users() {
     const [globalFilter, setGlobalFilter] = useState<unknown>([]);
     const [users, setUsers] = useState<IUserByAdmin[]>([]);
     const [pageIndex, setPageIndex] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
+    const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
     const [totalPageCount, setTotalPageCount] = useState(0);
     const [filteredUsers, setFilteredUsers] = useState<IUserByAdmin[]>([]);
+    const [selectedStatus, setSelectedStatus] = useState<UserStatusList | null>(null);
+    const [selectedRole, setSelectedRole] = useState<string | null>(null);
 
     useEffect(() => {
         getUsers();
     }, [pageIndex, pageSize]);
 
-    // filter by role
-    const filterUsersByRole = (role: string | null) => {
-        if (role) {
-            if (role === "ALL") {
-                setFilteredUsers(users);
-                return;
-            }
-            const filteredList = users.filter(user => user.role === role);
-            setFilteredUsers(filteredList);
-        }
+    // filter by role and status
+    const filterUsers = (status: UserStatusList | null, role: string | null) => {
+        const filteredList = users.filter(user => {
+            const matchesStatus = status === null
+                || (status === UserStatusList.ACTIVE ? user.isActive : !user.isActive);
+            const matchesRole = role === null || user.role === role;
+            return matchesStatus && matchesRole;
+        });
+        setFilteredUsers(filteredList);
     };
+
+    const handleStatusChange = (status: UserStatusList | null) => {
+        setSelectedStatus(status);
+        filterUsers(status, selectedRole);
+    };
+
+    const handleRoleChange = (role: string | null) => {
+        setSelectedRole(role);
+        filterUsers(selectedStatus, role);
+    };
+
+    const resetFilter = () => {
+        setSelectedStatus(null);
+        setSelectedRole(null);
+        setFilteredUsers(users);
+    }
 
     const getUsers = async () => {
         setIsLoading(true);
@@ -246,22 +266,41 @@ export default function Users() {
                                 refreshUsers={refreshUsers}
                             />
                         ) : null}
+                        <div>
+                            <Select
+                                onValueChange={(value) => {
+                                    handleStatusChange(value as UserStatusList);
+                                }}
+                            >
+                                <SelectTrigger className="w-[150px]">
+                                    <SelectValue placeholder="Search by status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectGroup>
+                                        <SelectLabel>Status</SelectLabel>
+                                        {STATUS_LIST.map((status) => (
+                                            <SelectItem value={status} key={status}>
+                                                <div className="flex items-center">
+                                                    {status}
+                                                </div>
+                                            </SelectItem>
+                                        ))}
+                                    </SelectGroup>
+                                </SelectContent>
+                            </Select>
+                        </div>
                         <div className="">
                             <Select
                                 onValueChange={(value) => {
-                                    filterUsersByRole(value);
+                                    handleRoleChange(value);
                                 }}
                             >
-                                <SelectTrigger className="w-[180px]">
+                                <SelectTrigger className="w-[135px]">
                                     <SelectValue placeholder="Search by role" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectGroup>
-                                        <SelectItem value="ALL" key="ALL">
-                                            <div className="flex items-center">
-                                                All Roles
-                                            </div>
-                                        </SelectItem>
+                                        <SelectLabel>Role</SelectLabel>
                                         {USER_ROLE_LIST.map((role) => (
                                             <SelectItem value={role} key={role}>
                                                 <div className="flex items-center">
@@ -272,6 +311,11 @@ export default function Users() {
                                     </SelectGroup>
                                 </SelectContent>
                             </Select>
+                        </div>
+                        <div>
+                            <Button onClick={resetFilter} className="bg-red-500 hover:bg-red-500">
+                                <ListRestart />  Reset
+                            </Button>
                         </div>
                         <AddUser refreshUsers={refreshUsers} />
                     </div>

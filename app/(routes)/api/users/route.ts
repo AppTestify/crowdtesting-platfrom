@@ -5,6 +5,7 @@ import SendCredentials from "@/app/_helpers/sendEmailCredentials.helper";
 import { isAdmin, verifySession } from "@/app/_lib/dal";
 import { User } from "@/app/_models/user.model";
 import { adminUserCreateSchema } from "@/app/_schemas/auth.schema";
+import { serverSidePagination } from "@/app/_utils/common-server-side";
 import { normaliseIds } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 import { URL } from "url";
@@ -37,10 +38,7 @@ export async function GET(req: Request) {
             );
         }
 
-        const url = new URL(req.url);
-        const page = parseInt(url.searchParams.get('page') || '1', 10);
-        const limit = parseInt(url.searchParams.get('limit') || '10', 10);
-        const skip = (page == 0 ? 1 : page - 1) * limit;
+        const { skip, limit } = serverSidePagination(req);
         const response = normaliseIds(
             await User.find({ _id: { $ne: session.user._id } })
                 .populate("profilePicture")
@@ -108,7 +106,7 @@ export async function POST(req: Request) {
                     status: HttpStatusCode.BAD_REQUEST
                 })
         }
-        const hashedPassword = await emailCredentials.sendEmailCredentials({ email, role });
+        const hashedPassword = await emailCredentials.sendEmailCredentials({ email, role, sendCredentials });
 
         const newUser = new User({
             email,

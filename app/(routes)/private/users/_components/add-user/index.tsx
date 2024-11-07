@@ -186,7 +186,6 @@ export function AddUser({ refreshUsers }: { refreshUsers: () => void; }) {
                                     name="sendCredentials"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel className="text-lg font-semibold text-gray-700">Send Credentials</FormLabel>
                                             <FormControl>
                                                 <div className="flex items-center space-x-2 mt-2">
                                                     <Checkbox
@@ -195,7 +194,7 @@ export function AddUser({ refreshUsers }: { refreshUsers: () => void; }) {
                                                         checked={field.value}
                                                         onCheckedChange={field.onChange}
                                                     />
-                                                    <Label htmlFor="terms" className="text-gray-600">Send Credentials</Label>
+                                                    <Label htmlFor="terms" className="text-gray-600">Send credentials on email</Label>
                                                 </div>
                                             </FormControl>
                                             <FormMessage />

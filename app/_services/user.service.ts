@@ -2,6 +2,7 @@ import { IPaymentPayload } from "../(routes)/private/profile/_components/payment
 import {
   GET_USER_ENDPOINT,
   GET_USER_ENPOINT,
+  PAGINATION_QUERY_ENDPOINT,
   PAYMENT_ENDPOINT,
   PROFILE_PICTURE_ENDPOINT,
   USERS_BULK_DELETE_ENDPOINT,
@@ -70,7 +71,7 @@ export const updatePaymentService = async (
 
 export const getUsersService = async (index: Number, pageSize: Number): Promise<any> => {
   try {
-    const response = await genericGet(`${USERS_ENDPOINT}?page=${index}&limit=${pageSize}`);
+    const response = await genericGet(`${USERS_ENDPOINT}${PAGINATION_QUERY_ENDPOINT(index, pageSize)}`);
     return response || [];
   } catch (error) {
     console.error(`Error > getUsersService:`, error);

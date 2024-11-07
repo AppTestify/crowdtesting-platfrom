@@ -1,3 +1,6 @@
+import { IDocument } from "./document";
+import { ITester } from "./tester";
+
 export interface IUser {
   email: string;
   id: string;
@@ -24,6 +27,9 @@ export interface IUserByAdmin {
   profilePicture?: IProfilePicture;
   createdAt?: string;
   sendCredentials?: boolean;
+  tester?: ITester;
+  paypalId?: string;
+  file?: IDocument;
 }
 
 export interface IUsersBulkDeletePayload {
@@ -33,5 +39,5 @@ export interface IUsersBulkDeletePayload {
 export interface IUserCredentialsEmail {
   email: string;
   password: string;
-  role:string;
+  role: string;
 }

@@ -7,6 +7,15 @@ import { getUserService } from "@/app/_services/user.service";
 import toasterService from "@/app/_services/toaster-service";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getAvatarFallbackText, getFormattedBase64ForSrc } from "@/app/_utils/string-formatters";
+import { Badge } from "@/components/ui/badge";
+import { Divide, MapPin } from "lucide-react";
+import UserCertificates from "../certificates";
+import { ICertificatesView } from "@/app/_interface/tester";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import UserDocuments from "../documents";
+import { IDocument, IUserDocument } from "@/app/_interface/document";
 
 const ViewTesterIssue = ({
     user,
@@ -19,6 +28,7 @@ const ViewTesterIssue = ({
 }) => {
     const [isViewLoading, setIsViewLoading] = useState<boolean>(false);
     const [userData, setUserData] = useState<IUserByAdmin>();
+    const [isPaypalVisible, setIsPaypalVisible] = useState<boolean>(false);
     const userId = user?.id as string;
 
     const getUser = async () => {
@@ -28,7 +38,6 @@ const ViewTesterIssue = ({
             if (users) {
                 setUserData(users);
             }
-            console.log("userData", userData);
         } catch (error) {
             toasterService.error();
         } finally {
@@ -37,56 +46,137 @@ const ViewTesterIssue = ({
     };
 
     useEffect(() => {
-        if (userId) {
+        if (sheetOpen && userId) {
             getUser();
         }
-    }, [userId]);
+    }, [sheetOpen, userId]);
 
     return (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+
             <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px]">
                 <SheetHeader>
-                    <SheetTitle className="text-left">Profile Overview</SheetTitle>
-                    <DropdownMenuSeparator className="border-b" />
-                    <SheetTitle>
-                        <Avatar className="h-20 w-20">
-                            <AvatarImage
-                                src={getFormattedBase64ForSrc(userData?.profilePicture)}
-                                alt="@profilePicture"
-                            />
-                            <AvatarFallback>
-                                {getAvatarFallbackText({
-                                    ...userData,
-                                    name: `${userData?.firstName || ""} ${userData?.lastName || ""
-                                        }`,
-                                })}
-                            </AvatarFallback>
-                        </Avatar>
-                    </SheetTitle>
+                    <SheetTitle className="text-left">Tester View</SheetTitle>
                     <DropdownMenuSeparator className="border-b" />
                 </SheetHeader>
-
-                <Tabs defaultValue="summary" className="w-full my-3">
-                    <TabsList className="grid w-fit grid-cols-2">
-                        <TabsTrigger value="summary">Summary</TabsTrigger>
-                        <TabsTrigger value="attachments">Attachments</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="summary">
-                        <div>
-                            <div className="flex mt-4">
-                                {/* <p>Severity: {issue?.severity}</p>
-                                <p className="ml-8">Status: {statusBadge(issue?.status)}</p> */}
+                {isViewLoading ? (
+                    <div className="flex justify-center items-center h-32">
+                        <p className="text-gray-500">Loading...</p>
+                    </div>
+                ) : (
+                    <>
+                        <SheetTitle>
+                            <div className="flex items-center space-x-2 p-2">
+                                <Avatar className="h-16 w-16 rounded-full overflow-hidden">
+                                    <AvatarImage
+                                        src={getFormattedBase64ForSrc(userData?.profilePicture)}
+                                        alt="Profile Picture"
+                                        className="h-full w-full object-cover"
+                                    />
+                                    <AvatarFallback>
+                                        {getAvatarFallbackText({
+                                            ...userData,
+                                            name: `${userData?.firstName || ""} ${userData?.lastName || ""}`,
+                                            email: userData?.email || ""
+                                        })}
+                                    </AvatarFallback>
+                                </Avatar>
+                                <div className="flex flex-col space-y-1">
+                                    <div className="font-semibold text-gray-800 text-md truncate">
+                                        {userData?.firstName || "User"} {userData?.lastName || "Name"}
+                                    </div>
+                                    <div className="text-gray-500 text-sm truncate">
+                                        {userData?.email || "user@example.com"}
+                                    </div>
+                                </div>
                             </div>
-                            {/* <div className="mt-4"
-                                dangerouslySetInnerHTML={{
-                                    __html: issueData?.description || '',
-                                }}
-                            /> */}
-                        </div>
-                    </TabsContent>
-                </Tabs>
+                        </SheetTitle>
+                        <DropdownMenuSeparator className="border-b" />
+
+
+                        <Tabs defaultValue="overview" className="w-full my-3">
+                            <TabsList className="grid w-fit grid-cols-3">
+                                <TabsTrigger value="overview">Overview</TabsTrigger>
+                                <TabsTrigger value="documents">Documents</TabsTrigger>
+                                <TabsTrigger value="payments">Payments</TabsTrigger>
+                            </TabsList>
+                            <TabsContent value="overview">
+                                {/* Skills */}
+                                <div>
+                                    <div className="flex mt-2">
+                                        <p className="font-semibold">Skills</p>
+                                    </div>
+                                    {userData?.tester?.bio ?
+                                        <div>
+                                            {userData?.tester?.skills.map((skill) => (
+                                                <Badge className="px-2 py-1 mx-2 my-1">
+                                                    {skill}
+                                                </Badge>
+                                            ))}
+                                        </div>
+                                        :
+                                        <div className="text-center">No skills found</div>
+                                    }
+                                </div>
+                                {/* Address */}
+                                <div className="mt-2 ">
+                                    <div>
+                                        <p className="font-semibold text-lg">Address</p>
+                                    </div>
+                                    {userData?.tester?.address ?
+                                        <div className="flex items-start space-x-2 mx-2 my-1">
+                                            <MapPin className="text-gray-500 w-5 flex items-center" />
+                                            <div>
+                                                <p className="text-sm text-gray-800">{userData?.tester?.address.street}</p>
+                                                <p className="text-sm text-gray-800">{userData?.tester?.address.city}, {userData?.tester?.address.postalCode}</p>
+                                                <p className="text-sm text-gray-800">{userData?.tester?.address.country}</p>
+                                            </div>
+                                        </div>
+                                        :
+                                        <div className="text-center">No address found</div>
+                                    }
+                                </div>
+                                {/* Certificate */}
+                                <div>
+                                    <div>
+                                        <p className="font-semibold text-lg">Certificates</p>
+                                        <UserCertificates certificate={userData?.tester?.certifications as ICertificatesView[] | []} />
+                                    </div>
+                                </div>
+                            </TabsContent>
+                            <TabsContent value="documents">
+                                <UserDocuments documents={Array.isArray(userData?.file) ? (userData.file as IUserDocument[]) : []} />
+                            </TabsContent>
+                            <TabsContent value="payments">
+                                {userData?.paypalId ?
+                                    <div className="p-3">
+                                        <Label className="block mb-1">Paypal ID:</Label>
+                                        <Input
+                                            type={isPaypalVisible ? 'text' : 'password'}
+                                            disabled
+                                            value={userData?.paypalId || ""}
+                                            className={`border `}
+                                        />
+                                        <div className="flex items-center mt-2">
+                                            <Checkbox
+                                                id="terms"
+                                                className="h-5 w-5 text-blue-500 border-gray-300"
+                                                checked={isPaypalVisible}
+                                                onCheckedChange={() => setIsPaypalVisible(!isPaypalVisible)}
+                                            />
+                                            <Label htmlFor="terms" className="ml-2 text-gray-600">
+                                                Show Paypal ID
+                                            </Label>
+                                        </div>
+                                    </div>
+                                    : <div className="p-2">No Paypal ID found</div>
+                                }
+                            </TabsContent>
+                        </Tabs>
+                    </>
+                )}
             </SheetContent>
-        </Sheet>
+        </Sheet >
     )
 }
 

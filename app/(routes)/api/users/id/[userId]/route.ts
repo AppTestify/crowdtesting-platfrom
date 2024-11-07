@@ -1,8 +1,11 @@
 import { DB_CONNECTION_ERROR_MESSAGE, GENERIC_ERROR_MESSAGE, INVALID_INPUT_ERROR_MESSAGE, USER_UNAUTHORIZED_ERROR_MESSAGE, USER_UNAUTHORIZED_SERVER_ERROR_MESSAGE } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
+import { UserRoles } from "@/app/_constants/user-roles";
 import { connectDatabase } from "@/app/_db";
 import { isAdmin, verifySession } from "@/app/_lib/dal";
+import { File } from "@/app/_models/file.model";
 import { ProfilePicture } from "@/app/_models/profile.picture";
+import { Tester } from "@/app/_models/tester.model";
 import { User } from "@/app/_models/user.model";
 import { userSchema } from "@/app/_schemas/users.schema";
 import { errorHandler } from "@/app/_utils/error-handler";
@@ -147,10 +150,22 @@ export async function GET(
         }
 
         const { userId } = params;
-        const response = await User.findById(userId).populate('profilePicture');
+        let response = await User.findById(userId).populate('profilePicture');
 
         if (!response) {
             throw new Error(GENERIC_ERROR_MESSAGE);
+        }
+
+        if (response.role === UserRoles.TESTER) {
+            const tester = await Tester.findOne({ user: userId }).sort({ _id: -1 });
+            const file = await File.find({ userId: userId });
+            if (tester) {
+                response = response.toObject();
+                response.tester = tester;
+                if (file) {
+                    response.file = file;
+                }
+            }
         }
 
         return Response.json(response);

@@ -23,3 +23,11 @@ export const usersBulkDeleteSchema = z.object({
 export const userStatusSchema = z.object({
   isActive: z.boolean()
 });
+
+export const userPasswordSchema = z.object({
+  password: z.string().min(1, "Password is required"),
+  confirmedPassword: z.string().min(1, "Confirmed password is required"),
+}).refine((data) => data.password === data.confirmedPassword, {
+  message: "Password don't match",
+  path: ["confirmedPassword"]
+});

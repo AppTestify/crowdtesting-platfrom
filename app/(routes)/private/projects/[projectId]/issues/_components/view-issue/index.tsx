@@ -36,8 +36,10 @@ const ViewIssue = ({
     }
 
     useEffect(() => {
-        getAttachments()
-    }, []);
+        if (sheetOpen) {
+            getAttachments();
+        }
+    }, [sheetOpen, projectId]);
 
     return (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
