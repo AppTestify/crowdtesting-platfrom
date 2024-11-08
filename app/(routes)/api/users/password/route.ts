@@ -1,7 +1,7 @@
-import { DB_CONNECTION_ERROR_MESSAGE, GENERIC_ERROR_MESSAGE, INVALID_INPUT_ERROR_MESSAGE, INVALID_PASSWORD_ERROR_MESSAGE, USER_UNAUTHORIZED_ERROR_MESSAGE } from "@/app/_constants/errors";
+import { DB_CONNECTION_ERROR_MESSAGE, GENERIC_ERROR_MESSAGE, INVALID_INPUT_ERROR_MESSAGE, INVALID_OLD_PASSWORD_ERROR_MESSAGE, USER_UNAUTHORIZED_ERROR_MESSAGE } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
-import { isAdmin, verifySession } from "@/app/_lib/dal";
+import { verifySession } from "@/app/_lib/dal";
 import { User } from "@/app/_models/user.model";
 import { userPasswordSchema } from "@/app/_schemas/users.schema";
 import { errorHandler } from "@/app/_utils/error-handler";
@@ -9,19 +9,11 @@ import bcrypt from "bcryptjs";
 
 export async function PUT(
     req: Request,
-    { params }: { params: { userId: string } }
 ) {
     try {
         const session = await verifySession();
 
         if (!session) {
-            return Response.json(
-                { message: USER_UNAUTHORIZED_ERROR_MESSAGE },
-                { status: HttpStatusCode.UNAUTHORIZED }
-            );
-        }
-
-        if (!(await isAdmin(session?.user))) {
             return Response.json(
                 { message: USER_UNAUTHORIZED_ERROR_MESSAGE },
                 { status: HttpStatusCode.UNAUTHORIZED }
@@ -53,17 +45,16 @@ export async function PUT(
 
         const userId = session.user._id;
         const existingUser = await User.findById(userId);
-        const { password } = response.data;
+        const { password, oldPassword } = response.data;
 
         const isPasswordValid = await bcrypt.compare(
-            password,
+            oldPassword,
             existingUser.password
         );
 
         if (!isPasswordValid) {
             return Response.json(
-                { message: INVALID_PASSWORD_ERROR_MESSAGE },
-                { status: HttpStatusCode.UNAUTHORIZED }
+                { message: INVALID_OLD_PASSWORD_ERROR_MESSAGE, status: HttpStatusCode.BAD_REQUEST }
             );
         }
 

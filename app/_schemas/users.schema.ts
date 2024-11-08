@@ -27,6 +27,7 @@ export const userStatusSchema = z.object({
 export const userPasswordSchema = z.object({
   password: z.string().min(1, "Password is required"),
   confirmedPassword: z.string().min(1, "Confirmed password is required"),
+  oldPassword: z.string().min(1, "Old password is required")
 }).refine((data) => data.password === data.confirmedPassword, {
   message: "Password don't match",
   path: ["confirmedPassword"]

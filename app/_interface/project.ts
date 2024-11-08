@@ -1,4 +1,4 @@
-
+import { IUserByAdmin } from "./user";
 
 export interface IProjectPayload {
     id: string;
@@ -7,6 +7,7 @@ export interface IProjectPayload {
     endDate: Date;
     description?: string;
     isActive?: boolean;
+    userId?: IUserByAdmin;
 }
 
 export interface IProject {

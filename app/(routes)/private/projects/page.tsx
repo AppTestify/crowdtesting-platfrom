@@ -34,7 +34,7 @@ import Link from "next/link";
 import { PAGINATION_LIMIT } from "@/app/_utils/common";
 
 export default function Projects() {
-  const columns: ColumnDef<IProjectPayload>[] = [
+  let columns: ColumnDef<IProjectPayload>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -84,24 +84,6 @@ export default function Projects() {
         </div>
       ),
     },
-    {
-      accessorKey: "isActive",
-      header: "Status",
-      cell: ({ row }) => (
-        <ProjectStatus
-          status={row.getValue("isActive")}
-          projectId={row.original.id}
-          refreshProjects={refreshProjects}
-        />
-      ),
-    },
-    {
-      id: "actions",
-      enableHiding: false,
-      cell: ({ row }) => (
-        <RowActions row={row} refreshProjects={refreshProjects} />
-      ),
-    },
   ];
 
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -113,6 +95,41 @@ export default function Projects() {
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
   const [totalPageCount, setTotalPageCount] = useState(0);
+
+
+  const statusColumn: ColumnDef<IProjectPayload> = {
+    accessorKey: "isActive",
+    header: "Status",
+    cell: ({ row }) => ( 
+      <ProjectStatus
+        status={row.getValue("isActive")}
+        projectId={row.original.id}
+        refreshProjects={refreshProjects}
+      />
+    ),
+  };
+
+  const actionsColumn: ColumnDef<IProjectPayload> = {
+    id: "actions",
+    enableHiding: false,
+    cell: ({ row }) => <RowActions row={row} refreshProjects={refreshProjects} />,
+  };
+
+  const hasUserId = projects.some((item) => item.userId?._id);
+  columns = hasUserId
+    ? [
+      ...columns,
+      {
+        accessorKey: "createdBy",
+        header: "Created By",
+        cell: ({ row }) => <div>
+          {`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}
+        </div>,
+      },
+      statusColumn,
+      actionsColumn
+    ]
+    : [...columns, statusColumn, actionsColumn];
 
   useEffect(() => {
     getProjects();

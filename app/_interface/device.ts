@@ -1,4 +1,4 @@
-import { IUser } from "./user";
+import { IUserByAdmin } from "./user";
 
 export interface IDevice {
   id: string;
@@ -9,7 +9,8 @@ export interface IDevice {
   country: string;
   city: string;
   network: string;
-  userId?: IUser;
+  userId?: IUserByAdmin;
+  _id?: string;
 }
 
 export interface IDevicePayload {

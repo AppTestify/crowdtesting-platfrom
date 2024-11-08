@@ -1,6 +1,7 @@
 import { ChevronDown, ChevronUp, Equal } from "lucide-react";
 import { IssueStatus, Priority } from "../_constants/issue";
 import { Badge } from "@/components/ui/badge";
+import { UserRoles } from "../_constants/user-roles";
 
 export const displayIcon = (priority: string) => {
     switch (priority) {
@@ -27,6 +28,19 @@ export const statusBadge = (status: string | undefined) => {
             return <Badge className="bg-red-400 hover:bg-red-400">Invalid</Badge>;
         case IssueStatus.DEFERRED:
             return <Badge className="bg-yellow-400 hover:bg-yellow-400">Deferred</Badge>;
+        default:
+            return null;
+    }
+}
+
+export const showUsersRoleInBadges = (role: UserRoles) => {
+    switch (role) {
+        case UserRoles.ADMIN:
+            return <Badge className="bg-red-400 hover:bg-red-400">{UserRoles.ADMIN}</Badge>;
+        case UserRoles.CLIENT:
+            return <Badge className="bg-green-400 hover:bg-green-400">{UserRoles.CLIENT}</Badge>;
+        case UserRoles.TESTER:
+            return <Badge className="bg-blue-400 hover:bg-blue-400">{UserRoles.TESTER}</Badge>;
         default:
             return null;
     }

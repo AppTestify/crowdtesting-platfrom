@@ -7,6 +7,7 @@ import { TesterProfileTabs } from "./_constants";
 import { Separator } from "@/components/ui/separator";
 import Documents from "./_components/documents";
 import Payment from "../payment";
+import PasswordSetting from "../profile-password-setting";
 
 export default function TesterProfile({ user }: { user: any }) {
   return (
@@ -22,7 +23,7 @@ export default function TesterProfile({ user }: { user: any }) {
         <EditProfilePicture user={user} />
         <Separator className="my-4" />
         <Tabs defaultValue={TesterProfileTabs.OVERVIEW} className="w-full mt-4">
-          <TabsList className="grid grid-cols-3 mb-4 w-full md:w-fit">
+          <TabsList className="grid grid-cols-4 mb-4 w-full md:w-fit">
             <TabsTrigger
               value={TesterProfileTabs.OVERVIEW}
               className="flex items-center"
@@ -41,12 +42,12 @@ export default function TesterProfile({ user }: { user: any }) {
             >
               Payments
             </TabsTrigger>
-            {/* <TabsTrigger
+            <TabsTrigger
               value={TesterProfileTabs.SETTINGS}
               className="flex items-center"
             >
               Settings
-            </TabsTrigger> */}
+            </TabsTrigger>
           </TabsList>
           <TabsContent value={TesterProfileTabs.OVERVIEW} className="w-full">
             <ProfileOverview user={user} />
@@ -57,9 +58,9 @@ export default function TesterProfile({ user }: { user: any }) {
           <TabsContent value={TesterProfileTabs.PAYMENT} className="w-full">
             <Payment user={user} />
           </TabsContent>
-          {/* <TabsContent value={TesterProfileTabs.SETTINGS} className="w-full">
-            <h2>Settings</h2>
-          </TabsContent> */}
+          <TabsContent value={TesterProfileTabs.SETTINGS} className="w-full">
+            <PasswordSetting />
+          </TabsContent>
         </Tabs>
       </div>
     </>

@@ -18,9 +18,11 @@ import { downloadDocument } from "@/app/_utils/common";
 export function RowActions({
   row,
   refreshDocuments,
+  userId
 }: {
   row: Row<IDocument>;
   refreshDocuments: () => void;
+  userId?: string;
 }) {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -75,16 +77,18 @@ export function RowActions({
         <Button variant="ghost" size="icon" onClick={() => getFile()}>
           <Download className="h-4 w-4" />
         </Button>
-        <Button
-          onClick={() => {
-            setIsDeleteOpen(true);
-            setIsLoading(false);
-          }}
-          variant="ghost"
-          size="icon"
-        >
-          <Trash className="h-4 w-4 text-destructive" />
-        </Button>
+        {!userId &&
+          <Button
+            onClick={() => {
+              setIsDeleteOpen(true);
+              setIsLoading(false);
+            }}
+            variant="ghost"
+            size="icon"
+          >
+            <Trash className="h-4 w-4 text-destructive" />
+          </Button>
+        }
       </div>
     </>
   );

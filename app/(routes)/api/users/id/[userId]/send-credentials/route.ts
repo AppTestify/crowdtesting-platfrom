@@ -48,6 +48,7 @@ export async function GET(
         });
         const updateResponse = await User.findByIdAndUpdate(userId, {
             password: hashedPassword,
+            credentialsSentAt: new Date()
         }, { new: true });
 
         if (!updateResponse) {

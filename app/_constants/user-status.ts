@@ -4,7 +4,7 @@ export enum UserStatusList {
 }
 
 export const STATUS_LIST = [
-    UserStatusList.ACTIVE,
-    UserStatusList.INACTIVE
+    { "status": UserStatusList.ACTIVE, "value": true },
+    { "status": UserStatusList.INACTIVE, "value": false }
 ];
 

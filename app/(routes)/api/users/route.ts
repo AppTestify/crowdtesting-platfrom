@@ -38,16 +38,28 @@ export async function GET(req: Request) {
             );
         }
 
+        // Filter by role and status
+        const url = new URL(req.url);
+        const role = url.searchParams.get("role");
+        const status = url.searchParams.get("status");
+        const filter: any = { _id: { $ne: session.user._id } };
+        if (role) {
+            filter.role = role;
+        }
+        if (status) {
+            filter.isActive = status;
+        }
+
         const { skip, limit } = serverSidePagination(req);
         const response = normaliseIds(
-            await User.find({ _id: { $ne: session.user._id } })
+            await User.find(filter)
                 .populate("profilePicture")
                 .sort({ createdAt: -1 })
                 .skip(skip)
                 .limit(Number(limit))
                 .lean()
         );
-        const totalUsers = await User.countDocuments({ _id: { $ne: session.user._id } });
+        const totalUsers = await User.countDocuments(filter);
         return Response.json({ "users": response, "total": totalUsers });
     } catch (error: any) {
         return errorHandler(error);
@@ -115,6 +127,7 @@ export async function POST(req: Request) {
             firstName: firstName,
             lastName: lastName,
             sendCredentials: sendCredentials,
+            credentialsSentAt: sendCredentials ? new Date() : "",
             accountActivationMailSentAt: new Date(),
         });
         await newUser.save();

@@ -31,13 +31,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getAvatarFallbackText, getFormattedBase64ForSrc } from "@/app/_utils/string-formatters";
 import { UserBulkDelete } from "./_components/bulk-delete";
 import UserStatus from "./_components/user-status";
-import { Badge } from "@/components/ui/badge";
-import { USER_ROLE_LIST, UserRoles } from "@/app/_constants/user-roles";
+import { USER_ROLE_LIST } from "@/app/_constants/user-roles";
 import { formatDistanceToNow } from "date-fns";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { STATUS_LIST, UserStatusList } from "@/app/_constants/user-status";
-import { ListRestart } from "lucide-react";
+import { X } from "lucide-react";
 import { PAGINATION_LIMIT } from "@/app/_utils/common";
+import { showUsersRoleInBadges } from "@/app/_utils/common-functionality";
 
 export default function Users() {
     const columns: ColumnDef<IUserByAdmin>[] = [
@@ -96,7 +96,7 @@ export default function Users() {
             header: "Role",
             cell: ({ row }) => (
                 <div className="capitalize">
-                    {showRoleInBadges(row.getValue("role"))}
+                    {showUsersRoleInBadges(row.getValue("role"))}
                 </div>
             ),
         },
@@ -141,43 +141,31 @@ export default function Users() {
     const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
     const [totalPageCount, setTotalPageCount] = useState(0);
     const [filteredUsers, setFilteredUsers] = useState<IUserByAdmin[]>([]);
-    const [selectedStatus, setSelectedStatus] = useState<UserStatusList | null>(null);
-    const [selectedRole, setSelectedRole] = useState<string | null>(null);
+    const [selectedStatus, setSelectedStatus] = useState<UserStatusList | any>("");
+    const [selectedRole, setSelectedRole] = useState<string>("");
 
     useEffect(() => {
         getUsers();
-    }, [pageIndex, pageSize]);
+    }, [pageIndex, pageSize, selectedStatus, selectedRole]);
 
-    // filter by role and status
-    const filterUsers = (status: UserStatusList | null, role: string | null) => {
-        const filteredList = users.filter(user => {
-            const matchesStatus = status === null
-                || (status === UserStatusList.ACTIVE ? user.isActive : !user.isActive);
-            const matchesRole = role === null || user.role === role;
-            return matchesStatus && matchesRole;
-        });
-        setFilteredUsers(filteredList);
-    };
 
-    const handleStatusChange = (status: UserStatusList | null) => {
+    const handleStatusChange = (status: UserStatusList) => {
         setSelectedStatus(status);
-        filterUsers(status, selectedRole);
     };
 
-    const handleRoleChange = (role: string | null) => {
+    const handleRoleChange = (role: string) => {
         setSelectedRole(role);
-        filterUsers(selectedStatus, role);
     };
 
     const resetFilter = () => {
-        setSelectedStatus(null);
-        setSelectedRole(null);
+        setSelectedStatus("");
+        setSelectedRole("");
         setFilteredUsers(users);
     }
 
     const getUsers = async () => {
         setIsLoading(true);
-        const users = await getUsersService(pageIndex, pageSize);
+        const users = await getUsersService(pageIndex, pageSize, selectedRole, selectedStatus);
         setUsers(users?.users);
         setFilteredUsers(users?.users);
         setTotalPageCount(users?.total)
@@ -227,19 +215,6 @@ export default function Users() {
         }
     };
 
-    const showRoleInBadges = (role: UserRoles) => {
-        switch (role) {
-            case UserRoles.ADMIN:
-                return <Badge className="bg-red-400 hover:bg-red-400">{UserRoles.ADMIN}</Badge>;
-            case UserRoles.CLIENT:
-                return <Badge className="bg-green-400 hover:bg-green-400">{UserRoles.CLIENT}</Badge>;
-            case UserRoles.TESTER:
-                return <Badge className="bg-blue-400 hover:bg-blue-400">{UserRoles.TESTER}</Badge>;
-            default:
-                return null;
-        }
-    }
-
     return (
         <main className="mx-4 mt-4">
             <div className="">
@@ -266,8 +241,17 @@ export default function Users() {
                                 refreshUsers={refreshUsers}
                             />
                         ) : null}
+                        {selectedRole || selectedStatus ?
+                            <div>
+                                <Button onClick={resetFilter} className="px-3 bg-red-500 hover:bg-red-500">
+                                    <X />
+                                </Button>
+                            </div>
+                            : null
+                        }
                         <div>
                             <Select
+                                value={selectedStatus || ""}
                                 onValueChange={(value) => {
                                     handleStatusChange(value as UserStatusList);
                                 }}
@@ -277,11 +261,10 @@ export default function Users() {
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectGroup>
-                                        <SelectLabel>Status</SelectLabel>
                                         {STATUS_LIST.map((status) => (
-                                            <SelectItem value={status} key={status}>
+                                            <SelectItem value={String(status.value)} key={status.status}>
                                                 <div className="flex items-center">
-                                                    {status}
+                                                    {status.status}
                                                 </div>
                                             </SelectItem>
                                         ))}
@@ -291,6 +274,7 @@ export default function Users() {
                         </div>
                         <div className="">
                             <Select
+                                value={selectedRole || ""}
                                 onValueChange={(value) => {
                                     handleRoleChange(value);
                                 }}
@@ -300,7 +284,6 @@ export default function Users() {
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectGroup>
-                                        <SelectLabel>Role</SelectLabel>
                                         {USER_ROLE_LIST.map((role) => (
                                             <SelectItem value={role} key={role}>
                                                 <div className="flex items-center">
@@ -311,11 +294,6 @@ export default function Users() {
                                     </SelectGroup>
                                 </SelectContent>
                             </Select>
-                        </div>
-                        <div>
-                            <Button onClick={resetFilter} className="bg-red-500 hover:bg-red-500">
-                                <ListRestart />  Reset
-                            </Button>
                         </div>
                         <AddUser refreshUsers={refreshUsers} />
                     </div>

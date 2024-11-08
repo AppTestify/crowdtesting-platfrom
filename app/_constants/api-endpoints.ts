@@ -18,6 +18,7 @@ export const TESTER_ENDPOINT = "/api/users/testers";
 export const TESTER_PROFILE_ENDPOINT = "/api/users/testers/profile";
 export const FILES_ENDPOINT = "/api/users/file";
 export const USERS_ENDPOINT = "/api/users";
+export const USER_PASSWORD_ENDPOINT = "/api/users/password"
 export const USERS_BULK_DELETE_ENDPOINT = "/api/users/bulk/delete";
 
 export const GET_USER_ENDPOINT = (email: string) => {

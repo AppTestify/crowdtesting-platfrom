@@ -18,6 +18,7 @@ export interface IProfilePicture {
 }
 
 export interface IUserByAdmin {
+  _id?: string;
   firstName?: string;
   lastName?: string;
   email: string;
@@ -40,4 +41,10 @@ export interface IUserCredentialsEmail {
   email: string;
   password: string;
   role: string;
+}
+
+export interface IUserPassword {
+  password: string;
+  confirmedPassword: string;
+  oldPassword: string;
 }

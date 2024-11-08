@@ -8,14 +8,17 @@ import toasterService from "@/app/_services/toaster-service";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getAvatarFallbackText, getFormattedBase64ForSrc } from "@/app/_utils/string-formatters";
 import { Badge } from "@/components/ui/badge";
-import { Divide, MapPin } from "lucide-react";
+import { Copy, MapPin } from "lucide-react";
 import UserCertificates from "../certificates";
 import { ICertificatesView } from "@/app/_interface/tester";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import UserDocuments from "../documents";
-import { IDocument, IUserDocument } from "@/app/_interface/document";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { showUsersRoleInBadges } from "@/app/_utils/common-functionality";
+import { formatDistanceToNow } from "date-fns";
+import { UserRoles } from "@/app/_constants/user-roles";
+import Documents from "../../../profile/_components/tester-profile/_components/documents";
 
 const ViewTesterIssue = ({
     user,
@@ -29,6 +32,7 @@ const ViewTesterIssue = ({
     const [isViewLoading, setIsViewLoading] = useState<boolean>(false);
     const [userData, setUserData] = useState<IUserByAdmin>();
     const [isPaypalVisible, setIsPaypalVisible] = useState<boolean>(false);
+    const [open, setOpen] = useState(false);
     const userId = user?.id as string;
 
     const getUser = async () => {
@@ -50,6 +54,17 @@ const ViewTesterIssue = ({
             getUser();
         }
     }, [sheetOpen, userId]);
+
+    const copyEmail = (email: string) => {
+        navigator.clipboard.writeText(email)
+            .then(() => {
+                setOpen(true);
+                setTimeout(() => setOpen(false), 1500);
+            })
+            .catch((err) => {
+                console.error("Failed to copy email: ", err);
+            });
+    };
 
     return (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
@@ -85,8 +100,35 @@ const ViewTesterIssue = ({
                                     <div className="font-semibold text-gray-800 text-md truncate">
                                         {userData?.firstName || "User"} {userData?.lastName || "Name"}
                                     </div>
-                                    <div className="text-gray-500 text-sm truncate">
-                                        {userData?.email || "user@example.com"}
+                                    <TooltipProvider>
+                                        <div className="flex text-gray-500 text-sm truncate">
+                                            <span className="truncate">{userData?.email}</span>
+                                            <Tooltip open={open}>
+                                                <TooltipTrigger asChild>
+                                                    <span
+                                                        className="ml-2 flex-shrink-0 cursor-pointer"
+                                                        onClick={() => copyEmail(userData?.email as string)}
+                                                    >
+                                                        <Copy className="w-5" />
+                                                    </span>
+                                                </TooltipTrigger>
+                                                <TooltipContent side="top">
+                                                    Copied!
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </div>
+                                    </TooltipProvider>
+                                </div>
+                                <div className="flex-1 space-y-2">
+                                    <div className="text-end text-gray-500 text-sm">
+                                        {showUsersRoleInBadges(userData?.role as UserRoles)}
+                                    </div>
+                                    <div className="text-end text-xs text-gray-500">
+                                        {
+                                            userData?.createdAt ?
+                                                formatDistanceToNow(new Date(userData?.createdAt), { addSuffix: true }) :
+                                                "Date not available"
+                                        }
                                     </div>
                                 </div>
                             </div>
@@ -136,6 +178,19 @@ const ViewTesterIssue = ({
                                         <div className="text-center">No address found</div>
                                     }
                                 </div>
+                                {/* User Bio */}
+                                <div>
+                                    <p className="font-semibold text-lg">Bio</p>
+                                    {userData?.tester?.bio ?
+                                        <p className="mb-2">
+                                            {userData?.tester?.bio}
+                                        </p>
+                                        : <p className="text-center">No user bio found</p>
+                                    }
+                                    <div>
+
+                                    </div>
+                                </div>
                                 {/* Certificate */}
                                 <div>
                                     <div>
@@ -145,7 +200,8 @@ const ViewTesterIssue = ({
                                 </div>
                             </TabsContent>
                             <TabsContent value="documents">
-                                <UserDocuments documents={Array.isArray(userData?.file) ? (userData.file as IUserDocument[]) : []} />
+                                {/* <UserDocuments documents={Array.isArray(userData?.file) ? (userData.file as IUserDocument[]) : []} /> */}
+                                <Documents userId={userData?._id} />
                             </TabsContent>
                             <TabsContent value="payments">
                                 {userData?.paypalId ?

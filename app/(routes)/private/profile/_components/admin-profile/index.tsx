@@ -5,7 +5,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AdminProfileTabs } from "./_constants";
 import AdminProfileOverview from "./_components/overview";
-import AdminProfileSetting from "./_components/setting";
+import PasswordSetting from "../profile-password-setting";
 
 export default function AdminProfile({ user }: { user: any }) {
     return (
@@ -20,7 +20,7 @@ export default function AdminProfile({ user }: { user: any }) {
             <div className="my-4">
                 <EditProfilePicture user={user} />
                 <Separator className="my-4" />
-                <Tabs>
+                <Tabs defaultValue={AdminProfileTabs.OVERVIEW}>
                     <TabsList className="grid grid-cols-2 mb-4 w-full md:w-fit">
                         <TabsTrigger
                             value={AdminProfileTabs.OVERVIEW}
@@ -39,7 +39,7 @@ export default function AdminProfile({ user }: { user: any }) {
                         <AdminProfileOverview user={user} />
                     </TabsContent>
                     <TabsContent value={AdminProfileTabs.SETTINGS} className="w-full">
-                        <AdminProfileSetting user={user} />
+                        <PasswordSetting />
                     </TabsContent>
                 </Tabs>
             </div>

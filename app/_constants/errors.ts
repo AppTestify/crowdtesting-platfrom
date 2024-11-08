@@ -6,6 +6,7 @@ export const USER_UNAUTHORIZED_ERROR_MESSAGE =
 export const EMAIL_REQUIRED_ERROR_MESSAGE = "Email is required";
 export const USER_EXISTS_ERROR_MESSAGE = "Email already exists, try signing in";
 export const INVALID_PASSWORD_ERROR_MESSAGE = "Invalid password or email";
+export const INVALID_OLD_PASSWORD_ERROR_MESSAGE = "Invalid old password";
 export const USER_NOT_FOUND_ERROR_MESSAGE = "User not found";
 export const USER_UNAUTHORIZED_SERVER_ERROR_MESSAGE = "User unauthorized";
 export const GENERIC_ACCOUNT_VERIFICATION_ERROR_MESSAGE =

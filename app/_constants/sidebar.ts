@@ -18,13 +18,20 @@ export const teams = [
 
 export const getSidebarItems = (user: any) => {
   const role = user?.role;
+  const isVerified = user?.isVerified;
   if (role) {
     if (role === UserRoles.TESTER) {
-      return navMain;
-    } else if (role === UserRoles.ADMIN) {
-      return adminNavbar;
+      return navMain.map(item =>
+        item.title === "Projects" && !isVerified
+          ? { ...item, disabled: true }
+          : item
+      );
     }
+    // return navMain;
+  } else if (role === UserRoles.ADMIN) {
+    return adminNavbar;
   }
+
 }
 
 export const navMain = [
