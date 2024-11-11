@@ -1,10 +1,16 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronDown, ChevronUp, Equal, Loader2 } from "lucide-react";
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import {
+  ChevronDown,
+  ChevronRight,
+  ChevronUp,
+  Equal,
+  Loader2,
+  Plus,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 
 import toasterService from "@/app/_services/toaster-service";
 import {
@@ -22,8 +28,12 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
+  SheetTrigger,
 } from "@/components/ui/sheet";
-import { IIssue } from "@/app/_interface/issue";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { addIssueService } from "@/app/_services/issue.service";
 import {
   Select,
   SelectContent,
@@ -33,90 +43,111 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  IssueStatus,
+  Priority,
   PRIORITY_LIST,
   SEVERITY_LIST,
-  ISSUE_STATUS_LIST,
 } from "@/app/_constants/issue";
-import { updateIssueService } from "@/app/_services/issue.service";
+import { useParams } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import IssueAttachments from "../attachments/issue-attachment";
-import TextEditor from "../../../../_components/text-editor";
+import { IssueTab } from "../../_constants";
 import { displayIcon } from "@/app/_utils/common-functionality";
+import TextEditor from "@/app/(routes)/private/projects/_components/text-editor";
 
-const issueSchema = z.object({
+const projectSchema = z.object({
   title: z.string().min(1, "Required"),
   severity: z.string().min(1, "Required"),
   priority: z.string().min(1, "Required"),
-  description: z.string()
-    .min(10, "The description must be at least 10 characters long.")
-    .nonempty("Required."),
+  description: z.string().min(1, "Required"),
   status: z.string().optional(),
   projectId: z.string().optional(),
 });
 
-const EditIssue = ({
-  issue,
-  sheetOpen,
-  setSheetOpen,
-  refreshIssues,
-}: {
-  issue: IIssue;
-  sheetOpen: boolean;
-  setSheetOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  refreshIssues: () => void;
-}) => {
-  const issueId = issue?.id;
-  const { title, severity, priority, description, status, projectId } = issue;
+export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [tab, setTab] = useState<string>(IssueTab.SUMMARY);
+  const [issueId, setIssueId] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { projectId } = useParams<{ projectId: string }>();
 
-  const form = useForm<z.infer<typeof issueSchema>>({
-    resolver: zodResolver(issueSchema),
+  const form = useForm<z.infer<typeof projectSchema>>({
+    resolver: zodResolver(projectSchema),
     defaultValues: {
-      title: title || "",
-      severity: severity || "",
-      priority: priority || "",
-      description: description || "",
-      status: status || "",
-      projectId: projectId || "",
+      title: "",
+      severity: "",
+      priority: "",
+      description: "",
+      status: IssueStatus.NEW,
+      projectId: projectId,
     },
   });
 
-  async function onSubmit(values: z.infer<typeof issueSchema>) {
+  const onTabChange = (value: string) => {
+    setTab(value);
+  };
+
+  useEffect(() => {
+    if (sheetOpen) {
+      setIssueId("");
+      setTab(IssueTab.SUMMARY);
+    }
+  }, [sheetOpen]);
+
+  async function onSubmit(values: z.infer<typeof projectSchema>) {
     setIsLoading(true);
     try {
-      const response = await updateIssueService(projectId, issueId, {
-        ...values,
-      });
+      const response = await addIssueService(projectId, { ...values });
       if (response) {
+        setIssueId(response.id);
+        setTab(IssueTab.ATTACHMENTS);
         refreshIssues();
-        toasterService.success(response?.message);
+        toasterService.success(response.message);
       }
     } catch (error) {
       toasterService.error();
     } finally {
-      setSheetOpen(false);
       setIsLoading(false);
+      setSheetOpen(false);
     }
   }
 
+  const validateIssue = () => {
+    if (form.formState.isValid) {
+      form.handleSubmit(onSubmit);
+    }
+  };
+
+  const resetForm = () => {
+    form.reset();
+  };
+
   return (
     <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+      <SheetTrigger asChild>
+        <Button onClick={() => resetForm()}>
+          <Plus /> Add Issue
+        </Button>
+      </SheetTrigger>
       <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px]">
         <SheetHeader>
-          <SheetTitle className="text-left">Edit Issue</SheetTitle>
+          <SheetTitle className="text-left">Add new issue</SheetTitle>
           <SheetDescription className="text-left">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor a
-            totam blanditiis veniam laudantium dolores quidem id magni ut
-            dignissimos.
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Recusandae
+            culpa sequi laborum ratione nobis saepe omnis est perspiciatis
+            placeat quis?
           </SheetDescription>
         </SheetHeader>
-
-        <Tabs defaultValue="summary" className="w-full my-3">
+        <Tabs value={tab} onValueChange={onTabChange} className="w-full my-3">
           <TabsList className="grid w-fit grid-cols-2">
-            <TabsTrigger value="summary">Summary</TabsTrigger>
-            <TabsTrigger value="attachments">Attachments</TabsTrigger>
+            <TabsTrigger value={IssueTab.SUMMARY}>
+              {IssueTab.SUMMARY}
+            </TabsTrigger>
+            <TabsTrigger value={IssueTab.ATTACHMENTS} disabled={!issueId}>
+              Attachments
+            </TabsTrigger>
           </TabsList>
-          <TabsContent value="summary">
+          <TabsContent value={IssueTab.SUMMARY}>
             <div>
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} method="post">
@@ -195,36 +226,7 @@ const EditIssue = ({
                       )}
                     />
                   </div>
-                  <div className="w-full mt-3">
-                    <FormField
-                      control={form.control}
-                      name="status"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-col">
-                          <FormLabel>Status</FormLabel>
 
-                          <Select
-                            onValueChange={field.onChange}
-                            value={field.value}
-                          >
-                            <SelectTrigger className="w-full">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectGroup>
-                                {ISSUE_STATUS_LIST.map((status) => (
-                                  <SelectItem value={status}>
-                                    {status}
-                                  </SelectItem>
-                                ))}
-                              </SelectGroup>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
                   <div className="grid grid-cols-1 gap-2 mt-4">
                     <FormField
                       control={form.control}
@@ -246,6 +248,7 @@ const EditIssue = ({
                       )}
                     />
                   </div>
+
                   <div className="mt-6 w-full flex justify-end gap-2">
                     <SheetClose asChild>
                       <Button
@@ -262,25 +265,24 @@ const EditIssue = ({
                       disabled={isLoading}
                       type="submit"
                       size="lg"
+                      onClick={() => validateIssue()}
                       className="w-full md:w-fit"
                     >
                       {isLoading ? (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       ) : null}
-                      {isLoading ? "Updating" : "Update"}
+                      {isLoading ? "Saving" : "Continue"}
                     </Button>
                   </div>
                 </form>
               </Form>
             </div>
           </TabsContent>
-          <TabsContent value="attachments">
-            <IssueAttachments issueId={issueId} isUpdate={true} isView={false} />
+          <TabsContent value={IssueTab.ATTACHMENTS}>
+            <IssueAttachments issueId={issueId} isUpdate={false} isView={false} />
           </TabsContent>
         </Tabs>
       </SheetContent>
     </Sheet>
   );
-};
-
-export default EditIssue;
+}

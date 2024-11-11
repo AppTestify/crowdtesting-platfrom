@@ -96,3 +96,28 @@ export async function DELETE(
         return errorHandler(error);
     }
 }
+
+export async function GET(
+    req: Request,
+    { params }: { params: { projectId: string } }
+) {
+    try {
+        const isDBConnected = await connectDatabase();
+        if (!isDBConnected) {
+            return Response.json(
+                {
+                    message: DB_CONNECTION_ERROR_MESSAGE,
+                },
+                { status: HttpStatusCode.INTERNAL_SERVER_ERROR }
+            );
+        }
+
+        const { projectId } = params;
+
+        const response = await Project.findById(projectId).select("_id title createdAt");
+
+        return Response.json(response);
+    } catch (error: any) {
+        return errorHandler(error);
+    }
+}

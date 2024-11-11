@@ -19,3 +19,7 @@ export const projectsBulkDeleteSchema = z.object({
 export const projectStatusSchema = z.object({
     isActive: z.boolean()
 });
+
+export const projectUserSchema = z.object({
+    userId: z.string().min(1, "UserId is required")
+});

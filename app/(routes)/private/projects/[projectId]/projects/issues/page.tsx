@@ -129,7 +129,7 @@ export default function Issues() {
   });
 
   return (
-    <main className="mx-4 mt-4">
+    <main className="mx-4 mt-2">
       <div className="">
         <h2 className="text-medium">Issues</h2>
         <span className="text-xs text-gray-600">

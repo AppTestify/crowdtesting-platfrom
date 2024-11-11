@@ -109,7 +109,7 @@ const ViewTesterIssue = ({
                                                         className="ml-2 flex-shrink-0 cursor-pointer"
                                                         onClick={() => copyEmail(userData?.email as string)}
                                                     >
-                                                        <Copy className="w-5" />
+                                                        <Copy className="w-4" />
                                                     </span>
                                                 </TooltipTrigger>
                                                 <TooltipContent side="top">
@@ -134,7 +134,6 @@ const ViewTesterIssue = ({
                             </div>
                         </SheetTitle>
                         <DropdownMenuSeparator className="border-b" />
-
 
                         <Tabs defaultValue="overview" className="w-full my-3">
                             <TabsList className="grid w-fit grid-cols-3">

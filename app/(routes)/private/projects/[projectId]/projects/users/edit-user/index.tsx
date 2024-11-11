@@ -1,0 +1,159 @@
+import { Button } from "@/components/ui/button";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+
+import toasterService from "@/app/_services/toaster-service";
+import {
+    Form,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from "@/components/ui/form";
+import {
+    Sheet,
+    SheetClose,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+} from "@/components/ui/sheet";
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { useParams } from "next/navigation";
+import { PROJECT_USER_ROLE_LIST } from "@/app/_constants/project-user-roles";
+import { IProjectUserDisplay } from "@/app/_interface/project";
+import { Input } from "@/components/ui/input";
+
+const projectUserSchema = z.object({
+    userId: z.string().optional()
+});
+
+const EditProjectUser = ({
+    projectUser,
+    sheetOpen,
+    setSheetOpen,
+    refreshProjectUsers,
+}: {
+    projectUser: IProjectUserDisplay;
+    sheetOpen: boolean;
+    setSheetOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    refreshProjectUsers: () => void;
+}) => {
+    const { _id } = projectUser;
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    const form = useForm<z.infer<typeof projectUserSchema>>({
+        resolver: zodResolver(projectUserSchema),
+        defaultValues: {
+            userId: _id || ""
+        },
+    });
+
+    async function onSubmit(values: z.infer<typeof projectUserSchema>) {
+        setIsLoading(true);
+        try {
+        } catch (error) {
+            toasterService.error();
+        } finally {
+            setSheetOpen(false);
+            setIsLoading(false);
+        }
+    }
+
+    return (
+        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+            <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px]">
+                <SheetHeader>
+                    <SheetTitle className="text-left">Edit User</SheetTitle>
+                    <SheetDescription className="text-left">
+                        Meet the team driving the success of this project with their expertise and dedication.
+                    </SheetDescription>
+                </SheetHeader>
+
+                <div>
+                    <Form {...form}>
+                        <form onSubmit={form.handleSubmit(onSubmit)} method="post">
+                            <div className="grid grid-cols-2 gap-2 mt-3">
+                                <FormField
+                                    control={form.control}
+                                    name="userId"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-col">
+                                            <FormLabel>Select User</FormLabel>
+                                            <Input disabled
+                                                value={`${projectUser?.firstName} ${projectUser?.lastName}`} />
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+
+                                <FormItem className="flex flex-col">
+                                    <FormLabel>Project User Role</FormLabel>
+                                    <Select>
+                                        <SelectTrigger className="w-full">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectGroup>
+                                                {PROJECT_USER_ROLE_LIST.map((role) => (
+                                                    <SelectItem value={role}>
+                                                        <div className="flex items-center">
+                                                            {role}
+                                                        </div>
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectGroup>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                                {/* )}
+                                /> */}
+                            </div>
+
+
+                            <div className="mt-6 w-full flex justify-end gap-2">
+                                <SheetClose asChild>
+                                    <Button
+                                        disabled={isLoading}
+                                        type="button"
+                                        variant={"outline"}
+                                        size="lg"
+                                        className="w-full md:w-fit"
+                                    >
+                                        Cancel
+                                    </Button>
+                                </SheetClose>
+                                <Button
+                                    disabled={isLoading}
+                                    type="submit"
+                                    size="lg"
+                                    className="w-full md:w-fit"
+                                >
+                                    {isLoading ? (
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    ) : null}
+                                    {isLoading ? "Updating" : "Update"}
+                                </Button>
+                            </div>
+                        </form>
+                    </Form>
+                </div>
+
+            </SheetContent>
+        </Sheet>
+    );
+};
+
+export default EditProjectUser;

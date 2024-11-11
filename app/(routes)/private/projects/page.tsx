@@ -61,7 +61,7 @@ export default function Projects() {
       accessorKey: "title",
       header: "Title",
       cell: ({ row }) => (
-        <Link href={`/private/projects/${row.original.id}/issues`}>
+        <Link href={`/private/projects/${row.original.id}/projects/dashboard`}>
           <div className="capitalize hover:text-primary">{row.getValue("title")}</div>
         </Link>
       ),
@@ -100,7 +100,7 @@ export default function Projects() {
   const statusColumn: ColumnDef<IProjectPayload> = {
     accessorKey: "isActive",
     header: "Status",
-    cell: ({ row }) => ( 
+    cell: ({ row }) => (
       <ProjectStatus
         status={row.getValue("isActive")}
         projectId={row.original.id}

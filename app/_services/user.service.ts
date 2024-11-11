@@ -5,6 +5,8 @@ import {
   PAGINATION_QUERY_ENDPOINT,
   PAYMENT_ENDPOINT,
   PROFILE_PICTURE_ENDPOINT,
+  PROJECT_USERS_ENDPOINT,
+  PROJECTS_ENDPOINT,
   USER_PASSWORD_ENDPOINT,
   USERS_BULK_DELETE_ENDPOINT,
   USERS_ENDPOINT,
@@ -162,6 +164,16 @@ export const updatePasswordService = async (body: IUserPassword): Promise<any> =
     return response || {};
   } catch (error) {
     console.error(`Error > updatePassword:`, error);
+    throw error;
+  }
+};
+
+export const getUsersWithoutPaginationService = async (projectId: string): Promise<any> => {
+  try {
+    const response = await genericGet(`${PROJECTS_ENDPOINT}/${projectId}/unique-users`);
+    return response || [];
+  } catch (error) {
+    console.error(`Error > getUsersWithoutPaginationService:`, error);
     throw error;
   }
 };

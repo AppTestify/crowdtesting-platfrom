@@ -20,6 +20,7 @@ export const FILES_ENDPOINT = "/api/users/file";
 export const USERS_ENDPOINT = "/api/users";
 export const USER_PASSWORD_ENDPOINT = "/api/users/password"
 export const USERS_BULK_DELETE_ENDPOINT = "/api/users/bulk/delete";
+export const PROJECT_USERS_ENDPOINT = "/api/project/users";
 
 export const GET_USER_ENDPOINT = (email: string) => {
   return `/api/users/${email}`;
@@ -39,4 +40,8 @@ export const GET_USER_ENPOINT = (userId: string) => {
 
 export const PAGINATION_QUERY_ENDPOINT = (index: Number, pageSize: Number) => {
   return `?page=${index}&limit=${pageSize}`;
+}
+
+export const PROJECT_USER_ENPOINT = (projectId: string) => {
+  return `${PROJECTS_ENDPOINT}/${projectId}/users`;
 }

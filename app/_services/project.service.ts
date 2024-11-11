@@ -1,5 +1,5 @@
-import { PAGINATION_QUERY_ENDPOINT, PROJECTS_BULK_DELETE_ENDPOINT, PROJECTS_ENDPOINT } from "../_constants/api-endpoints";
-import { IProject, IProjectBulkDeletePayload, IProjectPayload } from "../_interface/project";
+import { PAGINATION_QUERY_ENDPOINT, PROJECT_USER_ENPOINT, PROJECTS_BULK_DELETE_ENDPOINT, PROJECTS_ENDPOINT } from "../_constants/api-endpoints";
+import { IProject, IProjectBulkDeletePayload, IProjectPayload, IProjectUser } from "../_interface/project";
 import { genericDelete, genericGet, genericPost, genericPut } from "./generic-api-methods";
 
 
@@ -74,3 +74,42 @@ export const updateProjectStausService = async (
   }
 };
 
+export const getProjectService = async (userId: string): Promise<any> => {
+  try {
+    const response = await genericGet(`${PROJECTS_ENDPOINT}/${userId}`);
+    return response || [];
+  } catch (error) {
+    console.error(`Error > getProjectService:`, error);
+    throw error;
+  }
+};
+
+export const getProjectUsersService = async (projectId: string): Promise<any> => {
+  try {
+    const response = await genericGet(`${PROJECT_USER_ENPOINT(projectId)}`);
+    return response || [];
+  } catch (error) {
+    console.error(`Error > getProjectUsersService:`, error);
+    throw error;
+  }
+};
+
+export const addProjectUserService = async (projectId: string, body: IProjectUser): Promise<any> => {
+  try {
+    const response = await genericPost(`${PROJECT_USER_ENPOINT(projectId)}`, body);
+    return response || {};
+  } catch (error) {
+    console.error(`Error > addProjectUserService:`, error);
+    throw error;
+  }
+};
+
+export const deleteProjectUserService = async (projectId: string, userId: string): Promise<any> => {
+  try {
+    const response = await genericDelete(`${PROJECT_USER_ENPOINT(projectId)}/${userId}`);
+    return response || {};
+  } catch (error) {
+    console.error(`Error > deleteProjectUserService:`, error);
+    throw error;
+  }
+};

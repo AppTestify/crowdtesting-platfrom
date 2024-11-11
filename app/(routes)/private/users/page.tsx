@@ -226,15 +226,15 @@ export default function Users() {
             </div>
             <div className="w-full">
                 <div className="flex items-center py-4 justify-between">
-                    <Input
-                        placeholder="Filter users"
-                        value={(globalFilter as string) ?? ""}
-                        onChange={(event) => {
-                            table.setGlobalFilter(String(event.target.value));
-                        }}
-                        className="max-w-sm"
-                    />
-                    <div className="flex gap-2 ml-2">
+                    <div className="flex gap-2 ">
+                        <Input
+                            placeholder="Filter users"
+                            value={(globalFilter as string) ?? ""}
+                            onChange={(event) => {
+                                table.setGlobalFilter(String(event.target.value));
+                            }}
+                            className="max-w-sm"
+                        />
                         {getSelectedRows().length ? (
                             <UserBulkDelete
                                 ids={getSelectedRows()}
@@ -295,8 +295,8 @@ export default function Users() {
                                 </SelectContent>
                             </Select>
                         </div>
-                        <AddUser refreshUsers={refreshUsers} />
                     </div>
+                    <AddUser refreshUsers={refreshUsers} />
                 </div>
                 <div className="rounded-md border">
                     <Table>
