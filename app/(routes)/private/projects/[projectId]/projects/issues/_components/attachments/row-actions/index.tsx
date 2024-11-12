@@ -14,7 +14,7 @@ export function AttachmentRowActions({
     row,
     refreshAttachments,
     issueId,
-    isView
+    isView,
 }: {
     row: Row<IIssueAttachmentDisplay>;
     refreshAttachments: () => void;
@@ -70,13 +70,13 @@ export function AttachmentRowActions({
                 successLoadingLabel="Deleting"
                 successVariant={"destructive"}
             />
-
             <div className="flex justify-end pr-4">
-                <Button variant="ghost" size="icon" onClick={() => getFile()}>
+                <Button type="button" variant="ghost" size="icon" onClick={() => getFile()}>
                     <Download className="h-4 w-4" />
                 </Button>
                 {!isView ?
                     <Button
+                        type="button"
                         onClick={() => {
                             setIsDeleteOpen(true);
                             setIsLoading(false);

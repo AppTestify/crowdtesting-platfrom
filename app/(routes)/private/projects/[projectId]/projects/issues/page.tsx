@@ -133,8 +133,8 @@ export default function Issues() {
       <div className="">
         <h2 className="text-medium">Issues</h2>
         <span className="text-xs text-gray-600">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam minima
-          voluptatibus illum nesciunt est voluptatem.
+          We are experiencing difficulties with state management across multiple tabs,
+          leading to inconsistent data in certain components.
         </span>
       </div>
       <div className="w-full">

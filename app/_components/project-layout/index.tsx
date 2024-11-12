@@ -1,13 +1,13 @@
-import { formatDate } from '@/app/_constants/date-formatter';
 import { IProjectPayload } from '@/app/_interface/project';
 import { getProjectService } from '@/app/_services/project.service';
 import toasterService from '@/app/_services/toaster-service';
 import { DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ChevronsRight } from 'lucide-react'
+import { ChevronLeft } from 'lucide-react'
 import Link from 'next/link'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
+import { ProjectTabs } from './tabs';
 
 export default function ProjectLayouts() {
     const [project, setProject] = useState<IProjectPayload>();
@@ -16,6 +16,7 @@ export default function ProjectLayouts() {
     const router = useRouter();
     const pathname = usePathname();
     const activeTab = pathname.split('/').pop();
+    const roleBasedTab = ProjectTabs().getRoleBasedTabs();
 
     const getProject = async () => {
         setIsLoading(true);
@@ -41,39 +42,32 @@ export default function ProjectLayouts() {
 
     return (
         <div className='px-6 py-3'>
-            <div>
-                <Link href={`/private/projects`}>
-                    <p className="flex items-center tracking-wide text-lg text-[#215077] hover:text-[#0665b3]">
-                        Manage Projects
-                        <ChevronsRight className="w-4 ml-1" />
-                    </p>
-                </Link>
-            </div>
             {!isLoading ?
                 <>
-                    <div className='mt-1'>
-                        <p className='text-2xl text-[#545454]'>{project?.title} -
-                            <span className='ml-2 text-lg text-[#777789]'>
-                                Due Date: {formatDate(project?.createdAt as string)}</span>
+                    <div className='mt-1 mb-3'>
+                        <p className='text-2xl text-green-600 flex items-center'>
+                            <Link href={`/private/projects`}>
+                                <ChevronLeft className='text-black' />
+                            </Link>
+                            <div className='ml-2'>
+                                {project?.title}
+                            </div>
                         </p>
                     </div>
                     <DropdownMenuSeparator className="border-b" />
-                    <div className='mt-2'>
-                        <div className='text-[#215077] hover:text-[#0665b3] text-lg font-semibold'>
-                            Description
-                        </div>
-                        <Tabs value={activeTab} onValueChange={handleTabChange} defaultValue="dashboard" className="w-[400px]">
-                            <TabsList className="grid w-full grid-cols-3">
-                                <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-                                <TabsTrigger value="users">Users</TabsTrigger>
-                                <TabsTrigger value="issues">Issues</TabsTrigger>
+                    <div className='mt-4'>
+                        <Tabs value={activeTab} onValueChange={handleTabChange} defaultValue="overview" className="w-[400px]">
+                            <TabsList className="grid w-full grid-cols-2">
+                                {roleBasedTab?.map((tab) => (
+                                    <TabsTrigger value={tab}>
+                                        {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                                    </TabsTrigger>
+                                ))}
                             </TabsList>
-                            <TabsContent value="dashboard">
-                            </TabsContent>
-                            <TabsContent value="users">
-                            </TabsContent>
-                            <TabsContent value="issues">
-                            </TabsContent>
+                            {roleBasedTab?.map((tab) => (
+                                <TabsContent value={tab}>
+                                </TabsContent>
+                            ))}
                         </Tabs>
                     </div>
                 </>

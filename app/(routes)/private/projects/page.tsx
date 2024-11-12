@@ -61,7 +61,7 @@ export default function Projects() {
       accessorKey: "title",
       header: "Title",
       cell: ({ row }) => (
-        <Link href={`/private/projects/${row.original.id}/projects/dashboard`}>
+        <Link href={`/private/projects/${row.original.id}/projects/overview`}>
           <div className="capitalize hover:text-primary">{row.getValue("title")}</div>
         </Link>
       ),

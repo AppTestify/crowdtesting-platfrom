@@ -1,13 +1,11 @@
 import { IIssue } from "@/app/_interface/issue";
 import { getIssueService } from "@/app/_services/issue.service";
 import toasterService from "@/app/_services/toaster-service";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import IssueAttachments from "../attachments/issue-attachment";
 import { displayIcon, statusBadge } from "@/app/_utils/common-functionality";
-
 
 const ViewIssue = ({
     issue,
@@ -53,29 +51,18 @@ const ViewIssue = ({
                         </div>
                     </div>
                 </SheetHeader>
-
-                <Tabs defaultValue="summary" className="w-full my-3">
-                    <TabsList className="grid w-fit grid-cols-2">
-                        <TabsTrigger value="summary">Summary</TabsTrigger>
-                        <TabsTrigger value="attachments">Attachments</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="summary">
-                        <div>
-                            <div className="flex mt-4">
-                                <p>Severity: {issue?.severity}</p>
-                                <p className="ml-8">Status: {statusBadge(issue?.status)}</p>
-                            </div>
-                            <div className="mt-4"
-                                dangerouslySetInnerHTML={{
-                                    __html: issueData?.description || '',
-                                }}
-                            />
-                        </div>
-                    </TabsContent>
-                    <TabsContent value="attachments">
-                        <IssueAttachments issueId={issueId} isUpdate={true} isView={true} />
-                    </TabsContent>
-                </Tabs>
+                <div>
+                    <div className="flex mt-4">
+                        <p>Severity: {issue?.severity}</p>
+                        <p className="ml-8">Status: {statusBadge(issue?.status)}</p>
+                    </div>
+                    <div className="mt-2 text-sm leading-relaxed text-gray-700"
+                        dangerouslySetInnerHTML={{
+                            __html: issueData?.description || ''
+                        }}
+                    />
+                </div>
+                <IssueAttachments issueId={issueId} isUpdate={true} isView={true} />
             </SheetContent>
         </Sheet>
     )

@@ -34,8 +34,13 @@ export function NavMain({
         <SidebarMenu>
           {items?.map((item: any) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild isActive={pathname === item.url} tooltip={item.title}>
-                <Link href={item.url}>
+              <SidebarMenuButton disabled={item.disabled}
+                asChild isActive={pathname === item.url} tooltip={item.title}>
+                <Link href={item.disabled ? "#" : item.url}
+                  onClick={(e) => item.disabled && e.preventDefault()}
+                  className={` ${item.disabled ? "text-gray-400 cursor-not-allowed pointer-events-none" : ""
+                    }`}
+                >
                   <item.icon />
                   <span>{item.title}</span>
                 </Link>

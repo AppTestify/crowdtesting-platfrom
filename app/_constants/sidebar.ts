@@ -18,7 +18,13 @@ export const teams = [
 
 export const getSidebarItems = (user: any) => {
   const role = user?.role;
+  const isActive = user?.isActive;
   if (role === UserRoles.TESTER) {
+    navMain.forEach((item) => {
+      if (item.title === "Projects" && !isActive) {
+        item.disabled = true;
+      }
+    });
     return navMain;
   } else if (role === UserRoles.ADMIN) {
     return adminNavbar;
@@ -31,21 +37,25 @@ export const navMain = [
     title: "Dashboard",
     url: "/private/dashboard",
     icon: LayoutDashboardIcon,
+    disabled: false
   },
   {
     title: "Projects",
     url: "/private/projects",
     icon: GalleryVerticalEnd,
+    disabled: false
   },
   {
     title: "Devices",
     url: "/private/devices",
     icon: MonitorSmartphone,
+    disabled: false
   },
   {
     title: "Profile",
     url: "/private/profile",
     icon: User,
+    disabled: false
   },
 ];
 

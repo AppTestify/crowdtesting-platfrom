@@ -8,6 +8,7 @@ import {
   genericDelete,
   genericGet,
   genericPost,
+  genericPostFormData,
   genericPut,
 } from "./generic-api-methods";
 
@@ -26,7 +27,17 @@ export const addIssueService = async (
   body: IIssuePayload
 ): Promise<any> => {
   try {
-    const response = await genericPost(GET_ISSUES_ENPOINT(projectId), body);
+    const formData = new FormData();
+    formData.append("title", body?.title);
+    formData.append("severity", body?.severity);
+    formData.append("priority", body?.priority);
+    formData.append("description", body?.description || "");
+    formData.append("status", body?.status || "");
+    formData.append("projectId", body?.projectId || "");
+    body?.attachments?.forEach((file) => {
+      formData.append("attachments", file);
+    });
+    const response = await genericPostFormData(GET_ISSUES_ENPOINT(projectId), formData);
     return response || {};
   } catch (error) {
     console.error(`Error > addIssueService:`, error);

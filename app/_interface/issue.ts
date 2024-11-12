@@ -16,6 +16,7 @@ export interface IIssuePayload {
   description?: string;
   status?: string;
   projectId?: string;
+  attachments?: File[];
 }
 
 export interface IIssueAttachment {
@@ -26,11 +27,12 @@ export interface IssueAttachmentsProps {
   issueId: string;
   isUpdate: boolean;
   isView: boolean;
+  setAttachmentsData?: React.Dispatch<React.SetStateAction<any[]>>;
 }
 
 export interface IIssueAttachmentDisplay {
   id: string;
   data: string;
   name: string;
-  contentType: string;
+  contentType?: string;
 }
