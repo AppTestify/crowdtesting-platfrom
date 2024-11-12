@@ -10,6 +10,7 @@ export interface IIssue extends Document {
     userId: Types.ObjectId;
     projectId: Types.ObjectId;
     status: string;
+    formatId: Types.ObjectId;
 }
 
 const IssueSchema = new Schema<IIssue>(
@@ -24,6 +25,7 @@ const IssueSchema = new Schema<IIssue>(
         userId: { type: Schema.Types.ObjectId, ref: DBModels.USER, required: true },
         projectId: { type: Schema.Types.ObjectId, ref: DBModels.PROJECT, required: true },
         status: { type: String, required: true },
+        formatId: { type: Schema.Types.ObjectId, ref: DBModels.UNIQUE_ID }
     },
     {
         timestamps: true

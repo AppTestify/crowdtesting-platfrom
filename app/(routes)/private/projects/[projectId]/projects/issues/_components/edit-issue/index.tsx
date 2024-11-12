@@ -103,10 +103,7 @@ const EditIssue = ({
   const uploadAttachment = async () => {
     setIsLoading(true);
     try {
-      const response = await addIssueAttachmentsService(projectId, issueId, { attachments });
-      if (response) {
-        toasterService.success(response.message);
-      }
+      await addIssueAttachmentsService(projectId, issueId, { attachments });
     } catch (error) {
       toasterService.error();
     } finally {

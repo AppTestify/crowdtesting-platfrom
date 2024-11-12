@@ -16,6 +16,7 @@ export interface IUser extends Document {
   projects: Types.ObjectId[];
   sendCredentials: boolean;
   credentialsSentAt: Date;
+  formatId: Types.ObjectId;
 }
 
 const userSchema = new Schema<IUser>(
@@ -72,7 +73,8 @@ const userSchema = new Schema<IUser>(
     },
     credentialsSentAt: {
       type: Date,
-    }
+    },
+    formatId: { type: Schema.Types.ObjectId, ref: DBModels.UNIQUE_ID }
   },
   {
     timestamps: true,

@@ -226,14 +226,14 @@ export default function Users() {
             </div>
             <div className="w-full">
                 <div className="flex items-center py-4 justify-between">
-                    <div className="flex gap-2 ">
+                    <div className="flex gap-2 w-full max-w-2xl">
                         <Input
                             placeholder="Filter users"
                             value={(globalFilter as string) ?? ""}
                             onChange={(event) => {
                                 table.setGlobalFilter(String(event.target.value));
                             }}
-                            className="max-w-sm"
+                            className="w-full"
                         />
                         {getSelectedRows().length ? (
                             <UserBulkDelete
