@@ -1,3 +1,4 @@
+import { DBModels } from "@/app/_constants";
 import {
     DB_CONNECTION_ERROR_MESSAGE,
     INVALID_INPUT_ERROR_MESSAGE,
@@ -7,10 +8,11 @@ import {
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
 import { isAdmin, verifySession } from "@/app/_lib/dal";
+import { IdFormat } from "@/app/_models/id-format.model";
 import { Project } from "@/app/_models/project.model";
 import { projectSchema } from "@/app/_schemas/project.schema";
 import { serverSidePagination } from "@/app/_utils/common-server-side";
-import { normaliseIds } from "@/app/_utils/data-formatters";
+import { addCustomIds, normaliseIds } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 
@@ -87,23 +89,26 @@ export async function GET(req: Request) {
         let response = null;
         const { skip, limit } = serverSidePagination(req);
         const totalProjects = await Project.countDocuments();
+        const userIdFormat = await IdFormat.findOne({ entity: DBModels.PROJECT });
 
         if (!(await isAdmin(session.user))) {
-            response = normaliseIds(
+            response = addCustomIds(
                 await Project.find({ userId: session.user._id })
                     .sort({ createdAt: -1 })
                     .skip(skip)
                     .limit(Number(limit))
-                    .lean()
+                    .lean(),
+                userIdFormat.idFormat
             );
         } else {
-            response = normaliseIds(
+            response = addCustomIds(
                 await Project.find({})
                     .populate("userId")
                     .sort({ createdAt: -1 })
                     .skip(skip)
                     .limit(Number(limit))
-                    .lean()
+                    .lean(),
+                userIdFormat.idFormat
             );
         }
         return Response.json({ "projects": response, "total": totalProjects });

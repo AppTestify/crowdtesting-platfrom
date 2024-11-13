@@ -8,7 +8,8 @@ export enum DBModels {
   ISSUE = "Issue",
   ISSUE_ATTACHMENT = "IssueAttachment",
   FILE = "File",
-  UNIQUE_ID = "UniqueId"
+  ID_FORMAT = "IdFormat",
+  COUNTER = "Counter"
 }
 
 export const JWT_TOKEN_EXPIRE_LIMIT = "8h";

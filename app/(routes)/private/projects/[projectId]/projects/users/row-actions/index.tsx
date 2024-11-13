@@ -28,7 +28,7 @@ export function ProjectUserRowActions({
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const uderId = row.original._id as string;
+    const uderId = row.original?.userId?._id as string;
 
     const deleteIssue = async () => {
         try {
@@ -36,9 +36,9 @@ export function ProjectUserRowActions({
             const response = await deleteProjectUserService(projectId, uderId);
 
             if (response?.message) {
-                setIsLoading(false);
                 refreshProjectUsers();
                 setIsDeleteOpen(false);
+                setIsLoading(false);
                 toasterService.success(response.message);
             }
         } catch (error) {

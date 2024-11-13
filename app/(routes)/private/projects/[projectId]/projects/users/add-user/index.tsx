@@ -42,12 +42,13 @@ import { addProjectUserService } from "@/app/_services/project.service";
 
 const projectSchema = z.object({
     userId: z.string().min(1, "User is required"),
-    projectUserRole: z.string().optional()
+    role: z.string().optional()
 });
 
 export function AddProjectUser({ refreshProjectUsers }: { refreshProjectUsers: () => void }) {
     const [sheetOpen, setSheetOpen] = useState(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isViewLoading, setIsViewLoading] = useState<boolean>(false);
     const [users, setUsers] = useState<IUserByAdmin[]>([]);
     const { projectId } = useParams<{ projectId: string }>();
 
@@ -55,7 +56,7 @@ export function AddProjectUser({ refreshProjectUsers }: { refreshProjectUsers: (
         resolver: zodResolver(projectSchema),
         defaultValues: {
             userId: "",
-            projectUserRole: ""
+            role: ""
         },
     });
 
@@ -87,12 +88,15 @@ export function AddProjectUser({ refreshProjectUsers }: { refreshProjectUsers: (
 
     const getUsers = async () => {
         try {
+            setIsViewLoading(true);
             const response = await getUsersWithoutPaginationService(projectId);
             if (response) {
                 setUsers(response);
             }
         } catch (error) {
             toasterService.error();
+        } finally {
+            setIsViewLoading(false);
         }
     }
 
@@ -135,19 +139,20 @@ export function AddProjectUser({ refreshProjectUsers }: { refreshProjectUsers: (
                                                     <SelectValue />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    <SelectGroup>
-                                                        {(Array.isArray(users) ? users : [])
-                                                            .filter(user => user.firstName || user.lastName)
-                                                            .map(user => (
-                                                                <SelectItem key={user._id} value={user._id as string}>
-                                                                    {user.firstName && user.lastName
-                                                                        ? `${user.firstName} ${user.lastName}`
-                                                                        : user.firstName || user.lastName
-                                                                    }
-                                                                </SelectItem>
-                                                            ))}
-                                                    </SelectGroup>
-
+                                                    {!isViewLoading ?
+                                                        <SelectGroup>
+                                                            {(Array.isArray(users) ? users : [])
+                                                                .filter(user => user.firstName || user.lastName)
+                                                                .map(user => (
+                                                                    <SelectItem key={user._id} value={user._id as string}>
+                                                                        {user.firstName && user.lastName
+                                                                            ? `${user.firstName} ${user.lastName}`
+                                                                            : user.firstName || user.lastName
+                                                                        }
+                                                                    </SelectItem>
+                                                                ))}
+                                                        </SelectGroup>
+                                                        : <p className="text-center">Loading</p>}
                                                 </SelectContent>
                                             </Select>
                                             <FormMessage />
@@ -157,7 +162,7 @@ export function AddProjectUser({ refreshProjectUsers }: { refreshProjectUsers: (
 
                                 <FormField
                                     control={form.control}
-                                    name="projectUserRole"
+                                    name="role"
                                     render={({ field }) => (
                                         <FormItem className="flex flex-col">
                                             <FormLabel>Project User Role</FormLabel>

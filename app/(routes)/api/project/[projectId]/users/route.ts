@@ -37,7 +37,7 @@ export async function GET(
         const { projectId } = params;
 
         const response = await Project.findById(projectId)
-            .populate("users")
+            .populate("users.userId")
             .select("_id users");
 
         return Response.json(response);
@@ -82,10 +82,10 @@ export async function POST(
             );
         }
 
-        const { userId } = response.data;
+        const { userId, role } = response.data;
         const { projectId } = params;
         const updateResponse = await Project.findByIdAndUpdate(projectId, {
-            $addToSet: { users: userId },
+            $addToSet: { users: { userId: userId, role: role } },
         }, { new: true }
         );
 
@@ -97,6 +97,64 @@ export async function POST(
             message: "user added in project",
         });
 
+    } catch (error: any) {
+        return errorHandler(error);
+    }
+}
+
+export async function PUT(
+    req: Request,
+    { params }: { params: { projectId: string } }
+) {
+    try {
+        const session = await verifySession();
+        if (!session) {
+            return Response.json(
+                { message: USER_UNAUTHORIZED_SERVER_ERROR_MESSAGE },
+                { status: HttpStatusCode.UNAUTHORIZED }
+            );
+        }
+
+        const isDBConnected = await connectDatabase();
+        if (!isDBConnected) {
+            return Response.json(
+                {
+                    message: DB_CONNECTION_ERROR_MESSAGE,
+                },
+                { status: HttpStatusCode.INTERNAL_SERVER_ERROR }
+            );
+        }
+
+        const body = await req.json();
+        const response = projectUserSchema.safeParse(body);
+
+        if (!response.success) {
+            return Response.json(
+                {
+                    message: INVALID_INPUT_ERROR_MESSAGE,
+                    errors: response.error.errors,
+                },
+                { status: HttpStatusCode.BAD_REQUEST }
+            );
+        }
+
+        const { userId, role } = response.data;
+        const { projectId } = params;
+        const updateResponse = await Project.findByIdAndUpdate(projectId, {
+            $set: { "users.$[elem].role": role }
+        },
+            {
+                arrayFilters: [{ "elem.userId": userId }],
+                new: true
+            });
+
+        if (!updateResponse) {
+            throw new Error(GENERIC_ERROR_MESSAGE);
+        }
+
+        return Response.json({
+            message: "Project user updated successfully"
+        })
     } catch (error: any) {
         return errorHandler(error);
     }

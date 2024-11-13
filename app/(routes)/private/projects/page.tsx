@@ -58,6 +58,13 @@ export default function Projects() {
       enableHiding: false,
     },
     {
+      accessorKey: "customId",
+      header: "ID",
+      cell: ({ row }) => (
+        <div>{row.getValue("customId")}</div>
+      ),
+    },
+    {
       accessorKey: "title",
       header: "Title",
       cell: ({ row }) => (
@@ -123,7 +130,8 @@ export default function Projects() {
         accessorKey: "createdBy",
         header: "Created By",
         cell: ({ row }) => <div>
-          {`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}
+          {`${row.original?.userId?.firstName ? row.original?.userId?.firstName : ""}
+           ${row.original?.userId?.lastName ? row.original?.userId?.lastName : ""}`}
         </div>,
       },
       statusColumn,

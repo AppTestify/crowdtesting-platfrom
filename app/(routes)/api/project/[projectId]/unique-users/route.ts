@@ -1,6 +1,7 @@
 import { DB_CONNECTION_ERROR_MESSAGE, USER_UNAUTHORIZED_ERROR_MESSAGE } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
+import { IProject } from "@/app/_interface/project";
 import { verifySession } from "@/app/_lib/dal";
 import { Project } from "@/app/_models/project.model";
 import { User } from "@/app/_models/user.model";
@@ -40,12 +41,13 @@ export async function GET(
             return Response.json({ message: "Project not found" });
         }
 
-        if (userIds.every(id => project.users.includes(id))) {
+        if (userIds.every(id => project.users.some((user: IProject) => user?.userId?.toString() === id.toString()))) {
             return Response.json({ message: "All user IDs already exist in the project" });
         }
 
+        const projectUserIds = project.users.map((user: IProject) => user?.userId);
         const response = await User.find({
-            _id: { $nin: project.users }
+            _id: { $nin: projectUserIds }
         }).select("_id firstName lastName");
 
         return Response.json(response);

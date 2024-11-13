@@ -1,6 +1,7 @@
 import mongoose, { Schema, model, Document, Types } from "mongoose";
 import { DBModels } from "../_constants";
 import { UserRoles } from "../_constants/user-roles";
+import { Counter } from "./counter.model";
 
 export interface IUser extends Document {
   firstName: string;
@@ -16,7 +17,7 @@ export interface IUser extends Document {
   projects: Types.ObjectId[];
   sendCredentials: boolean;
   credentialsSentAt: Date;
-  formatId: Types.ObjectId;
+  customId: number;
 }
 
 const userSchema = new Schema<IUser>(
@@ -51,7 +52,7 @@ const userSchema = new Schema<IUser>(
     },
     isActive: {
       type: Boolean,
-      default: false,
+      default: true,
     },
     accountActivationMailSentAt: {
       type: Date,
@@ -74,12 +75,36 @@ const userSchema = new Schema<IUser>(
     credentialsSentAt: {
       type: Date,
     },
-    formatId: { type: Schema.Types.ObjectId, ref: DBModels.UNIQUE_ID }
+    customId: { type: Number }
   },
   {
     timestamps: true,
   }
 );
+
+userSchema.pre('save', async function (next) {
+  const user = this;
+
+  if (user.isNew) {
+    try {
+      // Get the next sequence number for the customId
+      const counter = await Counter.findOneAndUpdate(
+        { entity: DBModels.USER },
+        { $inc: { sequence: 1 } },
+        { new: true, upsert: true }
+      );
+
+      // Assign the new customId to the user`
+      user.customId = counter.sequence;
+      next();
+    } catch (err: any) {
+      next(err);
+    }
+  } else {
+    next();
+  }
+});
+
 
 export const User =
   mongoose.models.User || model<IUser>(DBModels.USER, userSchema);

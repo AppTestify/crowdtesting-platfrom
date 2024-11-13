@@ -25,9 +25,9 @@ import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
 import { getProjectUsersService } from "@/app/_services/project.service";
 import { AddProjectUser } from "./add-user";
-import { IUserByAdmin } from "@/app/_interface/user";
 import { ProjectUserRowActions } from "./row-actions";
 import { IProjectUserDisplay } from "@/app/_interface/project";
+import { formatDate } from "@/app/_constants/date-formatter";
 
 export default function ProjectUsers() {
     const columns: ColumnDef<IProjectUserDisplay>[] = [
@@ -36,7 +36,7 @@ export default function ProjectUsers() {
             header: "Name",
             cell: ({ row }) => (
                 <div className="capitalize">
-                    {`${row.original?.firstName} ${row.original?.lastName}`}
+                    {`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}
                 </div>
             ),
         },
@@ -44,14 +44,14 @@ export default function ProjectUsers() {
             accessorKey: "projectUserRole",
             header: "Project User Role",
             cell: ({ row }) => (
-                <div className="capitalize">{row.getValue("projectUserRole")}</div>
+                <div className="capitalize">{row.original?.role}</div>
             ),
         },
         {
             accessorKey: "createdAt",
             header: "Created On",
             cell: ({ row }) => (
-                <div className="capitalize">{row.getValue("name")}</div>
+                <div className="capitalize">{formatDate(row.original?.createdAt)}</div>
             ),
         },
         {

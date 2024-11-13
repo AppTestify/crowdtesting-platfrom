@@ -21,5 +21,6 @@ export const projectStatusSchema = z.object({
 });
 
 export const projectUserSchema = z.object({
-    userId: z.string().min(1, "UserId is required")
+    userId: z.string().min(1, "UserId is required"),
+    role: z.string().optional()
 });

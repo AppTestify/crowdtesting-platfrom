@@ -28,9 +28,17 @@ import { AddIssue } from "./_components/add-issue";
 import { IssueRowActions } from "./_components/row-actions";
 import { useParams } from "next/navigation";
 import { displayIcon, statusBadge } from "@/app/_utils/common-functionality";
+import { ArrowUpDown } from "lucide-react";
 
 export default function Issues() {
   const columns: ColumnDef<IIssue>[] = [
+    {
+      accessorKey: "customId",
+      header: "ID",
+      cell: ({ row }) => (
+        <div>{row.getValue("customId")}</div>
+      ),
+    },
     {
       accessorKey: "title",
       header: "Title",
@@ -47,14 +55,31 @@ export default function Issues() {
     },
     {
       accessorKey: "priority",
-      header: "Priority",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Priority
+            <ArrowUpDown />
+          </Button>
+        )
+      },
       cell: ({ row }) => (
-        <div className="capitalize flex items-center"><span className="mr-1">{displayIcon(row.getValue("priority"))} </span>{row.getValue("priority")}</div>
+        <div className="capitalize flex items-center">
+          <span className="mr-1">
+            {displayIcon(row.getValue("priority"))}
+          </span>
+          {row.getValue("priority")}
+        </div>
       ),
     },
     {
       accessorKey: "status",
-      header: "Status",
+      header: ({ column }) => (
+        <div className="ml-1">Status</div>
+      ),
       cell: ({ row }) => (
         <div className="capitalize">{statusBadge(row.getValue("status"))}</div>
       ),
@@ -138,7 +163,7 @@ export default function Issues() {
         </span>
       </div>
       <div className="w-full">
-        <div className="flex items-center py-4 justify-between">
+        <div className="flex py-4 justify-between">
           <Input
             placeholder="Filter Issues"
             value={(globalFilter as string) ?? ""}

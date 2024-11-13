@@ -64,6 +64,13 @@ export default function Users() {
             enableHiding: false,
         },
         {
+            accessorKey: "customId",
+            header: "ID",
+            cell: ({ row }) => (
+                <div className="">{row.getValue("customId")}</div>
+            ),
+        },
+        {
             accessorKey: "profilePicture",
             header: "Profile Picture",
             cell: ({ row }) => (

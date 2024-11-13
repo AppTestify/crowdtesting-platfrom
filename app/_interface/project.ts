@@ -18,6 +18,7 @@ export interface IProject {
     description?: string;
     isActive?: boolean;
     users?: IUserByAdmin;
+    userId?: string;
 }
 
 export interface IProjectBulkDeletePayload {
@@ -26,11 +27,14 @@ export interface IProjectBulkDeletePayload {
 
 export interface IProjectUser {
     userId: string;
+    role?: string | undefined;
 }
 
 export interface IProjectUserDisplay {
-    userId: string;
+    userId?: IUserByAdmin;
     _id: string;
     firstName: string;
     lastName: string;
+    role: string;
+    createdAt: string;
 }

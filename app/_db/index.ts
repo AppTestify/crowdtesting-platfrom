@@ -7,6 +7,8 @@ import { Project } from "../_models/project.model";
 import { Issue } from "../_models/issue.model";
 import { IssueAttachment } from "../_models/issue-attachment.model";
 import { ProfilePicture } from "../_models/profile.picture";
+import { Counter } from "../_models/counter.model";
+import { IdFormat } from "../_models/id-format.model";
 
 export const connectDatabase = async () => {
   try {
@@ -31,4 +33,6 @@ export const registerModels = () => {
   const issueModel = Issue;
   const issueAttachmentModel = IssueAttachment;
   const profilePicture = ProfilePicture;
+  const counterModel = Counter;
+  const idFormatModel = IdFormat;
 };

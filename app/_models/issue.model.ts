@@ -1,5 +1,6 @@
 import mongoose, { Document, model, Schema, Types } from "mongoose";
 import { DBModels } from "../_constants";
+import { Counter } from "./counter.model";
 
 export interface IIssue extends Document {
     title: string;
@@ -10,7 +11,7 @@ export interface IIssue extends Document {
     userId: Types.ObjectId;
     projectId: Types.ObjectId;
     status: string;
-    formatId: Types.ObjectId;
+    customId: number;
 }
 
 const IssueSchema = new Schema<IIssue>(
@@ -25,12 +26,33 @@ const IssueSchema = new Schema<IIssue>(
         userId: { type: Schema.Types.ObjectId, ref: DBModels.USER, required: true },
         projectId: { type: Schema.Types.ObjectId, ref: DBModels.PROJECT, required: true },
         status: { type: String, required: true },
-        formatId: { type: Schema.Types.ObjectId, ref: DBModels.UNIQUE_ID }
+        customId: { type: Number }
     },
     {
         timestamps: true
     }
-)
+);
+
+IssueSchema.pre('save', async function (next) {
+    const issue = this;
+
+    if (issue.isNew) {
+        try {
+            const counter = await Counter.findOneAndUpdate(
+                { entity: DBModels.ISSUE },
+                { $inc: { sequence: 1 } },
+                { new: true, upsert: true }
+            );
+
+            issue.customId = counter.sequence;
+            next();
+        } catch (err: any) {
+            next(err);
+        }
+    } else {
+        next();
+    }
+});
 
 export const Issue =
     mongoose.models.Issue || model<IIssue>(DBModels.ISSUE, IssueSchema);

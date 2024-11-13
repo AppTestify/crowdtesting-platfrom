@@ -1,3 +1,4 @@
+import { DBModels } from "@/app/_constants";
 import {
   DB_CONNECTION_ERROR_MESSAGE,
   INVALID_INPUT_ERROR_MESSAGE,
@@ -7,11 +8,12 @@ import {
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
 import { isAdmin, verifySession } from "@/app/_lib/dal";
+import { IdFormat } from "@/app/_models/id-format.model";
 import { IssueAttachment } from "@/app/_models/issue-attachment.model";
 import { Issue } from "@/app/_models/issue.model";
 import { issueSchema } from "@/app/_schemas/issue.schema";
 import { getFileMetaData } from "@/app/_utils/common-server-side";
-import { normaliseIds } from "@/app/_utils/data-formatters";
+import { addCustomIds, normaliseIds } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function POST(
@@ -129,19 +131,22 @@ export async function GET(
     let response = null;
 
     const { projectId } = params;
+    const userIdFormat = await IdFormat.findOne({ entity: DBModels.ISSUE });
 
     if (!(await isAdmin(session.user))) {
-      response = normaliseIds(
+      response = addCustomIds(
         await Issue.find({ projectId: projectId })
           .sort({ createdAt: -1 })
-          .lean()
+          .lean(),
+        userIdFormat.idFormat
       );
     } else {
-      response = normaliseIds(
+      response = addCustomIds(
         await Issue.find({ projectId: projectId })
           .populate("userId")
           .sort({ createdAt: -1 })
-          .lean()
+          .lean(),
+        userIdFormat.idFormat
       );
     }
 

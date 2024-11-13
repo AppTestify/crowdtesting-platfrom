@@ -33,9 +33,11 @@ import { useParams } from "next/navigation";
 import { PROJECT_USER_ROLE_LIST } from "@/app/_constants/project-user-roles";
 import { IProjectUserDisplay } from "@/app/_interface/project";
 import { Input } from "@/components/ui/input";
+import { editProjectUserService } from "@/app/_services/project.service";
 
 const projectUserSchema = z.object({
-    userId: z.string().optional()
+    userId: z.string(),
+    role: z.string().optional()
 });
 
 const EditProjectUser = ({
@@ -49,19 +51,26 @@ const EditProjectUser = ({
     setSheetOpen: React.Dispatch<React.SetStateAction<boolean>>;
     refreshProjectUsers: () => void;
 }) => {
-    const { _id } = projectUser;
+    const { userId, role } = projectUser;
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const { projectId } = useParams<{ projectId: string }>();
 
     const form = useForm<z.infer<typeof projectUserSchema>>({
         resolver: zodResolver(projectUserSchema),
         defaultValues: {
-            userId: _id || ""
+            userId: userId?._id || "",
+            role: role || ""
         },
     });
 
     async function onSubmit(values: z.infer<typeof projectUserSchema>) {
         setIsLoading(true);
         try {
+            const response = await editProjectUserService(projectId, { ...values });
+            if (response) {
+                refreshProjectUsers();
+                toasterService.success(response.message);
+            }
         } catch (error) {
             toasterService.error();
         } finally {
@@ -74,7 +83,7 @@ const EditProjectUser = ({
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
             <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px]">
                 <SheetHeader>
-                    <SheetTitle className="text-left">Edit User</SheetTitle>
+                    <SheetTitle className="text-left">Edit user</SheetTitle>
                     <SheetDescription className="text-left">
                         Meet the team driving the success of this project with their expertise and dedication.
                     </SheetDescription>
@@ -91,35 +100,43 @@ const EditProjectUser = ({
                                         <FormItem className="flex flex-col">
                                             <FormLabel>Select User</FormLabel>
                                             <Input disabled
-                                                value={`${projectUser?.firstName} ${projectUser?.lastName}`} />
+                                                {...field}
+                                                value={`${projectUser?.userId?.firstName} ${projectUser?.userId?.lastName}`} />
                                             <FormMessage />
                                         </FormItem>
                                     )}
                                 />
 
 
-                                <FormItem className="flex flex-col">
-                                    <FormLabel>Project User Role</FormLabel>
-                                    <Select>
-                                        <SelectTrigger className="w-full">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectGroup>
-                                                {PROJECT_USER_ROLE_LIST.map((role) => (
-                                                    <SelectItem value={role}>
-                                                        <div className="flex items-center">
-                                                            {role}
-                                                        </div>
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectGroup>
-                                        </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                </FormItem>
-                                {/* )}
-                                /> */}
+                                <FormField
+                                    control={form.control}
+                                    name="role"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-col">
+                                            <FormLabel>Project User Role</FormLabel>
+                                            <Select
+                                                onValueChange={field.onChange}
+                                                value={field.value}
+                                            >
+                                                <SelectTrigger className="w-full">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectGroup>
+                                                        {PROJECT_USER_ROLE_LIST.map((role) => (
+                                                            <SelectItem value={role}>
+                                                                <div className="flex items-center">
+                                                                    {role}
+                                                                </div>
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectGroup>
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
                             </div>
 
 

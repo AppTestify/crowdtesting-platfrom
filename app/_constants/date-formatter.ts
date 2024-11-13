@@ -6,11 +6,16 @@ export function formatDate(dateString: string): string {
   return date.format("MMMM Do, YYYY");
 }
 
+export function formatDateReverse(dateString: string | Date): string {
+  const isoDate = moment(dateString, "MMMM Do, YYYY").toISOString();
+  return isoDate;
+}
+
 export function formatSimpleDate(dateString: string | Date): string {
-  const date = moment(dateString, "MMMM Do, YYYY");
+  let date = moment(dateString, "MMMM Do, YYYY");
 
   if (!date.isValid()) {
-    throw new Error("Invalid date format");
+    date = moment(new Date(dateString));
   }
 
   return date.format("MM/D/YY");

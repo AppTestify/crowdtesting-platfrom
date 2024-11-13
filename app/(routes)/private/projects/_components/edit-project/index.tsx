@@ -34,7 +34,7 @@ import {
   SheetTitle
 } from "@/components/ui/sheet";
 import TextEditor from "../text-editor";
-import { formatSimpleDate } from "@/app/_constants/date-formatter";
+import { formatDateReverse, formatSimpleDate } from "@/app/_constants/date-formatter";
 
 const projectSchema = z.object({
   title: z.string().min(1, "Required"),
@@ -67,8 +67,8 @@ const EditProject = ({
     resolver: zodResolver(projectSchema),
     defaultValues: {
       title: title || "",
-      startDate: startDate || new Date(),
-      endDate: endDate || new Date(),
+      startDate: parseDate(formatDateReverse(startDate) || new Date()),
+      endDate: parseDate(formatDateReverse(endDate) || new Date()),
       description: description || "",
       isActive: true,
     },
@@ -93,9 +93,18 @@ const EditProject = ({
       setIsLoading(false);
     }
   }
-
   const formatDate = (date: Date) => {
     return formatSimpleDate(date);
+  }
+
+  function parseDate(date: string | Date): Date {
+    if (typeof date === 'string') {
+      const parsedDate = new Date(date);
+      if (!isNaN(parsedDate.getTime())) {
+        return parsedDate;
+      }
+    }
+    return new Date();
   }
 
   return (
@@ -255,7 +264,7 @@ const EditProject = ({
                   {isLoading ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ) : null}
-                  {isLoading ? "Saving" : "Save"}
+                  {isLoading ? "Updating" : "Update"}
                 </Button>
               </div>
             </form>

@@ -1,5 +1,6 @@
 import mongoose, { Document, model, Schema, Types } from "mongoose";
 import { DBModels } from "../_constants";
+import { Counter } from "./counter.model";
 
 export interface IProject extends Document {
   title: string;
@@ -9,7 +10,15 @@ export interface IProject extends Document {
   isActive: Boolean;
   users: Types.ObjectId[];
   userId: Types.ObjectId;
+  customId: number;
 }
+
+const ProjectUserSchema = new Schema({
+  userId: { type: Schema.Types.ObjectId, ref: DBModels.USER, required: true },
+  role: { type: String }
+},
+  { timestamps: true }
+);
 
 const ProjectSchema = new Schema<IProject>(
   {
@@ -18,13 +27,35 @@ const ProjectSchema = new Schema<IProject>(
     endDate: { type: Date, required: true },
     description: { type: String, required: false },
     isActive: { type: Boolean, required: true },
-    users: [{ type: Schema.Types.ObjectId, ref: DBModels.USER }],
+    users: [ProjectUserSchema],
     userId: { type: Schema.Types.ObjectId, ref: DBModels.USER, required: true },
+    customId: { type: Number }
   },
   {
     timestamps: true,
   }
 );
+
+ProjectSchema.pre('save', async function (next) {
+  const project = this;
+
+  if (project.isNew) {
+    try {
+      const counter = await Counter.findOneAndUpdate(
+        { entity: DBModels.PROJECT },
+        { $inc: { sequence: 1 } },
+        { new: true, upsert: true }
+      );
+
+      project.customId = counter.sequence;
+      next();
+    } catch (err: any) {
+      next(err);
+    }
+  } else {
+    next();
+  }
+});
 
 export const Project =
   mongoose.models.Project || model<IProject>(DBModels.PROJECT, ProjectSchema);

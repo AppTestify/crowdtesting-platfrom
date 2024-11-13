@@ -113,3 +113,13 @@ export const deleteProjectUserService = async (projectId: string, userId: string
     throw error;
   }
 };
+
+export const editProjectUserService = async (projectId: string, body: IProjectUser): Promise<any> => {
+  try {
+    const response = await genericPut(`${PROJECT_USER_ENPOINT(projectId)}`, body);
+    return response || {};
+  } catch (error) {
+    console.error(`Error > editProjectUserService:`, error);
+    throw error;
+  }
+};
