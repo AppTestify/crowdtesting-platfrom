@@ -8,7 +8,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { IProjectPayload } from "@/app/_interface/project";
+import { IProject, IProjectPayload } from "@/app/_interface/project";
 import { updateProjectService } from "@/app/_services/project.service";
 import toasterService from "@/app/_services/toaster-service";
 import { Calendar } from "@/components/ui/calendar";
@@ -53,12 +53,12 @@ const EditProject = ({
   setSheetOpen,
   refreshProjects,
 }: {
-  project: IProjectPayload;
+  project: IProject;
   sheetOpen: boolean;
   setSheetOpen: React.Dispatch<React.SetStateAction<boolean>>;
   refreshProjects: () => void;
 }) => {
-  const projectId = project?.id;
+  const projectId = project?.id as string;
   const { title, startDate, endDate, description } = project;
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -78,8 +78,8 @@ const EditProject = ({
     try {
       const response = await updateProjectService(projectId, {
         ...values,
-        startDate: values.startDate.toISOString(),
-        endDate: values.endDate.toISOString(),
+        startDate: new Date(values.startDate.toISOString()),
+        endDate: new Date(values.endDate.toISOString()),
       });
       if (response) {
         refreshProjects();

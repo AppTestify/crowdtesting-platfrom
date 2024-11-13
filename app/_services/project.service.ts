@@ -1,27 +1,27 @@
 import { PROJECTS_BULK_DELETE_ENDPOINT, PROJECTS_ENDPOINT } from "../_constants/api-endpoints";
-import { IProjectBulkDeletePayload, IProjectPayload } from "../_interface/project";
+import { IProject, IProjectBulkDeletePayload, IProjectPayload } from "../_interface/project";
 import { genericDelete, genericGet, genericPost, genericPut } from "./generic-api-methods";
 
 
 
 export const getProjectsService = async (): Promise<any> => {
-    try {
-      const response = await genericGet(PROJECTS_ENDPOINT);
-      return response || [];
-    } catch (error) {
-      console.error(`Error > getProjects:`, error);
-      throw error;
-    }
-  };
+  try {
+    const response = await genericGet(PROJECTS_ENDPOINT);
+    return response || [];
+  } catch (error) {
+    console.error(`Error > getProjects:`, error);
+    throw error;
+  }
+};
 
 export const addProjectService = async (body: IProjectPayload): Promise<any> => {
-    try {
-        const response = await genericPost(PROJECTS_ENDPOINT, body);
-        return response || {};
-    } catch (error) {
-        console.error(`Error > addProjectService:`, error);
-        throw error;
-    }
+  try {
+    const response = await genericPost(PROJECTS_ENDPOINT, body);
+    return response || {};
+  } catch (error) {
+    console.error(`Error > addProjectService:`, error);
+    throw error;
+  }
 };
 
 export const deleteProjectService = async (id: string): Promise<any> => {
@@ -50,7 +50,7 @@ export const projectsBulkDeleteService = async (
 
 export const updateProjectService = async (
   id: string,
-  body: IProjectPayload
+  body: IProject
 ): Promise<any> => {
   try {
     const response = await genericPut(`${PROJECTS_ENDPOINT}/${id}`, body);
@@ -63,7 +63,7 @@ export const updateProjectService = async (
 
 export const updateProjectStausService = async (
   id: string,
-  isActive: boolean 
+  isActive: boolean
 ): Promise<any> => {
   try {
     const response = await genericPut(`${PROJECTS_ENDPOINT}/${id}/status`, { isActive });

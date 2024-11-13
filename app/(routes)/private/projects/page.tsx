@@ -22,7 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { IProjectPayload } from "@/app/_interface/project";
+import { IProject, IProjectPayload } from "@/app/_interface/project";
 import { Checkbox } from "@/components/ui/checkbox";
 import { getProjectsService } from "@/app/_services/project.service";
 import { formatDate } from "@/app/_constants/date-formatter";
@@ -33,7 +33,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 export default function Projects() {
-  const columns: ColumnDef<IProjectPayload>[] = [
+  const columns: ColumnDef<IProject>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -89,7 +89,7 @@ export default function Projects() {
       cell: ({ row }) => (
         <ProjectStatus
           status={row.getValue("isActive")}
-          projectId={row.original.id}
+          projectId={row.original?.id as string}
           refreshProjects={refreshProjects}
         />
       ),
@@ -108,7 +108,7 @@ export default function Projects() {
   const [rowSelection, setRowSelection] = useState({});
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [globalFilter, setGlobalFilter] = useState<unknown>([]);
-  const [projects, setProjects] = useState<IProjectPayload[]>([]);
+  const [projects, setProjects] = useState<IProject[]>([]);
 
 
   const [pageIndex, setPageIndex] = useState(0);
@@ -121,7 +121,7 @@ export default function Projects() {
   const getProjects = async () => {
     setIsLoading(true);
     const projects = await getProjectsService();
-    setProjects(projects as IProjectPayload[]);
+    setProjects(projects as IProject[]);
     setIsLoading(false);
   };
 
@@ -192,7 +192,7 @@ export default function Projects() {
           <div className="flex gap-2 ml-2">
             {getSelectedRows().length ? (
               <BulkDelete
-                ids={getSelectedRows()}
+                ids={getSelectedRows() as string[]}
                 refreshProjects={refreshProjects}
               />
             ) : null}
