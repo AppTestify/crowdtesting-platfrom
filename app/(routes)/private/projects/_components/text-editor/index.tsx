@@ -1,15 +1,20 @@
+import { Textarea } from "@/components/ui/text-area";
 import React, { useEffect, useRef, useState } from "react";
-import RichTextEditor from "react-rte";
-
+// import RichTextEditor from "react-rte";
 
 interface TextEditorProps {
   markup: string;
   onChange: (value: string) => void;
 }
-type GroupName = 'INLINE_STYLE_BUTTONS' | 'BLOCK_TYPE_BUTTONS' | 'HISTORY_BUTTONS' | 'BLOCK_ALIGNMENT_BUTTONS' | 'BLOCK_TYPE_DROPDOWN';
+type GroupName =
+  | "INLINE_STYLE_BUTTONS"
+  | "BLOCK_TYPE_BUTTONS"
+  | "HISTORY_BUTTONS"
+  | "BLOCK_ALIGNMENT_BUTTONS"
+  | "BLOCK_TYPE_DROPDOWN";
 
 const TextEditor: React.FC<TextEditorProps> = ({ markup, onChange }) => {
-  const [value, setValue] = useState(RichTextEditor.createValueFromString(markup, "html"));
+  const [value, setValue] = useState<string>();
 
   const editorRef = useRef<HTMLDivElement | null>(null);
 
@@ -21,7 +26,11 @@ const TextEditor: React.FC<TextEditorProps> = ({ markup, onChange }) => {
   };
 
   const toolbarConfig = {
-    display: ["INLINE_STYLE_BUTTONS", "BLOCK_TYPE_BUTTONS", "HISTORY_BUTTONS"] as GroupName[],
+    display: [
+      "INLINE_STYLE_BUTTONS",
+      "BLOCK_TYPE_BUTTONS",
+      "HISTORY_BUTTONS",
+    ] as GroupName[],
     INLINE_STYLE_BUTTONS: [
       { label: "Bold", style: "BOLD" },
       { label: "Italic", style: "ITALIC" },
@@ -39,24 +48,31 @@ const TextEditor: React.FC<TextEditorProps> = ({ markup, onChange }) => {
     BLOCK_TYPE_DROPDOWN: [],
   };
 
-  useEffect(() => {
-    if (editorRef.current) {
-      const contentEditable = editorRef.current.querySelector('.DraftEditor-root') as HTMLElement;
-      if (contentEditable) {
-        contentEditable.style.minHeight = '200px';
-        contentEditable.style.maxHeight = '200px';
-        contentEditable.style.overflowY = 'auto';
-
-      }
-    }
-  }, [editorRef]);
+  // useEffect(() => {
+  //   if (editorRef.current) {
+  //     const contentEditable = editorRef.current.querySelector(
+  //       ".DraftEditor-root"
+  //     ) as HTMLElement;
+  //     if (contentEditable) {
+  //       contentEditable.style.minHeight = "200px";
+  //       contentEditable.style.maxHeight = "200px";
+  //       contentEditable.style.overflowY = "auto";
+  //     }
+  //   }
+  // }, [editorRef]);
 
   return (
     <div ref={editorRef}>
-      <RichTextEditor
+      {/* <RichTextEditor
         value={value}
         onChange={handleChange}
         toolbarConfig={toolbarConfig}
+      /> */}
+
+      <Textarea
+        onChange={(event) => {
+          setValue(event?.target?.value || "");
+        }}
       />
     </div>
   );
