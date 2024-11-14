@@ -299,7 +299,7 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
                         ) : (
                           <TableRow>
                             <TableCell colSpan={columns.length} className="h-24 text-center">
-                              No attachments found
+                              No documents
                             </TableCell>
                           </TableRow>
                         )}
