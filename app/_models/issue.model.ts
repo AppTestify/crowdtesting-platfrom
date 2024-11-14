@@ -12,6 +12,7 @@ export interface IIssue extends Document {
     projectId: Types.ObjectId;
     status: string;
     customId: number;
+    device: Types.ObjectId[];
 }
 
 const IssueSchema = new Schema<IIssue>(
@@ -26,7 +27,10 @@ const IssueSchema = new Schema<IIssue>(
         userId: { type: Schema.Types.ObjectId, ref: DBModels.USER, required: true },
         projectId: { type: Schema.Types.ObjectId, ref: DBModels.PROJECT, required: true },
         status: { type: String, required: true },
-        customId: { type: Number }
+        customId: { type: Number },
+        device: [
+            { type: Schema.Types.ObjectId, ref: DBModels.DEVICE }
+        ],
     },
     {
         timestamps: true

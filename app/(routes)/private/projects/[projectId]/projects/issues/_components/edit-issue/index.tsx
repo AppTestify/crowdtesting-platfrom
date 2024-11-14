@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -23,7 +23,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { IIssue } from "@/app/_interface/issue";
+import { IIssue, IIssuePayload } from "@/app/_interface/issue";
 import {
   Select,
   SelectContent,
@@ -36,12 +36,17 @@ import {
   PRIORITY_LIST,
   SEVERITY_LIST,
   ISSUE_STATUS_LIST,
+  ISSUE_TESTER_STATUS_LIST,
 } from "@/app/_constants/issue";
 import { updateIssueService } from "@/app/_services/issue.service";
 import IssueAttachments from "../attachments/issue-attachment";
 import { displayIcon } from "@/app/_utils/common-functionality";
 import TextEditor from "@/app/(routes)/private/projects/_components/text-editor";
 import { addIssueAttachmentsService } from "@/app/_services/issue-attachment.service";
+import { getDevicesWithoutPaginationService } from "@/app/_services/device.service";
+import { IDevice } from "@/app/_interface/device";
+import { useSession } from "next-auth/react";
+import { UserRoles } from "@/app/_constants/user-roles";
 
 const issueSchema = z.object({
   title: z.string().min(1, "Required"),
@@ -52,6 +57,9 @@ const issueSchema = z.object({
     .nonempty("Required."),
   status: z.string().optional(),
   projectId: z.string().optional(),
+  device: z
+    .array(z.string())
+    .min(1, "Required")
 });
 
 const EditIssue = ({
@@ -65,27 +73,49 @@ const EditIssue = ({
   setSheetOpen: React.Dispatch<React.SetStateAction<boolean>>;
   refreshIssues: () => void;
 }) => {
-  const issueId = issue?.id;
-  const { title, severity, priority, description, status, projectId } = issue;
+  const issueId = issue?.id as string;
+  const { title, severity, priority, description, status, projectId, device } = issue;
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [attachments, setAttachments] = useState<any[]>([]);
-
+  const [devices, setDevices] = useState<IDevice[]>([]);
+  const [userData, setUserData] = useState<any>();
+  const { data } = useSession();
+  const deviceName = device?.map(d => d.name) || [];
   const form = useForm<z.infer<typeof issueSchema>>({
     resolver: zodResolver(issueSchema),
     defaultValues: {
-      title: title || "",
-      severity: severity || "",
-      priority: priority || "",
-      description: description || "",
-      status: status || "",
-      projectId: projectId || "",
+      title: "",
+      severity: "",
+      priority: "",
+      description: "",
+      status: "",
+      projectId: "",
+      device: []
     },
   });
+
+  const hasReset = useRef(false);
+
+  useEffect(() => {
+    if (issue && !hasReset.current) {
+      // Reset form with the updated issue data
+      form.reset({
+        title: issue.title || "",
+        severity: issue.severity || "",
+        priority: issue.priority || "",
+        description: issue.description || "",
+        status: issue.status || "",
+        projectId: issue.projectId || "",
+        device: deviceName,
+      });
+      hasReset.current = true; // Prevent further resets
+    }
+  }, [issue, deviceName, form]);
 
   async function onSubmit(values: z.infer<typeof issueSchema>) {
     setIsLoading(true);
     try {
-      const response = await updateIssueService(projectId, issueId, {
+      const response = await updateIssueService(projectId as string, issueId, {
         ...values,
       });
       if (response) {
@@ -103,7 +133,7 @@ const EditIssue = ({
   const uploadAttachment = async () => {
     setIsLoading(true);
     try {
-      await addIssueAttachmentsService(projectId, issueId, { attachments });
+      await addIssueAttachmentsService(projectId as string, issueId, { attachments });
     } catch (error) {
       toasterService.error();
     } finally {
@@ -118,9 +148,35 @@ const EditIssue = ({
     await uploadAttachment();
   };
 
+  const getDevices = async () => {
+    setIsLoading(true);
+    const devices = await getDevicesWithoutPaginationService();
+    setDevices(devices);
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    if (sheetOpen) {
+      getDevices();
+      if (data) {
+        const { user } = data;
+        setUserData(user);
+      }
+    }
+  }, [sheetOpen]);
+
+  useEffect(() => {
+    if (data) {
+      const { user } = data;
+      setUserData(user);
+    }
+  }, [data]);
+
   return (
     <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-      <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px]">
+      <SheetContent
+        className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto"
+      >
         <SheetHeader>
           <SheetTitle className="text-left">Edit Issue</SheetTitle>
           <SheetDescription className="text-left">
@@ -208,29 +264,79 @@ const EditIssue = ({
                   )}
                 />
               </div>
-              <div className="w-full mt-3">
+              <div className="w-full grid grid-cols-2 gap-2 mt-3">
                 <FormField
                   control={form.control}
                   name="status"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
                       <FormLabel>Status</FormLabel>
-
                       <Select
                         onValueChange={field.onChange}
                         value={field.value}
                       >
                         <SelectTrigger className="w-full">
-                          <SelectValue />
+                          <SelectValue>{field.value || ""}</SelectValue>
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectGroup>
-                            {ISSUE_STATUS_LIST.map((status) => (
-                              <SelectItem value={status}>
-                                {status}
-                              </SelectItem>
-                            ))}
-                          </SelectGroup>
+                          {userData?.role === UserRoles.TESTER ?
+                            <SelectGroup>
+                              {ISSUE_TESTER_STATUS_LIST.map((status) => (
+                                <SelectItem value={status}>
+                                  {status}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                            : <SelectGroup>
+                              {ISSUE_STATUS_LIST.map((status) => (
+                                <SelectItem value={status}>
+                                  {status}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          }
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="device"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Device</FormLabel>
+                      <Select
+                        onValueChange={(value) => {
+                          if (value) {
+                            field.onChange([value]);
+                          }
+                        }}
+                        value={field.value?.[0] || (devices.length > 0 ? devices[0]._id : "")}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue>
+                            {
+                              field.value && field.value.length > 0
+                                ? devices.find((device) => device.id === field.value[0])?.name || field.value
+                                : (status || " ") 
+                            }
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                          {devices.length > 0 ?
+                            <SelectGroup>
+                              {devices.map((device) => (
+                                <SelectItem key={device.id} value={device.id}>
+                                  <div className="flex items-center">
+                                    {device?.name}
+                                  </div>
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                            : <div className="text-center">Loading</div>}
                         </SelectContent>
                       </Select>
                       <FormMessage />

@@ -52,6 +52,8 @@ import { ColumnDef } from "@tanstack/react-table";
 import { IIssueAttachmentDisplay } from "@/app/_interface/issue";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { DocumentName } from "@/app/_components/document-name";
+import { getDevicesWithoutPaginationService } from "@/app/_services/device.service";
+import { IDevice } from "@/app/_interface/device";
 
 const projectSchema = z.object({
   title: z.string().min(1, "Required"),
@@ -63,6 +65,9 @@ const projectSchema = z.object({
   attachments: z
     .array(z.instanceof(File))
     .optional(),
+  device: z
+    .array(z.string())
+    .min(1, "Required")
 });
 
 export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
@@ -81,6 +86,7 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { projectId } = useParams<{ projectId: string }>();
   const [attachments, setAttachments] = useState<File[]>();
+  const [devices, setDevices] = useState<IDevice[]>([]);
 
   const form = useForm<z.infer<typeof projectSchema>>({
     resolver: zodResolver(projectSchema),
@@ -91,7 +97,8 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
       description: "",
       status: IssueStatus.NEW,
       projectId: projectId,
-      attachments: []
+      attachments: [],
+      device: []
     },
   });
 
@@ -141,10 +148,23 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
     form.setValue("attachments", attachments?.filter((_, i) => i !== index));
   };
 
+  const getDevices = async () => {
+    setIsLoading(true);
+    const devices = await getDevicesWithoutPaginationService();
+    setDevices(devices);
+    setIsLoading(false);
+  };
+
   useEffect(() => {
     if (!sheetOpen) {
       setAttachments([]);
       form.setValue("attachments", []);
+    }
+  }, [sheetOpen]);
+
+  useEffect(() => {
+    if (sheetOpen) {
+      getDevices();
     }
   }, [sheetOpen]);
 
@@ -155,7 +175,9 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
           <Plus /> Add Issue
         </Button>
       </SheetTrigger>
-      <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px]">
+      <SheetContent
+        className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto"
+      >
         <SheetHeader>
           <SheetTitle className="text-left">Add new issue</SheetTitle>
           <SheetDescription className="text-left">
@@ -243,6 +265,48 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
                 />
               </div>
 
+              <div className="grid grid-cols-1 gap-2 mt-3">
+                <FormField
+                  control={form.control}
+                  name="device"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Device</FormLabel>
+                      <Select
+                        onValueChange={(value) => {
+                          if (value) {
+                            field.onChange([value]);
+                          }
+                        }}
+                        value={field.value?.[0] || ""}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue>
+                            {field.value.length > 0
+                              ? devices.find((device) => device.id === field.value?.[0])?.name
+                              : " "}
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                          {devices.length > 0 ?
+                            <SelectGroup>
+                              {devices.map((device) => (
+                                <SelectItem key={device.id} value={device.id}>
+                                  <div className="flex items-center">
+                                    {device?.name}
+                                  </div>
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                            : <div className="text-center">Loading</div>}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
               <div className="grid grid-cols-1 gap-2 mt-4">
                 <FormField
                   control={form.control}
@@ -280,11 +344,11 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
                   >
                     Choose Files
                   </label>
-                  <div className="mt-4 rounded-md border">
-                    <Table>
-                      <TableBody>
-                        {attachments?.length ? (
-                          attachments.map((attachment, index) => (
+                  {attachments?.length ? (
+                    attachments.map((attachment, index) => (
+                      <div className="mt-4 rounded-md border">
+                        <Table>
+                          <TableBody>
                             <TableRow key={index}>
                               <TableCell>{attachment.name}</TableCell>
                               <TableCell className="flex justify-end items-end mr-6">
@@ -295,17 +359,13 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
                                 </Button>
                               </TableCell>
                             </TableRow>
-                          ))
-                        ) : (
-                          <TableRow>
-                            <TableCell colSpan={columns.length} className="h-24 text-center">
-                              No documents
-                            </TableCell>
-                          </TableRow>
-                        )}
-                      </TableBody>
-                    </Table>
-                  </div>
+                          </TableBody>
+                        </Table>
+                      </div>
+                    ))
+                  ) :
+                    null
+                  }
                 </div>
               </div>
               <div className="mt-6 w-full flex justify-end gap-2">

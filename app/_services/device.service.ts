@@ -68,3 +68,23 @@ export const devicesBulkDeleteService = async (
     throw error;
   }
 };
+
+export const getDevicesWithoutPaginationService = async (): Promise<any> => {
+  try {
+    const response = await genericGet(`${DEVICES_ENDPOINT}/without-pagination`);
+    return response || [];
+  } catch (error) {
+    console.error(`Error > getDevicesWithoutPaginationService:`, error);
+    throw error;
+  }
+};
+
+export const getDevicesByUserService = async (userId: string): Promise<any> => {
+  try {
+    const response = await genericGet(`${DEVICES_ENDPOINT}/user/${userId}`);
+    return response || [];
+  } catch (error) {
+    console.error(`Error > getDevicesByUserService:`, error);
+    throw error;
+  }
+};

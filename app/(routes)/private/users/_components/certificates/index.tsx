@@ -50,11 +50,13 @@ export default function UserCertificates({ certificate = [] }: { certificate?: I
     });
 
     return (
-        <div className="mt-2">
-            <div className="mt-2 rounded-md border">
-                {certificate.length === 0 ? (
-                    <p className="text-center py-4">No Certificates found</p>
-                ) : (
+        <div>
+            {certificate.length === 0 ? (
+                <div>
+                    <p>No Certificates added</p>
+                </div>
+            ) : (
+                <div className="mt-4 rounded-md border">
                     <Table>
                         <TableHeader>
                             {table.getHeaderGroups().map((headerGroup) => (
@@ -92,8 +94,8 @@ export default function UserCertificates({ certificate = [] }: { certificate?: I
                             ))}
                         </TableBody>
                     </Table>
-                )}
-            </div>
+                </div>
+            )}
         </div>
     );
 }

@@ -31,6 +31,9 @@ export const SKILLS: string[] = [
   "Continuous Integration/Continuous Deployment",
   "Mobile Testing",
   "Security Testing",
+  "Java",
+  "Python",
+  "Typescript"
 ];
 
 export const enum TesterProfileTabs {

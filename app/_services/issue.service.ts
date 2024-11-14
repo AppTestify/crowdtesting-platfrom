@@ -34,6 +34,11 @@ export const addIssueService = async (
     formData.append("description", body?.description || "");
     formData.append("status", body?.status || "");
     formData.append("projectId", body?.projectId || "");
+    if (body?.device && Array.isArray(body.device)) {
+      body.device.forEach((device) => {
+        formData.append("device[]", device);
+      });
+    }
     body?.attachments?.forEach((file) => {
       formData.append("attachments", file);
     });

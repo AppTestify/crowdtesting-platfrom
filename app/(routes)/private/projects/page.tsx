@@ -32,6 +32,8 @@ import ProjectStatus from "./_components/project-status";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { PAGINATION_LIMIT } from "@/app/_utils/common";
+import { useSession } from "next-auth/react";
+import { UserRoles } from "@/app/_constants/user-roles";
 
 export default function Projects() {
   let columns: ColumnDef<IProjectPayload>[] = [
@@ -102,7 +104,8 @@ export default function Projects() {
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
   const [totalPageCount, setTotalPageCount] = useState(0);
-
+  const [userData, setUserData] = useState<any>();
+  const { data } = useSession();
 
   const statusColumn: ColumnDef<IProjectPayload> = {
     accessorKey: "isActive",
@@ -200,6 +203,13 @@ export default function Projects() {
     }
   };
 
+  useEffect(() => {
+    if (data) {
+      const { user } = data;
+      setUserData(user);
+    }
+  }, [data]);
+
   return (
     <main className="mx-4 mt-4">
       <div className="">
@@ -227,7 +237,9 @@ export default function Projects() {
                 refreshProjects={refreshProjects}
               />
             ) : null}
-            <AddProject refreshProjects={refreshProjects} />
+            {userData?.role != UserRoles.TESTER &&
+              <AddProject refreshProjects={refreshProjects} />
+            }
           </div>
         </div>
         <div className="rounded-md border">

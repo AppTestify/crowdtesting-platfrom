@@ -1,3 +1,5 @@
+import { IDevice } from "./device";
+
 export interface IIssue {
   id: string;
   title: string;
@@ -7,6 +9,7 @@ export interface IIssue {
   description?: string;
   status?: string;
   userId?: string;
+  device: IDevice[];
 }
 
 export interface IIssuePayload {
@@ -17,6 +20,9 @@ export interface IIssuePayload {
   status?: string;
   projectId?: string;
   attachments?: File[];
+  device: string[];
+  id?: string;
+  _id?: string;
 }
 
 export interface IIssueAttachment {

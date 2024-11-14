@@ -16,6 +16,8 @@ export const enum IssueStatus {
   DUPLICATE = "Duplicate",
   INVALID = "Invalid",
   DEFERRED = "Deferred",
+  RETEST_FAILED = "Retest failed",
+  RETEST_PASSED = "Retest passed"
 }
 
 export const SEVERITY_LIST = [
@@ -32,4 +34,11 @@ export const ISSUE_STATUS_LIST = [
   IssueStatus.DUPLICATE,
   IssueStatus.INVALID,
   IssueStatus.DEFERRED,
+  IssueStatus.RETEST_FAILED,
+  IssueStatus.RETEST_PASSED
+];
+
+export const ISSUE_TESTER_STATUS_LIST = [
+  IssueStatus.RETEST_FAILED,
+  IssueStatus.RETEST_PASSED
 ];

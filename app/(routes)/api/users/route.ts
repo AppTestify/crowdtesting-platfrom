@@ -1,10 +1,12 @@
 import { DBModels } from "@/app/_constants";
 import { DB_CONNECTION_ERROR_MESSAGE, INVALID_INPUT_ERROR_MESSAGE, USER_EXISTS_ERROR_MESSAGE, USER_UNAUTHORIZED_ERROR_MESSAGE } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
+import { UserRoles } from "@/app/_constants/user-roles";
 import { connectDatabase } from "@/app/_db";
 import SendCredentials from "@/app/_helpers/sendEmailCredentials.helper";
 import { isAdmin, verifySession } from "@/app/_lib/dal";
 import { IdFormat } from "@/app/_models/id-format.model";
+import { Tester } from "@/app/_models/tester.model";
 import { User } from "@/app/_models/user.model";
 import { adminUserCreateSchema } from "@/app/_schemas/auth.schema";
 import { serverSidePagination } from "@/app/_utils/common-server-side";
@@ -54,7 +56,9 @@ export async function GET(req: Request) {
 
         const userIdFormat = await IdFormat.findOne({ entity: DBModels.USER });
         const { skip, limit } = serverSidePagination(req);
-        const response = addCustomIds(
+
+
+        const users = addCustomIds(
             await User.find(filter)
                 .populate("profilePicture")
                 .sort({ createdAt: -1 })
@@ -63,8 +67,16 @@ export async function GET(req: Request) {
                 .lean(),
             userIdFormat.idFormat
         );
+        for (let i = 0; i < users.length; i++) {
+            if (users[i].role === UserRoles.TESTER) {
+                const tester = await Tester.findOne({ user: users[i].id }).sort({ _id: -1 }).populate("user").lean();
+                console.log(tester);
+                users[i].tester = tester;
+            }
+        }
+
         const totalUsers = await User.countDocuments(filter);
-        return Response.json({ "users": response, "total": totalUsers });
+        return Response.json({ users, total: totalUsers });
     } catch (error: any) {
         return errorHandler(error);
     }

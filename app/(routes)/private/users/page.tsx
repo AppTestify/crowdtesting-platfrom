@@ -31,13 +31,15 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getAvatarFallbackText, getFormattedBase64ForSrc } from "@/app/_utils/string-formatters";
 import { UserBulkDelete } from "./_components/bulk-delete";
 import UserStatus from "./_components/user-status";
-import { USER_ROLE_LIST } from "@/app/_constants/user-roles";
+import { USER_ROLE_LIST, UserRoles } from "@/app/_constants/user-roles";
 import { formatDistanceToNow } from "date-fns";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { STATUS_LIST, UserStatusList } from "@/app/_constants/user-status";
 import { X } from "lucide-react";
 import { PAGINATION_LIMIT } from "@/app/_utils/common";
 import { showUsersRoleInBadges } from "@/app/_utils/common-functionality";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import UserTable from "./_constant";
 
 export default function Users() {
     const columns: ColumnDef<IUserByAdmin>[] = [
@@ -99,6 +101,13 @@ export default function Users() {
             ),
         },
         {
+            accessorKey: "testerCountry",
+            header: "Country",
+            cell: ({ row }) => (
+                <div className="">{row.getValue("testerCountry")}</div>
+            ),
+        },
+        {
             accessorKey: "role",
             header: "Role",
             cell: ({ row }) => (
@@ -155,7 +164,6 @@ export default function Users() {
         getUsers();
     }, [pageIndex, pageSize, selectedStatus, selectedRole]);
 
-
     const handleStatusChange = (status: UserStatusList) => {
         setSelectedStatus(status);
     };
@@ -210,177 +218,27 @@ export default function Users() {
             .filter((id): id is string => id !== undefined);
     };
 
-    const handlePreviousPage = () => {
-        if (pageIndex > 1) {
-            setPageIndex(pageIndex - 1);
-        }
-    };
-
-    const handleNextPage = () => {
-        if (pageIndex < Math.ceil(totalPageCount / pageSize)) {
-            setPageIndex(pageIndex + 1);
-        }
-    };
-
     return (
         <main className="mx-4 mt-4">
-            <div className="">
-                <h2 className="font-medium text-xl text-primary">Users</h2>
-                <span className="text-xs text-gray-600">
-                    Unlock your potential! We'll match your unique skills and experience with projects tailored just for you,
-                    helping you shine in roles that showcase your talents.
-                </span>
+            <div className="mt-2 mb-3">
+                <Tabs defaultValue="admin" className="">
+                    <TabsList className="grid grid-cols-3 w-[400px]">
+                        <TabsTrigger value="admin">Admin</TabsTrigger>
+                        <TabsTrigger value="tester">Tester</TabsTrigger>
+                        <TabsTrigger value="client">Client</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="admin">
+                        <UserTable role={UserRoles.ADMIN} />
+                    </TabsContent>
+                    <TabsContent value="tester">
+                        <UserTable role="TESTER" />
+                    </TabsContent>
+                    <TabsContent value="client">
+                        <UserTable role="CLIENT" />
+                    </TabsContent>
+                </Tabs>
             </div>
-            <div className="w-full">
-                <div className="flex items-center py-4 justify-between">
-                    <div className="flex gap-2 w-full max-w-2xl">
-                        <Input
-                            placeholder="Filter users"
-                            value={(globalFilter as string) ?? ""}
-                            onChange={(event) => {
-                                table.setGlobalFilter(String(event.target.value));
-                            }}
-                            className="w-full"
-                        />
-                        {getSelectedRows().length ? (
-                            <UserBulkDelete
-                                ids={getSelectedRows()}
-                                refreshUsers={refreshUsers}
-                            />
-                        ) : null}
-                        {selectedRole || selectedStatus ?
-                            <div>
-                                <Button onClick={resetFilter} className="px-3 bg-red-500 hover:bg-red-500">
-                                    <X />
-                                </Button>
-                            </div>
-                            : null
-                        }
-                        <div>
-                            <Select
-                                value={selectedStatus || ""}
-                                onValueChange={(value) => {
-                                    handleStatusChange(value as UserStatusList);
-                                }}
-                            >
-                                <SelectTrigger className="w-[150px]">
-                                    <SelectValue placeholder="Search by status" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectGroup>
-                                        {STATUS_LIST.map((status) => (
-                                            <SelectItem value={String(status.value)} key={status.status}>
-                                                <div className="flex items-center">
-                                                    {status.status}
-                                                </div>
-                                            </SelectItem>
-                                        ))}
-                                    </SelectGroup>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div className="">
-                            <Select
-                                value={selectedRole || ""}
-                                onValueChange={(value) => {
-                                    handleRoleChange(value);
-                                }}
-                            >
-                                <SelectTrigger className="w-[135px]">
-                                    <SelectValue placeholder="Search by role" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectGroup>
-                                        {USER_ROLE_LIST.map((role) => (
-                                            <SelectItem value={role} key={role}>
-                                                <div className="flex items-center">
-                                                    {role}
-                                                </div>
-                                            </SelectItem>
-                                        ))}
-                                    </SelectGroup>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-                    <AddUser refreshUsers={refreshUsers} />
-                </div>
-                <div className="rounded-md border">
-                    <Table>
-                        <TableHeader>
-                            {table.getHeaderGroups().map((headerGroup) => (
-                                <TableRow key={headerGroup.id}>
-                                    {headerGroup.headers.map((header) => {
-                                        return (
-                                            <TableHead key={header.id}>
-                                                {header.isPlaceholder
-                                                    ? null
-                                                    : flexRender(
-                                                        header.column.columnDef.header,
-                                                        header.getContext()
-                                                    )}
-                                            </TableHead>
-                                        );
-                                    })}
-                                </TableRow>
-                            ))}
-                        </TableHeader>
-                        <TableBody>
-                            {table.getRowModel().rows?.length ? (
-                                table.getRowModel().rows.map((row) => (
-                                    <TableRow
-                                        key={row.id}
-                                        data-state={row.getIsSelected() && "selected"}
-                                    >
-                                        {row.getVisibleCells().map((cell) => (
-                                            <TableCell key={cell.id}>
-                                                {flexRender(
-                                                    cell.column.columnDef.cell,
-                                                    cell.getContext()
-                                                )}
-                                            </TableCell>
-                                        ))}
-                                    </TableRow>
-                                ))
-                            ) : (
-                                <TableRow>
-                                    <TableCell
-                                        colSpan={columns.length}
-                                        className="h-24 text-center"
-                                    >
-                                        {!isLoading ? "No results" : "Loading"}
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
-                </div>
-                <div className="flex items-center justify-end space-x-2 py-4">
-                    <div className="flex-1 text-sm text-muted-foreground">
-                        {table.getFilteredSelectedRowModel().rows.length} of{" "}
-                        {table.getFilteredRowModel().rows.length} row(s) selected.
-                    </div>
 
-                    <div className="flex space-x-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handlePreviousPage}
-                            disabled={pageIndex === 1}
-                        >
-                            Previous
-                        </Button>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleNextPage}
-                            disabled={pageIndex >= Math.ceil(totalPageCount / pageSize)}
-                        >
-                            Next
-                        </Button>
-                    </div>
-                </div>
-            </div>
         </main>
     );
 }

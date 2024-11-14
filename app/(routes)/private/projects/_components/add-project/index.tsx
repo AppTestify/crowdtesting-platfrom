@@ -47,7 +47,7 @@ const projectSchema = z.object({
   isActive: z.boolean().optional(),
 });
 
-export function AddProject({ refreshProjects }: {  refreshProjects: () => void; }) {
+export function AddProject({ refreshProjects }: { refreshProjects: () => void; }) {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 

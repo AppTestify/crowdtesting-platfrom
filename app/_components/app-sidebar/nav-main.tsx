@@ -29,7 +29,6 @@ export function NavMain({
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Application</SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>
           {items?.map((item: any) => (

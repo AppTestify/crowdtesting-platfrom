@@ -49,6 +49,7 @@ export async function POST(
       description: body.get("description"),
       projectId: body.get("projectId"),
       status: body.get("status"),
+      device: body.getAll("device[]")
     };
     const response = issueSchema.safeParse(formData);
 
@@ -137,6 +138,7 @@ export async function GET(
       response = addCustomIds(
         await Issue.find({ projectId: projectId })
           .sort({ createdAt: -1 })
+          .populate("device")
           .lean(),
         userIdFormat.idFormat
       );
@@ -145,6 +147,7 @@ export async function GET(
         await Issue.find({ projectId: projectId })
           .populate("userId")
           .sort({ createdAt: -1 })
+          .populate("device")
           .lean(),
         userIdFormat.idFormat
       );

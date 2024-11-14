@@ -76,6 +76,13 @@ export default function Issues() {
       ),
     },
     {
+      accessorKey: "Device Name",
+      header: "Device",
+      cell: ({ row }) => (
+        <div className="capitalize">{row.original?.device[0]?.name}</div>
+      ),
+    },
+    {
       accessorKey: "status",
       header: ({ column }) => (
         <div className="ml-1">Status</div>

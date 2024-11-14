@@ -3,5 +3,6 @@ export const OPERATIING_SYSTEMS = [
     "MacOS",
     "Linux",
     "Android",
-    "iOS"
+    "iOS",
+    "Other"
 ]
