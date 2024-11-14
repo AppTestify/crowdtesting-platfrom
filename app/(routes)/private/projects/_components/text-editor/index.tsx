@@ -71,7 +71,7 @@ const TextEditor: React.FC<TextEditorProps> = ({ markup, onChange }) => {
 
       <Textarea
         onChange={(event) => {
-          setValue(event?.target?.value || "");
+          handleChange(event?.target?.value);
         }}
       />
     </div>
