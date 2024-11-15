@@ -70,7 +70,7 @@ export default function Projects() {
       accessorKey: "title",
       header: "Title",
       cell: ({ row }) => (
-        <Link href={`/private/projects/${row.original.id}/projects/overview`}>
+        <Link href={`/private/projects/${row.original.id}/overview`}>
           <div className="capitalize hover:text-primary">{row.getValue("title")}</div>
         </Link>
       ),
@@ -131,7 +131,7 @@ export default function Projects() {
       ...columns,
       {
         accessorKey: "createdBy",
-        header: "Created By",
+        header: "Owner",
         cell: ({ row }) => <div>
           {`${row.original?.userId?.firstName ? row.original?.userId?.firstName : ""}
            ${row.original?.userId?.lastName ? row.original?.userId?.lastName : ""}`}

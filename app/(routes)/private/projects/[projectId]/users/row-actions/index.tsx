@@ -1,6 +1,6 @@
 "use client";
 import { ConfirmationDialog } from "@/app/_components/confirmation-dialog";
-import { IProjectUser, IProjectUserDisplay } from "@/app/_interface/project";
+import { IProjectUserDisplay } from "@/app/_interface/project";
 import { deleteProjectUserService } from "@/app/_services/project.service";
 import toasterService from "@/app/_services/toaster-service";
 import { Button } from "@/components/ui/button";
@@ -60,7 +60,7 @@ export function ProjectUserRowActions({
             <ConfirmationDialog
                 isOpen={isDeleteOpen}
                 setIsOpen={setIsDeleteOpen}
-                title="Remove User"
+                title="Remove user"
                 description="Are you sure you want remove this user?"
                 isLoading={isLoading}
                 successAction={deleteIssue}

@@ -70,7 +70,6 @@ export async function GET(req: Request) {
         for (let i = 0; i < users.length; i++) {
             if (users[i].role === UserRoles.TESTER) {
                 const tester = await Tester.findOne({ user: users[i].id }).sort({ _id: -1 }).populate("user").lean();
-                console.log(tester);
                 users[i].tester = tester;
             }
         }

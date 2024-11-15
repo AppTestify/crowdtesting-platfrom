@@ -4,6 +4,7 @@ import {
   INVALID_INPUT_ERROR_MESSAGE,
   INVALID_PASSWORD_ERROR_MESSAGE,
   USER_EXISTS_ERROR_MESSAGE,
+  USER_INACTIVE_ERROR_MESSAGE,
   USER_UNAUTHORIZED_ERROR_MESSAGE,
 } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
@@ -44,6 +45,13 @@ export async function POST(req: Request) {
       return Response.json(
         { message: USER_UNAUTHORIZED_ERROR_MESSAGE },
         { status: HttpStatusCode.UNAUTHORIZED }
+      );
+    }
+
+    if (existingUser?.isActive === false) {
+      return Response.json(
+        { message: USER_INACTIVE_ERROR_MESSAGE },
+        { status: HttpStatusCode.BAD_REQUEST }
       );
     }
 

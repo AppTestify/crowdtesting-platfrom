@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 
 import {
   ColumnDef,
-  ColumnFiltersState,
   SortingState,
   VisibilityState,
   flexRender,
@@ -14,16 +13,8 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { Edit, MoreHorizontal, Plus, Trash } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -39,10 +30,11 @@ import { IBrowser } from "@/app/_interface/browser";
 import { getBrowserService } from "@/app/_services/browser.service";
 import { BrowsersList } from "@/app/_components/browsers-list";
 import { AddDevice } from "./_components/add-device";
-import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
 import { RowActions } from "./_components/row-actions";
 import { BulkDelete } from "./_components/bulk-delete";
 import { PAGINATION_LIMIT } from "@/app/_utils/common";
+import ViewTesterIssue from "../users/_components/view-user";
+import { IUserByAdmin } from "@/app/_interface/user";
 
 export default function Devices() {
   let columns: ColumnDef<IDevice>[] = [
@@ -135,6 +127,8 @@ export default function Devices() {
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
   const [totalPageCount, setTotalPageCount] = useState(0);
+  const [user, setUser] = useState<IUserByAdmin>();
+  const [isViewOpen, setIsViewOpen] = useState(false);
 
   const actionsColumn: ColumnDef<IDevice> = {
     id: "actions",
@@ -153,9 +147,12 @@ export default function Devices() {
       {
         accessorKey: "createdBy",
         header: "Owner",
-        cell: ({ row }) => <div>
-          {`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}
-        </div>,
+        cell: ({ row }) =>
+          <div className="hover:text-primary cursor-pointer"
+            onClick={() => getUser(row.original?.userId as IUserByAdmin)}
+          >
+            {`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}
+          </div>,
       },
       actionsColumn
     ]
@@ -188,6 +185,11 @@ export default function Devices() {
   useEffect(() => {
     getBrowsers();
   }, []);
+
+  const getUser = async (data: IUserByAdmin) => {
+    setUser(data as IUserByAdmin);
+    setIsViewOpen(true);
+  };
 
   const getDevices = async () => {
     setIsLoading(true);
@@ -227,6 +229,11 @@ export default function Devices() {
 
   return (
     <main className="mx-4 mt-4">
+      <ViewTesterIssue
+        user={user as IUserByAdmin}
+        sheetOpen={isViewOpen}
+        setSheetOpen={setIsViewOpen}
+      />
       <div>
         <h2 className="font-medium text-xl text-primary">Available Devices</h2>
         <span className="text-xs text-gray-600">

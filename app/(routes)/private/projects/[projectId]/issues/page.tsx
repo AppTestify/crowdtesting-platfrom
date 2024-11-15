@@ -79,7 +79,9 @@ export default function Issues() {
       accessorKey: "Device Name",
       header: "Device",
       cell: ({ row }) => (
-        <div className="capitalize">{row.original?.device[0]?.name}</div>
+        <div className="capitalize">
+          {row.original?.device && row.original.device.length > 0 ? row.original.device[0]?.name : ''}
+        </div>
       ),
     },
     {

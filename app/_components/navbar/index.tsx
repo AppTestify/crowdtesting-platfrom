@@ -48,7 +48,7 @@ export function Navbar() {
           </Breadcrumb>
         </div>
         {data?.user && (
-          <Badge variant={isAccountActive ? "default" : "secondary"}>
+          <Badge className="font-medium" variant={isAccountActive ? "default" : "secondary"}>
             {isAccountActive ? "Account Active" : "Account Inactive"}
           </Badge>
         )}

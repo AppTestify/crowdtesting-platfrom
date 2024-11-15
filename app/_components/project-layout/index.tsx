@@ -43,7 +43,7 @@ export default function ProjectLayouts({ onLoaded }: { onLoaded: () => void }) {
     }, [projectId]);
 
     const handleTabChange = (value: string) => {
-        router.push(`/private/projects/${projectId}/projects/${value}`);
+        router.push(`/private/projects/${projectId}/${value}`);
     }
 
     useEffect(() => {

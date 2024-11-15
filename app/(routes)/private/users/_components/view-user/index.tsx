@@ -21,6 +21,8 @@ import { UserRoles } from "@/app/_constants/user-roles";
 import Documents from "../../../profile/_components/tester-profile/_components/documents";
 import { getDevicesByUserService, getDevicesWithoutPaginationService } from "@/app/_services/device.service";
 import { IDevice } from "@/app/_interface/device";
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
+import ViewUserDevice from "../view-device";
 
 const ViewTesterIssue = ({
     user,
@@ -170,7 +172,7 @@ const ViewTesterIssue = ({
                                             <div className="flex mt-4">
                                                 <p className="font-medium text-primary">Skills</p>
                                             </div>
-                                            <div className="">No skills added</div>
+                                            <div className="text-sm">No skills added</div>
                                         </div>
                                     }
                                 </div>
@@ -195,7 +197,7 @@ const ViewTesterIssue = ({
                                             <div className="mt-4">
                                                 <p className="font-medium text-primary">Address</p>
                                             </div>
-                                            <div>No address added</div>
+                                            <div className="text-sm">No address added</div>
                                         </div>
                                     }
                                 </div>
@@ -211,7 +213,7 @@ const ViewTesterIssue = ({
                                         :
                                         <div className="mt-4">
                                             <p className="font-medium text-primary">Bio</p>
-                                            <p>No user bio added</p>
+                                            <p className="text-sm">No user bio added</p>
                                         </div>
                                     }
                                     <div>
@@ -233,16 +235,7 @@ const ViewTesterIssue = ({
                                 <Documents userId={userData?._id} />
                             </TabsContent>
                             <TabsContent value="devices">
-                                {devices?.length > 0 ?
-                                    <div className="mt-6">
-                                        {devices?.map((device) => (
-                                            <Badge className="ml-2 mx-2 mt-1">
-                                                {device?.name}
-                                            </Badge>
-                                        ))}
-                                    </div>
-                                    : <div className="mt-4">No device added</div>
-                                }
+                                <ViewUserDevice device={devices} />
                             </TabsContent>
                             <TabsContent value="payments">
                                 {userData?.paypalId ?

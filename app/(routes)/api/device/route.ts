@@ -97,13 +97,20 @@ export async function GET(req: Request) {
     } else {
       response = normaliseIds(
         await Device.find({})
-          .populate("userId", "email firstName lastName isActive")
+          .populate("userId", "id email firstName lastName isActive")
           .sort({ createdAt: -1 })
           .skip(skip)
           .limit(Number(limit))
           .lean()
       );
     }
+    response = response.map((res) => ({
+      ...res,
+      userId: {
+        ...res.userId,
+        id: res?.userId?._id
+      }
+    }));
 
     return Response.json({ "devices": response, "total": totalProjects });
   } catch (error: any) {

@@ -141,7 +141,7 @@ export default function Documents({ userId }: { userId?: string }) {
 
       <main className="mt-4">
         <div>
-          <h2 className={`text-lg ${userId ? 'mb-2' : ''}`}>Personal Documents</h2>
+          <h2 className={`text-lg ${userId ? 'mb-2' : ''}`}>Personal documents</h2>
           {!userId &&
             <span className="text-gray-500 text-xs">
               All your personal documents are stored here, you will find updated

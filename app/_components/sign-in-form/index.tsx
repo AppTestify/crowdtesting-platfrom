@@ -51,7 +51,6 @@ export function SignInForm({ setIsGoogleSignInDisable }: { setIsGoogleSignInDisa
 
     Cookies.set(CookieKey.AUTH_INTENT, AuthIntent.SIGN_IN_CREDS);
     const response = await signIn(NextAuthProviders.CREDENTIALS, { email: values.email, password: values.password, authIntent: AuthIntent.SIGN_IN_CREDS, redirect: false, callbackUrl: `/auth/sign-in/` });
-
     if (response?.error) {
       stopLoading();
       toasterService.error(response.error)

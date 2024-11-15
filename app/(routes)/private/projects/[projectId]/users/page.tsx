@@ -28,6 +28,7 @@ import { AddProjectUser } from "./add-user";
 import { ProjectUserRowActions } from "./row-actions";
 import { IProjectUserDisplay } from "@/app/_interface/project";
 import { formatDate } from "@/app/_constants/date-formatter";
+import { statusBadgeProjectUserRole } from "@/app/_utils/common-functionality";
 
 export default function ProjectUsers() {
     const columns: ColumnDef<IProjectUserDisplay>[] = [
@@ -42,14 +43,14 @@ export default function ProjectUsers() {
         },
         {
             accessorKey: "projectUserRole",
-            header: "Project User Role",
+            header: "Project user role",
             cell: ({ row }) => (
-                <div className="capitalize">{row.original?.role}</div>
+                <div className="capitalize">{statusBadgeProjectUserRole(row.original?.role)}</div>
             ),
         },
         {
             accessorKey: "createdAt",
-            header: "Created On",
+            header: "Created on",
             cell: ({ row }) => (
                 <div className="capitalize">{formatDate(row.original?.createdAt)}</div>
             ),

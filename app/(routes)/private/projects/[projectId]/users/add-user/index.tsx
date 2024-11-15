@@ -1,10 +1,11 @@
-import { Button } from "@/components/ui/button";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+"use client";
 
+import { Button } from "@/components/ui/button";
+import {
+    Loader2,
+    Plus,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 import toasterService from "@/app/_services/toaster-service";
 import {
     Form,
@@ -20,7 +21,11 @@ import {
     SheetDescription,
     SheetHeader,
     SheetTitle,
+    SheetTrigger,
 } from "@/components/ui/sheet";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import {
     Select,
     SelectContent,
@@ -30,43 +35,35 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { useParams } from "next/navigation";
+import { getUsersWithoutPaginationService } from "@/app/_services/user.service";
+import { IUserByAdmin } from "@/app/_interface/user";
 import { PROJECT_USER_ROLE_LIST } from "@/app/_constants/project-user-roles";
-import { IProjectUserDisplay } from "@/app/_interface/project";
-import { Input } from "@/components/ui/input";
-import { editProjectUserService } from "@/app/_services/project.service";
+import { addProjectUserService } from "@/app/_services/project.service";
 
-const projectUserSchema = z.object({
-    userId: z.string(),
+const projectSchema = z.object({
+    userId: z.string().min(1, "User is required"),
     role: z.string().optional()
 });
 
-const EditProjectUser = ({
-    projectUser,
-    sheetOpen,
-    setSheetOpen,
-    refreshProjectUsers,
-}: {
-    projectUser: IProjectUserDisplay;
-    sheetOpen: boolean;
-    setSheetOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    refreshProjectUsers: () => void;
-}) => {
-    const { userId, role } = projectUser;
+export function AddProjectUser({ refreshProjectUsers }: { refreshProjectUsers: () => void }) {
+    const [sheetOpen, setSheetOpen] = useState(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isViewLoading, setIsViewLoading] = useState<boolean>(false);
+    const [users, setUsers] = useState<IUserByAdmin[]>([]);
     const { projectId } = useParams<{ projectId: string }>();
 
-    const form = useForm<z.infer<typeof projectUserSchema>>({
-        resolver: zodResolver(projectUserSchema),
+    const form = useForm<z.infer<typeof projectSchema>>({
+        resolver: zodResolver(projectSchema),
         defaultValues: {
-            userId: userId?._id || "",
-            role: role || ""
+            userId: "",
+            role: ""
         },
     });
 
-    async function onSubmit(values: z.infer<typeof projectUserSchema>) {
+    async function onSubmit(values: z.infer<typeof projectSchema>) {
         setIsLoading(true);
         try {
-            const response = await editProjectUserService(projectId, { ...values });
+            const response = await addProjectUserService(projectId, { ...values });
             if (response) {
                 refreshProjectUsers();
                 toasterService.success(response.message);
@@ -74,16 +71,51 @@ const EditProjectUser = ({
         } catch (error) {
             toasterService.error();
         } finally {
-            setSheetOpen(false);
             setIsLoading(false);
+            setSheetOpen(false);
         }
     }
 
+    const validateIssue = () => {
+        if (form.formState.isValid) {
+            form.handleSubmit(onSubmit);
+        }
+    };
+
+    const resetForm = () => {
+        form.reset();
+    };
+
+    const getUsers = async () => {
+        try {
+            setIsViewLoading(true);
+            const response = await getUsersWithoutPaginationService(projectId);
+            if (response) {
+                setUsers(response);
+            }
+        } catch (error) {
+            toasterService.error();
+        } finally {
+            setIsViewLoading(false);
+        }
+    }
+
+    useEffect(() => {
+        if (projectId && sheetOpen) {
+            getUsers();
+        }
+    }, [projectId, sheetOpen]);
+
     return (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+            <SheetTrigger asChild>
+                <Button onClick={() => resetForm()}>
+                    <Plus /> Add user
+                </Button>
+            </SheetTrigger>
             <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px]">
                 <SheetHeader>
-                    <SheetTitle className="text-left">Edit user</SheetTitle>
+                    <SheetTitle className="text-left">Add new user</SheetTitle>
                     <SheetDescription className="text-left">
                         Meet the team driving the success of this project with their expertise and dedication.
                     </SheetDescription>
@@ -92,28 +124,49 @@ const EditProjectUser = ({
                 <div>
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} method="post">
-                            <div className="grid grid-cols-2 gap-2 mt-3">
+                            <div className="grid grid-cols-1 gap-2 mt-3">
                                 <FormField
                                     control={form.control}
                                     name="userId"
                                     render={({ field }) => (
                                         <FormItem className="flex flex-col">
-                                            <FormLabel>Select User</FormLabel>
-                                            <Input disabled
-                                                {...field}
-                                                value={`${projectUser?.userId?.firstName} ${projectUser?.userId?.lastName}`} />
+                                            <FormLabel>Select user</FormLabel>
+                                            <Select
+                                                onValueChange={field.onChange}
+                                                value={field.value}
+                                            >
+                                                <SelectTrigger className="w-full">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {!isViewLoading ?
+                                                        <SelectGroup>
+                                                            {(Array.isArray(users) ? users : [])
+                                                                .filter(user => user.firstName || user.lastName)
+                                                                .map(user => (
+                                                                    <SelectItem key={user._id} value={user._id as string}>
+                                                                        {user.firstName && user.lastName
+                                                                            ? `${user.firstName} ${user.lastName}`
+                                                                            : user.firstName || user.lastName
+                                                                        }
+                                                                    </SelectItem>
+                                                                ))}
+                                                        </SelectGroup>
+                                                        : <p className="text-center">Loading</p>}
+                                                </SelectContent>
+                                            </Select>
                                             <FormMessage />
                                         </FormItem>
                                     )}
                                 />
-
-
+                            </div>
+                            <div className="grid grid-cols-1 mt-4">
                                 <FormField
                                     control={form.control}
                                     name="role"
                                     render={({ field }) => (
                                         <FormItem className="flex flex-col">
-                                            <FormLabel>Project User Role</FormLabel>
+                                            <FormLabel>Project user role</FormLabel>
                                             <Select
                                                 onValueChange={field.onChange}
                                                 value={field.value}
@@ -139,7 +192,6 @@ const EditProjectUser = ({
                                 />
                             </div>
 
-
                             <div className="mt-6 w-full flex justify-end gap-2">
                                 <SheetClose asChild>
                                     <Button
@@ -156,12 +208,13 @@ const EditProjectUser = ({
                                     disabled={isLoading}
                                     type="submit"
                                     size="lg"
+                                    onClick={() => validateIssue()}
                                     className="w-full md:w-fit"
                                 >
                                     {isLoading ? (
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                     ) : null}
-                                    {isLoading ? "Updating" : "Update"}
+                                    {isLoading ? "Saving" : "Save user"}
                                 </Button>
                             </div>
                         </form>
@@ -171,6 +224,4 @@ const EditProjectUser = ({
             </SheetContent>
         </Sheet>
     );
-};
-
-export default EditProjectUser;
+}

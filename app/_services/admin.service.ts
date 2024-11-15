@@ -1,0 +1,13 @@
+import { ADMIN_ENDPOINT } from "../_constants/api-endpoints";
+import { IAdmin } from "../_interface/admin";
+import { genericPut } from "./generic-api-methods";
+
+export const updateAdminProfile = async (body: IAdmin): Promise<any> => {
+    try {
+        const response = await genericPut(`${ADMIN_ENDPOINT}`, body);
+        return response || {};
+    } catch (error) {
+        console.error(`Error > updateAdminProfile:`, error);
+        throw error;
+    }
+};

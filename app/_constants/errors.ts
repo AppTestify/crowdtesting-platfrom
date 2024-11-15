@@ -13,3 +13,4 @@ export const GENERIC_ACCOUNT_VERIFICATION_ERROR_MESSAGE =
   "Something went wrong, please try resending the verification mail from your account";
 export const LINKED_EXPIRED_ACCOUNT_VERIFICATION_ERROR_MESSAGE =
   "Your link has been expired,  please try resending the verification mail from your account";
+export const USER_INACTIVE_ERROR_MESSAGE = "Your account has been not activated";

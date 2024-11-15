@@ -125,7 +125,7 @@ export default function UserDocuments({ documents = [] }: { documents?: IUserDoc
 
             <main className="mt-4">
                 <div>
-                    <h2 className="text-lg">Personal Documents</h2>
+                    <h2 className="text-lg">Personal documents</h2>
                 </div>
                 <div className="w-full">
                     <div className="rounded-md border mt-4">

@@ -10,6 +10,7 @@ import { connectDatabase } from "@/app/_db";
 import { isAdmin, verifySession } from "@/app/_lib/dal";
 import { IdFormat } from "@/app/_models/id-format.model";
 import { Project } from "@/app/_models/project.model";
+import { User } from "@/app/_models/user.model";
 import { projectSchema } from "@/app/_schemas/project.schema";
 import { serverSidePagination } from "@/app/_utils/common-server-side";
 import { addCustomIds, normaliseIds } from "@/app/_utils/data-formatters";
@@ -87,19 +88,24 @@ export async function GET(req: Request) {
         }
 
         let response = null;
+        let totalProjects;
         const { skip, limit } = serverSidePagination(req);
-        const totalProjects = await Project.countDocuments();
         const userIdFormat = await IdFormat.findOne({ entity: DBModels.PROJECT });
 
         if (!(await isAdmin(session.user))) {
             response = addCustomIds(
-                await Project.find({ userId: session.user._id })
+                await Project.find({
+                    'users.userId': session.user._id
+                })
                     .sort({ createdAt: -1 })
                     .skip(skip)
                     .limit(Number(limit))
                     .lean(),
                 userIdFormat.idFormat
             );
+            totalProjects = await Project.find({
+                'users.userId': session.user._id
+            }).countDocuments();
         } else {
             response = addCustomIds(
                 await Project.find({})
@@ -110,6 +116,7 @@ export async function GET(req: Request) {
                     .lean(),
                 userIdFormat.idFormat
             );
+            totalProjects = await Project.find({}).countDocuments();
         }
         return Response.json({ "projects": response, "total": totalProjects });
     } catch (error: any) {
