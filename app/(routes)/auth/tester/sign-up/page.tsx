@@ -21,8 +21,7 @@ export default function SignUp() {
     const activeTab = UserRoles.TESTER;
     const [isGoogleSignInDisable, setIsGoogleSignInDisable] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [isFlipped, setIsFlipped] = useState<boolean>(false);
-    
+
     useEffect(() => {
         setIsLoading(false)
         Cookies.set(CookieKey.AUTH_INTENT, AuthIntent.SIGN_UP);
@@ -42,20 +41,13 @@ export default function SignUp() {
         signIn(NextAuthProviders.GOOGLE, { callbackUrl: `/auth/sign-up` });
     }
 
-    const toggleForm = () => {
-        setIsFlipped(!isFlipped);
-        setTimeout(() => {
-            router.push("/auth/sign-in");
-        }, 1000); // Match the animation duration
-    };
-
     return (
         <div className="flex flex-col p-5 md:p-10 h-full ">
             <div className="flex justify-end ">
                 <div>
                     <span className="mr-0">have an account?</span>
                     <Link href={'/auth/sign-in'} >
-                        <span className="text-primary ml-2" onClick={toggleForm}>Sign in!</span>
+                        <span className="text-primary ml-2" >Sign in!</span>
                     </Link>
                 </div>
             </div>
