@@ -28,7 +28,6 @@ export async function POST(req: Request) {
 
     const body = await req.json();
     const response = signInSchema.safeParse(body);
-
     if (!response.success) {
       return Response.json(
         {
@@ -38,7 +37,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const { email, password } = response.data;
+    const { email, password, rememberMe } = response.data;
     const existingUser = await User.findOne({ email });
 
     if (!existingUser) {
@@ -68,7 +67,7 @@ export async function POST(req: Request) {
     }
 
     const { password: _, ...userWithoutPassword } = existingUser.toObject();
-    await createSession(userWithoutPassword);
+    await createSession(userWithoutPassword, rememberMe);
 
     return Response.json({
       message: "Logged in successfully",

@@ -18,6 +18,7 @@ export interface IUser extends Document {
   sendCredentials: boolean;
   credentialsSentAt: Date;
   customId: number;
+  rememberMe: boolean;
 }
 
 const userSchema = new Schema<IUser>(
@@ -75,7 +76,11 @@ const userSchema = new Schema<IUser>(
     credentialsSentAt: {
       type: Date,
     },
-    customId: { type: Number }
+    customId: { type: Number },
+    rememberMe: {
+      type: Boolean,
+      required: false
+    }
   },
   {
     timestamps: true,

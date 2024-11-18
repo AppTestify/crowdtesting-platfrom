@@ -7,6 +7,7 @@ const protectedRoutePattern = "/private";
 const authRoutePattern = "/auth";
 const verificationRoutePattern = "/auth/verify";
 const publicRoutes = ["/auth", "/"];
+const forgotPasswordRoutes = "/auth/reset-password";
 
 export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
@@ -14,6 +15,7 @@ export async function middleware(req: NextRequest) {
   const isAuthRoute = path.startsWith(authRoutePattern);
   const isVerificationRoute = path.startsWith(verificationRoutePattern);
   const isPublicRoute = publicRoutes.includes(path);
+  const isForgotPasswordRoute = path.startsWith(forgotPasswordRoutes);
 
   if (isProtectedRoute) {
     const cookie = cookies().get(CookieKey.SESSION)?.value;
@@ -22,6 +24,10 @@ export async function middleware(req: NextRequest) {
     if (!session?.user) {
       return NextResponse.redirect(new URL("/auth/sign-in", req.nextUrl));
     }
+  }
+
+  if (isForgotPasswordRoute) {
+    return NextResponse.next();
   }
 
   if (isAuthRoute && !isVerificationRoute) {

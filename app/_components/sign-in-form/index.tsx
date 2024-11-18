@@ -25,24 +25,27 @@ import { CookieKey } from "@/app/_constants/cookie-keys";
 import { AuthIntent } from "@/app/_constants";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import Link from "next/link";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
   password: z
     .string()
     .min(1, { message: "Password is required" }),
+  rememberMe: z.boolean().optional()
 });
 
 export function SignInForm({ setIsGoogleSignInDisable }: { setIsGoogleSignInDisable: (value: boolean) => void; }) {
   const router = useRouter();
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
       password: "",
+      rememberMe: false
     },
   });
 
@@ -50,7 +53,14 @@ export function SignInForm({ setIsGoogleSignInDisable }: { setIsGoogleSignInDisa
     startLoading();
 
     Cookies.set(CookieKey.AUTH_INTENT, AuthIntent.SIGN_IN_CREDS);
-    const response = await signIn(NextAuthProviders.CREDENTIALS, { email: values.email, password: values.password, authIntent: AuthIntent.SIGN_IN_CREDS, redirect: false, callbackUrl: `/auth/sign-in/` });
+    const response = await signIn(NextAuthProviders.CREDENTIALS, {
+      email: values.email,
+      password: values.password,
+      authIntent: AuthIntent.SIGN_IN_CREDS,
+      redirect: false,
+      callbackUrl: `/auth/sign-in/`,
+      rememberMe: values.rememberMe
+    });
     if (response?.error) {
       stopLoading();
       toasterService.error(response.error)
@@ -73,7 +83,7 @@ export function SignInForm({ setIsGoogleSignInDisable }: { setIsGoogleSignInDisa
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="grid gap-4 mt-5 mb-4"
+        className="grid gap-4 mt-8 mb-4"
       >
         <FormField
           control={form.control}
@@ -101,6 +111,33 @@ export function SignInForm({ setIsGoogleSignInDisable }: { setIsGoogleSignInDisa
             </FormItem>
           )}
         />
+
+        <div className="mt-4 flex justify-between">
+          <div className="flex items-center space-x-2">
+            <FormField
+              control={form.control}
+              name="rememberMe"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex items-center">
+                    <FormControl>
+                      <Switch id="airplane-mode"
+                        checked={field.value}
+                        onCheckedChange={(checked) => field.onChange(checked)}
+                      />
+                    </FormControl>
+                    <FormLabel className="ml-2">Remember me</FormLabel>
+                  </div>
+                </FormItem>
+              )}
+            />
+          </div>
+          <div className="text-red-400 text-sm flex items-center">
+            <Link href={'/auth/forgot-password'}>
+              Recover Password
+            </Link>
+          </div>
+        </div>
 
         <Button type="submit" className="w-full" disabled={isLoading}>
           {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}

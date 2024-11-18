@@ -25,8 +25,9 @@ export async function decrypt(session: string | undefined = "") {
   }
 }
 
-export async function createSession(user: IUser | any) {
-  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+export async function createSession(user: IUser | any, rememberMe?: boolean) {
+  const expiredIn = rememberMe ? 7 * 24 * 60 * 60 * 1000 : 2 * 24 * 60 * 60 * 1000;
+  const expiresAt = new Date(Date.now() + expiredIn);
   const session = await encrypt({ user: JSON.stringify(user), expiresAt });
 
   cookies().set(CookieKey.SESSION, session, {
@@ -58,7 +59,7 @@ export async function updateSession() {
 
 export function deleteSession() {
   cookies().delete(CookieKey.SESSION);
-  
+
 }
 
 export async function getSessionUser() {

@@ -4,6 +4,8 @@ import { EmailSubjects } from "../_constants/email-subject";
 import { generateVerificationLink } from "./common-server-side";
 import { IUserCredentialsEmail } from "../_interface/user";
 import { SEND_CREDENTIALS_TEMPLATE } from "@/email-templates/send-credentials.template";
+import { IForgotPasswordPayload } from "../_interface/auth";
+import { FORGOT_PASSWORD_TEMPLATE } from "@/email-templates/forgot-password.template";
 
 interface IReplaceTemplateTags {
   tagValuesObject: any;
@@ -65,6 +67,20 @@ export const sendCredentialsEmail = async (
     subject: EmailSubjects.SEND_CREDENTIALS,
     body: replaceEmailTemplateTagsInternalService({
       emailBody: SEND_CREDENTIALS_TEMPLATE,
+      tagValuesObject: templateTags
+    }),
+  });
+}
+
+export const sendForgotPasswordLink = async (
+  templateTags: IForgotPasswordPayload
+) => {
+  const emailService = new EmailService();
+  await emailService.sendEmail({
+    to: templateTags?.email,
+    subject: EmailSubjects.FORGOT_PASSWORD,
+    body: replaceEmailTemplateTagsInternalService({
+      emailBody: FORGOT_PASSWORD_TEMPLATE,
       tagValuesObject: templateTags
     }),
   });

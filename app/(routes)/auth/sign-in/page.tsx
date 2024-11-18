@@ -42,19 +42,12 @@ export default function SignIn() {
 
     return (
         <div className="flex flex-col p-5 md:p-10 h-full">
-            <div className="flex justify-end">
-                <Link href={'/auth/sign-up'}>
-                    <Button variant="ghost">Sign up</Button>
-                </Link>
-            </div>
-            <BrandLogo className='text-primary flex md:hidden mb-7'/>
-
-            <div className="flex items-center justify-center h-4/5">
+            <div className="flex items-center justify-center h-4/5 mt-2">
                 <div className="mx-auto grid w-full md:w-[350px] gap-6">
                     <div className="grid gap-2 text-left md:text-center">
-                        <h1 className="text-3xl font-bold">Login</h1>
-                        <p className="text-balance text-muted-foreground">
-                            Enter your email below to login to your account
+                        <h1 className="text-3xl font-bold">Welcome Back</h1>
+                        <p className="text-balance ">
+                            Login into your account
                         </p>
                     </div>
                     <div>
@@ -64,8 +57,13 @@ export default function SignIn() {
                             Login with Google
                         </Button> */}
                     </div>
-                    <div className="text-muted-foreground text-left md:text-center">
-                        By clicking continue, you agree to our <a href="#" className="underline cursor-pointer">Terms of Service</a> and <a href="#" className="underline cursor-pointer">Privacy Policy</a>.
+                    <div className="flex justify-between">
+                        <p>Don't have an account?</p>
+                        <p className="text-primary cursor-pointer">
+                            <Link href={'/auth/sign-up'}>
+                                Sign up
+                            </Link>
+                        </p>
                     </div>
                 </div>
             </div>

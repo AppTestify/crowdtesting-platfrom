@@ -14,3 +14,14 @@ export interface ISignInPayload {
 export interface IAccountVerificationPayload {
   token: string;
 }
+
+export interface IForgotPasswordPayload {
+  email: string;
+  resetLink?: string;
+}
+
+export interface IResetPasswordPayload {
+  password: string;
+  confirmedPassword: string;
+  token: string;
+}

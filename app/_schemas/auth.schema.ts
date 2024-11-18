@@ -11,6 +11,7 @@ export const signUpSchema = z.object({
 export const signInSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
   password: z.string(),
+  rememberMe: z.boolean().optional()
 });
 
 export const googleSignUpSchema = z.object({
@@ -34,4 +35,17 @@ export const adminUserCreateSchema = z.object({
   firstName: z.string().optional(),
   lastName: z.string().optional(),
   sendCredentials: z.boolean(),
+});
+
+export const forgotPasswordSchema = z.object({
+  email: z.string().email({ message: "Invalid email address" }),
+});
+
+export const resetPasswordSchema = z.object({
+  token: z.string().min(1, { message: "Token is required" }),
+  password: z.string().min(8, { message: "Password must be at least 8 characters" }),
+  confirmedPassword: z.string().min(8, { message: "Password must be at least 8 characters" }),
+}).refine((data) => data.password === data.confirmedPassword, {
+  message: "Password doesnot matched",
+  path: ['confirmedPassword']
 });
