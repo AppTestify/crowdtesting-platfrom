@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
 import { signIn } from "next-auth/react"
 import { NextAuthProviders } from "@/app/_constants/next-auth-providers"
 import { useEffect, useState } from "react"
@@ -13,8 +12,6 @@ import { useRouter, useSearchParams } from "next/navigation"
 import toasterService from "@/app/_services/toaster-service"
 import { USER_UNAUTHORIZED_ERROR_MESSAGE } from "@/app/_constants/errors"
 import { SignInForm } from "@/app/_components/sign-in-form"
-import { Loader2 } from "lucide-react"
-import { BrandLogo } from "@/app/_components/brand-logo"
 
 export default function SignIn() {
     const searchParams = useSearchParams();
@@ -41,7 +38,7 @@ export default function SignIn() {
     }
 
     return (
-        <div className="flex flex-col p-5 md:p-10 h-full">
+        <div className="flex flex-col p-5 md:mt-6 h-full">
             <div className="flex items-center justify-center h-4/5 mt-2">
                 <div className="mx-auto grid w-full md:w-[350px] gap-6">
                     <div className="grid gap-2 text-left md:text-center">
@@ -57,7 +54,7 @@ export default function SignIn() {
                             Login with Google
                         </Button> */}
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between mt-3">
                         <p>Don't have an account?</p>
                         <p className="text-primary cursor-pointer">
                             <Link href={'/auth/sign-up'}>

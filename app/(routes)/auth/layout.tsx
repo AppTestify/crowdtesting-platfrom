@@ -30,7 +30,7 @@ export default function AuthLayout({
 
     return (
         <div className="w-full lg:grid bg-[#F0F2F5] min-h-[100vh] lg:grid-cols-2 ">
-            <div className=" p-6 pr-12">
+            <div className={` p-6  ${pathname == "/auth/sign-in" ? "" : "pr-12"}`}>
                 <BrandLogo className='text-white' />
 
                 {pathname !== "/auth/sign-in" ? (
@@ -51,10 +51,11 @@ export default function AuthLayout({
                 </section>
             ) :
                 (
-                    <div className="mt-44 hidden lg:flex lg:flex-col">
+                    <div className="mt-12 lg:mt-40 hidden lg:flex lg:flex-col justify-center items-start">
                         <img
                             src={imageSrc}
-                            className="w-[98%]"
+                            alt="Auth Illustration"
+                            className="w-full max-w-[649px] lg:max-w-[649px] lg:pr-4 transition-all"
                         />
                     </div>
                 )
