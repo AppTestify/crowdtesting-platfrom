@@ -87,7 +87,7 @@ export const getIssueService = async (projectId: string, issueId: string): Promi
     const response = await genericGet(GET_ISSUE_ENPOINT(projectId, issueId));
     return response || [];
   } catch (error) {
-    console.error(`Error > getIssues:`, error);
+    console.error(`Error > getIssue:`, error);
     throw error;
   }
 };

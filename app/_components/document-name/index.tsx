@@ -10,8 +10,9 @@ import {
 } from "lucide-react";
 import { ContentType } from "@/app/(routes)/private/profile/_components/tester-profile/_components/documents/_constants";
 import { IIssueAttachmentDisplay } from "@/app/_interface/issue";
+import { IRequirementAttachmentDisplay } from "@/app/_interface/requirement";
 
-export function DocumentName({ document }: { document: Row<IDocument | IIssueAttachmentDisplay | IUserDocument> }) {
+export function DocumentName({ document }: { document: Row<IDocument | IIssueAttachmentDisplay | IUserDocument | IRequirementAttachmentDisplay> }) {
   const contentType = document.getValue("contentType");
 
   const getIconByContentType = (type: any) => {

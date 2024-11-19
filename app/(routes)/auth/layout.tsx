@@ -51,7 +51,7 @@ export default function AuthLayout({
                 </section>
             ) :
                 (
-                    <div className="mt-12 lg:mt-40 hidden lg:flex lg:flex-col justify-center items-start">
+                    <div className="mt-12 lg:mt-24 hidden lg:flex lg:flex-col justify-center items-start">
                         <img
                             src={imageSrc}
                             alt="Auth Illustration"

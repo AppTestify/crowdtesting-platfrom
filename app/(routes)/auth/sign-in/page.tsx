@@ -38,7 +38,7 @@ export default function SignIn() {
     }
 
     return (
-        <div className="flex flex-col p-5 md:mt-6 h-full">
+        <div className="flex flex-col p-5 md:mt-0 h-full">
             <div className="flex items-center justify-center h-4/5 mt-2">
                 <div className="mx-auto grid w-full md:w-[350px] gap-6">
                     <div className="grid gap-2 text-left md:text-center">

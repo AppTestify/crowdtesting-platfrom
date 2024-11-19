@@ -48,3 +48,11 @@ export const PAGINATION_QUERY_ENDPOINT = (index: Number, pageSize: Number) => {
 export const PROJECT_USER_ENPOINT = (projectId: string) => {
   return `${PROJECTS_ENDPOINT}/${projectId}/users`;
 }
+
+export const PROJECT_REQUIREMENT_ENPOINT = (projectId: string) => {
+  return `${PROJECTS_ENDPOINT}/${projectId}/requirements`;
+}
+
+export const REQUIREMENT_ATTACHMENT_ENPOINT = (projectId: string, requirementId: string) => {
+  return `${PROJECTS_ENDPOINT}/${projectId}/requirements/${requirementId}/attachment`;
+}

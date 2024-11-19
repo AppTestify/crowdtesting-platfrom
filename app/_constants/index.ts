@@ -5,8 +5,10 @@ export enum DBModels {
   BROWSER = "Browser",
   PROFILE_PICTURE = "ProfilePicture",
   PROJECT = "Project",
+  REQUIREMENT = "Requirement",
   ISSUE = "Issue",
   ISSUE_ATTACHMENT = "IssueAttachment",
+  REQUIREMENT_ATTACHMENT = "RequirementAttachment",
   FILE = "File",
   ID_FORMAT = "IdFormat",
   COUNTER = "Counter"

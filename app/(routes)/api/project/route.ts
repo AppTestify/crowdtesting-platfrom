@@ -91,7 +91,6 @@ export async function GET(req: Request) {
         let totalProjects;
         const { skip, limit } = serverSidePagination(req);
         const userIdFormat = await IdFormat.findOne({ entity: DBModels.PROJECT });
-
         if (!(await isAdmin(session.user))) {
             response = addCustomIds(
                 await Project.find({

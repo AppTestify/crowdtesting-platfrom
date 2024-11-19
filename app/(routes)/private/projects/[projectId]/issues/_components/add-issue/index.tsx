@@ -85,7 +85,7 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
   const [issueId, setIssueId] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { projectId } = useParams<{ projectId: string }>();
-  const [attachments, setAttachments] = useState<File[]>();
+  const [attachments, setAttachments] = useState<File[]>([]);
   const [devices, setDevices] = useState<IDevice[]>([]);
 
   const form = useForm<z.infer<typeof projectSchema>>({
@@ -344,27 +344,36 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
                   >
                     Choose Files
                   </label>
-                  {attachments?.length ? (
-                    attachments.map((attachment, index) => (
+                  {attachments?.length > 0 &&
+                    <div className="mt-2">
+                      New attachments
                       <div className="mt-4 rounded-md border">
                         <Table>
                           <TableBody>
-                            <TableRow key={index}>
-                              <TableCell>{attachment.name}</TableCell>
-                              <TableCell className="flex justify-end items-end mr-6">
-                                <Button type="button" onClick={() => handleRemoveFile(index)}
-                                  variant="ghost"
-                                  size="icon">
-                                  <Trash className="h-4 w-4 text-destructive" />
-                                </Button>
-                              </TableCell>
-                            </TableRow>
+                            {attachments?.length ? (
+                              attachments.map((attachment, index) => (
+                                <TableRow key={index}>
+                                  <TableCell>{attachment.name}</TableCell>
+                                  <TableCell className="flex justify-end items-end mr-6">
+                                    <Button type="button" onClick={() => handleRemoveFile(index)}
+                                      variant="ghost"
+                                      size="icon">
+                                      <Trash className="h-4 w-4 text-destructive" />
+                                    </Button>
+                                  </TableCell>
+                                </TableRow>
+                              ))
+                            ) : (
+                              <TableRow>
+                                <TableCell colSpan={columns.length} className="h-24 text-center">
+                                  No attachments found
+                                </TableCell>
+                              </TableRow>
+                            )}
                           </TableBody>
                         </Table>
                       </div>
-                    ))
-                  ) :
-                    null
+                    </div>
                   }
                 </div>
               </div>
