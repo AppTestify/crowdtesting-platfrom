@@ -32,6 +32,8 @@ import { RequirementRowActions } from "./_components/row-actions";
 import { IRequirement } from "@/app/_interface/requirement";
 
 export default function Issues() {
+    const [requirements, setRequirements] = useState<IRequirement[]>([]);
+
     const columns: ColumnDef<IRequirement>[] = [
         {
             accessorKey: "customId",
@@ -47,6 +49,16 @@ export default function Issues() {
                 <div className="capitalize">{row.getValue("title")}</div>
             ),
         },
+        ...(
+            requirements.some((item) => item.userId?._id) ?
+                [{
+                    accessorKey: "Name",
+                    header: "Owner",
+                    cell: ({ row }: { row: any }) => (
+                        <div className="">{row.original?.userId?.firstName}</div>
+                    ),
+                }] : []
+        ),
         {
             accessorKey: "updatedAt",
             header: "last Update",
@@ -70,7 +82,6 @@ export default function Issues() {
     const [rowSelection, setRowSelection] = useState({});
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [globalFilter, setGlobalFilter] = useState<unknown>([]);
-    const [requirements, setRequirements] = useState<IRequirement[]>([]);
     const [pageIndex, setPageIndex] = useState(1);
     const [totalPageCount, setTotalPageCount] = useState(0);
     const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
@@ -78,7 +89,7 @@ export default function Issues() {
 
     useEffect(() => {
         getRequirements();
-    }, []);
+    }, [pageIndex, pageSize]);
 
     const getRequirements = async () => {
         setIsLoading(true);

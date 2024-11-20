@@ -8,6 +8,7 @@ export interface IUser {
   name: string;
   isActive?: boolean;
   profilePicture?: IProfilePicture;
+  _id?: string;
 }
 
 export interface IProfilePicture {

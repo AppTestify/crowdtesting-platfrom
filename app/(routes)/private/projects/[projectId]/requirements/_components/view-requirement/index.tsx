@@ -40,21 +40,25 @@ const ViewRequirement = ({
 
     return (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-            <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px]">
-                <SheetHeader>
-                    <div className="flex">
-                        <SheetTitle className="text-left">{issueData?.title}</SheetTitle>
-                    </div>
-                </SheetHeader>
-                <div>
-                    <div className="mt-2 text-sm leading-relaxed text-gray-700"
-                        dangerouslySetInnerHTML={{
-                            __html: issueData?.description || ''
-                        }}
-                    />
-                </div>
-                <RequirementAttachments requirementId={requirementId} isUpdate={true} isView={true} />
-            </SheetContent>
+            {!isViewLoading ?
+                <>
+                    <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px]">
+                        <SheetHeader>
+                            <div className="flex">
+                                <SheetTitle className="text-left">{issueData?.title}</SheetTitle>
+                            </div>
+                        </SheetHeader>
+                        <div>
+                            <div className="mt-2 text-sm leading-relaxed text-gray-700"
+                                dangerouslySetInnerHTML={{
+                                    __html: issueData?.description || ''
+                                }}
+                            />
+                        </div>
+                        <RequirementAttachments requirementId={requirementId} isUpdate={true} isView={true} />
+                    </SheetContent>
+                </> : null
+            }
         </Sheet>
     )
 }

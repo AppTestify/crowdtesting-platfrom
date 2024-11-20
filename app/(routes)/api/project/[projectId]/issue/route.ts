@@ -12,7 +12,7 @@ import { IdFormat } from "@/app/_models/id-format.model";
 import { IssueAttachment } from "@/app/_models/issue-attachment.model";
 import { Issue } from "@/app/_models/issue.model";
 import { issueSchema } from "@/app/_schemas/issue.schema";
-import { getFileMetaData } from "@/app/_utils/common-server-side";
+import { getFileMetaData, serverSidePagination } from "@/app/_utils/common-server-side";
 import { addCustomIds, normaliseIds } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 
@@ -133,11 +133,17 @@ export async function GET(
 
     const { projectId } = params;
     const userIdFormat = await IdFormat.findOne({ entity: DBModels.ISSUE });
+    const { skip, limit } = serverSidePagination(req);
+    const totalIssues = await Issue.find({
+      projectId: projectId
+    }).countDocuments();
 
     if (!(await isAdmin(session.user))) {
       response = addCustomIds(
         await Issue.find({ projectId: projectId })
           .sort({ createdAt: -1 })
+          .skip(skip)
+          .limit(Number(limit))
           .populate("device")
           .lean(),
         userIdFormat.idFormat
@@ -147,13 +153,15 @@ export async function GET(
         await Issue.find({ projectId: projectId })
           .populate("userId")
           .sort({ createdAt: -1 })
+          .skip(skip)
+          .limit(Number(limit))
           .populate("device")
           .lean(),
         userIdFormat.idFormat
       );
     }
 
-    return Response.json(response);
+    return Response.json({ "issues": response, "total": totalIssues });
   } catch (error: any) {
     return errorHandler(error);
   }

@@ -47,7 +47,7 @@ export async function PUT(
         const { issueId } = params
         const updateResponse = await Issue.findByIdAndUpdate(issueId, {
             ...response.data
-        });
+        }, { new: true });
 
         if (!updateResponse) {
             throw new Error(GENERIC_ERROR_MESSAGE);

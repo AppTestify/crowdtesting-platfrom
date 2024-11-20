@@ -23,7 +23,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { IIssue, IIssuePayload } from "@/app/_interface/issue";
+import { IIssue } from "@/app/_interface/issue";
 import {
   Select,
   SelectContent,
@@ -74,11 +74,12 @@ const EditIssue = ({
   refreshIssues: () => void;
 }) => {
   const issueId = issue?.id as string;
-  const { title, severity, priority, description, status, projectId, device } = issue;
+  const { status, projectId, device } = issue;
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [attachments, setAttachments] = useState<any[]>([]);
   const [devices, setDevices] = useState<IDevice[]>([]);
   const [userData, setUserData] = useState<any>();
+  const [previousDeviceId, setPreviousDeviceId] = useState<string>("");
   const { data } = useSession();
   const deviceName = device?.map(d => d.name) || [];
   const form = useForm<z.infer<typeof issueSchema>>({
@@ -98,7 +99,7 @@ const EditIssue = ({
 
   useEffect(() => {
     if (issue && !hasReset.current) {
-      // Reset form with the updated issue data
+      setPreviousDeviceId(issue?.device[0]?._id as string)
       form.reset({
         title: issue.title || "",
         severity: issue.severity || "",
@@ -108,15 +109,17 @@ const EditIssue = ({
         projectId: issue.projectId || "",
         device: deviceName,
       });
-      hasReset.current = true; // Prevent further resets
+      hasReset.current = true;
     }
   }, [issue, deviceName, form]);
 
   async function onSubmit(values: z.infer<typeof issueSchema>) {
     setIsLoading(true);
     try {
+      const isSameDevice = values.device?.[0] === deviceName?.[0];
       const response = await updateIssueService(projectId as string, issueId, {
         ...values,
+        device: isSameDevice ? [previousDeviceId] : values?.device || [],
       });
       if (response) {
         refreshIssues();
@@ -149,10 +152,8 @@ const EditIssue = ({
   };
 
   const getDevices = async () => {
-    setIsLoading(true);
     const devices = await getDevicesWithoutPaginationService();
     setDevices(devices);
-    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -321,7 +322,7 @@ const EditIssue = ({
                             {
                               field.value && field.value.length > 0
                                 ? devices.find((device) => device.id === field.value[0])?.name || field.value
-                                : (status || " ") 
+                                : (status || " ")
                             }
                           </SelectValue>
                         </SelectTrigger>

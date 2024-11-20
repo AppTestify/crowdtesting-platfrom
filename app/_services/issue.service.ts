@@ -1,20 +1,19 @@
 import {
   GET_ISSUE_ENPOINT,
   GET_ISSUES_ENPOINT,
-  ISSUES_ENDPOINT,
+  PAGINATION_QUERY_ENDPOINT,
 } from "../_constants/api-endpoints";
 import { IIssuePayload } from "../_interface/issue";
 import {
   genericDelete,
   genericGet,
-  genericPost,
   genericPostFormData,
   genericPut,
 } from "./generic-api-methods";
 
-export const getIssuesService = async (projectId: string): Promise<any> => {
+export const getIssuesService = async (projectId: string, index: Number, pageSize: Number): Promise<any> => {
   try {
-    const response = await genericGet(GET_ISSUES_ENPOINT(projectId));
+    const response = await genericGet(`${GET_ISSUES_ENPOINT(projectId)}${PAGINATION_QUERY_ENDPOINT(index, pageSize)}`);
     return response || [];
   } catch (error) {
     console.error(`Error > getIssues:`, error);

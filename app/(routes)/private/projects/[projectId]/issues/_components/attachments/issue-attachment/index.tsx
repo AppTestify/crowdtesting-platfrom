@@ -157,7 +157,7 @@ export default function IssueAttachments({ issueId, isUpdate, isView, setAttachm
                 {table.getRowModel().rows.map((row) => (
                   <TableRow
                     key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
+                    data-state={row.getIsSelected() && "selected"} 
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
@@ -172,7 +172,20 @@ export default function IssueAttachments({ issueId, isUpdate, isView, setAttachm
               </TableBody>
             </Table>
           </div>
-        ) : null}
+        ) : isView ? (
+          <div className="rounded-md border">
+              <Table>
+                  <TableBody>
+                      <TableRow>
+                          <TableCell colSpan={columns.length} className="h-24 text-center">
+                              No attachments found
+                          </TableCell>
+                      </TableRow>
+                  </TableBody>
+              </Table>
+          </div>
+      ) : null}
+      {/* } */}
       </div>
       {attachments.length > 0 &&
         <div className="mt-2">

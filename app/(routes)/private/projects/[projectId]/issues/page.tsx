@@ -29,6 +29,7 @@ import { IssueRowActions } from "./_components/row-actions";
 import { useParams } from "next/navigation";
 import { displayIcon, statusBadge } from "@/app/_utils/common-functionality";
 import { ArrowUpDown } from "lucide-react";
+import { PAGINATION_LIMIT } from "@/app/_utils/common";
 
 export default function Issues() {
   const columns: ColumnDef<IIssue>[] = [
@@ -108,20 +109,21 @@ export default function Issues() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [globalFilter, setGlobalFilter] = useState<unknown>([]);
   const [issues, setIssues] = useState<IIssue[]>([]);
-
-  const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize, setPageSize] = useState(7);
+  const [totalPageCount, setTotalPageCount] = useState(0);
+  const [pageIndex, setPageIndex] = useState(1);
+  const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
 
   const { projectId } = useParams<{ projectId: string }>();
 
   useEffect(() => {
     getIssues();
-  }, []);
+  }, [pageIndex, pageSize]);
 
   const getIssues = async () => {
     setIsLoading(true);
-    const issues = await getIssuesService(projectId);
-    setIssues(issues);
+    const response = await getIssuesService(projectId, pageIndex, pageSize);
+    setIssues(response?.issues);
+    setTotalPageCount(response?.total);
     setIsLoading(false);
   };
 
@@ -146,21 +148,22 @@ export default function Issues() {
       globalFilter,
       columnVisibility,
       rowSelection,
-      pagination: {
-        pageIndex,
-        pageSize,
-      },
     },
     onGlobalFilterChange: setGlobalFilter,
-    onPaginationChange: (updater) => {
-      const newPagination =
-        typeof updater === "function"
-          ? updater({ pageIndex, pageSize })
-          : updater;
-      setPageIndex(newPagination.pageIndex);
-      setPageSize(newPagination.pageSize);
-    },
   });
+
+  const handlePreviousPage = () => {
+    if (pageIndex > 1) {
+      setPageIndex(pageIndex - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (pageIndex < Math.ceil(totalPageCount / pageSize)) {
+      setPageIndex(pageIndex + 1);
+    }
+  };
+
 
   return (
     <main className="mx-4 mt-2">
@@ -245,16 +248,16 @@ export default function Issues() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
+              onClick={handlePreviousPage}
+              disabled={pageIndex === 1}
             >
               Previous
             </Button>
             <Button
               variant="outline"
               size="sm"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
+              onClick={handleNextPage}
+              disabled={pageIndex >= Math.ceil(totalPageCount / pageSize)}
             >
               Next
             </Button>
