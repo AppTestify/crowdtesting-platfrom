@@ -8,6 +8,7 @@ export enum DBModels {
   REQUIREMENT = "Requirement",
   ISSUE = "Issue",
   ISSUE_ATTACHMENT = "IssueAttachment",
+  TEST_SUITE = "TestSuite",
   REQUIREMENT_ATTACHMENT = "RequirementAttachment",
   FILE = "File",
   ID_FORMAT = "IdFormat",

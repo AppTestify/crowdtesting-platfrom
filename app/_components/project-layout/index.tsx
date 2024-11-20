@@ -50,7 +50,8 @@ export default function ProjectLayouts({ onLoaded }: { onLoaded: () => void }) {
         if (data) {
             const { user } = data;
             setUserData(user);
-            setRoleBasedTab(getProjectTabs(user))
+            const projectTabs = getProjectTabs(user);
+            setRoleBasedTab(projectTabs);
         }
     }, [data]);
 
@@ -77,12 +78,12 @@ export default function ProjectLayouts({ onLoaded }: { onLoaded: () => void }) {
                     </div>
                     <DropdownMenuSeparator className="border-b" />
                     <div className='mt-4'>
-                        <Tabs value={activeTab} onValueChange={handleTabChange} defaultValue="overview" className="w-[400px]">
+                        <Tabs value={activeTab} onValueChange={handleTabChange} defaultValue="overview" className="w-[500px]">
                             {roleBasedTab?.length ?
                                 <>
                                     <TabsList className={`grid w-full grid-cols-${roleBasedTab.length}`}>
                                         {roleBasedTab?.map((tab) => (
-                                            <TabsTrigger value={tab}>
+                                            <TabsTrigger value={tab.replace(/ /g, '-')}>
                                                 {tab.charAt(0).toUpperCase() + tab.slice(1)}
                                             </TabsTrigger>
                                         ))}

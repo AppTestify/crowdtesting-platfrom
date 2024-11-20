@@ -9,6 +9,9 @@ import { IssueAttachment } from "../_models/issue-attachment.model";
 import { ProfilePicture } from "../_models/profile.picture";
 import { Counter } from "../_models/counter.model";
 import { IdFormat } from "../_models/id-format.model";
+import { TestSuite } from "../_models/test-suite.model";
+import { Requirement } from "../_models/requirement.model";
+import { RequirementAttachment } from "../_models/requirement-attachment.model";
 
 export const connectDatabase = async () => {
   try {
@@ -35,4 +38,7 @@ export const registerModels = () => {
   const profilePicture = ProfilePicture;
   const counterModel = Counter;
   const idFormatModel = IdFormat;
+  const testSuiteModel = TestSuite;
+  const requirementModel = Requirement;
+  const requirementAttachmentModel = RequirementAttachment;
 };

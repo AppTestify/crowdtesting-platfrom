@@ -74,3 +74,14 @@ export const getRequirementService = async (projectId: string, requirementId: st
         throw error;
     }
 };
+
+export const getRequirementsWithoutPaginationService = async (projectId: string):
+    Promise<any> => {
+    try {
+        const response = await genericGet(`${PROJECT_REQUIREMENT_ENPOINT(projectId)}/without-pagination`);
+        return response || [];
+    } catch (error) {
+        console.error(`Error > getRequirementsWithoutPaginationService:`, error);
+        throw error;
+    }
+};

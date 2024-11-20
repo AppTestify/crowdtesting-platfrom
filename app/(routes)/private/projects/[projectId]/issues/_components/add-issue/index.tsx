@@ -172,7 +172,7 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
     <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
       <SheetTrigger asChild>
         <Button onClick={() => resetForm()}>
-          <Plus /> Add Issue
+          <Plus /> Add issue
         </Button>
       </SheetTrigger>
       <SheetContent

@@ -24,15 +24,16 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
-import { getRequirementsService } from "@/app/_services/requirement.service";
 import { PAGINATION_LIMIT } from "@/app/_utils/common";
-import { formatDistanceToNow } from "date-fns";
-import { AddRequirement } from "./_components/add-requirement";
-import { RequirementRowActions } from "./_components/row-actions";
 import { IRequirement } from "@/app/_interface/requirement";
+import { getTestSuiteService } from "@/app/_services/test-suite.service";
+import { AddTestSuite } from "./_components/add-test-suite";
+import { formatDate } from "@/app/_constants/date-formatter";
+import { ITestSuite } from "@/app/_interface/test-suite";
+import { TestSuiteRowActions } from "./_components/row-actions";
 
-export default function Issues() {
-    const [requirements, setRequirements] = useState<IRequirement[]>([]);
+export default function TestSuite() {
+    const [testSuite, setTestSuite] = useState<IRequirement[]>([]);
 
     const columns: ColumnDef<IRequirement>[] = [
         {
@@ -50,7 +51,7 @@ export default function Issues() {
             ),
         },
         ...(
-            requirements.some((item) => item.userId?._id) ?
+            testSuite.some((item) => item.userId?._id) ?
                 [{
                     accessorKey: "Name",
                     header: "Owner",
@@ -60,11 +61,11 @@ export default function Issues() {
                 }] : []
         ),
         {
-            accessorKey: "updatedAt",
-            header: "last Update",
+            accessorKey: "createdAt",
+            header: "Created On",
             cell: ({ row }) => (
                 <div className="capitalize">
-                    {formatDistanceToNow(new Date(row.getValue("updatedAt")), { addSuffix: true })}
+                    {formatDate(row.getValue("createdAt"))}
                 </div>
             ),
         },
@@ -72,7 +73,7 @@ export default function Issues() {
             id: "actions",
             enableHiding: false,
             cell: ({ row }) => (
-                <RequirementRowActions row={row as Row<IRequirement>} refreshRequirements={refreshRequirements} />
+                <TestSuiteRowActions row={row as Row<ITestSuite>} refreshTestSuites={refreshTestSuites} />
             ),
         },
     ];
@@ -88,24 +89,24 @@ export default function Issues() {
     const { projectId } = useParams<{ projectId: string }>();
 
     useEffect(() => {
-        getRequirements();
+        getTestSuites();
     }, [pageIndex, pageSize]);
 
-    const getRequirements = async () => {
+    const getTestSuites = async () => {
         setIsLoading(true);
-        const response = await getRequirementsService(projectId, pageIndex, pageSize);
-        setRequirements(response?.requirements);
+        const response = await getTestSuiteService(projectId, pageIndex, pageSize);
+        setTestSuite(response?.testSuites);
         setTotalPageCount(response?.total);
         setIsLoading(false);
     };
 
-    const refreshRequirements = () => {
-        getRequirements();
+    const refreshTestSuites = () => {
+        getTestSuites();
         setRowSelection({});
     };
 
     const table = useReactTable({
-        data: requirements,
+        data: testSuite,
         columns,
         onSortingChange: setSorting,
         getCoreRowModel: getCoreRowModel(),
@@ -139,7 +140,7 @@ export default function Issues() {
     return (
         <main className="mx-4 mt-2">
             <div className="">
-                <h2 className="text-medium">Requirements</h2>
+                <h2 className="text-medium">Test suites</h2>
                 <span className="text-xs text-gray-600">
                     Lorem ipsum dolor sit, amet consectetur adipisicing elit.
                     cumque vel nesciunt sunt velit possimus sapiente tempore repudiandae fugit fugiat.
@@ -148,7 +149,7 @@ export default function Issues() {
             <div className="w-full">
                 <div className="flex py-4 justify-between">
                     <Input
-                        placeholder="Filter Requirements"
+                        placeholder="Filter testSuite"
                         value={(globalFilter as string) ?? ""}
                         onChange={(event) => {
                             table.setGlobalFilter(String(event.target.value));
@@ -156,7 +157,7 @@ export default function Issues() {
                         className="max-w-sm"
                     />
                     <div className="flex gap-2 ml-2">
-                        <AddRequirement refreshRequirements={refreshRequirements} />
+                        <AddTestSuite refreshTestSuites={refreshTestSuites} />
                     </div>
                 </div>
                 <div className="rounded-md border">
@@ -180,7 +181,7 @@ export default function Issues() {
                             ))}
                         </TableHeader>
                         <TableBody>
-                            {table.getRowModel().rows?.length ? (
+                            {table && table.getRowModel() && table?.getRowModel()?.rows?.length ? (
                                 table.getRowModel().rows.map((row) => (
                                     <TableRow
                                         key={row.id}
