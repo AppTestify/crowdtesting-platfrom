@@ -12,6 +12,7 @@ import { IdFormat } from "../_models/id-format.model";
 import { TestSuite } from "../_models/test-suite.model";
 import { Requirement } from "../_models/requirement.model";
 import { RequirementAttachment } from "../_models/requirement-attachment.model";
+import { TestPlan } from "../_models/test-plan.model";
 
 export const connectDatabase = async () => {
   try {
@@ -39,6 +40,7 @@ export const registerModels = () => {
   const counterModel = Counter;
   const idFormatModel = IdFormat;
   const testSuiteModel = TestSuite;
+  const testPlanModel = TestPlan;
   const requirementModel = Requirement;
   const requirementAttachmentModel = RequirementAttachment;
 };

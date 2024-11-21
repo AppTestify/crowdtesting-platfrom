@@ -91,7 +91,7 @@ export default function Issues() {
         <div className="ml-1">Status</div>
       ),
       cell: ({ row }) => (
-        <div className="capitalize">{statusBadge(row.getValue("status"))}</div>
+        <div className="capitalize max-w-[200px] truncate">{statusBadge(row.getValue("status"))}</div>
       ),
     },
     {

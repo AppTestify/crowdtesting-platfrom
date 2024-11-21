@@ -78,12 +78,12 @@ export default function ProjectLayouts({ onLoaded }: { onLoaded: () => void }) {
                     </div>
                     <DropdownMenuSeparator className="border-b" />
                     <div className='mt-4'>
-                        <Tabs value={activeTab} onValueChange={handleTabChange} defaultValue="overview" className="w-[500px]">
+                        <Tabs value={activeTab} onValueChange={handleTabChange} defaultValue="overview" className="w-fit">
                             {roleBasedTab?.length ?
                                 <>
-                                    <TabsList className={`grid w-full grid-cols-${roleBasedTab.length}`}>
+                                    <TabsList className={`flex w-full `}>
                                         {roleBasedTab?.map((tab) => (
-                                            <TabsTrigger value={tab.replace(/ /g, '-')}>
+                                            <TabsTrigger className="w-fit" value={tab.replace(/ /g, '-')}>
                                                 {tab.charAt(0).toUpperCase() + tab.slice(1)}
                                             </TabsTrigger>
                                         ))}

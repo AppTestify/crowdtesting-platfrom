@@ -42,23 +42,22 @@ const deviceSchema = z.object({
 
 export function EditTestSuite({
     testSuite,
-    // browsers,
     sheetOpen,
     setSheetOpen,
     refreshTestSuites,
 }: {
     testSuite: ITestSuite;
-    // browsers: IBrowser[];
     sheetOpen: boolean;
     setSheetOpen: React.Dispatch<React.SetStateAction<boolean>>;
     refreshTestSuites: () => void;
 }) {
     const testSuiteId = testSuite.id;
     const [selectedRequirements, setSelectedRequirements] = useState<string[]>(
-        testSuite?.requirements as string[]
+        testSuite?.requirements?.map((requirement) => requirement._id) as string[]
     );
     const { title, description, projectId } = testSuite;
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isRequirementLoading, setIsRequirementLoading] = useState<boolean>(false);
     const [requirments, setRequirements] = useState<IRequirement[]>([]);
     const form = useForm<z.infer<typeof deviceSchema>>({
         resolver: zodResolver(deviceSchema),
@@ -93,7 +92,7 @@ export function EditTestSuite({
             title: title || "",
             description: description || "",
         });
-        setSelectedRequirements(testSuite?.requirements as string[]);
+        setSelectedRequirements(testSuite?.requirements?.map((requirement) => requirement._id) as string[]);
     };
 
     useEffect(() => {
@@ -104,10 +103,13 @@ export function EditTestSuite({
 
     const getRequirements = async () => {
         try {
+            setIsRequirementLoading(true);
             const response = await getRequirementsWithoutPaginationService(projectId);
             setRequirements(response);
         } catch (error) {
             toasterService.error();
+        } finally {
+            setIsRequirementLoading(false);
         }
     }
 
@@ -147,14 +149,21 @@ export function EditTestSuite({
                             </div>
 
                             <div className="my-2">
+                                <Label>
+                                    Requirements
+                                </Label>
                                 <MultiSelect
-                                    options={requirments?.map((requirment) => ({
-                                        label: requirment?.title,
-                                        value: requirment?.id
-                                    }))}
+                                    options={
+                                        !isRequirementLoading
+                                            ? requirments?.map((requirement) => ({
+                                                label: requirement?.title,
+                                                value: requirement?.id,
+                                            }))
+                                            : []
+                                    }
                                     onValueChange={setSelectedRequirements}
                                     defaultValue={selectedRequirements}
-                                    placeholder=""
+                                    placeholder={isRequirementLoading ? "Loading" : ""}
                                     variant="secondary"
                                     animation={2}
                                     maxCount={3}

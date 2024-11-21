@@ -34,7 +34,7 @@ export default function Projects() {
             {!isLoading ?
                 <>
                     <div className="border border-gray-300 rounded-lg pt-4 px-6 h-64 bg-white shadow-md">
-                        <h3 className="text-xl font-semibold text-gray-800 mb-3">Description:</h3>
+                        <h3 className="text-xl font-semibold text-gray-800 mb-3">Description</h3>
                         <div
                             className="text-sm leading-relaxed text-gray-700 space-y-2"
                             dangerouslySetInnerHTML={{

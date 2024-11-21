@@ -87,7 +87,7 @@ const ViewTesterIssue = ({
                 </SheetHeader>
                 {isViewLoading ? (
                     <div className="flex justify-center items-center h-32">
-                        <p className="text-gray-500">Loading...</p>
+                        <p className="text-gray-500">Loading</p>
                     </div>
                 ) : (
                     <>
@@ -153,7 +153,7 @@ const ViewTesterIssue = ({
                                 <TabsTrigger value="devices">Devices</TabsTrigger>
                                 <TabsTrigger value="payments">Payments</TabsTrigger>
                             </TabsList>
-                            <TabsContent value="overview">
+                            <TabsContent value="overview" className="mx-0.5">
                                 {/* Skills */}
                                 <div>
                                     {userData?.tester?.bio ?
@@ -181,7 +181,7 @@ const ViewTesterIssue = ({
                                     {userData?.tester?.address ?
                                         <div>
                                             <div>
-                                                <p className="font-semibold text-lg">Address</p>
+                                                <p className="font-semibold">Address</p>
                                             </div>
                                             <div className="flex items-start space-x-2 mx-2 my-1">
                                                 <MapPin className="text-gray-500 w-5 flex items-center" />
@@ -205,8 +205,8 @@ const ViewTesterIssue = ({
                                 <div>
                                     {userData?.tester?.bio ?
                                         <div>
-                                            <p className="font-semibold text-lg">Bio</p>
-                                            <p className="mb-2">
+                                            <p className="font-semibold">Bio</p>
+                                            <p className="mb-2 mx-3">
                                                 {userData?.tester?.bio}
                                             </p>
                                         </div>
@@ -224,7 +224,7 @@ const ViewTesterIssue = ({
                                 <div>
                                     <div>
                                         {userData?.tester?.certifications ?
-                                            <p className="font-semibold text-lg">Certificates</p>
+                                            <p className="font-semibold">Certificates</p>
                                             : <p className="font-medium text-primary mt-4">Certificates</p>
                                         }
                                         <UserCertificates certificate={userData?.tester?.certifications as ICertificatesView[] | []} />

@@ -60,3 +60,7 @@ export const REQUIREMENT_ATTACHMENT_ENPOINT = (projectId: string, requirementId:
 export const TEST_SUITE_ENPOINT = (projectId: string) => {
   return `${PROJECTS_ENDPOINT}/${projectId}/test-suite`;
 }
+
+export const TEST_PLAN_ENPOINT = (projectId: string) => {
+  return `${PROJECTS_ENDPOINT}/${projectId}/test-plan`;
+}

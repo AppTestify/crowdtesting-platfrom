@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import IssueAttachments from "../attachments/issue-attachment";
 import { displayIcon, statusBadge } from "@/app/_utils/common-functionality";
+import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 
 const ViewIssue = ({
     issue,
@@ -38,31 +39,65 @@ const ViewIssue = ({
             getAttachments();
         }
     }, [sheetOpen, projectId]);
-
     return (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
             <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px]">
-                <SheetHeader>
-                    <div className="flex">
-                        <SheetTitle className="text-left">{issueData?.title}</SheetTitle>
-                        <div className="ml-6 flex items-center">
-                            <span className="mr-1">{displayIcon(issue?.priority)}</span>
-                            {issue?.priority}
+                {isViewLoading ? (
+                    <div className="flex justify-center items-center h-32">
+                        <p className="text-gray-500">Loading</p>
+                    </div>
+                ) :
+                    <>
+                        <SheetHeader className="mb-4">
+                            <div className="flex justify-between items-center mt-6">
+                                <p className="text-md capitalize">{issueData?.title}</p>
+                            </div>
+                        </SheetHeader>
+                        <DropdownMenuSeparator className="border-b" />
+                        <div className="mt-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8 mb-4 text-sm ">
+                                {/* Severity */}
+                                <div className="flex items-center">
+                                    <span className=" font-medium">Severity:</span>
+                                    <span className="ml-2">{issue?.severity}</span>
+                                </div>
+
+                                {/* Priority */}
+                                <div className="flex items-center">
+                                    <span className=" font-medium">Priority:</span>
+                                    <span className="ml-2 flex items-center">
+                                        {displayIcon(issue?.priority)}
+                                        <span className="ml-1 font-medium">{issue?.priority}</span>
+                                    </span>
+                                </div>
+
+                                {/* Status */}
+                                <div className="flex items-center">
+                                    <span className=" font-medium">Status:</span>
+                                    <span className="ml-2">{statusBadge(issue?.status)}</span>
+                                </div>
+
+
+                                {/* Device */}
+                                <div className="flex items-center">
+                                    <span className=" font-medium">Device:</span>
+                                    <span className="ml-2">{issue?.device?.[0]?.name}</span>
+                                </div>
+                            </div>
+
+                            <div >
+                                <span className="font-medium">Description</span>
+                                <div
+                                    className="px-2 text-sm leading-relaxed text-gray-700"
+                                    dangerouslySetInnerHTML={{
+                                        __html: issueData?.description || '',
+                                    }}
+                                />
+                            </div>
                         </div>
-                    </div>
-                </SheetHeader>
-                <div>
-                    <div className="flex mt-4">
-                        <p>Severity: {issue?.severity}</p>
-                        <p className="ml-8">Status: {statusBadge(issue?.status)}</p>
-                    </div>
-                    <div className="mt-2 text-sm leading-relaxed text-gray-700"
-                        dangerouslySetInnerHTML={{
-                            __html: issueData?.description || ''
-                        }}
-                    />
-                </div>
-                <IssueAttachments issueId={issueId} isUpdate={true} isView={true} />
+
+                        <IssueAttachments issueId={issueId} isUpdate={true} isView={true} />
+                    </>}
             </SheetContent>
         </Sheet>
     )

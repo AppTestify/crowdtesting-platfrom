@@ -4,10 +4,10 @@ import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
 import { isAdmin, verifySession } from "@/app/_lib/dal";
 import { IdFormat } from "@/app/_models/id-format.model";
-import { TestSuite } from "@/app/_models/test-suite.model";
-import { testSuiteSchema } from "@/app/_schemas/test-suite.schema";
+import { TestPlan } from "@/app/_models/test-plan.model";
+import { testPlanSchema } from "@/app/_schemas/test-plan.schema";
 import { serverSidePagination } from "@/app/_utils/common-server-side";
-import { addCustomIds, normaliseIds } from "@/app/_utils/data-formatters";
+import { addCustomIds } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function POST(
@@ -35,7 +35,7 @@ export async function POST(
         }
 
         const body = await req.json();
-        const response = testSuiteSchema.safeParse(body);
+        const response = testPlanSchema.safeParse(body);
 
         if (!response.success) {
             return Response.json(
@@ -47,14 +47,14 @@ export async function POST(
             );
         }
 
-        const newTestSuite = new TestSuite({
+        const newTestSuite = new TestPlan({
             ...response.data,
             userId: session.user._id,
         });
         const saveTestSuite = await newTestSuite.save();
 
         return Response.json({
-            message: "Test suite added successfully",
+            message: "Test plan added successfully",
             id: saveTestSuite?._id,
         });
 
@@ -88,15 +88,14 @@ export async function GET(
 
         let response = null;
         const { projectId } = params;
-        let totalTestSuites;
+        let totalTestPlans;
         const { skip, limit } = serverSidePagination(req);
-        const userIdFormat = await IdFormat.findOne({ entity: DBModels.TEST_SUITE });
+        const userIdFormat = await IdFormat.findOne({ entity: DBModels.TEST_PLAN });
 
         if (!(await isAdmin(session.user))) {
-            totalTestSuites = await TestSuite.find({ projectId: projectId }).countDocuments();
+            totalTestPlans = await TestPlan.find({ projectId: projectId }).countDocuments();
             response = addCustomIds(
-                await TestSuite.find({ projectId: projectId })
-                    .populate("requirements")
+                await TestPlan.find({ projectId: projectId })
                     .sort({ createdAt: -1 })
                     .skip(skip)
                     .limit(Number(limit))
@@ -105,9 +104,8 @@ export async function GET(
             );
         } else {
             response = addCustomIds(
-                await TestSuite.find({ projectId: projectId })
+                await TestPlan.find({ projectId: projectId })
                     .populate("userId", "id firstName lastName")
-                    .populate("requirements", "_id title customId")
                     .sort({ createdAt: -1 })
                     .skip(skip)
                     .limit(Number(limit))
@@ -116,7 +114,7 @@ export async function GET(
             );
         }
 
-        return Response.json({ "testSuites": response, "total": totalTestSuites });
+        return Response.json({ "testPlans": response, "total": totalTestPlans });
     } catch (error: any) {
         return errorHandler(error);
     }

@@ -26,15 +26,15 @@ import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
 import { PAGINATION_LIMIT } from "@/app/_utils/common";
 import { getTestSuiteService } from "@/app/_services/test-suite.service";
-import { AddTestSuite } from "./_components/add-test-suite";
 import { formatDate } from "@/app/_constants/date-formatter";
-import { ITestSuite } from "@/app/_interface/test-suite";
-import { TestSuiteRowActions } from "./_components/row-actions";
+import { ITestPlanPayload } from "@/app/_interface/test-plan";
+import { getTestPlanService } from "@/app/_services/test-plan.service";
+import { AddTestPlan } from "./_components/add-test-plan";
 
-export default function TestSuite() {
-    const [testSuite, setTestSuite] = useState<ITestSuite[]>([]);
+export default function TestPlan() {
+    const [testPlans, setTestPlans] = useState<ITestPlanPayload[]>([]);
 
-    const columns: ColumnDef<ITestSuite>[] = [
+    const columns: ColumnDef<ITestPlanPayload>[] = [
         {
             accessorKey: "customId",
             header: "ID",
@@ -49,16 +49,16 @@ export default function TestSuite() {
                 <div className="capitalize">{row.getValue("title")}</div>
             ),
         },
-        ...(
-            testSuite.some((item) => item.userId?._id) ?
-                [{
-                    accessorKey: "Name",
-                    header: "Owner",
-                    cell: ({ row }: { row: any }) => (
-                        <div className="">{`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}</div>
-                    ),
-                }] : []
-        ),
+        // ...(
+        //     testPlans.some((item) => item.userId?._id) ?
+        //         [{
+        //             accessorKey: "Name",
+        //             header: "Owner",
+        //             cell: ({ row }: { row: any }) => (
+        //                 <div className="">{`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}</div>
+        //             ),
+        //         }] : []
+        // ),
         {
             accessorKey: "createdAt",
             header: "Created On",
@@ -68,13 +68,13 @@ export default function TestSuite() {
                 </div>
             ),
         },
-        {
-            id: "actions",
-            enableHiding: false,
-            cell: ({ row }) => (
-                <TestSuiteRowActions row={row as Row<ITestSuite>} refreshTestSuites={refreshTestSuites} />
-            ),
-        },
+        // {
+        //     id: "actions",
+        //     enableHiding: false,
+        //     cell: ({ row }) => (
+        //         <TestSuiteRowActions row={row as Row<ITestSuite>} refreshTestPlans={refreshTestPlans} />
+        //     ),
+        // },
     ];
 
     const [sorting, setSorting] = useState<SortingState>([]);
@@ -88,24 +88,24 @@ export default function TestSuite() {
     const { projectId } = useParams<{ projectId: string }>();
 
     useEffect(() => {
-        getTestSuites();
+        getTestPlans();
     }, [pageIndex, pageSize]);
 
-    const getTestSuites = async () => {
+    const getTestPlans = async () => {
         setIsLoading(true);
-        const response = await getTestSuiteService(projectId, pageIndex, pageSize);
-        setTestSuite(response?.testSuites);
+        const response = await getTestPlanService(projectId, pageIndex, pageSize);
+        setTestPlans(response?.testSuites);
         setTotalPageCount(response?.total);
         setIsLoading(false);
     };
 
-    const refreshTestSuites = () => {
-        getTestSuites();
+    const refreshTestPlans = () => {
+        getTestPlans();
         setRowSelection({});
     };
 
     const table = useReactTable({
-        data: testSuite,
+        data: testPlans,
         columns,
         onSortingChange: setSorting,
         getCoreRowModel: getCoreRowModel(),
@@ -139,7 +139,7 @@ export default function TestSuite() {
     return (
         <main className="mx-4 mt-2">
             <div className="">
-                <h2 className="text-medium">Test suites</h2>
+                <h2 className="text-medium">Test plans</h2>
                 <span className="text-xs text-gray-600">
                     Lorem ipsum dolor sit, amet consectetur adipisicing elit.
                     cumque vel nesciunt sunt velit possimus sapiente tempore repudiandae fugit fugiat.
@@ -148,7 +148,7 @@ export default function TestSuite() {
             <div className="w-full">
                 <div className="flex py-4 justify-between">
                     <Input
-                        placeholder="Filter testSuite"
+                        placeholder="Filter testPlans"
                         value={(globalFilter as string) ?? ""}
                         onChange={(event) => {
                             table.setGlobalFilter(String(event.target.value));
@@ -156,7 +156,7 @@ export default function TestSuite() {
                         className="max-w-sm"
                     />
                     <div className="flex gap-2 ml-2">
-                        <AddTestSuite refreshTestSuites={refreshTestSuites} />
+                        <AddTestPlan refreshTestPlans={refreshTestPlans} />
                     </div>
                 </div>
                 <div className="rounded-md border">

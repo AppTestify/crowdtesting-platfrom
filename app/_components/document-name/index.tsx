@@ -1,6 +1,4 @@
 import * as React from "react";
-import { IDocument, IUserDocument } from "@/app/_interface/document";
-import { Row } from "@tanstack/react-table";
 import {
   File,
   FileImage,
@@ -9,10 +7,8 @@ import {
   FileText,
 } from "lucide-react";
 import { ContentType } from "@/app/(routes)/private/profile/_components/tester-profile/_components/documents/_constants";
-import { IIssueAttachmentDisplay } from "@/app/_interface/issue";
-import { IRequirementAttachmentDisplay } from "@/app/_interface/requirement";
 
-export function DocumentName({ document }: { document: Row<IDocument | IIssueAttachmentDisplay | IUserDocument | IRequirementAttachmentDisplay> }) {
+export function DocumentName({ document }: { document: any }) {
   const contentType = document.getValue("contentType");
 
   const getIconByContentType = (type: any) => {
@@ -36,7 +32,7 @@ export function DocumentName({ document }: { document: Row<IDocument | IIssueAtt
 
   return (
     <div className="flex gap-2 items-center">
-      {getIconByContentType(contentType)} {document.getValue("name")}
+      {getIconByContentType(contentType)} {document.getValue("name") ? document.getValue("name") : document?.name}
     </div>
   );
 }

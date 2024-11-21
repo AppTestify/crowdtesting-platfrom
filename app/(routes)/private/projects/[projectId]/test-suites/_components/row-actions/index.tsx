@@ -10,12 +10,13 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Row } from "@tanstack/react-table";
-import { Edit, Loader2, MoreHorizontal, Trash } from "lucide-react";
+import { Edit, Eye, Loader2, MoreHorizontal, Trash } from "lucide-react";
 import { useState } from "react";
 // import { EditDevice } from "../edit-device";
 import { ITestSuite } from "@/app/_interface/test-suite";
 import { deleteTestSuiteService } from "@/app/_services/test-suite.service";
 import { EditTestSuite } from "../edit-test-suite";
+import ViewTestSuite from "../view-test-suite";
 
 export function TestSuiteRowActions({
     row,
@@ -29,6 +30,7 @@ export function TestSuiteRowActions({
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [isViewOpen, setIsViewOpen] = useState(false);
     const testSuiteId = row.original.id as string;
     const projectId = row.original.projectId as string;
     const deleteTestSuite = async () => {
@@ -53,10 +55,15 @@ export function TestSuiteRowActions({
         <>
             <EditTestSuite
                 testSuite={row.original as ITestSuite}
-                // browsers={browsers}
                 sheetOpen={isEditOpen}
                 setSheetOpen={setIsEditOpen}
                 refreshTestSuites={refreshTestSuites}
+            />
+
+            <ViewTestSuite
+                testSuite={row.original as ITestSuite}
+                sheetOpen={isViewOpen}
+                setSheetOpen={setIsViewOpen}
             />
 
             <ConfirmationDialog
@@ -79,6 +86,15 @@ export function TestSuiteRowActions({
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                        className="mb-1"
+                        onClick={() => {
+                            setIsViewOpen(true);
+                        }}
+                    >
+                        <Eye className="h-2 w-2" /> View
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator className="border-b" />
                     <DropdownMenuItem
                         className="mb-1"
                         onClick={() => {

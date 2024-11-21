@@ -102,8 +102,15 @@ export function AddRequirement({ refreshRequirements }: { refreshRequirements: (
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
+            const files = Array.from(e.target.files).map((file) => ({
+                ...file,
+                name: file.name,
+                contentType: file.type,
+                size: file.size,
+                getValue: (key: string) => (key === "contentType" ? file.type : undefined),
+            }));
             const fileArray = Array.from(e.target.files);
-            setAttachments(fileArray);
+            setAttachments(files);
             form.setValue("attachments", fileArray);
         }
     };
@@ -203,7 +210,7 @@ export function AddRequirement({ refreshRequirements }: { refreshRequirements: (
                                                         {attachments?.length ? (
                                                             attachments.map((attachment, index) => (
                                                                 <TableRow key={index}>
-                                                                    <TableCell>{attachment.name}</TableCell>
+                                                                    <TableCell><DocumentName document={attachment} /></TableCell>
                                                                     <TableCell className="flex justify-end items-end mr-6">
                                                                         <Button type="button" onClick={() => handleRemoveFile(index)}
                                                                             variant="ghost"

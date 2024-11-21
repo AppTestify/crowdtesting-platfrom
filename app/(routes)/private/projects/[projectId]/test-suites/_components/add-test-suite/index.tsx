@@ -50,6 +50,7 @@ export function AddTestSuite({ refreshTestSuites }: { refreshTestSuites: () => v
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const { projectId } = useParams<{ projectId: string }>();
     const [selectedRequirements, setSelectedRequirements] = useState<string[]>([]);
+    const [isRequirementsLoading, setIsRequirementsLoading] = useState<boolean>(false);
 
     const form = useForm<z.infer<typeof testSuiteSchema>>({
         resolver: zodResolver(testSuiteSchema),
@@ -87,10 +88,13 @@ export function AddTestSuite({ refreshTestSuites }: { refreshTestSuites: () => v
 
     const getRequirements = async () => {
         try {
+            setIsRequirementsLoading(true);
             const response = await getRequirementsWithoutPaginationService(projectId);
             setRequirements(response);
         } catch (error) {
             toasterService.error();
+        } finally {
+            setIsRequirementsLoading(false);
         }
     }
 

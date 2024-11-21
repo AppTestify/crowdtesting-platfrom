@@ -8,6 +8,7 @@ export interface IRequirementPayload {
 }
 
 export interface IRequirement {
+    _id?: string;
     id: string;
     title: string;
     projectId: string;

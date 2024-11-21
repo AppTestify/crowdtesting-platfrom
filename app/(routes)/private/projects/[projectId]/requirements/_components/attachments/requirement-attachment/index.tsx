@@ -85,9 +85,16 @@ export default function RequirementAttachments({ requirementId, isUpdate, isView
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
+            const files = Array.from(e.target.files).map((file) => ({
+                ...file,
+                name: file.name,
+                contentType: file.type,
+                size: file.size,
+                getValue: (key: string) => (key === "contentType" ? file.type : undefined),
+            }));
             const newFiles = Array.from(e.target.files);
             setAttachmentsData?.(newFiles);
-            setAttachments(newFiles)
+            setAttachments(files)
         }
     };
 
@@ -177,13 +184,15 @@ export default function RequirementAttachments({ requirementId, isUpdate, isView
                             <TableBody>
                                 <TableRow>
                                     <TableCell colSpan={columns.length} className="h-24 text-center">
-                                        No attachments found
+                                        {isViewLoading ? 'Loading' : 'No attachments found'}
                                     </TableCell>
                                 </TableRow>
                             </TableBody>
                         </Table>
                     </div>
-                ) : null}
+                ) : isUpdate && isViewLoading ?
+                    <div className="text-center h-20">Loading</div> : null
+                }
             </div>
             {
                 attachments.length > 0 &&
@@ -195,7 +204,7 @@ export default function RequirementAttachments({ requirementId, isUpdate, isView
                                 {attachments?.length ? (
                                     attachments.map((attachment, index) => (
                                         <TableRow key={index}>
-                                            <TableCell>{attachment.name}</TableCell>
+                                            <TableCell><DocumentName document={attachment} /></TableCell>
                                             <TableCell className="flex justify-end items-end mr-6">
                                                 <Button type="button" onClick={() => handleRemoveFile(index)}
                                                     variant="ghost"

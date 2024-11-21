@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import RequirementAttachments from "../attachments/requirement-attachment";
 import { getRequirementService } from "@/app/_services/requirement.service";
+import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 
 const ViewRequirement = ({
     requirement,
@@ -31,7 +32,6 @@ const ViewRequirement = ({
             setIsViewLoading(false);
         }
     }
-
     useEffect(() => {
         if (sheetOpen) {
             getAttachments();
@@ -40,25 +40,30 @@ const ViewRequirement = ({
 
     return (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-            {!isViewLoading ?
-                <>
-                    <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px]">
-                        <SheetHeader>
-                            <div className="flex">
-                                <SheetTitle className="text-left">{issueData?.title}</SheetTitle>
+            <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px]">
+                {issueData ?
+                    <>
+                        <SheetHeader className="mb-4">
+                            <div className="flex justify-between items-center mt-4">
+                                <p className="text-md capitalize">{issueData?.title}</p>
                             </div>
                         </SheetHeader>
-                        <div>
-                            <div className="mt-2 text-sm leading-relaxed text-gray-700"
+                        <DropdownMenuSeparator className="border-b" />
+                        <div className="mt-4">
+                            <span className="">Description</span>
+                            <div className="px-2 text-sm leading-relaxed text-gray-700"
                                 dangerouslySetInnerHTML={{
                                     __html: issueData?.description || ''
                                 }}
                             />
                         </div>
-                        <RequirementAttachments requirementId={requirementId} isUpdate={true} isView={true} />
-                    </SheetContent>
-                </> : null
-            }
+                        {!isViewLoading ?
+                            <RequirementAttachments requirementId={requirementId} isUpdate={true} isView={true} />
+                            : null
+                        }
+                    </> : <p className="text-center h-20">Loading</p>
+                }
+            </SheetContent>
         </Sheet>
     )
 }

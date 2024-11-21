@@ -124,7 +124,7 @@ export async function GET(
         let response = null;
         const { issueId } = params;
 
-        response = await Issue.findById(issueId)
+        response = await Issue.findById(issueId).populate("device", "_id name")
         return Response.json(response);
     } catch (error: any) {
         return errorHandler(error);

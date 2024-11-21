@@ -1,3 +1,6 @@
+import { IRequirement } from "./requirement";
+import { IUserByAdmin } from "./user";
+
 export interface ITestSuitePayload {
     title: string;
     description: string;
@@ -6,9 +9,11 @@ export interface ITestSuitePayload {
 }
 
 export interface ITestSuite {
+    _id?: string;
     title: string;
     description: string;
-    requirements?: string[];
+    requirements?: IRequirement[];
     id: string;
     projectId: string;
+    userId: IUserByAdmin;
 }
