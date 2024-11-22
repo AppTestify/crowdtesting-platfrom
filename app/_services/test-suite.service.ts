@@ -49,3 +49,13 @@ export const updateTestSuiteService = async (
         throw error;
     }
 };
+
+export const getTestWithoutPaginationSuiteService = async (projectId: string): Promise<any> => {
+    try {
+        const response = await genericGet(`${TEST_SUITE_ENPOINT(projectId)}/without-pagination`);
+        return response || [];
+    } catch (error) {
+        console.error(`Error > getTestWithoutPaginationSuiteService:`, error);
+        throw error;
+    }
+};

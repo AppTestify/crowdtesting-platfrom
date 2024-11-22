@@ -64,3 +64,7 @@ export const TEST_SUITE_ENPOINT = (projectId: string) => {
 export const TEST_PLAN_ENPOINT = (projectId: string) => {
   return `${PROJECTS_ENDPOINT}/${projectId}/test-plan`;
 }
+
+export const TEST_CASE_ENPOINT = (projectId: string) => {
+  return `${PROJECTS_ENDPOINT}/${projectId}/test-case`;
+}
