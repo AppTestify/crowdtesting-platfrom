@@ -1,14 +1,15 @@
-"use client";
-
+import React, { useEffect, useState } from "react";
+import { Loader2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-    Loader2,
-    Plus,
-} from "lucide-react";
-import { useState } from "react";
-
-import toasterService from "@/app/_services/toaster-service";
+    Sheet,
+    SheetClose,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+} from "@/components/ui/sheet";
 import {
     Form,
     FormControl,
@@ -17,23 +18,15 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form";
-import {
-    Sheet,
-    SheetClose,
-    SheetContent,
-    SheetDescription,
-    SheetHeader,
-    SheetTitle,
-    SheetTrigger,
-} from "@/components/ui/sheet";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
-import { useParams } from "next/navigation";
+import toasterService from "@/app/_services/toaster-service";
+import TextEditor from "../../../../_components/text-editor";
+import { ITestPlan } from "@/app/_interface/test-plan";
+import { updateTestPlanService } from "@/app/_services/test-plan.service";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TESTING_LIST } from "@/app/_constants/test-plan";
-import TextEditor from "../../../../_components/text-editor";
-import { addTestPlanService } from "@/app/_services/test-plan.service";
 
 const testPlanSchema = z.object({
     title: z.string().min(1, "Required"),
@@ -44,25 +37,43 @@ const testPlanSchema = z.object({
     })),
 });
 
-export function AddTestPlan({ refreshTestPlans }: { refreshTestPlans: () => void }) {
-
-    const [sheetOpen, setSheetOpen] = useState(false);
+export function EditTestPlan({
+    testPlan,
+    sheetOpen,
+    setSheetOpen,
+    refreshTestPlans,
+}: {
+    testPlan: ITestPlan;
+    sheetOpen: boolean;
+    setSheetOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    refreshTestPlans: () => void;
+}) {
+    const testSuiteId = testPlan.id;
+    const { title, projectId, parameters } = testPlan;
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const { projectId } = useParams<{ projectId: string }>();
-
     const form = useForm<z.infer<typeof testPlanSchema>>({
         resolver: zodResolver(testPlanSchema),
         defaultValues: {
-            title: "",
-            projectId: projectId,
-            parameters: [],
+            title: title || "",
+            projectId: projectId || "",
+            parameters: parameters || [],
         },
     });
+    const { fields, append, remove } = useFieldArray({
+        control: form.control,
+        name: "parameters",
+    });
+
+    const isFieldIncomplete = (index: number) => {
+        const description = form.getValues(`parameters.${index}.description`);
+        const parameter = form.getValues(`parameters.${index}.parameter`);
+        return !(parameter && description);
+    };
 
     async function onSubmit(values: z.infer<typeof testPlanSchema>) {
         setIsLoading(true);
         try {
-            const response = await addTestPlanService(projectId, {
+            const response = await updateTestPlanService(projectId, testSuiteId, {
                 ...values,
             });
             if (response) {
@@ -72,55 +83,36 @@ export function AddTestPlan({ refreshTestPlans }: { refreshTestPlans: () => void
         } catch (error) {
             toasterService.error();
         } finally {
-            setIsLoading(false);
             setSheetOpen(false);
+            setIsLoading(false);
         }
     }
-
-    const validateTestPlan = () => {
-        if (form.formState.isValid) {
-            form.handleSubmit(onSubmit)();
-        }
-    };
 
     const resetForm = () => {
-        form.reset();
+        form.reset({
+            title: title || "",
+            projectId: projectId || "",
+            parameters: parameters || []
+        });
     };
 
-    const { fields, append, remove } = useFieldArray({
-        control: form.control,
-        name: "parameters",
-    });
-
-    if (fields.length === 0) {
-        append({ parameter: "", description: "" });
-    }
-
-    const isFieldIncomplete = (index: number) => {
-        const description = form.getValues(`parameters.${index}.description`);
-        const parameter = form.getValues(`parameters.${index}.parameter`);
-        return !(parameter && description);
-    };
+    useEffect(() => {
+        if (sheetOpen) {
+            resetForm();
+        }
+    }, [sheetOpen]);
 
     return (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-            <SheetTrigger asChild>
-                <Button onClick={() => resetForm()}>
-                    <Plus /> Add test plan
-                </Button>
-            </SheetTrigger>
-            <SheetContent
-                className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto"
-            >
+            <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto">
                 <SheetHeader>
-                    <SheetTitle className="text-left">Add new test plan</SheetTitle>
+                    <SheetTitle className="text-left">Edit testSuite</SheetTitle>
                     <SheetDescription className="text-left">
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Perspiciatis,
-                        ut deleniti excepturi, quo nemo! Quisquam, saepe quo.
+                        Keep your device inventory updated! The more up to date your devices
+                        are, the greater your chances of receiving project recommendations.
                     </SheetDescription>
                 </SheetHeader>
-
-                <div>
+                <div className="mt-4">
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} method="post">
                             <div className="grid grid-cols-1 gap-2">
@@ -129,7 +121,7 @@ export function AddTestPlan({ refreshTestPlans }: { refreshTestPlans: () => void
                                     name="title"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Test plan title</FormLabel>
+                                            <FormLabel>Test suite title</FormLabel>
                                             <FormControl>
                                                 <Input {...field} />
                                             </FormControl>
@@ -142,6 +134,7 @@ export function AddTestPlan({ refreshTestPlans }: { refreshTestPlans: () => void
                             <div className="flex flex-col gap-4 mt-4">
                                 {fields.map((field, index) => (
                                     <div key={field.id} className="flex flex-col w-full border border-1 rounded-md">
+                                        {/* Parameter Field */}
                                         <div className="flex flex-col w-full p-4">
                                             <FormField
                                                 control={form.control}
@@ -154,7 +147,7 @@ export function AddTestPlan({ refreshTestPlans }: { refreshTestPlans: () => void
                                                                 form.setValue(`parameters.${index}.parameter`, value);
                                                                 form.trigger(`parameters.${index}.parameter`);
                                                             }}
-                                                            value={field.value}
+                                                            value={field.value || ""}
                                                         >
                                                             <SelectTrigger className="w-full">
                                                                 <SelectValue />
@@ -177,6 +170,7 @@ export function AddTestPlan({ refreshTestPlans }: { refreshTestPlans: () => void
                                             />
                                         </div>
 
+                                        {/* Description Field */}
                                         <div className="flex flex-col w-full p-4">
                                             <FormField
                                                 control={form.control}
@@ -204,7 +198,6 @@ export function AddTestPlan({ refreshTestPlans }: { refreshTestPlans: () => void
                                                 <Button
                                                     type="button"
                                                     size="sm"
-                                                    className="mr-4"
                                                     onClick={() => append({ parameter: "", description: "" })}
                                                     disabled={isFieldIncomplete(index)}
                                                 >
@@ -216,6 +209,7 @@ export function AddTestPlan({ refreshTestPlans }: { refreshTestPlans: () => void
                                                     type="button"
                                                     size="sm"
                                                     variant="destructive"
+                                                    className="ml-4"
                                                     onClick={() => remove(index)}
                                                 >
                                                     Remove
@@ -225,7 +219,8 @@ export function AddTestPlan({ refreshTestPlans }: { refreshTestPlans: () => void
                                     </div>
                                 ))}
                             </div>
-                            < div className="mt-6 w-full flex justify-end gap-2" >
+
+                            <div className="mt-8 w-full flex justify-end gap-2">
                                 <SheetClose asChild>
                                     <Button
                                         disabled={isLoading}
@@ -241,20 +236,19 @@ export function AddTestPlan({ refreshTestPlans }: { refreshTestPlans: () => void
                                     disabled={isLoading}
                                     type="submit"
                                     size="lg"
-                                    onClick={() => validateTestPlan()}
+                                    // onClick={() => validateBrowsers()}
                                     className="w-full md:w-fit"
                                 >
                                     {isLoading ? (
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                     ) : null}
-                                    {isLoading ? "Saving" : "Save"}
+                                    {isLoading ? "Updating" : "Update"}
                                 </Button>
                             </div>
                         </form>
                     </Form>
                 </div>
-
             </SheetContent>
-        </Sheet >
+        </Sheet>
     );
 }

@@ -148,7 +148,7 @@ export default function TestSuite() {
             <div className="w-full">
                 <div className="flex py-4 justify-between">
                     <Input
-                        placeholder="Filter testSuite"
+                        placeholder="Filter test suite"
                         value={(globalFilter as string) ?? ""}
                         onChange={(event) => {
                             table.setGlobalFilter(String(event.target.value));

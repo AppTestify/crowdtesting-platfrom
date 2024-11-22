@@ -2,12 +2,13 @@ import { DBModels } from "@/app/_constants";
 import { DB_CONNECTION_ERROR_MESSAGE, INVALID_INPUT_ERROR_MESSAGE, USER_UNAUTHORIZED_ERROR_MESSAGE, USER_UNAUTHORIZED_SERVER_ERROR_MESSAGE } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
+import { IRequirement } from "@/app/_interface/requirement";
 import { isAdmin, verifySession } from "@/app/_lib/dal";
 import { IdFormat } from "@/app/_models/id-format.model";
 import { TestSuite } from "@/app/_models/test-suite.model";
 import { testSuiteSchema } from "@/app/_schemas/test-suite.schema";
 import { serverSidePagination } from "@/app/_utils/common-server-side";
-import { addCustomIds, normaliseIds } from "@/app/_utils/data-formatters";
+import { addCustomIds, normaliseIds, replaceCustomId } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function POST(
@@ -91,6 +92,7 @@ export async function GET(
         let totalTestSuites;
         const { skip, limit } = serverSidePagination(req);
         const userIdFormat = await IdFormat.findOne({ entity: DBModels.TEST_SUITE });
+        const requirementUserIdFormat = await IdFormat.findOne({ entity: DBModels.REQUIREMENT });
 
         if (!(await isAdmin(session.user))) {
             totalTestSuites = await TestSuite.find({ projectId: projectId }).countDocuments();
@@ -116,7 +118,15 @@ export async function GET(
             );
         }
 
-        return Response.json({ "testSuites": response, "total": totalTestSuites });
+        const result = response.map((res) => ({
+            ...res,
+            requirements: res?.requirements?.map((requirement: IRequirement) => ({
+                ...requirement,
+                customId: replaceCustomId(requirementUserIdFormat.idFormat, requirement?.customId)
+            }))
+        }));
+
+        return Response.json({ "testSuites": result, "total": totalTestSuites });
     } catch (error: any) {
         return errorHandler(error);
     }

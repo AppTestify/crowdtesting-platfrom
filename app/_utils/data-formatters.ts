@@ -13,6 +13,6 @@ export const addCustomIds = (data: any[], idFormat: string) => {
 };
 
 
-const replaceCustomId = (str: string, value: any) => {
+export const replaceCustomId = (str: string, value: any) => {
   return str.replace(CUSTOM_ID_REGEX, value);
 };

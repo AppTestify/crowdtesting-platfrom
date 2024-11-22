@@ -27,9 +27,10 @@ import { useParams } from "next/navigation";
 import { PAGINATION_LIMIT } from "@/app/_utils/common";
 import { getTestSuiteService } from "@/app/_services/test-suite.service";
 import { formatDate } from "@/app/_constants/date-formatter";
-import { ITestPlanPayload } from "@/app/_interface/test-plan";
+import { ITestPlan, ITestPlanPayload } from "@/app/_interface/test-plan";
 import { getTestPlanService } from "@/app/_services/test-plan.service";
 import { AddTestPlan } from "./_components/add-test-plan";
+import { TestPlansRowActions } from "./_components/row-actions";
 
 export default function TestPlan() {
     const [testPlans, setTestPlans] = useState<ITestPlanPayload[]>([]);
@@ -49,16 +50,16 @@ export default function TestPlan() {
                 <div className="capitalize">{row.getValue("title")}</div>
             ),
         },
-        // ...(
-        //     testPlans.some((item) => item.userId?._id) ?
-        //         [{
-        //             accessorKey: "Name",
-        //             header: "Owner",
-        //             cell: ({ row }: { row: any }) => (
-        //                 <div className="">{`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}</div>
-        //             ),
-        //         }] : []
-        // ),
+        ...(
+            testPlans.some((item) => item.userId?._id) ?
+                [{
+                    accessorKey: "Name",
+                    header: "Owner",
+                    cell: ({ row }: { row: any }) => (
+                        <div className="">{`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}</div>
+                    ),
+                }] : []
+        ),
         {
             accessorKey: "createdAt",
             header: "Created On",
@@ -68,13 +69,13 @@ export default function TestPlan() {
                 </div>
             ),
         },
-        // {
-        //     id: "actions",
-        //     enableHiding: false,
-        //     cell: ({ row }) => (
-        //         <TestSuiteRowActions row={row as Row<ITestSuite>} refreshTestPlans={refreshTestPlans} />
-        //     ),
-        // },
+        {
+            id: "actions",
+            enableHiding: false,
+            cell: ({ row }) => (
+                <TestPlansRowActions row={row as Row<ITestPlan>} refreshTestPlans={refreshTestPlans} />
+            ),
+        },
     ];
 
     const [sorting, setSorting] = useState<SortingState>([]);
@@ -94,7 +95,7 @@ export default function TestPlan() {
     const getTestPlans = async () => {
         setIsLoading(true);
         const response = await getTestPlanService(projectId, pageIndex, pageSize);
-        setTestPlans(response?.testSuites);
+        setTestPlans(response?.testPlans);
         setTotalPageCount(response?.total);
         setIsLoading(false);
     };
@@ -148,7 +149,7 @@ export default function TestPlan() {
             <div className="w-full">
                 <div className="flex py-4 justify-between">
                     <Input
-                        placeholder="Filter testPlans"
+                        placeholder="Filter test plans"
                         value={(globalFilter as string) ?? ""}
                         onChange={(event) => {
                             table.setGlobalFilter(String(event.target.value));

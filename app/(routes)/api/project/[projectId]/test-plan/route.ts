@@ -88,12 +88,11 @@ export async function GET(
 
         let response = null;
         const { projectId } = params;
-        let totalTestPlans;
+        const totalTestPlans = await TestPlan.find({ projectId: projectId }).countDocuments();
         const { skip, limit } = serverSidePagination(req);
         const userIdFormat = await IdFormat.findOne({ entity: DBModels.TEST_PLAN });
 
         if (!(await isAdmin(session.user))) {
-            totalTestPlans = await TestPlan.find({ projectId: projectId }).countDocuments();
             response = addCustomIds(
                 await TestPlan.find({ projectId: projectId })
                     .sort({ createdAt: -1 })

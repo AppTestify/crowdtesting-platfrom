@@ -1,7 +1,7 @@
 import { Sheet, SheetContent, SheetHeader } from "@/components/ui/sheet"
 import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { ITestSuite } from "@/app/_interface/test-suite";
-import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 const ViewTestSuite = ({
     testSuite,
@@ -34,15 +34,26 @@ const ViewTestSuite = ({
                     Requirements
                     <div className="mt-2 rounded-md border">
                         <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>ID</TableHead>
+                                    <TableHead>Title</TableHead>
+                                </TableRow>
+                            </TableHeader>
                             <TableBody>
                                 {testSuite?.requirements?.length ? (
-                                    testSuite?.requirements?.map((requirement, index) => (
+                                    testSuite.requirements.map((requirement, index) => (
                                         <TableRow key={index}>
+                                            <TableCell>{requirement.customId}</TableCell>
                                             <TableCell>{requirement.title}</TableCell>
                                         </TableRow>
                                     ))
                                 ) : (
-                                    <div className="h-10 text-center">No requirements found</div>
+                                    <TableRow>
+                                        <TableCell colSpan={2} className="text-center">
+                                            No requirements found
+                                        </TableCell>
+                                    </TableRow>
                                 )}
                             </TableBody>
                         </Table>
