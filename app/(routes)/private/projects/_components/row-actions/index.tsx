@@ -1,6 +1,6 @@
 "use client";
 import { ConfirmationDialog } from "@/app/_components/confirmation-dialog";
-import { IProjectPayload } from "@/app/_interface/project";
+import { IProject, IProjectPayload } from "@/app/_interface/project";
 import { deleteProjectService } from "@/app/_services/project.service";
 import toasterService from "@/app/_services/toaster-service";
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,7 @@ export function RowActions({
   row,
   refreshProjects,
 }: {
-  row: Row<IProjectPayload>;
+  row: Row<IProject>;
   refreshProjects: () => void;
 }) {
   const [isEditOpen, setIsEditOpen] = useState(false);

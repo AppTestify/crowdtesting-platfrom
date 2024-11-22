@@ -22,7 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { IProjectPayload } from "@/app/_interface/project";
+import { IProject, IProjectPayload } from "@/app/_interface/project";
 import { Checkbox } from "@/components/ui/checkbox";
 import { getProjectsService } from "@/app/_services/project.service";
 import { formatDate } from "@/app/_constants/date-formatter";
@@ -113,7 +113,7 @@ export default function Projects() {
     cell: ({ row }) => (
       <ProjectStatus
         status={row.getValue("isActive")}
-        projectId={row.original.id}
+        projectId={row.original.id as string}
         refreshProjects={refreshProjects}
       />
     ),
@@ -122,7 +122,7 @@ export default function Projects() {
   const actionsColumn: ColumnDef<IProjectPayload> = {
     id: "actions",
     enableHiding: false,
-    cell: ({ row }) => <RowActions row={row} refreshProjects={refreshProjects} />,
+    cell: ({ row }) => <RowActions row={row as any} refreshProjects={refreshProjects} />,
   };
 
   const hasUserId = projects.some((item) => item.userId?._id);
@@ -233,7 +233,7 @@ export default function Projects() {
           <div className="flex gap-2 ml-2">
             {getSelectedRows().length ? (
               <BulkDelete
-                ids={getSelectedRows()}
+                ids={getSelectedRows() as string[]}
                 refreshProjects={refreshProjects}
               />
             ) : null}

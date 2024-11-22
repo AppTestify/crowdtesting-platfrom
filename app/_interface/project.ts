@@ -1,17 +1,18 @@
 import { IUserByAdmin } from "./user";
 
 export interface IProjectPayload {
-    id: string;
+    id?: string;
     title: string;
     startDate: Date;
     endDate: Date;
     description?: string;
     isActive?: boolean;
-    userId?: IUserByAdmin;
+    userId?: IUserByAdmin | undefined;
     createdAt?: string;
 }
 
 export interface IProject {
+    id?: string;
     title: string;
     startDate: Date;
     endDate: Date;
