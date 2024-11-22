@@ -100,7 +100,6 @@ export default function TestPlan() {
     const getTestPlans = async () => {
         setIsLoading(true);
         const response = await getTestCaseService(projectId, pageIndex, pageSize);
-        console.log("response", response);
         setTestCases(response?.testCases);
         setTotalPageCount(response?.total);
         setIsLoading(false);

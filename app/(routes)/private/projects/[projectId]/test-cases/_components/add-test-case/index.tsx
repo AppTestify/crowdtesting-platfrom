@@ -94,7 +94,6 @@ export function AddTestCase({ refreshTestCases }: { refreshTestCases: () => void
         try {
             setIsTestSuiteLoading(true);
             const response = await getTestWithoutPaginationSuiteService(projectId);
-            console.log("res", response);
             setTestSuites(response);
         } catch (error) {
             toasterService.error();
