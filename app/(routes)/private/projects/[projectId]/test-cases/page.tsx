@@ -27,8 +27,13 @@ import { useParams } from "next/navigation";
 import { PAGINATION_LIMIT } from "@/app/_utils/common";
 import { formatDate } from "@/app/_constants/date-formatter";
 import { getTestCaseService } from "@/app/_services/test-case.service";
-import { ITestCasePayload } from "@/app/_interface/test-case";
+import { ITestCase, ITestCasePayload } from "@/app/_interface/test-case";
 import { AddTestCase } from "./_components/add-test-case";
+import toasterService from "@/app/_services/toaster-service";
+import { getTestWithoutPaginationSuiteService } from "@/app/_services/test-suite.service";
+import { ITestSuite } from "@/app/_interface/test-suite";
+import { TestCaseRowActions } from "./_components/row-actions";
+import ViewTestCase from "./_components/view-test-case";
 
 export default function TestPlan() {
     const [testCases, setTestCases] = useState<ITestCasePayload[]>([]);
@@ -38,14 +43,16 @@ export default function TestPlan() {
             accessorKey: "customId",
             header: "ID",
             cell: ({ row }) => (
-                <div>{row.getValue("customId")}</div>
+                <div className="hover:text-primary cursor-pointer" onClick={() => getTestCase(row.original as unknown as ITestCase)}>
+                    {row.getValue("customId")}</div>
             ),
         },
         {
             accessorKey: "title",
             header: "Title",
             cell: ({ row }) => (
-                <div className="capitalize">{row.getValue("title")}</div>
+                <div className="capitalize hover:text-primary cursor-pointer" onClick={() => getTestCase(row.original as unknown as ITestCase)}>
+                    {row.getValue("title")}</div>
             ),
         },
         {
@@ -55,16 +62,16 @@ export default function TestPlan() {
                 <div className="capitalize">{row.getValue("expectedResult")}</div>
             ),
         },
-        // ...(
-        //     testPlans.some((item) => item.userId?._id) ?
-        //         [{
-        //             accessorKey: "Name",
-        //             header: "Owner",
-        //             cell: ({ row }: { row: any }) => (
-        //                 <div className="">{`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}</div>
-        //             ),
-        //         }] : []
-        // ),
+        ...(
+            testCases.some((item) => item?.userId?._id) ?
+                [{
+                    accessorKey: "Name",
+                    header: "Owner",
+                    cell: ({ row }: { row: any }) => (
+                        <div className="">{`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}</div>
+                    ),
+                }] : []
+        ),
         {
             accessorKey: "createdAt",
             header: "Created On",
@@ -74,13 +81,13 @@ export default function TestPlan() {
                 </div>
             ),
         },
-        // {
-        //     id: "actions",
-        //     enableHiding: false,
-        //     cell: ({ row }) => (
-        //         <TestPlansRowActions row={row as Row<ITestPlan>} refreshTestCases={refreshTestCases} />
-        //     ),
-        // },
+        {
+            id: "actions",
+            enableHiding: false,
+            cell: ({ row }) => (
+                <TestCaseRowActions row={row as unknown as Row<ITestCase>} testSuites={testSuites} refreshTestCases={refreshTestCases} />
+            ),
+        },
     ];
 
     const [sorting, setSorting] = useState<SortingState>([]);
@@ -92,12 +99,15 @@ export default function TestPlan() {
     const [totalPageCount, setTotalPageCount] = useState(0);
     const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
     const { projectId } = useParams<{ projectId: string }>();
+    const [testSuites, setTestSuites] = useState<ITestSuite[]>([]);
+    const [testCase, setTestCase] = useState<ITestCase>();
+    const [isViewOpen, setIsViewOpen] = useState<boolean>(false);
 
     useEffect(() => {
-        getTestPlans();
+        getTestCases();
     }, [pageIndex, pageSize]);
 
-    const getTestPlans = async () => {
+    const getTestCases = async () => {
         setIsLoading(true);
         const response = await getTestCaseService(projectId, pageIndex, pageSize);
         setTestCases(response?.testCases);
@@ -105,8 +115,21 @@ export default function TestPlan() {
         setIsLoading(false);
     };
 
+    useEffect(() => {
+        getTestSuites();
+    }, []);
+
+    const getTestSuites = async () => {
+        try {
+            const response = await getTestWithoutPaginationSuiteService(projectId);
+            setTestSuites(response);
+        } catch (error) {
+            toasterService.error();
+        }
+    }
+
     const refreshTestCases = () => {
-        getTestPlans();
+        getTestCases();
         setRowSelection({});
     };
 
@@ -130,6 +153,11 @@ export default function TestPlan() {
         onGlobalFilterChange: setGlobalFilter,
     });
 
+    const getTestCase = async (data: ITestCase) => {
+        setTestCase(data as ITestCase);
+        setIsViewOpen(true);
+    };
+
     const handlePreviousPage = () => {
         if (pageIndex > 1) {
             setPageIndex(pageIndex - 1);
@@ -144,6 +172,11 @@ export default function TestPlan() {
 
     return (
         <main className="mx-4 mt-2">
+            <ViewTestCase
+                testCase={testCase as ITestCase}
+                sheetOpen={isViewOpen}
+                setSheetOpen={setIsViewOpen}
+            />
             <div className="">
                 <h2 className="text-medium">Test cases</h2>
                 <span className="text-xs text-gray-600">
@@ -162,7 +195,7 @@ export default function TestPlan() {
                         className="max-w-sm"
                     />
                     <div className="flex gap-2 ml-2">
-                        <AddTestCase refreshTestCases={refreshTestCases} />
+                        <AddTestCase refreshTestCases={refreshTestCases} testSuites={testSuites} />
                     </div>
                 </div>
                 <div className="rounded-md border">

@@ -2,12 +2,13 @@ import { DBModels } from "@/app/_constants";
 import { DB_CONNECTION_ERROR_MESSAGE, INVALID_INPUT_ERROR_MESSAGE, USER_UNAUTHORIZED_ERROR_MESSAGE, USER_UNAUTHORIZED_SERVER_ERROR_MESSAGE } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
+import { IRequirement } from "@/app/_interface/requirement";
 import { isAdmin, verifySession } from "@/app/_lib/dal";
 import { IdFormat } from "@/app/_models/id-format.model";
 import { TestCase } from "@/app/_models/test-case.model";
 import { testCaseSchema } from "@/app/_schemas/test-case.schema";
 import { serverSidePagination } from "@/app/_utils/common-server-side";
-import { addCustomIds } from "@/app/_utils/data-formatters";
+import { addCustomIds, replaceCustomId } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function POST(
@@ -90,7 +91,11 @@ export async function GET(
         const { projectId } = params;
         const totalTestCases = await TestCase.find({ projectId: projectId }).countDocuments();
         const { skip, limit } = serverSidePagination(req);
+
+        // For custom Id
         const userIdFormat = await IdFormat.findOne({ entity: DBModels.TEST_CASE });
+        const requirementUserIdFormat = await IdFormat.findOne({ entity: DBModels.REQUIREMENT });
+        const testSuiteIdFormat = await IdFormat.findOne({ entity: DBModels.TEST_SUITE });
 
         if (!(await isAdmin(session.user))) {
             response = addCustomIds(
@@ -114,7 +119,19 @@ export async function GET(
             );
         }
 
-        return Response.json({ "testCases": response, "total": totalTestCases });
+        const result = response.map((res) => ({
+            ...res,
+            requirements: res?.requirements?.map((requirement: IRequirement) => ({
+                ...requirement,
+                customId: replaceCustomId(requirementUserIdFormat.idFormat, requirement?.customId)
+            })),
+            testSuite: res?.testSuite ? {
+                ...res?.testSuite,
+                customId: replaceCustomId(testSuiteIdFormat.idFormat, res?.testSuite?.customId)
+            } : undefined
+        }));
+
+        return Response.json({ "testCases": result, "total": totalTestCases });
     } catch (error: any) {
         return errorHandler(error);
     }

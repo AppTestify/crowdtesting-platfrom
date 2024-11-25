@@ -156,10 +156,8 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
   };
 
   const getDevices = async () => {
-    setIsLoading(true);
     const devices = await getDevicesWithoutPaginationService();
     setDevices(devices);
-    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -193,7 +191,7 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
           </SheetDescription>
         </SheetHeader>
 
-        <div>
+        <div className="mt-4">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} method="post">
               <div className="grid grid-cols-1 gap-2">

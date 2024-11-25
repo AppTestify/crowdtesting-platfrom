@@ -12,17 +12,20 @@ import {
 import { Row } from "@tanstack/react-table";
 import { Edit, Eye, MoreHorizontal, Trash } from "lucide-react";
 import { useState } from "react";
+import { deleteTestCaseService } from "@/app/_services/test-case.service";
+import { ITestCase } from "@/app/_interface/test-case";
+import { EditTestCase } from "../edit-test-case";
 import { ITestSuite } from "@/app/_interface/test-suite";
-import { deleteTestSuiteService } from "@/app/_services/test-suite.service";
-import { EditTestSuite } from "../edit-test-suite";
-import ViewTestSuite from "../view-test-suite";
+import ViewTestCase from "../view-test-case";
 
-export function TestSuiteRowActions({
+export function TestCaseRowActions({
     row,
-    refreshTestSuites,
+    testSuites,
+    refreshTestCases,
 }: {
-    row: Row<ITestSuite>;
-    refreshTestSuites: () => void;
+    row: Row<ITestCase>;
+    testSuites: ITestSuite[];
+    refreshTestCases: () => void;
 }) {
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -30,35 +33,35 @@ export function TestSuiteRowActions({
     const [isViewOpen, setIsViewOpen] = useState(false);
     const testSuiteId = row.original.id as string;
     const projectId = row.original.projectId as string;
-    const deleteTestSuite = async () => {
+    const deleteCaseSuite = async () => {
         try {
             setIsLoading(true);
-            const response = await deleteTestSuiteService(projectId, testSuiteId);
+            const response = await deleteTestCaseService(projectId, testSuiteId);
 
             if (response?.message) {
                 setIsLoading(false);
-                refreshTestSuites();
+                refreshTestCases();
                 setIsDeleteOpen(false);
                 toasterService.success(response.message);
             }
         } catch (error) {
             toasterService.error();
             setIsDeleteOpen(false);
-            console.log("Error > deleteTestSuite");
+            console.log("Error > deleteCaseSuite");
         }
     };
-
     return (
         <>
-            <EditTestSuite
-                testSuite={row.original as ITestSuite}
+            <EditTestCase
+                testCases={row.original as ITestCase}
                 sheetOpen={isEditOpen}
                 setSheetOpen={setIsEditOpen}
-                refreshTestSuites={refreshTestSuites}
+                testSuites={testSuites}
+                refreshTestCases={refreshTestCases}
             />
 
-            <ViewTestSuite
-                testSuite={row.original as ITestSuite}
+            <ViewTestCase
+                testCase={row.original as ITestCase}
                 sheetOpen={isViewOpen}
                 setSheetOpen={setIsViewOpen}
             />
@@ -66,32 +69,33 @@ export function TestSuiteRowActions({
             <ConfirmationDialog
                 isOpen={isDeleteOpen}
                 setIsOpen={setIsDeleteOpen}
-                title="Delete test suite"
-                description="Are you sure you want delete this test suite?"
+                title="Delete test case"
+                description="Are you sure you want delete this test case?"
                 isLoading={isLoading}
-                successAction={deleteTestSuite}
+                successAction={deleteCaseSuite}
                 successLabel="Delete"
                 successLoadingLabel="Deleting"
                 successVariant={"destructive"}
             />
 
             <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">Open menu</span>
-                        <MoreHorizontal className="h-4 w-4" />
+                <DropdownMenuTrigger asChild >
+                    <Button variant="ghost" className="h-8 w-8 p-0" >
+                        <span className="sr-only" > Open menu </span>
+                        < MoreHorizontal className="h-4 w-4" />
                     </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
+                < DropdownMenuContent align="end" >
                     <DropdownMenuItem
                         className="mb-1"
                         onClick={() => {
                             setIsViewOpen(true);
-                        }}
+                        }
+                        }
                     >
                         <Eye className="h-2 w-2" /> View
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator className="border-b" />
+                    < DropdownMenuSeparator className="border-b" />
                     <DropdownMenuItem
                         className="mb-1"
                         onClick={() => {
@@ -100,7 +104,7 @@ export function TestSuiteRowActions({
                     >
                         <Edit className="h-2 w-2" /> Edit
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator className="border-b" />
+                    < DropdownMenuSeparator className="border-b" />
                     <DropdownMenuItem
                         className="my-1"
                         onClick={() => {
@@ -108,8 +112,8 @@ export function TestSuiteRowActions({
                             setIsLoading(false);
                         }}
                     >
-                        <Trash className="h-2 w-2 text-destructive" />{" "}
-                        <span className="text-destructive">Delete</span>
+                        <Trash className="h-2 w-2 text-destructive" /> {" "}
+                        < span className="text-destructive" > Delete </span>
                     </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>

@@ -9,7 +9,7 @@ export const projectSchema = z.object({
         .string()
         .min(1, "End date is required"),
     description: z.string().optional(),
-    isActive: z.boolean()
+    isActive: z.boolean().optional()
 });
 
 export const projectsBulkDeleteSchema = z.object({

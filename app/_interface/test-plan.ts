@@ -17,4 +17,7 @@ export interface ITestPlan {
     title: string;
     projectId: string;
     parameters?: ITestPlanParameter[];
+    customId?: string;
+    userId?: IUserByAdmin;
+    createdAt?: string;
 }

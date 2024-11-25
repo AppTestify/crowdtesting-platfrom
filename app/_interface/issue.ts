@@ -1,4 +1,5 @@
 import { IDevice } from "./device";
+import { IUserByAdmin } from "./user";
 
 export interface IIssue {
   id: string;
@@ -8,8 +9,10 @@ export interface IIssue {
   projectId: string;
   description?: string;
   status?: string;
-  userId?: string;
+  userId?: IUserByAdmin;
   device: IDevice[];
+  createdAt?: string;
+  customId?: string;
 }
 
 export interface IIssuePayload {

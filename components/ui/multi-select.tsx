@@ -117,6 +117,8 @@ interface MultiSelectProps
      * Optional, can be used to add custom styles.
      */
     className?: string;
+
+    isClear?: boolean;
 }
 
 export const MultiSelect = React.forwardRef<
@@ -135,6 +137,7 @@ export const MultiSelect = React.forwardRef<
             modalPopover = false,
             asChild = false,
             className,
+            isClear = false,
             ...props
         },
         ref
@@ -155,6 +158,12 @@ export const MultiSelect = React.forwardRef<
                 onValueChange(newSelectedValues);
             }
         };
+
+        React.useEffect(() => {
+            if (isClear) {
+                handleClear();
+            }
+        }, [isClear]);
 
         const toggleOption = (option: string) => {
             const newSelectedValues = selectedValues.includes(option)

@@ -25,12 +25,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
 import { PAGINATION_LIMIT } from "@/app/_utils/common";
-import { getTestSuiteService } from "@/app/_services/test-suite.service";
 import { formatDate } from "@/app/_constants/date-formatter";
 import { ITestPlan, ITestPlanPayload } from "@/app/_interface/test-plan";
 import { getTestPlanService } from "@/app/_services/test-plan.service";
 import { AddTestPlan } from "./_components/add-test-plan";
 import { TestPlansRowActions } from "./_components/row-actions";
+import ViewTestPlan from "./_components/view-test-plan";
 
 export default function TestPlan() {
     const [testPlans, setTestPlans] = useState<ITestPlanPayload[]>([]);
@@ -40,14 +40,16 @@ export default function TestPlan() {
             accessorKey: "customId",
             header: "ID",
             cell: ({ row }) => (
-                <div>{row.getValue("customId")}</div>
+                <div className="hover:text-primary cursor-pointer" onClick={() => getTestPlan(row.original as ITestPlan)}>
+                    {row.getValue("customId")}</div>
             ),
         },
         {
             accessorKey: "title",
             header: "Title",
             cell: ({ row }) => (
-                <div className="capitalize">{row.getValue("title")}</div>
+                <div className="capitalize hover:text-primary cursor-pointer" onClick={() => getTestPlan(row.original as ITestPlan)}>
+                    {row.getValue("title")}</div>
             ),
         },
         ...(
@@ -86,6 +88,8 @@ export default function TestPlan() {
     const [pageIndex, setPageIndex] = useState(1);
     const [totalPageCount, setTotalPageCount] = useState(0);
     const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
+    const [isViewOpen, setIsViewOpen] = useState(false);
+    const [testPlan, setTestPlan] = useState<ITestPlan>();
     const { projectId } = useParams<{ projectId: string }>();
 
     useEffect(() => {
@@ -103,6 +107,11 @@ export default function TestPlan() {
     const refreshTestPlans = () => {
         getTestPlans();
         setRowSelection({});
+    };
+
+    const getTestPlan = async (data: ITestPlan) => {
+        setTestPlan(data as ITestPlan);
+        setIsViewOpen(true);
     };
 
     const table = useReactTable({
@@ -139,6 +148,11 @@ export default function TestPlan() {
 
     return (
         <main className="mx-4 mt-2">
+            <ViewTestPlan
+                testPlan={testPlan as ITestPlan}
+                sheetOpen={isViewOpen}
+                setSheetOpen={setIsViewOpen}
+            />
             <div className="">
                 <h2 className="text-medium">Test plans</h2>
                 <span className="text-xs text-gray-600">

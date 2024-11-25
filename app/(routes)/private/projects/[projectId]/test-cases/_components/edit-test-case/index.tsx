@@ -1,14 +1,17 @@
-"use client";
-
+import React, { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-    Loader2,
-    Plus,
-} from "lucide-react";
-import { useEffect, useState } from "react";
+import { Label } from "@/components/ui/label";
 
-import toasterService from "@/app/_services/toaster-service";
+import {
+    Sheet,
+    SheetClose,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+} from "@/components/ui/sheet";
 import {
     Form,
     FormControl,
@@ -17,26 +20,17 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form";
-import {
-    Sheet,
-    SheetClose,
-    SheetContent,
-    SheetDescription,
-    SheetHeader,
-    SheetTitle,
-    SheetTrigger,
-} from "@/components/ui/sheet";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useParams } from "next/navigation";
-import TextEditor from "@/app/(routes)/private/projects/_components/text-editor";
-import { Label } from "@/components/ui/label";
 import { MultiSelect } from "@/components/ui/multi-select";
-import { IRequirement } from "@/app/_interface/requirement";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import toasterService from "@/app/_services/toaster-service";
 import { ITestSuite } from "@/app/_interface/test-suite";
-import { addTestCaseService } from "@/app/_services/test-case.service";
+import TextEditor from "../../../../_components/text-editor";
+import { IRequirement } from "@/app/_interface/requirement";
+import { ITestCase } from "@/app/_interface/test-case";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { updateTestCaseService } from "@/app/_services/test-case.service";
 
 const testSuiteSchema = z.object({
     title: z.string().min(1, "Required"),
@@ -46,43 +40,45 @@ const testSuiteSchema = z.object({
     requirements: z.array(z.string().optional()),
 });
 
-export function AddTestCase({ refreshTestCases, testSuites }: { refreshTestCases: () => void, testSuites: ITestSuite[] }) {
-
-    const [sheetOpen, setSheetOpen] = useState(false);
+export function EditTestCase({
+    testCases,
+    sheetOpen,
+    setSheetOpen,
+    testSuites,
+    refreshTestCases,
+}: {
+    testCases: ITestCase;
+    sheetOpen: boolean;
+    setSheetOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    testSuites: ITestSuite[];
+    refreshTestCases: () => void;
+}) {
+    const testCaseId = testCases.id;
+    const { title, expectedResult, projectId, testSuite, requirements } = testCases;
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const { projectId } = useParams<{ projectId: string }>();
-    const [selectedRequirements, setSelectedRequirements] = useState<string[]>([]);
-    const [requirementsList, setRequirementsList] = useState<IRequirement[]>([]);
+    const [requirementsList, setRequirementsList] = useState<IRequirement[]>(requirements || []);
     const [clear, setClear] = useState<boolean>(false);
-
+    const [selectedRequirements, setSelectedRequirements] = useState<string[]>(
+        requirements?.map((requirement) => requirement._id) as string[]
+    );
     const form = useForm<z.infer<typeof testSuiteSchema>>({
         resolver: zodResolver(testSuiteSchema),
         defaultValues: {
-            title: "",
-            expectedResult: "",
+            title: title || "",
+            expectedResult: expectedResult || "",
             projectId: projectId,
             testSuite: "",
             requirements: []
         },
     });
-    useEffect(() => {
-        const selectedTestSuite = testSuites.find(
-            (test) => test._id === form.watch("testSuite")
-        );
-        setRequirementsList(selectedTestSuite?.requirements || []);
-        setClear(true);
-
-        setTimeout(() => {
-            setClear(false);
-        }, 0);
-    }, [form.watch("testSuite")]);
 
     async function onSubmit(values: z.infer<typeof testSuiteSchema>) {
         setIsLoading(true);
         try {
-            const response = await addTestCaseService(projectId, {
+            const response = await updateTestCaseService(projectId as string, testCaseId, {
                 ...values,
-                requirements: selectedRequirements
+                requirements: selectedRequirements,
+                projectId: projectId
             });
             if (response) {
                 refreshTestCases();
@@ -91,40 +87,54 @@ export function AddTestCase({ refreshTestCases, testSuites }: { refreshTestCases
         } catch (error) {
             toasterService.error();
         } finally {
-            setIsLoading(false);
             setSheetOpen(false);
+            setIsLoading(false);
         }
     }
-
-    const validateTestSuite = () => {
-        if (form.formState.isValid) {
-            form.handleSubmit(onSubmit)();
-        }
-    };
-
     const resetForm = () => {
-        form.reset();
-        setSelectedRequirements([]);
+        form.reset({
+            title: title || "",
+            expectedResult: expectedResult || "",
+            testSuite: testSuite?._id || "",
+            requirements: []
+        });
     };
+
+    useEffect(() => {
+        const testSuiteId = form.watch("testSuite");
+        if (testSuiteId) {
+            const selectedTestSuite = testSuites.find(test => test._id === testSuiteId);
+
+            if (selectedTestSuite) {
+                setRequirementsList(selectedTestSuite?.requirements || []);
+                if (testSuite?._id != form.watch("testSuite")) {
+                    setSelectedRequirements([]);
+                    setClear(true);
+
+                    setTimeout(() => {
+                        setClear(false);
+                    }, 0);
+                }
+            }
+        }
+    }, [form.watch("testSuite")]);
+
+    useEffect(() => {
+        if (sheetOpen) {
+            resetForm();
+        }
+    }, [sheetOpen]);
 
     return (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-            <SheetTrigger asChild>
-                <Button onClick={() => resetForm()}>
-                    <Plus /> Add test case
-                </Button>
-            </SheetTrigger>
-            <SheetContent
-                className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto"
-            >
+            <SheetContent className="w-full !max-w-full md:w-[550px] md:!max-w-[550px]">
                 <SheetHeader>
-                    <SheetTitle className="text-left">Add new test case</SheetTitle>
+                    <SheetTitle className="text-left">Edit testSuite</SheetTitle>
                     <SheetDescription className="text-left">
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Perspiciatis,
-                        ut deleniti excepturi, quo nemo! Quisquam, saepe quo.
+                        Keep your device inventory updated! The more up to date your devices
+                        are, the greater your chances of receiving project recommendations.
                     </SheetDescription>
                 </SheetHeader>
-
                 <div className="mt-4">
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} method="post">
@@ -134,7 +144,7 @@ export function AddTestCase({ refreshTestCases, testSuites }: { refreshTestCases
                                     name="title"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Test case title</FormLabel>
+                                            <FormLabel>Test suite title</FormLabel>
                                             <FormControl>
                                                 <Input {...field} />
                                             </FormControl>
@@ -195,19 +205,20 @@ export function AddTestCase({ refreshTestCases, testSuites }: { refreshTestCases
                                     )}
                                 />
                             </div>
-                            <div className="grid grid-cols-1 gap-2 mt-4">
-                                <Label >
-                                    Requirements
-                                </Label>
+                            <div className="my-2">
+                                <Label>Requirements</Label>
                                 <MultiSelect
-                                    options={requirementsList?.map((requirement) => ({
-                                        label: typeof requirement?.title === "string" ? requirement.title : "",
-                                        value: typeof requirement?._id === "string" ? requirement._id : "",
-                                    }))}
-                                    onValueChange={setSelectedRequirements}
+                                    options={
+                                        requirementsList?.map((requirement) => ({
+                                            label: typeof requirement?.title === "string" ? requirement?.title : "",
+                                            value: typeof requirement?._id === "string" ? requirement?._id : "",
+                                        }))
+                                    }
+                                    onValueChange={(selectedValues) => {
+                                        setSelectedRequirements(selectedValues);
+                                    }}
                                     defaultValue={selectedRequirements}
-                                    placeholder=""
-                                    disabled={requirementsList?.length === 0}
+                                    placeholder={"Select Requirements"}
                                     variant="secondary"
                                     animation={2}
                                     maxCount={3}
@@ -216,7 +227,7 @@ export function AddTestCase({ refreshTestCases, testSuites }: { refreshTestCases
                                 />
                             </div>
 
-                            <div className="mt-6 w-full flex justify-end gap-2">
+                            <div className="mt-8 w-full flex justify-end gap-2">
                                 <SheetClose asChild>
                                     <Button
                                         disabled={isLoading}
@@ -232,19 +243,17 @@ export function AddTestCase({ refreshTestCases, testSuites }: { refreshTestCases
                                     disabled={isLoading}
                                     type="submit"
                                     size="lg"
-                                    onClick={() => validateTestSuite()}
                                     className="w-full md:w-fit"
                                 >
                                     {isLoading ? (
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                     ) : null}
-                                    {isLoading ? "Saving" : "Save"}
+                                    {isLoading ? "Updating" : "Update"}
                                 </Button>
                             </div>
                         </form>
                     </Form>
                 </div>
-
             </SheetContent>
         </Sheet>
     );

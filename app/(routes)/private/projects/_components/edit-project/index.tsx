@@ -70,7 +70,6 @@ const EditProject = ({
       startDate: parseDate(formatDateReverse(startDate) || new Date()),
       endDate: parseDate(formatDateReverse(endDate) || new Date()),
       description: description || "",
-      isActive: true,
     },
   });
 

@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import IssueAttachments from "../attachments/issue-attachment";
 import { displayIcon, statusBadge } from "@/app/_utils/common-functionality";
 import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { formatDate } from "@/app/_constants/date-formatter";
 
 const ViewIssue = ({
     issue,
@@ -50,7 +51,15 @@ const ViewIssue = ({
                     <>
                         <SheetHeader className="mb-4">
                             <div className="flex justify-between items-center mt-6">
-                                <p className="text-md capitalize">{issueData?.title}</p>
+                                <p className="text-md capitalize">
+                                    <span className="mr-2">
+                                        {issue?.customId}:
+                                    </span>
+                                    {issue?.title}
+                                    <p className="text-sm mt-1 text-gray-700">
+                                        Created by {issue?.userId?.firstName} {issue?.userId?.lastName} on {formatDate(issue?.createdAt || "")}
+                                    </p>
+                                </p>
                             </div>
                         </SheetHeader>
                         <DropdownMenuSeparator className="border-b" />

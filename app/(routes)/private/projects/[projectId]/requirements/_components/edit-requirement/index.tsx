@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -24,7 +24,6 @@ import {
     SheetTitle,
 } from "@/components/ui/sheet";
 import TextEditor from "@/app/(routes)/private/projects/_components/text-editor";
-import { addIssueAttachmentsService } from "@/app/_services/issue-attachment.service";
 import { useSession } from "next-auth/react";
 import { updateRequirementService } from "@/app/_services/requirement.service";
 import RequirementAttachments from "../attachments/requirement-attachment";
@@ -125,7 +124,7 @@ const EditRequirement = ({
                     </SheetDescription>
                 </SheetHeader>
 
-                <div>
+                <div className="mt-4">
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} method="post">
                             <div className="grid grid-cols-1 gap-2">

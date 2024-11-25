@@ -30,6 +30,7 @@ import { AddTestSuite } from "./_components/add-test-suite";
 import { formatDate } from "@/app/_constants/date-formatter";
 import { ITestSuite } from "@/app/_interface/test-suite";
 import { TestSuiteRowActions } from "./_components/row-actions";
+import ViewTestSuite from "./_components/view-test-suite";
 
 export default function TestSuite() {
     const [testSuite, setTestSuite] = useState<ITestSuite[]>([]);
@@ -39,14 +40,16 @@ export default function TestSuite() {
             accessorKey: "customId",
             header: "ID",
             cell: ({ row }) => (
-                <div>{row.getValue("customId")}</div>
+                <div className="hover:text-primary cursor-pointer" onClick={() => getTestSuite(row.original as ITestSuite)}>
+                    {row.getValue("customId")}</div>
             ),
         },
         {
             accessorKey: "title",
             header: "Title",
             cell: ({ row }) => (
-                <div className="capitalize">{row.getValue("title")}</div>
+                <div className="capitalize hover:text-primary cursor-pointer" onClick={() => getTestSuite(row.original as ITestSuite)}>
+                    {row.getValue("title")}</div>
             ),
         },
         ...(
@@ -84,6 +87,8 @@ export default function TestSuite() {
     const [globalFilter, setGlobalFilter] = useState<unknown>([]);
     const [pageIndex, setPageIndex] = useState(1);
     const [totalPageCount, setTotalPageCount] = useState(0);
+    const [isViewOpen, setIsViewOpen] = useState(false);
+    const [testSuiteData, setTestSuiteData] = useState<ITestSuite>();
     const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
     const { projectId } = useParams<{ projectId: string }>();
 
@@ -102,6 +107,11 @@ export default function TestSuite() {
     const refreshTestSuites = () => {
         getTestSuites();
         setRowSelection({});
+    };
+
+    const getTestSuite = async (data: ITestSuite) => {
+        setTestSuiteData(data as ITestSuite);
+        setIsViewOpen(true);
     };
 
     const table = useReactTable({
@@ -138,6 +148,11 @@ export default function TestSuite() {
 
     return (
         <main className="mx-4 mt-2">
+            <ViewTestSuite
+                testSuite={testSuiteData as ITestSuite}
+                sheetOpen={isViewOpen}
+                setSheetOpen={setIsViewOpen}
+            />
             <div className="">
                 <h2 className="text-medium">Test suites</h2>
                 <span className="text-xs text-gray-600">

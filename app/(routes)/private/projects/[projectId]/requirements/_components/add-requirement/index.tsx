@@ -145,7 +145,7 @@ export function AddRequirement({ refreshRequirements }: { refreshRequirements: (
                     </SheetDescription>
                 </SheetHeader>
 
-                <div>
+                <div className="mt-4">
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} method="post">
                             <div className="grid grid-cols-1 gap-2">

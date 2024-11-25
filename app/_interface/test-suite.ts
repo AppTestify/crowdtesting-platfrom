@@ -16,4 +16,6 @@ export interface ITestSuite {
     id: string;
     projectId: string;
     userId: IUserByAdmin;
+    customId?: string;
+    createdAt?: string;
 }

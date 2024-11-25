@@ -30,6 +30,7 @@ import { formatDistanceToNow } from "date-fns";
 import { AddRequirement } from "./_components/add-requirement";
 import { RequirementRowActions } from "./_components/row-actions";
 import { IRequirement } from "@/app/_interface/requirement";
+import ViewRequirement from "./_components/view-requirement";
 
 export default function Issues() {
     const [requirements, setRequirements] = useState<IRequirement[]>([]);
@@ -39,14 +40,16 @@ export default function Issues() {
             accessorKey: "customId",
             header: "ID",
             cell: ({ row }) => (
-                <div>{row.getValue("customId")}</div>
+                <div className="hover:text-primary cursor-pointer" onClick={() => getRequirement(row.original as IRequirement)}>
+                    {row.getValue("customId")}</div>
             ),
         },
         {
             accessorKey: "title",
             header: "Title",
             cell: ({ row }) => (
-                <div className="capitalize">{row.getValue("title")}</div>
+                <div className="capitalize hover:text-primary cursor-pointer" onClick={() => getRequirement(row.original as IRequirement)}
+                >{row.getValue("title")}</div>
             ),
         },
         ...(
@@ -83,13 +86,20 @@ export default function Issues() {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [globalFilter, setGlobalFilter] = useState<unknown>([]);
     const [pageIndex, setPageIndex] = useState(1);
+    const [requirement, setRequirement] = useState<IRequirement>();
     const [totalPageCount, setTotalPageCount] = useState(0);
+    const [isViewOpen, setIsViewOpen] = useState(false);
     const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
     const { projectId } = useParams<{ projectId: string }>();
 
     useEffect(() => {
         getRequirements();
     }, [pageIndex, pageSize]);
+
+    const getRequirement = async (data: IRequirement) => {
+        setRequirement(data as IRequirement);
+        setIsViewOpen(true);
+    };
 
     const getRequirements = async () => {
         setIsLoading(true);
@@ -138,6 +148,11 @@ export default function Issues() {
 
     return (
         <main className="mx-4 mt-2">
+            <ViewRequirement
+                requirement={requirement as IRequirement}
+                sheetOpen={isViewOpen}
+                setSheetOpen={setIsViewOpen}
+            />
             <div className="">
                 <h2 className="text-medium">Requirements</h2>
                 <span className="text-xs text-gray-600">

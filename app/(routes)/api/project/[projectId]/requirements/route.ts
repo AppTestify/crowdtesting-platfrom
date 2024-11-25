@@ -131,6 +131,7 @@ export async function GET(
         if (!(await isAdmin(session.user))) {
             response = addCustomIds(
                 await Requirement.find({ projectId: projectId })
+                    .populate("attachments")
                     .sort({ createdAt: -1 })
                     .skip(skip)
                     .limit(Number(limit))
@@ -140,7 +141,7 @@ export async function GET(
         } else {
             response = addCustomIds(
                 await Requirement.find({ projectId: projectId })
-                    .populate("userId")
+                    .populate("userId attachments")
                     .sort({ createdAt: -1 })
                     .skip(skip)
                     .limit(Number(limit))

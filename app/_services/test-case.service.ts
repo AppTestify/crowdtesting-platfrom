@@ -1,6 +1,6 @@
 import { PAGINATION_QUERY_ENDPOINT, TEST_CASE_ENPOINT } from "../_constants/api-endpoints";
 import { ITestCasePayload } from "../_interface/test-case";
-import { genericGet, genericPost } from "./generic-api-methods";
+import { genericDelete, genericGet, genericPost, genericPut } from "./generic-api-methods";
 
 export const getTestCaseService = async (projectId: string, index: Number, pageSize: Number):
     Promise<any> => {
@@ -19,6 +19,33 @@ export const addTestCaseService = async (projectId: string, body: ITestCasePaylo
         return response || {};
     } catch (error) {
         console.error(`Error > addTestCaseService:`, error);
+        throw error;
+    }
+};
+
+export const deleteTestCaseService = async (
+    projectId: string,
+    testCaseId: string
+): Promise<any> => {
+    try {
+        const response = await genericDelete(`${TEST_CASE_ENPOINT(projectId)}/${testCaseId}`);
+        return response || {};
+    } catch (error) {
+        console.error(`Error > deleteTestCaseService:`, error);
+        throw error;
+    }
+};
+
+export const updateTestCaseService = async (
+    projectId: string,
+    testSuiteId: string,
+    body: ITestCasePayload
+): Promise<any> => {
+    try {
+        const response = await genericPut(`${TEST_CASE_ENPOINT(projectId)}/${testSuiteId}`, body);
+        return response || {};
+    } catch (error) {
+        console.error(`Error > updateTestCaseService:`, error);
         throw error;
     }
 };

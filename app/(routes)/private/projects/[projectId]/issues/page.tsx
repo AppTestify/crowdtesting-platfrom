@@ -30,6 +30,7 @@ import { useParams } from "next/navigation";
 import { displayIcon, statusBadge } from "@/app/_utils/common-functionality";
 import { ArrowUpDown } from "lucide-react";
 import { PAGINATION_LIMIT } from "@/app/_utils/common";
+import ViewIssue from "./_components/view-issue";
 
 export default function Issues() {
   const columns: ColumnDef<IIssue>[] = [
@@ -37,14 +38,16 @@ export default function Issues() {
       accessorKey: "customId",
       header: "ID",
       cell: ({ row }) => (
-        <div>{row.getValue("customId")}</div>
+        <div className="hover:text-primary cursor-pointer" onClick={() => getIssue(row.original as IIssue)}>
+          {row.getValue("customId")}</div>
       ),
     },
     {
       accessorKey: "title",
       header: "Title",
       cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("title")}</div>
+        <div className="capitalize hover:text-primary cursor-pointer" onClick={() => getIssue(row.original as IIssue)}>
+          {row.getValue("title")}</div>
       ),
     },
     {
@@ -109,6 +112,8 @@ export default function Issues() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [globalFilter, setGlobalFilter] = useState<unknown>([]);
   const [issues, setIssues] = useState<IIssue[]>([]);
+  const [issue, setIssue] = useState<IIssue>();
+  const [isViewOpen, setIsViewOpen] = useState<boolean>(false);
   const [totalPageCount, setTotalPageCount] = useState(0);
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
@@ -158,15 +163,24 @@ export default function Issues() {
     }
   };
 
+  const getIssue = async (data: IIssue) => {
+    setIssue(data as IIssue);
+    setIsViewOpen(true);
+  };
+
   const handleNextPage = () => {
     if (pageIndex < Math.ceil(totalPageCount / pageSize)) {
       setPageIndex(pageIndex + 1);
     }
   };
 
-
   return (
     <main className="mx-4 mt-2">
+      <ViewIssue
+        issue={issue as IIssue}
+        sheetOpen={isViewOpen}
+        setSheetOpen={setIsViewOpen}
+      />
       <div className="">
         <h2 className="text-medium">Issues</h2>
         <span className="text-xs text-gray-600">
