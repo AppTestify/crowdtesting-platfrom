@@ -14,6 +14,7 @@ import { Requirement } from "../_models/requirement.model";
 import { RequirementAttachment } from "../_models/requirement-attachment.model";
 import { TestPlan } from "../_models/test-plan.model";
 import { TestCase } from "../_models/test-case.model";
+import { TestCycle } from "../_models/test-cycle.model";
 
 export const connectDatabase = async () => {
   try {
@@ -43,6 +44,7 @@ export const registerModels = () => {
   const testSuiteModel = TestSuite;
   const testPlanModel = TestPlan;
   const testCaseModel = TestCase;
+  const testCycleModel = TestCycle;
   const requirementModel = Requirement;
   const requirementAttachmentModel = RequirementAttachment;
 };
