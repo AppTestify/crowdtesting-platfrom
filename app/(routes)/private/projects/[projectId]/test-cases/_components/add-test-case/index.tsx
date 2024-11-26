@@ -37,6 +37,8 @@ import { IRequirement } from "@/app/_interface/requirement";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ITestSuite } from "@/app/_interface/test-suite";
 import { addTestCaseService } from "@/app/_services/test-case.service";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AddTestStep } from "../steps";
 
 const testSuiteSchema = z.object({
     title: z.string().min(1, "Required"),
@@ -54,6 +56,8 @@ export function AddTestCase({ refreshTestCases, testSuites }: { refreshTestCases
     const [selectedRequirements, setSelectedRequirements] = useState<string[]>([]);
     const [requirementsList, setRequirementsList] = useState<IRequirement[]>([]);
     const [clear, setClear] = useState<boolean>(false);
+    const [testCaseId, setTestCaseId] = useState<string>("");
+    const [activeTab, setActiveTab] = useState("test-case");
 
     const form = useForm<z.infer<typeof testSuiteSchema>>({
         resolver: zodResolver(testSuiteSchema),
@@ -85,14 +89,14 @@ export function AddTestCase({ refreshTestCases, testSuites }: { refreshTestCases
                 requirements: selectedRequirements
             });
             if (response) {
+                setTestCaseId(response?.id);
                 refreshTestCases();
-                toasterService.success(response.message);
+                setActiveTab("steps");
             }
         } catch (error) {
             toasterService.error();
         } finally {
             setIsLoading(false);
-            setSheetOpen(false);
         }
     }
 
@@ -104,6 +108,7 @@ export function AddTestCase({ refreshTestCases, testSuites }: { refreshTestCases
 
     const resetForm = () => {
         form.reset();
+        setActiveTab("test-case");
         setSelectedRequirements([]);
     };
 
@@ -125,125 +130,140 @@ export function AddTestCase({ refreshTestCases, testSuites }: { refreshTestCases
                     </SheetDescription>
                 </SheetHeader>
 
-                <div className="mt-4">
-                    <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} method="post">
-                            <div className="grid grid-cols-1 gap-2">
-                                <FormField
-                                    control={form.control}
-                                    name="title"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Test case title</FormLabel>
-                                            <FormControl>
-                                                <Input {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
+                <Tabs defaultValue="test-case" value={activeTab} onValueChange={setActiveTab} className="mt-4">
+                    <TabsList>
+                        <TabsTrigger value="test-case" disabled={testCaseId != null}>Test case</TabsTrigger>
+                        <TabsTrigger value="steps" disabled={!testCaseId}>Steps</TabsTrigger>
+                        <TabsTrigger value="test-data" disabled={!testCaseId}>Test data</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="test-case">
+                        <div className="mt-4">
+                            <Form {...form}>
+                                <form onSubmit={form.handleSubmit(onSubmit)} method="post">
+                                    <div className="grid grid-cols-1 gap-2">
+                                        <FormField
+                                            control={form.control}
+                                            name="title"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Test case title</FormLabel>
+                                                    <FormControl>
+                                                        <Input {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
 
-                            <div className="grid grid-cols-1 gap-2 mt-4">
-                                <FormField
-                                    control={form.control}
-                                    name="expectedResult"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Expected result</FormLabel>
-                                            <FormControl>
-                                                <TextEditor
-                                                    markup={field.value || ""}
-                                                    onChange={(value) => {
-                                                        form.setValue("expectedResult", value);
-                                                        form.trigger("expectedResult");
-                                                    }}
-                                                />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
+                                    <div className="grid grid-cols-1 gap-2 mt-4">
+                                        <FormField
+                                            control={form.control}
+                                            name="expectedResult"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Expected result</FormLabel>
+                                                    <FormControl>
+                                                        <TextEditor
+                                                            markup={field.value || ""}
+                                                            onChange={(value) => {
+                                                                form.setValue("expectedResult", value);
+                                                                form.trigger("expectedResult");
+                                                            }}
+                                                        />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
 
-                            <div className="grid grid-cols-1 gap-2 mt-4">
-                                <FormField
-                                    control={form.control}
-                                    name="testSuite"
-                                    render={({ field }) => (
-                                        <FormItem className="flex flex-col">
-                                            <FormLabel>Test suite</FormLabel>
-                                            <Select
-                                                onValueChange={field.onChange}
-                                                value={field.value}
+                                    <div className="grid grid-cols-1 gap-2 mt-4">
+                                        <FormField
+                                            control={form.control}
+                                            name="testSuite"
+                                            render={({ field }) => (
+                                                <FormItem className="flex flex-col">
+                                                    <FormLabel>Test suite</FormLabel>
+                                                    <Select
+                                                        onValueChange={field.onChange}
+                                                        value={field.value}
+                                                    >
+                                                        <SelectTrigger className="w-full">
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectGroup>
+                                                                {testSuites.map((testSuite) => (
+                                                                    <SelectItem value={testSuite._id as string}>
+                                                                        {testSuite.title}
+                                                                    </SelectItem>
+                                                                ))}
+                                                            </SelectGroup>
+                                                        </SelectContent>
+                                                    </Select>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                    <div className="grid grid-cols-1 gap-2 mt-4">
+                                        <Label >
+                                            Requirements
+                                        </Label>
+                                        <MultiSelect
+                                            options={requirementsList?.map((requirement) => ({
+                                                label: typeof requirement?.title === "string" ? requirement.title : "",
+                                                value: typeof requirement?._id === "string" ? requirement._id : "",
+                                            }))}
+                                            onValueChange={setSelectedRequirements}
+                                            defaultValue={selectedRequirements}
+                                            placeholder=""
+                                            disabled={requirementsList?.length === 0}
+                                            variant="secondary"
+                                            animation={2}
+                                            maxCount={3}
+                                            isClear={clear}
+                                            className="mt-2"
+                                        />
+                                    </div>
+
+                                    <div className="mt-6 w-full flex justify-end gap-2">
+                                        <SheetClose asChild>
+                                            <Button
+                                                disabled={isLoading}
+                                                type="button"
+                                                variant={"outline"}
+                                                size="lg"
+                                                className="w-full md:w-fit"
                                             >
-                                                <SelectTrigger className="w-full">
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectGroup>
-                                                        {testSuites.map((testSuite) => (
-                                                            <SelectItem value={testSuite._id as string}>
-                                                                {testSuite.title}
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectGroup>
-                                                </SelectContent>
-                                            </Select>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
-                            <div className="grid grid-cols-1 gap-2 mt-4">
-                                <Label >
-                                    Requirements
-                                </Label>
-                                <MultiSelect
-                                    options={requirementsList?.map((requirement) => ({
-                                        label: typeof requirement?.title === "string" ? requirement.title : "",
-                                        value: typeof requirement?._id === "string" ? requirement._id : "",
-                                    }))}
-                                    onValueChange={setSelectedRequirements}
-                                    defaultValue={selectedRequirements}
-                                    placeholder=""
-                                    disabled={requirementsList?.length === 0}
-                                    variant="secondary"
-                                    animation={2}
-                                    maxCount={3}
-                                    isClear={clear}
-                                    className="mt-2"
-                                />
-                            </div>
-
-                            <div className="mt-6 w-full flex justify-end gap-2">
-                                <SheetClose asChild>
-                                    <Button
-                                        disabled={isLoading}
-                                        type="button"
-                                        variant={"outline"}
-                                        size="lg"
-                                        className="w-full md:w-fit"
-                                    >
-                                        Cancel
-                                    </Button>
-                                </SheetClose>
-                                <Button
-                                    disabled={isLoading}
-                                    type="submit"
-                                    size="lg"
-                                    onClick={() => validateTestSuite()}
-                                    className="w-full md:w-fit"
-                                >
-                                    {isLoading ? (
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    ) : null}
-                                    {isLoading ? "Saving" : "Save"}
-                                </Button>
-                            </div>
-                        </form>
-                    </Form>
-                </div>
+                                                Cancel
+                                            </Button>
+                                        </SheetClose>
+                                        <Button
+                                            disabled={isLoading}
+                                            type="submit"
+                                            size="lg"
+                                            onClick={() => validateTestSuite()}
+                                            className="w-full md:w-fit"
+                                        >
+                                            {isLoading ? (
+                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            ) : null}
+                                            {isLoading ? "Continue" : "Continue"}
+                                        </Button>
+                                    </div>
+                                </form>
+                            </Form>
+                        </div>
+                    </TabsContent>
+                    <TabsContent value="steps">
+                        <AddTestStep testCaseId={testCaseId} />
+                    </TabsContent>
+                    <TabsContent value="test-data">
+                        {/* <AddTestStep testCaseId={testCaseId} /> */}
+                    </TabsContent>
+                </Tabs>
 
             </SheetContent>
         </Sheet>

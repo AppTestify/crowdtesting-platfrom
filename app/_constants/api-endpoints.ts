@@ -72,3 +72,7 @@ export const TEST_CASE_ENPOINT = (projectId: string) => {
 export const TEST_CYCLE_ENPOINT = (projectId: string) => {
   return `${PROJECTS_ENDPOINT}/${projectId}/test-cycle`;
 }
+
+export const TEST_CASE_STEP_ENPOINT = (projectId: string, testCaseId: string) => {
+  return `${PROJECTS_ENDPOINT}/${projectId}/test-case/${testCaseId}`;
+}

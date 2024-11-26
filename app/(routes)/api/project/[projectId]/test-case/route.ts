@@ -48,15 +48,15 @@ export async function POST(
             );
         }
 
-        const newTestSuite = new TestCase({
+        const newTestCase = new TestCase({
             ...response.data,
             userId: session.user._id,
         });
-        const saveTestSuite = await newTestSuite.save();
+        const saveTestCase = await newTestCase.save();
 
         return Response.json({
             message: "Test case added successfully",
-            id: saveTestSuite?._id,
+            id: saveTestCase?._id,
         });
 
     } catch (error: any) {

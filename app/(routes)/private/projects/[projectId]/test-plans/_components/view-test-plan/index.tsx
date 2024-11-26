@@ -22,7 +22,7 @@ const ViewTestPlan = ({
                                 {testPlan?.customId}:
                             </span>
                             {testPlan?.title}
-                            <p className="text-sm mt-1 text-gray-700">
+                            <p className="text-sm mt-1 text-primary">
                                 Created by {testPlan?.userId?.firstName} {testPlan?.userId?.lastName} on {formatDate(testPlan?.createdAt || "")}
                             </p>
                         </p>
@@ -40,7 +40,7 @@ const ViewTestPlan = ({
                                 <div className="">{index + 1}.</div>
                                 <div>
                                     <p className="text-md font-medium text-gray-800">
-                                        {parameter?.parameter} -
+                                        {parameter?.parameter}
                                     </p>
                                     <p className=" text-gray-600">
                                         {parameter?.description}

@@ -24,7 +24,7 @@ const ViewTestCase = ({
                                 {testCase?.customId}:
                             </span>
                             {testCase?.title}
-                            <p className="text-sm mt-1 text-gray-700">
+                            <p className="text-sm mt-1 text-primary">
                                 Created by {testCase?.userId?.firstName} {testCase?.userId?.lastName} on {formatDate(testCase?.createdAt || "")}
                             </p>
                         </p>

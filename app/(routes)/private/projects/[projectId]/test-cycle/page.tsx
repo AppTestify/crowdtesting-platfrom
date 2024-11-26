@@ -82,7 +82,7 @@ export default function TestPlan() {
         //     id: "actions",
         //     enableHiding: false,
         //     cell: ({ row }) => (
-        //         <TestCaseRowActions row={row as unknown as Row<ITestCase>} testSuites={testSuites} refreshTestCases={refreshTestCases} />
+        //         <TestCaseRowActions row={row as unknown as Row<ITestCase>} testSuites={testSuites} refreshTestCycle={refreshTestCycle} />
         //     ),
         // },
     ];
@@ -110,7 +110,7 @@ export default function TestPlan() {
     };
 
 
-    const refreshTestCases = () => {
+    const refreshTestCycle = () => {
         getTestCycle();
         setRowSelection({});
     };
@@ -172,7 +172,7 @@ export default function TestPlan() {
                         className="max-w-sm"
                     />
                     {/* <div className="flex gap-2 ml-2">
-                        <AddTestCase refreshTestCases={refreshTestCases} testSuites={testSuites} />
+                        <AddTestCase refreshTestCycle={refreshTestCycle} testSuites={testSuites} />
                     </div> */}
                 </div>
                 <div className="rounded-md border">

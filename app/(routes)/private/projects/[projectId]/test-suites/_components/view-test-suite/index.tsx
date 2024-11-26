@@ -23,7 +23,7 @@ const ViewTestSuite = ({
                                 {testSuite?.customId}:
                             </span>
                             {testSuite?.title}
-                            <p className="text-sm mt-1 text-gray-700">
+                            <p className="text-sm mt-1 text-primary">
                                 Created by {testSuite?.userId?.firstName} {testSuite?.userId?.lastName} on {formatDate(testSuite?.createdAt || "")}
                             </p>
                         </p>

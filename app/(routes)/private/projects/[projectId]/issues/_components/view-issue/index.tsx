@@ -56,7 +56,7 @@ const ViewIssue = ({
                                         {issue?.customId}:
                                     </span>
                                     {issue?.title}
-                                    <p className="text-sm mt-1 text-gray-700">
+                                    <p className="text-sm mt-1 text-primary">
                                         Created by {issue?.userId?.firstName} {issue?.userId?.lastName} on {formatDate(issue?.createdAt || "")}
                                     </p>
                                 </p>
