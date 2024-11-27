@@ -42,7 +42,7 @@ export const updateTestCaseStepService = async (
     projectId: string,
     testCaseId: string,
     testCaseStepId: string,
-    body: ITestCaseStep
+    body: ITestCaseStepPayload
 ): Promise<any> => {
     try {
         const response = await genericPut(`${TEST_CASE_STEP_ENPOINT(projectId, testCaseId)}/test-case-step/${testCaseStepId}`, body);

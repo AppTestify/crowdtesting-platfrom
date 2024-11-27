@@ -1,20 +1,21 @@
-import { DB_CONNECTION_ERROR_MESSAGE, GENERIC_ERROR_MESSAGE, INVALID_INPUT_ERROR_MESSAGE, USER_UNAUTHORIZED_SERVER_ERROR_MESSAGE } from "@/app/_constants/errors";
+import { DB_CONNECTION_ERROR_MESSAGE, INVALID_INPUT_ERROR_MESSAGE, USER_UNAUTHORIZED_ERROR_MESSAGE, USER_UNAUTHORIZED_SERVER_ERROR_MESSAGE } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
 import { verifySession } from "@/app/_lib/dal";
-import { TestCaseStep } from "@/app/_models/test-case-step.model";
-import { testCaseStepSchema } from "@/app/_schemas/test-case-step.schema";
+import { TestCaseData } from "@/app/_models/test-case-data";
+import { testCaseDataSchema } from "@/app/_schemas/test-case-data.schema";
 import { errorHandler } from "@/app/_utils/error-handler";
 
-export async function PUT(
+export async function POST(
     req: Request,
-    { params }: { params: { projectId: string, testCaseId: string, testCaseStepId: string } }
+    { params }: { params: { projectId: string, testCaseId: string } }
 ) {
     try {
         const session = await verifySession();
+
         if (!session) {
             return Response.json(
-                { message: USER_UNAUTHORIZED_SERVER_ERROR_MESSAGE },
+                { message: USER_UNAUTHORIZED_ERROR_MESSAGE },
                 { status: HttpStatusCode.UNAUTHORIZED }
             );
         }
@@ -30,7 +31,7 @@ export async function PUT(
         }
 
         const body = await req.json();
-        const response = testCaseStepSchema.safeParse(body);
+        const response = testCaseDataSchema.safeParse(body);
 
         if (!response.success) {
             return Response.json(
@@ -41,28 +42,26 @@ export async function PUT(
                 { status: HttpStatusCode.BAD_REQUEST }
             );
         }
-
-        const { projectId, testCaseId, testCaseStepId } = params
-        const updateResponse = await TestCaseStep.findByIdAndUpdate(testCaseStepId, {
-            ...response.data,
-            projectId: projectId,
+        const { testCaseId } = params;
+        const testCaseData = response.data?.testCases?.map((testCase) => ({
+            ...testCase,
+            userId: session.user._id,
             testCaseId: testCaseId
-        });
-        if (!updateResponse) {
-            throw new Error(GENERIC_ERROR_MESSAGE);
-        }
+        }));
+        const saveTestCaseData = await TestCaseData.insertMany(testCaseData);
 
         return Response.json({
-            message: "Test case step updated successfully"
-        })
+            message: "Test case data added successfully",
+        });
+
     } catch (error: any) {
         return errorHandler(error);
     }
 }
 
-export async function DELETE(
+export async function GET(
     req: Request,
-    { params }: { params: { testCaseStepId: string } }
+    { params }: { params: { projectId: string, testCaseId: string } }
 ) {
     try {
         const session = await verifySession();
@@ -83,14 +82,10 @@ export async function DELETE(
             );
         }
 
-        const { testCaseStepId } = params;
-        const response = await TestCaseStep.findByIdAndDelete(testCaseStepId);
+        const { testCaseId } = params
+        const response = await TestCaseData.find({ testCaseId: testCaseId })
 
-        if (!response) {
-            throw new Error(GENERIC_ERROR_MESSAGE);
-        }
-
-        return Response.json({ message: "Test case step deleted successfully" });
+        return Response.json(response);
     } catch (error: any) {
         return errorHandler(error);
     }

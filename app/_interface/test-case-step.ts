@@ -10,6 +10,8 @@ export interface ITestCaseStep {
     selectedType?: boolean;
     _id: string;
     order?: number;
+    projectId: string;
+    testCaseId: string;
 }
 
 export interface ITestCaseStepSequencePayload {

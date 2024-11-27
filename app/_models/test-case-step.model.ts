@@ -26,6 +26,5 @@ const TestCaseStepSchema = new Schema<ITestCaseStep>(
     }
 );
 
-
 export const TestCaseStep =
     mongoose.models.TestCaseStep || model<ITestCaseStep>(DBModels.TEST_CASE_STEP, TestCaseStepSchema);

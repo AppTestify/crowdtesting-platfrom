@@ -7,16 +7,18 @@ import { z } from "zod";
 import { useParams } from "next/navigation";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Loader2, Trash } from "lucide-react";
+import { Edit, Loader2, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import TextEditor from "../../../../_components/text-editor";
-import { addTestCaseStepService, deleteTestCaseStepService, getTestCaseStepService, updateTestCaseSequenceService, updateTestCaseStepService } from "@/app/_services/test-case-step.service";
+import { addTestCaseStepService, deleteTestCaseStepService, getTestCaseStepService, updateTestCaseSequenceService } from "@/app/_services/test-case-step.service";
 import { ITestCaseStep } from "@/app/_interface/test-case-step";
 import { closestCenter, DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { ConfirmationDialog } from "@/app/_components/confirmation-dialog";
+import { aditionalStepTypes, testCaseAddList } from "@/app/_constants/test-case";
+import { Textarea } from "@/components/ui/text-area";
+import EditTestCaseStep from "./_components/edit-test-case-step";
 
 const testSuiteSchema = z.object({
     description: z.string().min(1, "Required"),
@@ -32,6 +34,8 @@ export function AddTestStep({ testCaseId }: { testCaseId: string }) {
     const [isDeleteLoading, setIsDeleteLoading] = useState(false);
     const [testCaseSteps, setTestCaseSteps] = useState<ITestCaseStep[]>([]);
     const [testCaseStepId, setTestCaseStepId] = useState<string>("");
+    const [isEditOpen, setIsEditOpen] = useState<boolean>(false);
+    const [testCaseStepEdit, setTestCaseStepEdit] = useState<ITestCaseStep | null>(null);
     const { projectId } = useParams<{ projectId: string }>();
 
     const form = useForm<z.infer<typeof testSuiteSchema>>({
@@ -76,6 +80,10 @@ export function AddTestStep({ testCaseId }: { testCaseId: string }) {
         }
     }
 
+    const refreshTestCaseStep = () => {
+        getSteps();
+    }
+
     const deleteTestCaseStep = async () => {
         setIsDeleteLoading(true);
         try {
@@ -104,9 +112,6 @@ export function AddTestStep({ testCaseId }: { testCaseId: string }) {
         form.reset();
     };
 
-    const testCaseAddList = ["Steps", "Additional step item"];
-    const aditionalStepTypes = ["Condition", "Impact", "Notes"];
-
     // for darg and drop
     const handleDragEnd = async (event: DragEndEvent) => {
         const { active, over } = event;
@@ -134,10 +139,17 @@ export function AddTestStep({ testCaseId }: { testCaseId: string }) {
         }
     };
 
+    const closeDialog = () => setIsEditOpen(false);
+
     const handleDelete = (id: string) => {
         setTestCaseStepId(id);
         setIsDeleteOpen(true);
         setIsDeleteLoading(false);
+    };
+
+    const editTestCaseStep = (data: ITestCaseStep) => {
+        setTestCaseStepEdit(data);
+        setIsEditOpen(true);
     };
 
     const SortableData = ({ data, index, onDelete }: { data: ITestCaseStep, index: number, onDelete: (id: string) => void; }) => {
@@ -170,7 +182,14 @@ export function AddTestStep({ testCaseId }: { testCaseId: string }) {
                     {data?.description}
                 </span>
                 <div className="flex items-center gap-4 ">
-                    {/* <Edit className="w-4" /> */}
+                    <div
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            editTestCaseStep(data);
+                        }}
+                        className="hover:cursor-pointer">
+                        <Edit className="w-4" />
+                    </div>
                     <div
                         onClick={(e) => {
                             e.stopPropagation();
@@ -205,6 +224,7 @@ export function AddTestStep({ testCaseId }: { testCaseId: string }) {
                 successLoadingLabel="Deleting"
                 successVariant={"destructive"}
             />
+            <EditTestCaseStep isEditOpen={isEditOpen} closeDialog={closeDialog} testCaseStepEdit={testCaseStepEdit as ITestCaseStep} refreshTestCaseStep={refreshTestCaseStep} />
             {testCaseSteps && testCaseSteps.length > 0 && (
                 <div>
                     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
@@ -244,12 +264,8 @@ export function AddTestStep({ testCaseId }: { testCaseId: string }) {
                                             <FormItem>
                                                 <FormLabel>Description</FormLabel>
                                                 <FormControl>
-                                                    <TextEditor
-                                                        markup={field.value || ""}
-                                                        onChange={(value) => {
-                                                            form.setValue(`description`, value);
-                                                            form.trigger(`description`);
-                                                        }}
+                                                    <Textarea
+                                                        {...field}
                                                     />
                                                 </FormControl>
                                                 <FormMessage />
@@ -295,12 +311,8 @@ export function AddTestStep({ testCaseId }: { testCaseId: string }) {
                                                 <FormItem>
                                                     <FormLabel>Description</FormLabel>
                                                     <FormControl>
-                                                        <TextEditor
-                                                            markup={field.value || ""}
-                                                            onChange={(value) => {
-                                                                form.setValue(`description`, value);
-                                                                form.trigger(`description`);
-                                                            }}
+                                                        <Textarea
+                                                            {...field}
                                                         />
                                                     </FormControl>
                                                     <FormMessage />
@@ -324,7 +336,6 @@ export function AddTestStep({ testCaseId }: { testCaseId: string }) {
                                     disabled={isLoading}
                                     type="submit"
                                     size="lg"
-                                    // onClick={() => validateTestSuite()}
                                     className="w-full md:w-fit"
                                 >
                                     {isLoading ? (

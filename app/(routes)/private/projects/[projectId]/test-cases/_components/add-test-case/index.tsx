@@ -36,9 +36,11 @@ import { MultiSelect } from "@/components/ui/multi-select";
 import { IRequirement } from "@/app/_interface/requirement";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ITestSuite } from "@/app/_interface/test-suite";
-import { addTestCaseService } from "@/app/_services/test-case.service";
+import { addTestCaseService, updateTestCaseService } from "@/app/_services/test-case.service";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AddTestStep } from "../steps";
+import { TestCaseData } from "../test-case-data";
+import { ITestCase } from "@/app/_interface/test-case";
 
 const testSuiteSchema = z.object({
     title: z.string().min(1, "Required"),
@@ -57,6 +59,7 @@ export function AddTestCase({ refreshTestCases, testSuites }: { refreshTestCases
     const [requirementsList, setRequirementsList] = useState<IRequirement[]>([]);
     const [clear, setClear] = useState<boolean>(false);
     const [testCaseId, setTestCaseId] = useState<string>("");
+    const [testCase, setTestCase] = useState<ITestCase | null>(null);
     const [activeTab, setActiveTab] = useState("test-case");
 
     const form = useForm<z.infer<typeof testSuiteSchema>>({
@@ -84,14 +87,27 @@ export function AddTestCase({ refreshTestCases, testSuites }: { refreshTestCases
     async function onSubmit(values: z.infer<typeof testSuiteSchema>) {
         setIsLoading(true);
         try {
-            const response = await addTestCaseService(projectId, {
-                ...values,
-                requirements: selectedRequirements
-            });
-            if (response) {
-                setTestCaseId(response?.id);
-                refreshTestCases();
-                setActiveTab("steps");
+            // updateTestCaseService
+            if (testCaseId) {
+                const response = await updateTestCaseService(projectId, testCaseId, {
+                    ...values,
+                    requirements: selectedRequirements
+                });
+                if (response) {
+                    refreshTestCases();
+                    toasterService.success(response.message);
+                }
+            } else {
+                const response = await addTestCaseService(projectId, {
+                    ...values,
+                    requirements: selectedRequirements
+                });
+                if (response) {
+                    setTestCase(response?.data);
+                    setTestCaseId(response?.id);
+                    refreshTestCases();
+                    setActiveTab("steps");
+                }
             }
         } catch (error) {
             toasterService.error();
@@ -110,7 +126,24 @@ export function AddTestCase({ refreshTestCases, testSuites }: { refreshTestCases
         form.reset();
         setActiveTab("test-case");
         setSelectedRequirements([]);
+        setTestCase(null);
+        setTestCaseId("");
     };
+
+    const defaultData = () => {
+        form.reset({
+            title: testCase?.title || "",
+            expectedResult: testCase?.expectedResult || "",
+            projectId: projectId,
+            testSuite: typeof testCase?.testSuite === "string" ? testCase.testSuite : "",
+            requirements: testCase?.requirements?.map(req => req.title) || [],
+        });
+    };
+    useEffect(() => {
+        if (testCase === null) {
+            defaultData();
+        }
+    }, [testCase]);
 
     return (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
@@ -132,7 +165,7 @@ export function AddTestCase({ refreshTestCases, testSuites }: { refreshTestCases
 
                 <Tabs defaultValue="test-case" value={activeTab} onValueChange={setActiveTab} className="mt-4">
                     <TabsList>
-                        <TabsTrigger value="test-case" disabled={testCaseId != null}>Test case</TabsTrigger>
+                        <TabsTrigger value="test-case" >Test case</TabsTrigger>
                         <TabsTrigger value="steps" disabled={!testCaseId}>Steps</TabsTrigger>
                         <TabsTrigger value="test-data" disabled={!testCaseId}>Test data</TabsTrigger>
                     </TabsList>
@@ -250,7 +283,7 @@ export function AddTestCase({ refreshTestCases, testSuites }: { refreshTestCases
                                             {isLoading ? (
                                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                             ) : null}
-                                            {isLoading ? "Continue" : "Continue"}
+                                            {testCaseId ? (isLoading ? "Updating" : "Update") : "Continue"}
                                         </Button>
                                     </div>
                                 </form>
@@ -261,7 +294,7 @@ export function AddTestCase({ refreshTestCases, testSuites }: { refreshTestCases
                         <AddTestStep testCaseId={testCaseId} />
                     </TabsContent>
                     <TabsContent value="test-data">
-                        {/* <AddTestStep testCaseId={testCaseId} /> */}
+                        <TestCaseData testCaseId={testCaseId} />
                     </TabsContent>
                 </Tabs>
 

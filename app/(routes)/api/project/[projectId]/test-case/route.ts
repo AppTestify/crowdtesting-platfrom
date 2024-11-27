@@ -57,6 +57,7 @@ export async function POST(
         return Response.json({
             message: "Test case added successfully",
             id: saveTestCase?._id,
+            data: saveTestCase
         });
 
     } catch (error: any) {
