@@ -106,10 +106,10 @@ export function EditTestPlan({
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
             <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto">
                 <SheetHeader>
-                    <SheetTitle className="text-left">Edit testSuite</SheetTitle>
+                    <SheetTitle className="text-left">Edit test plan</SheetTitle>
                     <SheetDescription className="text-left">
-                        Keep your device inventory updated! The more up to date your devices
-                        are, the greater your chances of receiving project recommendations.
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Beatae laboriosam quas
+                        cum expedita quidem sit qui quaerat, ipsa animi nobis
                     </SheetDescription>
                 </SheetHeader>
                 <div className="mt-4">
@@ -121,7 +121,7 @@ export function EditTestPlan({
                                     name="title"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Test suite title</FormLabel>
+                                            <FormLabel>Test plan title</FormLabel>
                                             <FormControl>
                                                 <Input {...field} />
                                             </FormControl>

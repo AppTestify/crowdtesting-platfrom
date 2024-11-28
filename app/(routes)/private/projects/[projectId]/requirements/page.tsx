@@ -31,6 +31,7 @@ import { AddRequirement } from "./_components/add-requirement";
 import { RequirementRowActions } from "./_components/row-actions";
 import { IRequirement } from "@/app/_interface/requirement";
 import ViewRequirement from "./_components/view-requirement";
+import { ArrowUpDown } from "lucide-react";
 
 export default function Issues() {
     const [requirements, setRequirements] = useState<IRequirement[]>([]);
@@ -38,11 +39,23 @@ export default function Issues() {
     const columns: ColumnDef<IRequirement>[] = [
         {
             accessorKey: "customId",
-            header: "ID",
+            header: ({ column }) => {
+                const isSorted = column.getIsSorted();
+                return (
+                    <Button
+                        variant="ghost"
+                        onClick={() => column.toggleSorting(isSorted === "asc")}
+                    >
+                        ID
+                        <ArrowUpDown />
+                    </Button>
+                );
+            },
             cell: ({ row }) => (
-                <div className="hover:text-primary cursor-pointer" onClick={() => getRequirement(row.original as IRequirement)}>
+                <div className="hover:text-primary cursor-pointer ml-4" onClick={() => getRequirement(row.original as IRequirement)}>
                     {row.getValue("customId")}</div>
             ),
+            sortingFn: "alphanumeric",
         },
         {
             accessorKey: "title",

@@ -34,6 +34,7 @@ import Link from "next/link";
 import { PAGINATION_LIMIT } from "@/app/_utils/common";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
+import { ArrowUpDown } from "lucide-react";
 
 export default function Projects() {
   let columns: ColumnDef<IProjectPayload>[] = [
@@ -61,10 +62,24 @@ export default function Projects() {
     },
     {
       accessorKey: "customId",
-      header: "ID",
+      header: ({ column }) => {
+        const isSorted = column.getIsSorted();
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(isSorted === "asc")}
+          >
+            ID
+            <ArrowUpDown />
+          </Button>
+        );
+      },
       cell: ({ row }) => (
-        <div>{row.getValue("customId")}</div>
+        <div className="ml-4">
+          {row.getValue("customId")}
+        </div>
       ),
+      sortingFn: "alphanumeric",
     },
     {
       accessorKey: "title",

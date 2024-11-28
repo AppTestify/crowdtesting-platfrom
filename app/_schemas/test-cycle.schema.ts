@@ -5,3 +5,7 @@ export const testCycleSchema = z.object({
     projectId: z.string().min(1, "ProjectId is required"),
     description: z.string().min(1, "description is required"),
 });
+
+export const assignTestCasesSchema = z.object({
+    testCaseIds: z.array(z.string().min(1, 'Atleast one testCase required'))
+})

@@ -94,6 +94,7 @@ export async function GET(
         if (!(await isAdmin(session.user))) {
             response = addCustomIds(
                 await TestCycle.find({ projectId: projectId })
+                    .populate("testCaseId")
                     .sort({ createdAt: -1 })
                     .skip(skip)
                     .limit(Number(limit))
@@ -104,6 +105,7 @@ export async function GET(
             response = addCustomIds(
                 await TestCycle.find({ projectId: projectId })
                     .populate("userId", "id firstName lastName")
+                    .populate("testCaseId")
                     .sort({ createdAt: -1 })
                     .skip(skip)
                     .limit(Number(limit))

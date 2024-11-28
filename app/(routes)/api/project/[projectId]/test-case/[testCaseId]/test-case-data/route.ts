@@ -48,7 +48,7 @@ export async function POST(
             userId: session.user._id,
             testCaseId: testCaseId
         }));
-        const saveTestCaseData = await TestCaseData.insertMany(testCaseData);
+        await TestCaseData.insertMany(testCaseData);
 
         return Response.json({
             message: "Test case data added successfully",

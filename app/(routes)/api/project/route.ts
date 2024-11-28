@@ -94,7 +94,8 @@ export async function GET(req: Request) {
         if (!(await isAdmin(session.user))) {
             response = addCustomIds(
                 await Project.find({
-                    'users.userId': session.user._id
+                    'users.userId': session.user._id,
+                    deletedAt: { $exists: false }
                 })
                     .sort({ createdAt: -1 })
                     .skip(skip)
@@ -103,11 +104,12 @@ export async function GET(req: Request) {
                 userIdFormat.idFormat
             );
             totalProjects = await Project.find({
-                'users.userId': session.user._id
+                'users.userId': session.user._id,
+                deletedAt: { $exists: false }
             }).countDocuments();
         } else {
             response = addCustomIds(
-                await Project.find({})
+                await Project.find({ deletedAt: { $exists: false } })
                     .populate("userId")
                     .sort({ createdAt: -1 })
                     .skip(skip)
@@ -115,7 +117,7 @@ export async function GET(req: Request) {
                     .lean(),
                 userIdFormat.idFormat
             );
-            totalProjects = await Project.find({}).countDocuments();
+            totalProjects = await Project.find({ deletedAt: { $exists: false } }).countDocuments();
         }
         return Response.json({ "projects": response, "total": totalProjects });
     } catch (error: any) {

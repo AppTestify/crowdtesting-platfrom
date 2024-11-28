@@ -2,6 +2,7 @@ import { DB_CONNECTION_ERROR_MESSAGE, GENERIC_ERROR_MESSAGE, INVALID_INPUT_ERROR
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
 import { verifySession } from "@/app/_lib/dal";
+import { TestCaseData } from "@/app/_models/test-case-data";
 import { TestCaseStep } from "@/app/_models/test-case-step.model";
 import { TestCase } from "@/app/_models/test-case.model";
 import { testCaseStepSchema } from "@/app/_schemas/test-case-step.schema";
@@ -33,6 +34,8 @@ export async function DELETE(
 
         const { testCaseId } = params;
         const response = await TestCase.findByIdAndDelete(testCaseId);
+        await TestCaseStep.deleteMany({ testCaseId });
+        await TestCaseData.deleteMany({ testCaseId });
 
         if (!response) {
             throw new Error(GENERIC_ERROR_MESSAGE);

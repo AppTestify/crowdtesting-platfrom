@@ -85,7 +85,11 @@ export async function DELETE(
         }
 
         const { projectId } = params;
-        const response = await Project.findByIdAndDelete(projectId);
+        // const response = await Project.findByIdAndDelete(projectId);
+        const response = await Project.findByIdAndUpdate(projectId,
+            { deletedAt: new Date() },
+            { new: true }
+        );
 
         if (!response) {
             throw new Error(GENERIC_ERROR_MESSAGE);

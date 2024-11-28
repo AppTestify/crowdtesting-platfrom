@@ -11,6 +11,7 @@ export interface IProject extends Document {
   users: Types.ObjectId[];
   userId: Types.ObjectId;
   customId: number;
+  deletedAt?: Date;
 }
 
 const ProjectUserSchema = new Schema({
@@ -29,7 +30,8 @@ const ProjectSchema = new Schema<IProject>(
     isActive: { type: Boolean, required: true },
     users: [ProjectUserSchema],
     userId: { type: Schema.Types.ObjectId, ref: DBModels.USER, required: true },
-    customId: { type: Number }
+    customId: { type: Number },
+    deletedAt: Date
   },
   {
     timestamps: true,

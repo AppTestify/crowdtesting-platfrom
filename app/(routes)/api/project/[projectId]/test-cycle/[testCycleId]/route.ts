@@ -2,13 +2,13 @@ import { DB_CONNECTION_ERROR_MESSAGE, GENERIC_ERROR_MESSAGE, INVALID_INPUT_ERROR
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
 import { verifySession } from "@/app/_lib/dal";
-import { TestCaseData } from "@/app/_models/test-case-data";
-import { testCaseDataSchema } from "@/app/_schemas/test-case-data.schema";
+import { TestCycle } from "@/app/_models/test-cycle.model";
+import { testCycleSchema } from "@/app/_schemas/test-cycle.schema";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function DELETE(
     req: Request,
-    { params }: { params: { testCaseDataId: string } }
+    { params }: { params: { testCycleId: string } }
 ) {
     try {
         const session = await verifySession();
@@ -29,14 +29,14 @@ export async function DELETE(
             );
         }
 
-        const { testCaseDataId } = params;
-        const response = await TestCaseData.findByIdAndDelete(testCaseDataId);
+        const { testCycleId } = params;
+        const response = await TestCycle.findByIdAndDelete(testCycleId);
 
         if (!response) {
             throw new Error(GENERIC_ERROR_MESSAGE);
         }
 
-        return Response.json({ message: "Test case data deleted successfully" });
+        return Response.json({ message: "Test cycle deleted successfully" });
     } catch (error: any) {
         return errorHandler(error);
     }
@@ -44,7 +44,7 @@ export async function DELETE(
 
 export async function PUT(
     req: Request,
-    { params }: { params: { testCaseDataId: string } }
+    { params }: { params: { testCycleId: string } }
 ) {
     try {
         const session = await verifySession();
@@ -66,7 +66,7 @@ export async function PUT(
         }
 
         const body = await req.json();
-        const response = testCaseDataSchema.safeParse(body);
+        const response = testCycleSchema.safeParse(body);
 
         if (!response.success) {
             return Response.json(
@@ -78,9 +78,9 @@ export async function PUT(
             );
         }
 
-        const { testCaseDataId } = params
-        const updateResponse = await TestCaseData.findByIdAndUpdate(testCaseDataId, {
-            ...response.data?.testCases[0]
+        const { testCycleId } = params
+        const updateResponse = await TestCycle.findByIdAndUpdate(testCycleId, {
+            ...response.data
         });
 
         if (!updateResponse) {
@@ -88,7 +88,7 @@ export async function PUT(
         }
 
         return Response.json({
-            message: "Test case data updated successfully"
+            message: "Test cycle updated successfully"
         })
     } catch (error: any) {
         return errorHandler(error);

@@ -18,11 +18,13 @@ const ViewTestSuite = ({
             <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px]">
                 <SheetHeader className="mb-4">
                     <div className="flex justify-between items-center mt-4">
-                        <p className="text-md capitalize">
-                            <span className="mr-2">
-                                {testSuite?.customId}:
-                            </span>
-                            {testSuite?.title}
+                        <p className="text-md">
+                            <div className="capitalize">
+                                <span className="mr-2">
+                                    {testSuite?.customId}:
+                                </span>
+                                {testSuite?.title}
+                            </div>
                             <p className="text-sm mt-1 text-primary">
                                 Created by {testSuite?.userId?.firstName} {testSuite?.userId?.lastName} on {formatDate(testSuite?.createdAt || "")}
                             </p>

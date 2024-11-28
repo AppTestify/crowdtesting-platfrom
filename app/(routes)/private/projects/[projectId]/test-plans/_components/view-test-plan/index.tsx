@@ -17,11 +17,13 @@ const ViewTestPlan = ({
             <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px]">
                 <SheetHeader className="mb-4">
                     <div className="flex justify-between items-center mt-4">
-                        <p className="text-md capitalize">
-                            <span className="mr-2">
-                                {testPlan?.customId}:
-                            </span>
-                            {testPlan?.title}
+                        <p className="text-md">
+                            <div className="capitalize">
+                                <span className="mr-2">
+                                    {testPlan?.customId}:
+                                </span>
+                                {testPlan?.title}
+                            </div>
                             <p className="text-sm mt-1 text-primary">
                                 Created by {testPlan?.userId?.firstName} {testPlan?.userId?.lastName} on {formatDate(testPlan?.createdAt || "")}
                             </p>

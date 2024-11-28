@@ -36,19 +36,37 @@ export default function Issues() {
   const columns: ColumnDef<IIssue>[] = [
     {
       accessorKey: "customId",
-      header: "ID",
+      header: ({ column }) => {
+        const isSorted = column.getIsSorted();
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(isSorted === "asc")}
+          >
+            ID
+            <ArrowUpDown />
+          </Button>
+        );
+      },
       cell: ({ row }) => (
-        <div className="hover:text-primary cursor-pointer" onClick={() => getIssue(row.original as IIssue)}>
+        <div className="hover:text-primary cursor-pointer ml-4" onClick={() => getIssue(row.original as IIssue)}>
           {row.getValue("customId")}</div>
       ),
+      sortingFn: "alphanumeric"
     },
     {
       accessorKey: "title",
       header: "Title",
-      cell: ({ row }) => (
-        <div className="capitalize hover:text-primary cursor-pointer" onClick={() => getIssue(row.original as IIssue)}>
-          {row.getValue("title")}</div>
-      ),
+      cell: ({ row }) => {
+        const title = row.getValue("title");
+        if (typeof title === "string") {
+          return (
+            <div className="capitalize hover:text-primary cursor-pointer" onClick={() => getIssue(row.original as IIssue)}>
+              {title.length > 30 ? `${title.substring(0, 30)}...` : title}
+            </div>
+          )
+        }
+      },
     },
     {
       accessorKey: "severity",

@@ -8,8 +8,8 @@ export interface ITestCycle extends Document {
     projectId: Types.ObjectId;
     customId: number;
     description: string;
+    testCaseId?: [Types.ObjectId];
 }
-
 
 const TestCycleSchema = new Schema<ITestCycle>(
     {
@@ -18,6 +18,7 @@ const TestCycleSchema = new Schema<ITestCycle>(
         projectId: { type: Schema.Types.ObjectId, ref: DBModels.PROJECT, required: true },
         customId: { type: Number },
         description: { type: String, required: true },
+        testCaseId: [{ type: Schema.Types.ObjectId, ref: DBModels.TEST_CASE }]
     },
     {
         timestamps: true,

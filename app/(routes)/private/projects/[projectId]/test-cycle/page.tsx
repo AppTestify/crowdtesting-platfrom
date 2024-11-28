@@ -25,12 +25,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
 import { PAGINATION_LIMIT } from "@/app/_utils/common";
-import { getTestCaseService } from "@/app/_services/test-case.service";
-import { ITestCase, ITestCasePayload } from "@/app/_interface/test-case";
-import toasterService from "@/app/_services/toaster-service";
-import { ITestSuite } from "@/app/_interface/test-suite";
 import { getTestCycleService } from "@/app/_services/test-cycle.service";
-import { ITestCyclePayload } from "@/app/_interface/test-cycle";
+import { ITestCycle, ITestCyclePayload } from "@/app/_interface/test-cycle";
+import { AddTestCycle } from "./_components/add-test-cycle";
+import { TestCycleRowActions } from "./_components/row-actions";
+import { formatDate } from "@/app/_constants/date-formatter";
+import { ArrowUpDown } from "lucide-react";
 
 export default function TestPlan() {
     const [testCycle, setTestCycle] = useState<ITestCyclePayload[]>([]);
@@ -38,11 +38,23 @@ export default function TestPlan() {
     const columns: ColumnDef<ITestCyclePayload>[] = [
         {
             accessorKey: "customId",
-            header: "ID",
+            header: ({ column }) => {
+                const isSorted = column.getIsSorted();
+                return (
+                    <Button
+                        variant="ghost"
+                        onClick={() => column.toggleSorting(isSorted === "asc")}
+                    >
+                        ID
+                        <ArrowUpDown />
+                    </Button>
+                );
+            },
             cell: ({ row }) => (
-                <div className="hover:text-primary cursor-pointer">
+                <div className="hover:text-primary cursor-pointer ml-4">
                     {row.getValue("customId")}</div>
             ),
+            sortingFn: "alphanumeric"
         },
         {
             accessorKey: "title",
@@ -59,32 +71,32 @@ export default function TestPlan() {
                 <div className="capitalize">{row.getValue("description")}</div>
             ),
         },
-        // ...(
-        //     testCycle.some((item) => item?.userId?._id) ?
-        //         [{
-        //             accessorKey: "Name",
-        //             header: "Owner",
-        //             cell: ({ row }: { row: any }) => (
-        //                 <div className="">{`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}</div>
-        //             ),
-        //         }] : []
-        // ),
-        // {
-        //     accessorKey: "createdAt",
-        //     header: "Created On",
-        //     cell: ({ row }) => (
-        //         <div className="capitalize">
-        //             {formatDate(row.getValue("createdAt"))}
-        //         </div>
-        //     ),
-        // },
-        // {
-        //     id: "actions",
-        //     enableHiding: false,
-        //     cell: ({ row }) => (
-        //         <TestCaseRowActions row={row as unknown as Row<ITestCase>} testSuites={testSuites} refreshTestCycle={refreshTestCycle} />
-        //     ),
-        // },
+        ...(
+            testCycle.some((item) => item?.userId?._id) ?
+                [{
+                    accessorKey: "Name",
+                    header: "Owner",
+                    cell: ({ row }: { row: any }) => (
+                        <div className="">{`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}</div>
+                    ),
+                }] : []
+        ),
+        {
+            accessorKey: "createdAt",
+            header: "Created On",
+            cell: ({ row }) => (
+                <div className="capitalize">
+                    {formatDate(row.getValue("createdAt"))}
+                </div>
+            ),
+        },
+        {
+            id: "actions",
+            enableHiding: false,
+            cell: ({ row }) => (
+                <TestCycleRowActions row={row as Row<ITestCycle>} refreshTestCycle={refreshTestCycle} />
+            ),
+        },
     ];
 
     const [sorting, setSorting] = useState<SortingState>([]);
@@ -149,11 +161,6 @@ export default function TestPlan() {
 
     return (
         <main className="mx-4 mt-2">
-            {/* <ViewTestCase
-                testCase={testCase as ITestCase}
-                sheetOpen={isViewOpen}
-                setSheetOpen={setIsViewOpen}
-            /> */}
             <div className="">
                 <h2 className="text-medium">Test cycle</h2>
                 <span className="text-xs text-gray-600">
@@ -171,9 +178,9 @@ export default function TestPlan() {
                         }}
                         className="max-w-sm"
                     />
-                    {/* <div className="flex gap-2 ml-2">
-                        <AddTestCase refreshTestCycle={refreshTestCycle} testSuites={testSuites} />
-                    </div> */}
+                    <div className="flex gap-2 ml-2">
+                        <AddTestCycle refreshTestCycle={refreshTestCycle} />
+                    </div>
                 </div>
                 <div className="rounded-md border">
                     <Table>

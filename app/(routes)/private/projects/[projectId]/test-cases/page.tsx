@@ -34,6 +34,7 @@ import { getTestWithoutPaginationSuiteService } from "@/app/_services/test-suite
 import { ITestSuite } from "@/app/_interface/test-suite";
 import { TestCaseRowActions } from "./_components/row-actions";
 import ViewTestCase from "./_components/view-test-case";
+import { ArrowUpDown } from "lucide-react";
 
 export default function TestPlan() {
     const [testCases, setTestCases] = useState<ITestCasePayload[]>([]);
@@ -41,11 +42,23 @@ export default function TestPlan() {
     const columns: ColumnDef<ITestCasePayload>[] = [
         {
             accessorKey: "customId",
-            header: "ID",
+            header: ({ column }) => {
+                const isSorted = column.getIsSorted();
+                return (
+                    <Button
+                        variant="ghost"
+                        onClick={() => column.toggleSorting(isSorted === "asc")}
+                    >
+                        ID
+                        <ArrowUpDown />
+                    </Button>
+                );
+            },
             cell: ({ row }) => (
-                <div className="hover:text-primary cursor-pointer" onClick={() => getTestCase(row.original as unknown as ITestCase)}>
+                <div className="hover:text-primary cursor-pointer ml-4" onClick={() => getTestCase(row.original as unknown as ITestCase)}>
                     {row.getValue("customId")}</div>
             ),
+            sortingFn: "alphanumeric"
         },
         {
             accessorKey: "title",

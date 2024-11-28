@@ -1,5 +1,5 @@
 import { TEST_CASE_STEP_ENPOINT } from "../_constants/api-endpoints";
-import { ITestCaseStep, ITestCaseStepPayload, ITestCaseStepSequencePayload } from "../_interface/test-case-step";
+import { ITestCaseStepPayload, ITestCaseStepSequencePayload } from "../_interface/test-case-step";
 import { genericDelete, genericGet, genericPost, genericPut } from "./generic-api-methods";
 
 export const addTestCaseStepService = async (projectId: string, testCaseId: string,

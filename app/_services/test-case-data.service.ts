@@ -1,6 +1,6 @@
 import { TEST_CASE_DATA_ENPOINT } from "../_constants/api-endpoints";
 import { ITestCaseDataPayload } from "../_interface/test-case-data";
-import { genericDelete, genericGet, genericPost } from "./generic-api-methods";
+import { genericDelete, genericGet, genericPost, genericPut } from "./generic-api-methods";
 
 export const addTestCaseDataService = async (projectId: string, testCaseId: string,
     body: ITestCaseDataPayload): Promise<any> => {
@@ -34,6 +34,21 @@ export const deleteTestCaseDataService = async (
         return response || {};
     } catch (error) {
         console.error(`Error > deleteTestCaseDataService:`, error);
+        throw error;
+    }
+};
+
+export const updateTestCaseDataService = async (
+    projectId: string,
+    testCaseId: string,
+    testCaseDataId: string,
+    body: ITestCaseDataPayload
+): Promise<any> => {
+    try {
+        const response = await genericPut(`${TEST_CASE_DATA_ENPOINT(projectId, testCaseId)}/${testCaseDataId}`, body);
+        return response || {};
+    } catch (error) {
+        console.error(`Error > updateTestCaseDataService:`, error);
         throw error;
     }
 };

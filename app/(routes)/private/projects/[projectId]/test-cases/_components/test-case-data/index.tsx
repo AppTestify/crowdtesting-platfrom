@@ -31,7 +31,7 @@ import { Label } from "@/components/ui/label";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { addTestCaseDataService, getTestCaseDataService } from "@/app/_services/test-case-data.service";
 import { ITestCaseData, ITestCaseDataPayload } from "@/app/_interface/test-case-data";
-import TestCaseDataTable from "./table";
+import TestCaseDataTable from "./_components/table";
 
 const testPlanSchema = z.object({
     testCases: z.array(
@@ -138,7 +138,6 @@ export function TestCaseData({ testCaseId }: { testCaseId: string }) {
             <div className="mt-4">
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} method="post">
-
                         <div className="flex flex-col gap-2 mt-4">
                             {fields.map((field, index) => (
                                 <div key={field.id} className="flex flex-col w-full ">

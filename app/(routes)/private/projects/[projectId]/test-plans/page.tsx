@@ -31,6 +31,7 @@ import { getTestPlanService } from "@/app/_services/test-plan.service";
 import { AddTestPlan } from "./_components/add-test-plan";
 import { TestPlansRowActions } from "./_components/row-actions";
 import ViewTestPlan from "./_components/view-test-plan";
+import { ArrowUpDown } from "lucide-react";
 
 export default function TestPlan() {
     const [testPlans, setTestPlans] = useState<ITestPlanPayload[]>([]);
@@ -38,11 +39,23 @@ export default function TestPlan() {
     const columns: ColumnDef<ITestPlanPayload>[] = [
         {
             accessorKey: "customId",
-            header: "ID",
+            header: ({ column }) => {
+                const isSorted = column.getIsSorted();
+                return (
+                    <Button
+                        variant="ghost"
+                        onClick={() => column.toggleSorting(isSorted === "asc")}
+                    >
+                        ID
+                        <ArrowUpDown />
+                    </Button>
+                );
+            },
             cell: ({ row }) => (
-                <div className="hover:text-primary cursor-pointer" onClick={() => getTestPlan(row.original as ITestPlan)}>
+                <div className="hover:text-primary cursor-pointer ml-4" onClick={() => getTestPlan(row.original as ITestPlan)}>
                     {row.getValue("customId")}</div>
             ),
+            sortingFn: "alphanumeric"
         },
         {
             accessorKey: "title",

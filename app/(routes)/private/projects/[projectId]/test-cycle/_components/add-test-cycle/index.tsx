@@ -27,13 +27,11 @@ import {
     SheetTrigger,
 } from "@/components/ui/sheet";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useParams } from "next/navigation";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { TESTING_LIST } from "@/app/_constants/test-plan";
-import TextEditor from "../../../../_components/text-editor";
-import { addTestPlanService } from "@/app/_services/test-plan.service";
+import { Textarea } from "@/components/ui/text-area";
+import { addTestCycleService } from "@/app/_services/test-cycle.service";
 
 const testCycleSchema = z.object({
     title: z.string().min(1, "Required"),
@@ -41,7 +39,7 @@ const testCycleSchema = z.object({
     description: z.string().min(1, 'Required')
 });
 
-export function AddTestCycle({ refreshTestPlans }: { refreshTestPlans: () => void }) {
+export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => void }) {
 
     const [sheetOpen, setSheetOpen] = useState(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -58,13 +56,13 @@ export function AddTestCycle({ refreshTestPlans }: { refreshTestPlans: () => voi
     async function onSubmit(values: z.infer<typeof testCycleSchema>) {
         setIsLoading(true);
         try {
-            // const response = await addTestPlanService(projectId, {
-            //     ...values,
-            // });
-            // if (response) {
-            //     refreshTestPlans();
-            //     toasterService.success(response.message);
-            // }
+            const response = await addTestCycleService(projectId, {
+                ...values,
+            });
+            if (response) {
+                refreshTestCycle();
+                toasterService.success(response.message);
+            }
         } catch (error) {
             toasterService.error();
         } finally {
@@ -73,7 +71,7 @@ export function AddTestCycle({ refreshTestPlans }: { refreshTestPlans: () => voi
         }
     }
 
-    const validateTestPlan = () => {
+    const validateTestCycle = () => {
         if (form.formState.isValid) {
             form.handleSubmit(onSubmit)();
         }
@@ -111,7 +109,7 @@ export function AddTestCycle({ refreshTestPlans }: { refreshTestPlans: () => voi
                                     name="title"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Test plan title</FormLabel>
+                                            <FormLabel>Test cycle title</FormLabel>
                                             <FormControl>
                                                 <Input {...field} />
                                             </FormControl>
@@ -121,6 +119,21 @@ export function AddTestCycle({ refreshTestPlans }: { refreshTestPlans: () => voi
                                 />
                             </div>
 
+                            <div className="grid grid-cols-1 gap-2 mt-3">
+                                <FormField
+                                    control={form.control}
+                                    name="description"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Description</FormLabel>
+                                            <FormControl>
+                                                <Textarea {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
 
                             < div className="mt-6 w-full flex justify-end gap-2" >
                                 <SheetClose asChild>
@@ -138,7 +151,7 @@ export function AddTestCycle({ refreshTestPlans }: { refreshTestPlans: () => voi
                                     disabled={isLoading}
                                     type="submit"
                                     size="lg"
-                                    onClick={() => validateTestPlan()}
+                                    onClick={() => validateTestCycle()}
                                     className="w-full md:w-fit"
                                 >
                                     {isLoading ? (

@@ -31,6 +31,7 @@ import { formatDate } from "@/app/_constants/date-formatter";
 import { ITestSuite } from "@/app/_interface/test-suite";
 import { TestSuiteRowActions } from "./_components/row-actions";
 import ViewTestSuite from "./_components/view-test-suite";
+import { ArrowUpDown } from "lucide-react";
 
 export default function TestSuite() {
     const [testSuite, setTestSuite] = useState<ITestSuite[]>([]);
@@ -38,11 +39,23 @@ export default function TestSuite() {
     const columns: ColumnDef<ITestSuite>[] = [
         {
             accessorKey: "customId",
-            header: "ID",
+            header: ({ column }) => {
+                const isSorted = column.getIsSorted();
+                return (
+                    <Button
+                        variant="ghost"
+                        onClick={() => column.toggleSorting(isSorted === "asc")}
+                    >
+                        ID
+                        <ArrowUpDown />
+                    </Button>
+                );
+            },
             cell: ({ row }) => (
-                <div className="hover:text-primary cursor-pointer" onClick={() => getTestSuite(row.original as ITestSuite)}>
+                <div className="hover:text-primary cursor-pointer ml-4" onClick={() => getTestSuite(row.original as ITestSuite)}>
                     {row.getValue("customId")}</div>
             ),
+            sortingFn: "alphanumeric"
         },
         {
             accessorKey: "title",

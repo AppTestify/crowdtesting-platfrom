@@ -37,6 +37,8 @@ import ViewTesterIssue from "../users/_components/view-user";
 import { IUserByAdmin } from "@/app/_interface/user";
 
 export default function Devices() {
+  const [devices, setDevices] = useState<IDevice[]>([]);
+
   let columns: ColumnDef<IDevice>[] = [
     {
       id: "select",
@@ -60,13 +62,19 @@ export default function Devices() {
       enableSorting: false,
       enableHiding: false,
     },
-    {
-      accessorKey: "name",
-      header: "Name",
-      cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("name")}</div>
-      ),
-    },
+    ...(
+      devices.some((item) => item?.userId?._id) ?
+        [{
+          accessorKey: "createdBy",
+          header: "Owner",
+          cell: ({ row }: { row: any }) =>
+            <div className="hover:text-primary cursor-pointer"
+              onClick={() => getUser(row.original?.userId as IUserByAdmin)}
+            >
+              {`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}
+            </div>,
+        }] : []
+    ),
     {
       accessorKey: "os",
       header: "OS",
@@ -114,13 +122,28 @@ export default function Devices() {
         </div>
       ),
     },
+    {
+      accessorKey: "name",
+      header: "Device Name",
+      cell: ({ row }) => (
+        <div className="capitalize">{row.getValue("name")}</div>
+      ),
+    },
+    {
+      accessorKey: "actions",
+      header: "",
+      cell: ({ row }) => <RowActions
+        row={row}
+        refreshDevices={refreshDevices}
+        browsers={browsers}
+      />,
+    },
   ];
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-  const [devices, setDevices] = useState<IDevice[]>([]);
   const [browsers, setBrowsers] = useState<IBrowser[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [globalFilter, setGlobalFilter] = useState<any>([]);
@@ -129,34 +152,6 @@ export default function Devices() {
   const [totalPageCount, setTotalPageCount] = useState(0);
   const [user, setUser] = useState<IUserByAdmin>();
   const [isViewOpen, setIsViewOpen] = useState(false);
-
-  const actionsColumn: ColumnDef<IDevice> = {
-    id: "actions",
-    enableHiding: false,
-    cell: ({ row }) => <RowActions
-      row={row}
-      refreshDevices={refreshDevices}
-      browsers={browsers}
-    />,
-  };
-
-  const hasUserId = devices.some((item) => item.userId?._id);
-  columns = hasUserId
-    ? [
-      ...columns,
-      {
-        accessorKey: "createdBy",
-        header: "Owner",
-        cell: ({ row }) =>
-          <div className="hover:text-primary cursor-pointer"
-            onClick={() => getUser(row.original?.userId as IUserByAdmin)}
-          >
-            {`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}
-          </div>,
-      },
-      actionsColumn
-    ]
-    : [...columns, actionsColumn];
 
   const table = useReactTable({
     data: devices,

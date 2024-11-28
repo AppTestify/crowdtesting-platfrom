@@ -49,3 +49,14 @@ export const updateTestCaseService = async (
         throw error;
     }
 };
+
+export const getTestCaseWithoutPaginationService = async (projectId: string):
+    Promise<any> => {
+    try {
+        const response = await genericGet(`${TEST_CASE_ENPOINT(projectId)}/without-pagination`);
+        return response || [];
+    } catch (error) {
+        console.error(`Error > getTestCaseWithoutPaginationService:`, error);
+        throw error;
+    }
+};

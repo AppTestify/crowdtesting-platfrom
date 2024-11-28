@@ -1,23 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { Loader2, Plus } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-
 import {
     Sheet,
     SheetClose,
     SheetContent,
     SheetDescription,
-    SheetFooter,
     SheetHeader,
     SheetTitle,
-    SheetTrigger,
 } from "@/components/ui/sheet";
 import {
     Form,
     FormControl,
-    FormDescription,
     FormField,
     FormItem,
     FormLabel,
@@ -26,57 +21,49 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { MultiSelect } from "@/components/ui/multi-select";
 import toasterService from "@/app/_services/toaster-service";
-import { ITestSuite } from "@/app/_interface/test-suite";
-import TextEditor from "../../../../_components/text-editor";
-import { getRequirementsWithoutPaginationService } from "@/app/_services/requirement.service";
-import { IRequirement } from "@/app/_interface/requirement";
-import { updateTestSuiteService } from "@/app/_services/test-suite.service";
+import { updateTestPlanService } from "@/app/_services/test-plan.service";
+import { Textarea } from "@/components/ui/text-area";
+import { ITestCycle } from "@/app/_interface/test-cycle";
+import { updateTestCycleService } from "@/app/_services/test-cycle.service";
 
-const deviceSchema = z.object({
+const testCycleSchema = z.object({
     title: z.string().min(1, "Required"),
-    description: z.string().min(1, "Required"),
-    projectId: z.string().optional()
+    projectId: z.string().optional(),
+    description: z.string().min(1, 'Required')
 });
 
-export function EditTestSuite({
-    testSuite,
+export function EditTestCycle({
+    testCycle,
     sheetOpen,
     setSheetOpen,
-    refreshTestSuites,
+    refreshTestCycle,
 }: {
-    testSuite: ITestSuite;
+    testCycle: ITestCycle;
     sheetOpen: boolean;
     setSheetOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    refreshTestSuites: () => void;
+    refreshTestCycle: () => void;
 }) {
-    const testSuiteId = testSuite.id;
-    const [selectedRequirements, setSelectedRequirements] = useState<string[]>(
-        testSuite?.requirements?.map((requirement) => requirement._id) as string[]
-    );
-    const { title, description, projectId } = testSuite;
+    const testCycleId = testCycle.id;
+    const { title, projectId, description } = testCycle;
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [isRequirementLoading, setIsRequirementLoading] = useState<boolean>(false);
-    const [requirments, setRequirements] = useState<IRequirement[]>([]);
-    const form = useForm<z.infer<typeof deviceSchema>>({
-        resolver: zodResolver(deviceSchema),
+    const form = useForm<z.infer<typeof testCycleSchema>>({
+        resolver: zodResolver(testCycleSchema),
         defaultValues: {
             title: title || "",
-            description: description || "",
+            projectId: projectId,
+            description: description || ""
         },
     });
 
-    async function onSubmit(values: z.infer<typeof deviceSchema>) {
+    async function onSubmit(values: z.infer<typeof testCycleSchema>) {
         setIsLoading(true);
         try {
-            const response = await updateTestSuiteService(projectId, testSuiteId, {
+            const response = await updateTestCycleService(projectId as string, testCycleId, {
                 ...values,
-                requirements: selectedRequirements,
-                projectId: projectId
             });
             if (response) {
-                refreshTestSuites();
+                refreshTestCycle();
                 toasterService.success(response.message);
             }
         } catch (error) {
@@ -88,30 +75,8 @@ export function EditTestSuite({
     }
 
     const resetForm = () => {
-        form.reset({
-            title: title || "",
-            description: description || "",
-        });
-        setSelectedRequirements(testSuite?.requirements?.map((requirement) => requirement._id) as string[]);
+        form.reset();
     };
-
-    useEffect(() => {
-        if (sheetOpen) {
-            getRequirements();
-        }
-    }, [sheetOpen]);
-
-    const getRequirements = async () => {
-        try {
-            setIsRequirementLoading(true);
-            const response = await getRequirementsWithoutPaginationService(projectId);
-            setRequirements(response);
-        } catch (error) {
-            toasterService.error();
-        } finally {
-            setIsRequirementLoading(false);
-        }
-    }
 
     useEffect(() => {
         if (sheetOpen) {
@@ -121,12 +86,12 @@ export function EditTestSuite({
 
     return (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-            <SheetContent className="w-full !max-w-full md:w-[550px] md:!max-w-[550px]">
+            <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto">
                 <SheetHeader>
-                    <SheetTitle className="text-left">Edit test suite</SheetTitle>
+                    <SheetTitle className="text-left">Edit test plan</SheetTitle>
                     <SheetDescription className="text-left">
-                        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aperiam ipsam minima
-                        at modi, omnis minus eveniet quidem saepe sequi sed
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Beatae laboriosam quas
+                        cum expedita quidem sit qui quaerat, ipsa animi nobis
                     </SheetDescription>
                 </SheetHeader>
                 <div className="mt-4">
@@ -138,7 +103,7 @@ export function EditTestSuite({
                                     name="title"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Test suite title</FormLabel>
+                                            <FormLabel>Test cycle title</FormLabel>
                                             <FormControl>
                                                 <Input {...field} />
                                             </FormControl>
@@ -148,30 +113,7 @@ export function EditTestSuite({
                                 />
                             </div>
 
-                            <div className="my-2">
-                                <Label>
-                                    Requirements
-                                </Label>
-                                <MultiSelect
-                                    options={
-                                        !isRequirementLoading
-                                            ? requirments?.map((requirement) => ({
-                                                label: requirement?.title,
-                                                value: requirement?.id,
-                                            }))
-                                            : []
-                                    }
-                                    onValueChange={setSelectedRequirements}
-                                    defaultValue={selectedRequirements}
-                                    placeholder={isRequirementLoading ? "Loading" : ""}
-                                    variant="secondary"
-                                    animation={2}
-                                    maxCount={3}
-                                    className="mt-2"
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-1 gap-2 mt-4">
+                            <div className="grid grid-cols-1 gap-2 mt-3">
                                 <FormField
                                     control={form.control}
                                     name="description"
@@ -179,13 +121,7 @@ export function EditTestSuite({
                                         <FormItem>
                                             <FormLabel>Description</FormLabel>
                                             <FormControl>
-                                                <TextEditor
-                                                    markup={field.value || ""}
-                                                    onChange={(value) => {
-                                                        form.setValue("description", value);
-                                                        form.trigger("description");
-                                                    }}
-                                                />
+                                                <Textarea {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
