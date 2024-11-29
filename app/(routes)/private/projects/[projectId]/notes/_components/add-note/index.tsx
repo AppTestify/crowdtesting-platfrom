@@ -1,15 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-    Sheet,
-    SheetClose,
-    SheetContent,
-    SheetDescription,
-    SheetHeader,
-    SheetTitle,
-} from "@/components/ui/sheet";
+    Loader2,
+    Plus,
+} from "lucide-react";
+import { useState } from "react";
+
+import toasterService from "@/app/_services/toaster-service";
 import {
     Form,
     FormControl,
@@ -18,82 +17,88 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form";
+import {
+    Sheet,
+    SheetClose,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+} from "@/components/ui/sheet";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import toasterService from "@/app/_services/toaster-service";
-import { updateTestPlanService } from "@/app/_services/test-plan.service";
-import { Textarea } from "@/components/ui/text-area";
-import { ITestCycle } from "@/app/_interface/test-cycle";
-import { updateTestCycleService } from "@/app/_services/test-cycle.service";
+import { useParams } from "next/navigation";
+import TextEditor from "../../../../_components/text-editor";
+import { addNoteService } from "@/app/_services/note.service";
 
-const testCycleSchema = z.object({
+const NoteSchema = z.object({
     title: z.string().min(1, "Required"),
-    projectId: z.string().optional(),
     description: z.string().min(1, 'Required')
 });
 
-export function EditTestCycle({
-    testCycle,
-    sheetOpen,
-    setSheetOpen,
-    refreshTestCycle,
-}: {
-    testCycle: ITestCycle;
-    sheetOpen: boolean;
-    setSheetOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    refreshTestCycle: () => void;
-}) {
-    const testCycleId = testCycle.id;
-    const { title, projectId, description } = testCycle;
+export function AddNote({ refreshNotes }: { refreshNotes: () => void }) {
+
+    const [sheetOpen, setSheetOpen] = useState(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const form = useForm<z.infer<typeof testCycleSchema>>({
-        resolver: zodResolver(testCycleSchema),
+    const { projectId } = useParams<{ projectId: string }>();
+
+    const form = useForm<z.infer<typeof NoteSchema>>({
+        resolver: zodResolver(NoteSchema),
         defaultValues: {
-            title: title || "",
-            projectId: projectId,
-            description: description || ""
+            title: "",
+            description: "",
         },
     });
 
-    async function onSubmit(values: z.infer<typeof testCycleSchema>) {
+    async function onSubmit(values: z.infer<typeof NoteSchema>) {
         setIsLoading(true);
         try {
-            const response = await updateTestCycleService(projectId as string, testCycleId, {
+            const response = await addNoteService(projectId, {
                 ...values,
             });
             if (response) {
-                refreshTestCycle();
+                refreshNotes();
                 toasterService.success(response.message);
             }
         } catch (error) {
             toasterService.error();
         } finally {
-            setSheetOpen(false);
             setIsLoading(false);
+            setSheetOpen(false);
         }
     }
+
+    const validateNote = () => {
+        if (form.formState.isValid) {
+            form.handleSubmit(onSubmit)();
+        }
+    };
 
     const resetForm = () => {
         form.reset();
     };
 
-    useEffect(() => {
-        if (sheetOpen) {
-            resetForm();
-        }
-    }, [sheetOpen]);
 
     return (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-            <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto">
+            <SheetTrigger asChild>
+                <Button onClick={() => resetForm()}>
+                    <Plus /> Add note
+                </Button>
+            </SheetTrigger>
+            <SheetContent
+                className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto"
+            >
                 <SheetHeader>
-                    <SheetTitle className="text-left">Edit test plan</SheetTitle>
+                    <SheetTitle className="text-left">Add new note</SheetTitle>
                     <SheetDescription className="text-left">
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Beatae laboriosam quas
-                        cum expedita quidem sit qui quaerat, ipsa animi nobis
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Perspiciatis,
+                        ut deleniti excepturi, quo nemo! Quisquam, saepe quo.
                     </SheetDescription>
                 </SheetHeader>
+
                 <div className="mt-4">
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} method="post">
@@ -103,7 +108,7 @@ export function EditTestCycle({
                                     name="title"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Test cycle title</FormLabel>
+                                            <FormLabel>Note title</FormLabel>
                                             <FormControl>
                                                 <Input {...field} />
                                             </FormControl>
@@ -121,7 +126,13 @@ export function EditTestCycle({
                                         <FormItem>
                                             <FormLabel>Description</FormLabel>
                                             <FormControl>
-                                                <Textarea {...field} />
+                                                <TextEditor
+                                                    markup={field.value || ""}
+                                                    onChange={(value) => {
+                                                        form.setValue("description", value);
+                                                        form.trigger("description");
+                                                    }}
+                                                />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -129,7 +140,7 @@ export function EditTestCycle({
                                 />
                             </div>
 
-                            <div className="mt-8 w-full flex justify-end gap-2">
+                            < div className="mt-6 w-full flex justify-end gap-2" >
                                 <SheetClose asChild>
                                     <Button
                                         disabled={isLoading}
@@ -145,18 +156,20 @@ export function EditTestCycle({
                                     disabled={isLoading}
                                     type="submit"
                                     size="lg"
+                                    onClick={() => validateNote()}
                                     className="w-full md:w-fit"
                                 >
                                     {isLoading ? (
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                     ) : null}
-                                    {isLoading ? "Updating" : "Update"}
+                                    {isLoading ? "Saving" : "Save"}
                                 </Button>
                             </div>
                         </form>
                     </Form>
                 </div>
+
             </SheetContent>
-        </Sheet>
+        </Sheet >
     );
 }

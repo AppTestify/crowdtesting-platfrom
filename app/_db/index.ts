@@ -16,6 +16,7 @@ import { TestPlan } from "../_models/test-plan.model";
 import { TestCase } from "../_models/test-case.model";
 import { TestCycle } from "../_models/test-cycle.model";
 import { TestCaseStep } from "../_models/test-case-step.model";
+import { Note } from "../_models/note.model";
 
 export const connectDatabase = async () => {
   try {
@@ -45,6 +46,7 @@ export const registerModels = () => {
   const testSuiteModel = TestSuite;
   const testPlanModel = TestPlan;
   const testCaseModel = TestCase;
+  const NoteModel = Note;
   const testCaseStepModel = TestCaseStep;
   const testCycleModel = TestCycle;
   const requirementModel = Requirement;

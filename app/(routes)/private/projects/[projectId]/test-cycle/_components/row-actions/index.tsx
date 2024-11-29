@@ -1,9 +1,7 @@
 "use client";
 import { ConfirmationDialog } from "@/app/_components/confirmation-dialog";
 import { ITestCycle } from "@/app/_interface/test-cycle";
-import { ITestPlan } from "@/app/_interface/test-plan";
 import { deleteTestCycleService } from "@/app/_services/test-cycle.service";
-import { deleteTestPlanService } from "@/app/_services/test-plan.service";
 import toasterService from "@/app/_services/toaster-service";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,7 +16,6 @@ import { ChartNoAxesGantt, Edit, MoreHorizontal, Trash } from "lucide-react";
 import { useState } from "react";
 import { EditTestCycle } from "../edit-test-cycle";
 import AssignTestCase from "../assign-test-cases";
-import { ITestCase } from "@/app/_interface/test-case";
 
 export function TestCycleRowActions({
     row,
@@ -60,10 +57,10 @@ export function TestCycleRowActions({
                 refreshTestCycle={refreshTestCycle}
             />
 
-            <AssignTestCase sheetOpen={isActionOpen}
+            <AssignTestCase
+                sheetOpen={isActionOpen}
                 setSheetOpen={setIsActionOpen}
                 row={row}
-                refreshTestCycle={refreshTestCycle}
             />
 
             <ConfirmationDialog
@@ -92,7 +89,7 @@ export function TestCycleRowActions({
                             setIsActionOpen(true);
                         }}
                     >
-                        <ChartNoAxesGantt className="h-2 w-2" /> Action
+                        <ChartNoAxesGantt className="h-2 w-2" /> Test cases
                     </DropdownMenuItem>
                     <DropdownMenuSeparator className="border-b" />
                     <DropdownMenuItem

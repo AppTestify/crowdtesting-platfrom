@@ -1,13 +1,17 @@
+import { DBModels } from "@/app/_constants";
 import { DB_CONNECTION_ERROR_MESSAGE, USER_UNAUTHORIZED_SERVER_ERROR_MESSAGE } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
 import { verifySession } from "@/app/_lib/dal";
+import { IdFormat } from "@/app/_models/id-format.model";
+import { TestCase } from "@/app/_models/test-case.model";
 import { TestCycle } from "@/app/_models/test-cycle.model";
+import { addCustomIds } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function GET(
     req: Request,
-    { params }: { params: { projectId: string, testCaseId: string } }
+    { params }: { params: { projectId: string, testCycleId: string } }
 ) {
     try {
         const session = await verifySession();
@@ -28,10 +32,15 @@ export async function GET(
             );
         }
 
-        const { testCaseId } = params
-        const response = await TestCycle.find({ testCaseId: testCaseId })
-            .populate("testCaseId")
-            .sort({ order: 1 })
+        const { testCycleId } = params;
+        const testCaseIdFormat = await IdFormat.findOne({ entity: DBModels.TEST_CASE });
+
+        const testCycle = await TestCycle.find({ _id: testCycleId });
+        const testCycleIds = testCycle.map((testCase) => testCase?.testCaseId).flat();
+        const response = addCustomIds(
+            await TestCase.find({ _id: { $nin: testCycleIds } }).sort({ createdAt: -1 }).lean(),
+            testCaseIdFormat.idFormat
+        );
 
         return Response.json(response);
     } catch (error: any) {

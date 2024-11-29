@@ -25,18 +25,17 @@ import {
 import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
 import { PAGINATION_LIMIT } from "@/app/_utils/common";
+import { getTestCycleService } from "@/app/_services/test-cycle.service";
+import { ITestCycle, ITestCyclePayload } from "@/app/_interface/test-cycle";
+// import { AddTestCycle } from "./_components/add-test-cycle";
+// import { TestCycleRowActions } from "./_components/row-actions";
 import { formatDate } from "@/app/_constants/date-formatter";
-import { ITestPlan, ITestPlanPayload } from "@/app/_interface/test-plan";
-import { getTestPlanService } from "@/app/_services/test-plan.service";
-import { AddTestPlan } from "./_components/add-test-plan";
-import { TestPlansRowActions } from "./_components/row-actions";
-import ViewTestPlan from "./_components/view-test-plan";
 import { ArrowUpDown } from "lucide-react";
 
-export default function TestPlan() {
-    const [testPlans, setTestPlans] = useState<ITestPlanPayload[]>([]);
+export default function TestExecution() {
+    const [testCycle, setTestCycle] = useState<ITestCyclePayload[]>([]);
 
-    const columns: ColumnDef<ITestPlanPayload>[] = [
+    const columns: ColumnDef<ITestCyclePayload>[] = [
         {
             accessorKey: "customId",
             header: ({ column }) => {
@@ -52,7 +51,7 @@ export default function TestPlan() {
                 );
             },
             cell: ({ row }) => (
-                <div className="hover:text-primary cursor-pointer ml-4" onClick={() => getTestPlan(row.original as ITestPlan)}>
+                <div className="hover:text-primary cursor-pointer ml-4">
                     {row.getValue("customId")}</div>
             ),
             sortingFn: "alphanumeric"
@@ -61,36 +60,24 @@ export default function TestPlan() {
             accessorKey: "title",
             header: "Title",
             cell: ({ row }) => (
-                <div className="capitalize hover:text-primary cursor-pointer" onClick={() => getTestPlan(row.original as ITestPlan)}>
+                <div className="capitalize hover:text-primary cursor-pointer">
                     {row.getValue("title")}</div>
             ),
         },
-        ...(
-            testPlans.some((item) => item.userId?._id) ?
-                [{
-                    accessorKey: "createdBy",
-                    header: "created By",
-                    cell: ({ row }: { row: any }) => (
-                        <div className="">{`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}</div>
-                    ),
-                }] : []
-        ),
         {
-            accessorKey: "createdAt",
-            header: "Created On",
+            accessorKey: "description",
+            header: "Description",
             cell: ({ row }) => (
-                <div className="capitalize">
-                    {formatDate(row.getValue("createdAt"))}
-                </div>
+                <div className="capitalize">{row.getValue("description")}</div>
             ),
         },
-        {
-            id: "actions",
-            enableHiding: false,
-            cell: ({ row }) => (
-                <TestPlansRowActions row={row as Row<ITestPlan>} refreshTestPlans={refreshTestPlans} />
-            ),
-        },
+        // {
+        //     id: "actions",
+        //     enableHiding: false,
+        //     cell: ({ row }) => (
+        //         <TestCycleRowActions row={row as Row<ITestCycle>} refreshTestCycle={refreshTestCycle} />
+        //     ),
+        // },
     ];
 
     const [sorting, setSorting] = useState<SortingState>([]);
@@ -101,34 +88,28 @@ export default function TestPlan() {
     const [pageIndex, setPageIndex] = useState(1);
     const [totalPageCount, setTotalPageCount] = useState(0);
     const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
-    const [isViewOpen, setIsViewOpen] = useState(false);
-    const [testPlan, setTestPlan] = useState<ITestPlan>();
     const { projectId } = useParams<{ projectId: string }>();
 
     useEffect(() => {
-        getTestPlans();
+        getTestCycle();
     }, [pageIndex, pageSize]);
 
-    const getTestPlans = async () => {
+    const getTestCycle = async () => {
         setIsLoading(true);
-        const response = await getTestPlanService(projectId, pageIndex, pageSize);
-        setTestPlans(response?.testPlans);
+        const response = await getTestCycleService(projectId, pageIndex, pageSize);
+        setTestCycle(response?.testCycles);
         setTotalPageCount(response?.total);
         setIsLoading(false);
     };
 
-    const refreshTestPlans = () => {
-        getTestPlans();
+
+    const refreshTestCycle = () => {
+        getTestCycle();
         setRowSelection({});
     };
 
-    const getTestPlan = async (data: ITestPlan) => {
-        setTestPlan(data as ITestPlan);
-        setIsViewOpen(true);
-    };
-
     const table = useReactTable({
-        data: testPlans,
+        data: testCycle,
         columns,
         onSortingChange: setSorting,
         getCoreRowModel: getCoreRowModel(),
@@ -161,13 +142,8 @@ export default function TestPlan() {
 
     return (
         <main className="mx-4 mt-2">
-            <ViewTestPlan
-                testPlan={testPlan as ITestPlan}
-                sheetOpen={isViewOpen}
-                setSheetOpen={setIsViewOpen}
-            />
             <div className="">
-                <h2 className="text-medium">Test plans</h2>
+                <h2 className="text-medium">Test execution</h2>
                 <span className="text-xs text-gray-600">
                     Lorem ipsum dolor sit, amet consectetur adipisicing elit.
                     cumque vel nesciunt sunt velit possimus sapiente tempore repudiandae fugit fugiat.
@@ -176,16 +152,16 @@ export default function TestPlan() {
             <div className="w-full">
                 <div className="flex py-4 justify-between">
                     <Input
-                        placeholder="Filter test plans"
+                        placeholder="Filter test execution"
                         value={(globalFilter as string) ?? ""}
                         onChange={(event) => {
                             table.setGlobalFilter(String(event.target.value));
                         }}
                         className="max-w-sm"
                     />
-                    <div className="flex gap-2 ml-2">
-                        <AddTestPlan refreshTestPlans={refreshTestPlans} />
-                    </div>
+                    {/* <div className="flex gap-2 ml-2">
+                        <AddTestCycle refreshTestCycle={refreshTestCycle} />
+                    </div> */}
                 </div>
                 <div className="rounded-md border">
                     <Table>

@@ -1,6 +1,6 @@
-import { PAGINATION_QUERY_ENDPOINT, TEST_CYCLE_ENPOINT } from "../_constants/api-endpoints";
+import { PAGINATION_QUERY_ENDPOINT, TEST_CASE_STEP_ENPOINT, TEST_CYCLE_ENPOINT } from "../_constants/api-endpoints";
 import { IAssignedTestCase, ITestCyclePayload } from "../_interface/test-cycle";
-import { genericDelete, genericGet, genericPost, genericPut } from "./generic-api-methods";
+import { genericDelete, genericGet, genericPatch, genericPost, genericPut } from "./generic-api-methods";
 
 export const getTestCycleService = async (projectId: string, index: Number, pageSize: Number):
     Promise<any> => {
@@ -52,10 +52,31 @@ export const updateTestCycleService = async (
 
 export const assignTestCase = async (projectId: string, testCycleId: string, body: IAssignedTestCase): Promise<any> => {
     try {
-        const response = await genericPost(`${TEST_CYCLE_ENPOINT(projectId)}/${testCycleId}/assign-test-cases`, body);
+        const response = await genericPatch(`${TEST_CYCLE_ENPOINT(projectId)}/${testCycleId}/assign-test-cases`, body);
         return response || {};
     } catch (error) {
         console.error(`Error > assignTestCase:`, error);
+        throw error;
+    }
+};
+
+export const unAssignTestCase = async (projectId: string, testCycleId: string, body: IAssignedTestCase): Promise<any> => {
+    try {
+        const response = await genericPatch(`${TEST_CYCLE_ENPOINT(projectId)}/${testCycleId}/un-assign-test-cases`, body);
+        return response || {};
+    } catch (error) {
+        console.error(`Error > unAssignTestCase:`, error);
+        throw error;
+    }
+};
+
+export const getAssignTestCaseService = async (projectId: string, testCaseId: string):
+    Promise<any> => {
+    try {
+        const response = await genericGet(`${TEST_CYCLE_ENPOINT(projectId)}/${testCaseId}/assign-test-cases`);
+        return response || [];
+    } catch (error) {
+        console.error(`Error > getAssignTestCaseService:`, error);
         throw error;
     }
 };

@@ -33,6 +33,7 @@ import { PAGINATION_LIMIT } from "@/app/_utils/common";
 import ViewIssue from "./_components/view-issue";
 
 export default function Issues() {
+  const [issues, setIssues] = useState<IIssue[]>([]);
   const columns: ColumnDef<IIssue>[] = [
     {
       accessorKey: "customId",
@@ -106,6 +107,16 @@ export default function Issues() {
         </div>
       ),
     },
+    ...(
+      issues.some((item) => item.userId?._id) ?
+        [{
+          accessorKey: "createdBy",
+          header: "created By",
+          cell: ({ row }: { row: any }) => (
+            <div className="">{`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}</div>
+          ),
+        }] : []
+    ),
     {
       accessorKey: "status",
       header: ({ column }) => (
@@ -129,7 +140,6 @@ export default function Issues() {
   const [rowSelection, setRowSelection] = useState({});
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [globalFilter, setGlobalFilter] = useState<unknown>([]);
-  const [issues, setIssues] = useState<IIssue[]>([]);
   const [issue, setIssue] = useState<IIssue>();
   const [isViewOpen, setIsViewOpen] = useState<boolean>(false);
   const [totalPageCount, setTotalPageCount] = useState(0);

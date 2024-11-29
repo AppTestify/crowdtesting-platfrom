@@ -25,7 +25,7 @@ import {
 import { IProject, IProjectPayload } from "@/app/_interface/project";
 import { Checkbox } from "@/components/ui/checkbox";
 import { getProjectsService } from "@/app/_services/project.service";
-import { formatDate } from "@/app/_constants/date-formatter";
+import { formatDate, formatDateWithoutTime } from "@/app/_constants/date-formatter";
 import { RowActions } from "./_components/row-actions";
 import { BulkDelete } from "./_components/bulk-delete";
 import ProjectStatus from "./_components/project-status";
@@ -146,7 +146,7 @@ export default function Projects() {
       ...columns,
       {
         accessorKey: "createdBy",
-        header: "Owner",
+        header: "Created By",
         cell: ({ row }) => <div>
           {`${row.original?.userId?.firstName ? row.original?.userId?.firstName : ""}
            ${row.original?.userId?.lastName ? row.original?.userId?.lastName : ""}`}
@@ -166,8 +166,8 @@ export default function Projects() {
     const response = await getProjectsService(pageIndex, pageSize);
     const formattedProjects = response?.projects?.map((project: any) => ({
       ...project,
-      startDate: formatDate(project.startDate),
-      endDate: formatDate(project.endDate),
+      startDate: formatDateWithoutTime(project.startDate),
+      endDate: formatDateWithoutTime(project.endDate),
     }));
     setProjects(formattedProjects as IProjectPayload[]);
     setTotalPageCount(response?.total)

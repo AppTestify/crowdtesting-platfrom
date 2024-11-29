@@ -74,8 +74,8 @@ export default function TestPlan() {
         ...(
             testCycle.some((item) => item?.userId?._id) ?
                 [{
-                    accessorKey: "Name",
-                    header: "Owner",
+                    accessorKey: "createdBy",
+                    header: "Created By",
                     cell: ({ row }: { row: any }) => (
                         <div className="">{`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}</div>
                     ),

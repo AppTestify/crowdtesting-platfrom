@@ -90,7 +90,7 @@ export async function GET(req: Request) {
         let response = null;
         let totalProjects;
         const { skip, limit } = serverSidePagination(req);
-        const userIdFormat = await IdFormat.findOne({ entity: DBModels.PROJECT });
+        const projectIdFormat = await IdFormat.findOne({ entity: DBModels.PROJECT });
         if (!(await isAdmin(session.user))) {
             response = addCustomIds(
                 await Project.find({
@@ -101,7 +101,7 @@ export async function GET(req: Request) {
                     .skip(skip)
                     .limit(Number(limit))
                     .lean(),
-                userIdFormat.idFormat
+                projectIdFormat.idFormat
             );
             totalProjects = await Project.find({
                 'users.userId': session.user._id,
@@ -115,7 +115,7 @@ export async function GET(req: Request) {
                     .skip(skip)
                     .limit(Number(limit))
                     .lean(),
-                userIdFormat.idFormat
+                projectIdFormat.idFormat
             );
             totalProjects = await Project.find({ deletedAt: { $exists: false } }).countDocuments();
         }

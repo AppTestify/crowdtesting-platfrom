@@ -1,14 +1,10 @@
-import { DBModels } from "@/app/_constants";
 import { DB_CONNECTION_ERROR_MESSAGE, INVALID_INPUT_ERROR_MESSAGE, USER_UNAUTHORIZED_ERROR_MESSAGE, USER_UNAUTHORIZED_SERVER_ERROR_MESSAGE } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
-import { ITestCase } from "@/app/_interface/test-case";
 import { isAdmin, verifySession } from "@/app/_lib/dal";
-import { IdFormat } from "@/app/_models/id-format.model";
-import { TestCycle } from "@/app/_models/test-cycle.model";
-import { testCycleSchema } from "@/app/_schemas/test-cycle.schema";
+import { Note } from "@/app/_models/note.model";
+import { NoteSchema } from "@/app/_schemas/note.schema";
 import { serverSidePagination } from "@/app/_utils/common-server-side";
-import { addCustomIds, replaceCustomId } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function POST(
@@ -36,7 +32,7 @@ export async function POST(
         }
 
         const body = await req.json();
-        const response = testCycleSchema.safeParse(body);
+        const response = NoteSchema.safeParse(body);
 
         if (!response.success) {
             return Response.json(
@@ -48,15 +44,17 @@ export async function POST(
             );
         }
 
-        const newTestSuite = new TestCycle({
+        const { projectId } = params;
+        const newNote = new Note({
             ...response.data,
             userId: session.user._id,
+            projectId: projectId
         });
-        const saveTestSuite = await newTestSuite.save();
+        const saveNote = await newNote.save();
 
         return Response.json({
-            message: "Test cycle added successfully",
-            id: saveTestSuite?._id,
+            message: "Note added successfully",
+            id: saveNote?._id,
         });
 
     } catch (error: any) {
@@ -89,43 +87,27 @@ export async function GET(
 
         let response = null;
         const { projectId } = params;
-        const totalTestCycles = await TestCycle.find({ projectId: projectId }).countDocuments();
         const { skip, limit } = serverSidePagination(req);
-        const userIdFormat = await IdFormat.findOne({ entity: DBModels.TEST_CYCLE });
-        const testCaseIdFormat = await IdFormat.findOne({ entity: DBModels.TEST_CASE });
+        const totalNotes = await Note.find({
+            projectId: projectId
+        }).countDocuments();
 
         if (!(await isAdmin(session.user))) {
-            response = addCustomIds(
-                await TestCycle.find({ projectId: projectId })
-                    .populate("testCaseId")
-                    .sort({ createdAt: -1 })
-                    .skip(skip)
-                    .limit(Number(limit))
-                    .lean(),
-                userIdFormat.idFormat
-            );
+            response = await Note.find({ projectId: projectId })
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(Number(limit))
+                .lean();
         } else {
-            response = addCustomIds(
-                await TestCycle.find({ projectId: projectId })
-                    .populate("userId", "id firstName lastName")
-                    .populate("testCaseId")
-                    .sort({ createdAt: -1 })
-                    .skip(skip)
-                    .limit(Number(limit))
-                    .lean(),
-                userIdFormat.idFormat
-            );
+            response = await Note.find({ projectId: projectId })
+                .populate("userId", "id firstName lastName")
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(Number(limit))
+                .lean();
         }
 
-        const result = response.map((res) => ({
-            ...res,
-            testCaseId: res?.testCaseId?.map((testCase: ITestCase) => ({
-                ...testCase,
-                customId: replaceCustomId(testCaseIdFormat.idFormat, testCase?.customId)
-            })),
-        }));
-
-        return Response.json({ "testCycles": result, "total": totalTestCycles });
+        return Response.json({ Notes: response, total: totalNotes });
     } catch (error: any) {
         return errorHandler(error);
     }

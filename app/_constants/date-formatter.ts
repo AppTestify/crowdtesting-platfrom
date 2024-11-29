@@ -3,7 +3,13 @@ import moment from 'moment';
 export function formatDate(dateString: string): string {
   const date = moment(dateString);
 
-  return date.format("MMMM Do YYYY hh:mm:ss A");
+  return date.format("MMMM Do YYYY hh:mm A");
+}
+
+export function formatDateWithoutTime(dateString: string): string {
+  const date = moment(dateString);
+
+  return date.format("MMMM Do YYYY ");
 }
 
 export function formatDateReverse(dateString: string | Date): string {

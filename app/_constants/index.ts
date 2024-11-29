@@ -17,7 +17,8 @@ export enum DBModels {
   REQUIREMENT_ATTACHMENT = "RequirementAttachment",
   FILE = "File",
   ID_FORMAT = "IdFormat",
-  COUNTER = "Counter"
+  COUNTER = "Counter",
+  NOTE = "Note"
 }
 
 export const JWT_TOKEN_EXPIRE_LIMIT = "8h";

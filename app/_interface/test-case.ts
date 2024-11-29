@@ -21,4 +21,5 @@ export interface ITestCase {
     customId?: string;
     userId?: IUserByAdmin;
     createdAt?: string;
+    _id?: string;
 }
