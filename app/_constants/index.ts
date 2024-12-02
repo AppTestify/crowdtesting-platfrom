@@ -9,6 +9,7 @@ export enum DBModels {
   ISSUE = "Issue",
   ISSUE_ATTACHMENT = "IssueAttachment",
   TEST_SUITE = "TestSuite",
+  WEBSITE = "Website",
   TEST_PLAN = "TestPlan",
   TEST_CASE = "TestCase",
   TEST_CASE_STEP = "TestCaseStep",

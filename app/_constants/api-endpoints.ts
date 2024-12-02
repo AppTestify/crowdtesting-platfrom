@@ -24,6 +24,9 @@ export const USER_PASSWORD_ENDPOINT = "/api/users/password"
 export const USERS_BULK_DELETE_ENDPOINT = "/api/users/bulk/delete";
 export const PROJECT_USERS_ENDPOINT = "/api/project/users";
 export const ADMIN_ENDPOINT = "/api/users/admin";
+export const WEBSITE_LOGO_ENDPOINT = "/api/setting/logo";
+export const WEBSITE_ENDPOINT = "/api/setting/website";
+export const ID_FORMAT_ENDPOINT = "/api/setting/id-format";
 
 export const GET_USER_ENDPOINT = (email: string) => {
   return `/api/users/${email}`;

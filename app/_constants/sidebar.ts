@@ -5,6 +5,7 @@ import {
   LayoutDashboardIcon,
   Shield,
   Users,
+  Settings,
 } from "lucide-react";
 import { UserRoles } from "./user-roles";
 
@@ -95,6 +96,12 @@ export const adminNavbar = [
     title: "Profile",
     url: "/private/profile",
     icon: User,
+    disabled: false
+  },
+  {
+    title: "Setting",
+    url: "/private/setting",
+    icon: Settings,
     disabled: false
   },
 ];
