@@ -5,6 +5,7 @@ import { connectDatabase } from "@/app/_db";
 import { ITestCycle } from "@/app/_interface/test-cycle";
 import { verifySession } from "@/app/_lib/dal";
 import { IdFormat } from "@/app/_models/id-format.model";
+import { TestCaseResult } from "@/app/_models/test-case-result.model";
 import { TestCycle } from "@/app/_models/test-cycle.model";
 import { assignTestCasesSchema } from "@/app/_schemas/test-cycle.schema";
 import { addCustomIds } from "@/app/_utils/data-formatters";
@@ -47,9 +48,36 @@ export async function PATCH(
             );
         }
 
-        const { testCycleId } = params
+        const { testCycleId } = params;
+        let testCaseResults = [];
+
+        const checkTestCaseResult = await TestCaseResult.find({
+            testCaseId: { $in: response.data?.testCaseIds },
+            testCycleId: testCycleId
+        });
+
+        const existingTestCaseIds = checkTestCaseResult.map((result) => result.testCaseId.toString());
+        const newTestCaseIds = response.data?.testCaseIds.filter((testCaseId) => !existingTestCaseIds.includes(testCaseId));
+
+        if (newTestCaseIds.length > 0) {
+            testCaseResults = await TestCaseResult.insertMany(
+                newTestCaseIds.map((testCaseId) => ({
+                    userId: session.user._id,
+                    testCaseId,
+                    testCycleId
+                }))
+            );
+        }
+
+        const existingTestCaseResultIds = checkTestCaseResult.map((result) => result._id.toString());
+
+        const allTestCaseResultIds = [
+            ...existingTestCaseResultIds,
+            ...testCaseResults.map((result) => result._id.toString())
+        ];
+
         await TestCycle.findByIdAndUpdate(testCycleId,
-            { testCaseId: response.data?.testCaseIds },
+            { testCaseResults: allTestCaseResultIds },
             { new: true }
         )
 
@@ -85,21 +113,33 @@ export async function GET(
             );
         }
 
-        const { testCycleId } = params
+        const { testCycleId } = params;
         const testCaseIdFormat = await IdFormat.findOne({ entity: DBModels.TEST_CASE });
         const testCycle = await TestCycle.findById(testCycleId)
-            .populate("testCaseId")
+            .populate({
+                path: "testCaseResults",
+                populate: {
+                    path: "testCaseId"
+                }
+            })
             .sort({ createdAt: -1 })
             .lean() as ITestCycle | null;
 
         if (testCycle) {
-            const testCaseIds = testCycle.testCaseId ?? [];
-            const response = addCustomIds(testCaseIds,
-                testCaseIdFormat.idFormat
-            );
-
-            return Response.json(response);
+            testCycle.testCaseResults = testCycle.testCaseResults.map((testCaseResult) => ({
+                ...testCaseResult,
+                testCaseId: {
+                    ...testCaseResult.testCaseId,
+                    customId: addCustomIds(
+                        [{ customId: testCaseResult.testCaseId.customId }],
+                        testCaseIdFormat.idFormat
+                    )[0].customId
+                }
+            }));
         }
+
+        return Response.json(testCycle);
+
     } catch (error: any) {
         return errorHandler(error);
     }

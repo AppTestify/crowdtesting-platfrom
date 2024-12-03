@@ -1,4 +1,5 @@
 import { IRequirement } from "./requirement";
+import { ITestCaseResult } from "./test-case-result";
 import { ITestSuite } from "./test-suite";
 import { IUserByAdmin } from "./user";
 
@@ -22,4 +23,5 @@ export interface ITestCase {
     userId?: IUserByAdmin;
     createdAt?: string;
     _id?: string;
+    testCaseResults?: ITestCaseResult[];
 }

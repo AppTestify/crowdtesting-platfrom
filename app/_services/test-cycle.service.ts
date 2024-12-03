@@ -1,5 +1,5 @@
 import { PAGINATION_QUERY_ENDPOINT, TEST_CASE_STEP_ENPOINT, TEST_CYCLE_ENPOINT } from "../_constants/api-endpoints";
-import { IAssignedTestCase, ITestCyclePayload } from "../_interface/test-cycle";
+import { IAssignedTestCase, ITestCyclePayload, IUnAssignedTestCase } from "../_interface/test-cycle";
 import { genericDelete, genericGet, genericPatch, genericPost, genericPut } from "./generic-api-methods";
 
 export const getTestCycleService = async (projectId: string, index: Number, pageSize: Number):
@@ -60,7 +60,7 @@ export const assignTestCase = async (projectId: string, testCycleId: string, bod
     }
 };
 
-export const unAssignTestCase = async (projectId: string, testCycleId: string, body: IAssignedTestCase): Promise<any> => {
+export const unAssignTestCase = async (projectId: string, testCycleId: string, body: IUnAssignedTestCase): Promise<any> => {
     try {
         const response = await genericPatch(`${TEST_CYCLE_ENPOINT(projectId)}/${testCycleId}/un-assign-test-cases`, body);
         return response || {};

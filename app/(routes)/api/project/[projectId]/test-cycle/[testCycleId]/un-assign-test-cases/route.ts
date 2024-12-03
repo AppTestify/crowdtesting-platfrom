@@ -2,8 +2,9 @@ import { DB_CONNECTION_ERROR_MESSAGE, INVALID_INPUT_ERROR_MESSAGE, USER_UNAUTHOR
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
 import { verifySession } from "@/app/_lib/dal";
+import { TestCaseResult } from "@/app/_models/test-case-result.model";
 import { TestCycle } from "@/app/_models/test-cycle.model";
-import { assignTestCasesSchema } from "@/app/_schemas/test-cycle.schema";
+import { assignTestCasesSchema, unAssignTestCasesSchema } from "@/app/_schemas/test-cycle.schema";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function PATCH(
@@ -31,7 +32,7 @@ export async function PATCH(
         }
 
         const body = await req.json();
-        const response = assignTestCasesSchema.safeParse(body);
+        const response = unAssignTestCasesSchema.safeParse(body);
 
         if (!response.success) {
             return Response.json(
@@ -43,9 +44,19 @@ export async function PATCH(
             );
         }
 
-        const { testCycleId } = params
+        const { testCycleId } = params;
+        const { testCaseIds, isSingleDelete } = response.data;
+        let TestCaseResultIds;
+        
+        if (isSingleDelete) {
+            const TestCaseResults = await TestCaseResult.find({ testCaseId: testCaseIds, testCycleId: testCycleId });
+            TestCaseResultIds = TestCaseResults.map((TestCaseResult) => TestCaseResult._id);
+            await TestCaseResult.deleteMany({ testCaseId: testCaseIds, testCycleId: testCycleId });
+        } else {
+            await TestCaseResult.deleteMany({ _id: testCaseIds })
+        }
         await TestCycle.findByIdAndUpdate(testCycleId,
-            { $pull: { testCaseId: { $in: response.data?.testCaseIds } } },
+            { $pull: { testCaseResults: { $in: isSingleDelete ? TestCaseResultIds : testCaseIds } } },
             { new: true }
         )
 
