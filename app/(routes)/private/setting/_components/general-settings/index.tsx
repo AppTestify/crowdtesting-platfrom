@@ -62,7 +62,6 @@ export default function GeneralSettings() {
         getWebsites();
     }
 
-
     async function onSubmit(values: z.infer<typeof generalSettingSchema>) {
         setIsLoading(true);
         try {
@@ -70,7 +69,6 @@ export default function GeneralSettings() {
                 ...values,
             });
             if (response) {
-                RefreshWebsites();
                 toasterService.success(response.message);
             }
         } catch (error) {
