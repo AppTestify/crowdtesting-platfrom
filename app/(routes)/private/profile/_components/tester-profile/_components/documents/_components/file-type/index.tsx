@@ -1,5 +1,5 @@
 import * as React from "react";
-import { IDocument } from "@/app/_interface/document";
+import { IDocument, IUserDocument } from "@/app/_interface/document";
 import { Row } from "@tanstack/react-table";
 import {
   File,
@@ -14,7 +14,7 @@ import {
 } from "@/app/(routes)/private/profile/_components/tester-profile/_components/documents/_constants";
 import { Badge } from "@/components/ui/badge";
 
-export function FileType({ document }: { document: Row<IDocument> }) {
+export function FileType({ document }: { document: Row<IDocument | IUserDocument> }) {
   const getFileType = (fileType: any) => {
     switch (fileType) {
       case DocumentType.NDA:

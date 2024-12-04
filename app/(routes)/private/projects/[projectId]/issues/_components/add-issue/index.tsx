@@ -3,14 +3,14 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Delete,
-  DeleteIcon,
-  Download,
+  ChevronDown,
+  ChevronRight,
+  ChevronUp,
+  Equal,
   Loader2,
-  Paperclip,
   Plus,
 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import toasterService from "@/app/_services/toaster-service";
 import {
@@ -39,20 +39,21 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 import {
   IssueStatus,
+  Priority,
   PRIORITY_LIST,
   SEVERITY_LIST,
 } from "@/app/_constants/issue";
-import { Textarea } from "@/components/ui/text-area";
 import { useParams } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import IssueAttachments from "../attachments";
+import IssueAttachments from "../attachments/issue-attachment";
 import { IssueTab } from "../../_constants";
+import TextEditor from "../../../../_components/text-editor";
+import { displayIcon } from "@/app/_utils/common-functionality";
 
 const projectSchema = z.object({
   title: z.string().min(1, "Required"),
@@ -86,6 +87,13 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
     setTab(value);
   };
 
+  useEffect(() => {
+    if (sheetOpen) {
+      setIssueId("");
+      setTab(IssueTab.SUMMARY);
+    }
+  }, [sheetOpen]);
+
   async function onSubmit(values: z.infer<typeof projectSchema>) {
     setIsLoading(true);
     try {
@@ -93,6 +101,7 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
       if (response) {
         setIssueId(response.id);
         setTab(IssueTab.ATTACHMENTS);
+        refreshIssues();
         toasterService.success(response.message);
       }
     } catch (error) {
@@ -167,7 +176,7 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
                             onValueChange={field.onChange}
                             value={field.value}
                           >
-                            <SelectTrigger className="w-[250px]">
+                            <SelectTrigger className="w-full">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -195,14 +204,17 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
                             onValueChange={field.onChange}
                             value={field.value}
                           >
-                            <SelectTrigger className="w-[250px]">
+                            <SelectTrigger className="w-full">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
                               <SelectGroup>
                                 {PRIORITY_LIST.map((priority) => (
                                   <SelectItem value={priority}>
-                                    {priority}
+                                    <div className="flex items-center">
+                                      <span className="mr-1">{displayIcon(priority)}</span>
+                                      {priority}
+                                    </div>
                                   </SelectItem>
                                 ))}
                               </SelectGroup>
@@ -222,10 +234,12 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
                         <FormItem>
                           <FormLabel>Description</FormLabel>
                           <FormControl>
-                            <Textarea
-                              {...field}
-                              className="h-[150px]"
-                              placeholder="Type issue description"
+                            <TextEditor
+                              markup={field.value || ""}
+                              onChange={(value) => {
+                                form.setValue("description", value);
+                                form.trigger("description");
+                              }}
                             />
                           </FormControl>
                           <FormMessage />
@@ -264,7 +278,7 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
             </div>
           </TabsContent>
           <TabsContent value={IssueTab.ATTACHMENTS}>
-            <IssueAttachments />
+            <IssueAttachments issueId={issueId} isUpdate={false} isView={false} />
           </TabsContent>
         </Tabs>
       </SheetContent>

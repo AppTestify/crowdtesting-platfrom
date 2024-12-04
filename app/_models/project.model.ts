@@ -7,7 +7,7 @@ export interface IProject extends Document {
   endDate: Date;
   description: string;
   isActive: Boolean;
-  testers: Types.ObjectId[];
+  users: Types.ObjectId[];
   userId: Types.ObjectId;
 }
 
@@ -18,7 +18,7 @@ const ProjectSchema = new Schema<IProject>(
     endDate: { type: Date, required: true },
     description: { type: String, required: false },
     isActive: { type: Boolean, required: true },
-    testers: [{ type: Schema.Types.ObjectId, ref: DBModels.TESTER }],
+    users: [{ type: Schema.Types.ObjectId, ref: DBModels.USER }],
     userId: { type: Schema.Types.ObjectId, ref: DBModels.USER, required: true },
   },
   {

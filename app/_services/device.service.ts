@@ -1,6 +1,7 @@
 import {
   DEVICES_BULK_DELETE_ENDPOINT,
   DEVICES_ENDPOINT,
+  PAGINATION_QUERY_ENDPOINT,
 } from "../_constants/api-endpoints";
 import {
   IDevicePayload,
@@ -13,9 +14,9 @@ import {
   genericPut,
 } from "./generic-api-methods";
 
-export const getDevicesService = async (): Promise<any> => {
+export const getDevicesService = async (index: Number, pageSize: Number): Promise<any> => {
   try {
-    const response = await genericGet(DEVICES_ENDPOINT);
+    const response = await genericGet(`${DEVICES_ENDPOINT}${PAGINATION_QUERY_ENDPOINT(index, pageSize)}`);
     return response || [];
   } catch (error) {
     console.error(`Error > getDevices:`, error);

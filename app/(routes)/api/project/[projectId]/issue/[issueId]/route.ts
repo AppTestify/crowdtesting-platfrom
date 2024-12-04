@@ -5,6 +5,7 @@ import { verifySession } from "@/app/_lib/dal";
 import { IssueAttachment } from "@/app/_models/issue-attachment.model";
 import { Issue } from "@/app/_models/issue.model";
 import { issueSchema } from "@/app/_schemas/issue.schema";
+import { normaliseIds } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function PUT(
@@ -92,6 +93,39 @@ export async function DELETE(
         await IssueAttachment.deleteMany({ issueId: issueId })
 
         return Response.json({ message: "Issue deleted successfully" });
+    } catch (error: any) {
+        return errorHandler(error);
+    }
+}
+
+export async function GET(
+    req: Request,
+    { params }: { params: { issueId: string } }
+) {
+    try {
+        const session = await verifySession();
+        if (!session || !session.isAuth) {
+            return Response.json(
+                { message: USER_UNAUTHORIZED_SERVER_ERROR_MESSAGE },
+                { status: HttpStatusCode.UNAUTHORIZED }
+            );
+        }
+
+        const isDBConnected = await connectDatabase();
+        if (!isDBConnected) {
+            return Response.json(
+                {
+                    message: DB_CONNECTION_ERROR_MESSAGE,
+                },
+                { status: HttpStatusCode.INTERNAL_SERVER_ERROR }
+            );
+        }
+
+        let response = null;
+        const { issueId } = params;
+
+        response = await Issue.findById(issueId)
+        return Response.json(response);
     } catch (error: any) {
         return errorHandler(error);
     }

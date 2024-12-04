@@ -77,3 +77,14 @@ export const getFileService = async (fileId: string): Promise<any> => {
     throw error;
   }
 };
+
+export const getFilesByUserIdToAdminService = async (userId: string): Promise<any> => {
+  try {
+    const response = await genericGet(`${FILES_ENDPOINT}/user/${userId}`);
+
+    return response || {};
+  } catch (error) {
+    console.error(`Error > getFilesByUserIdToAdminService:`, error);
+    throw error;
+  }
+};

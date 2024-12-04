@@ -64,6 +64,8 @@ export interface ITester extends Document {
   devices: IDevice[];
   address: IAddress;
   isApproved: boolean;
+  bio?: string;
+  certifications?: ICertification[];
 }
 
 
@@ -133,6 +135,10 @@ export interface Certificate {
 }
 
 export interface ItemListingProps {
-  defualtItems: Skill[]; 
-  info: string; 
+  defualtItems: Skill[];
+  info: string;
+}
+
+export interface ICertificatesView {
+  certificate: ICertification[];
 }

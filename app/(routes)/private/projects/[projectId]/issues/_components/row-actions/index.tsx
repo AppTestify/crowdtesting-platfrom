@@ -1,6 +1,6 @@
 "use client";
 import { ConfirmationDialog } from "@/app/_components/confirmation-dialog";
-import { IIssue, IIssuePayload } from "@/app/_interface/issue";
+import { IIssue } from "@/app/_interface/issue";
 import { deleteIssueService } from "@/app/_services/issue.service";
 import toasterService from "@/app/_services/toaster-service";
 import { Button } from "@/components/ui/button";
@@ -12,9 +12,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Row } from "@tanstack/react-table";
-import { Edit, MoreHorizontal, Trash } from "lucide-react";
+import { Edit, Eye, MoreHorizontal, Trash } from "lucide-react";
 import { useState } from "react";
 import EditIssue from "../edit-issue";
+import ViewIssue from "../view-issue";
 
 export function IssueRowActions({
   row,
@@ -24,6 +25,7 @@ export function IssueRowActions({
   refreshIssues: () => void;
 }) {
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isViewOpen, setIsViewOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const projectId = row.original.projectId as string;
@@ -56,6 +58,12 @@ export function IssueRowActions({
         refreshIssues={refreshIssues}
       />
 
+      <ViewIssue
+        issue={row.original as IIssue}
+        sheetOpen={isViewOpen}
+        setSheetOpen={setIsViewOpen}
+      />
+
       <ConfirmationDialog
         isOpen={isDeleteOpen}
         setIsOpen={setIsDeleteOpen}
@@ -76,6 +84,15 @@ export function IssueRowActions({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
+          <DropdownMenuItem
+            className="mb-1"
+            onClick={() => {
+              setIsViewOpen(true);
+            }}
+          >
+            <Eye className="h-2 w-2" /> View
+          </DropdownMenuItem>
+          <DropdownMenuSeparator className="border-b" />
           <DropdownMenuItem
             className="mb-1"
             onClick={() => {

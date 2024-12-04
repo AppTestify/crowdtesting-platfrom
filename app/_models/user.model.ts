@@ -14,6 +14,8 @@ export interface IUser extends Document {
   profilePicture: string;
   paypalId: string;
   projects: Types.ObjectId[];
+  sendCredentials: boolean;
+  credentialsSentAt: Date;
 }
 
 const userSchema = new Schema<IUser>(
@@ -64,6 +66,13 @@ const userSchema = new Schema<IUser>(
       required: false,
     },
     projects: [{ type: Schema.Types.ObjectId, ref: DBModels.PROJECT }],
+    sendCredentials: {
+      type: Boolean,
+      default: false
+    },
+    credentialsSentAt: {
+      type: Date,
+    }
   },
   {
     timestamps: true,

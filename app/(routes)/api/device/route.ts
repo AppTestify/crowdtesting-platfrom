@@ -9,6 +9,7 @@ import { connectDatabase } from "@/app/_db";
 import { isAdmin, verifySession } from "@/app/_lib/dal";
 import { Device } from "@/app/_models/device.model";
 import { deviceSchema } from "@/app/_schemas/device.schema";
+import { serverSidePagination } from "@/app/_utils/common-server-side";
 import { normaliseIds } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 
@@ -82,23 +83,31 @@ export async function GET(req: Request) {
     }
 
     let response = null;
+    const { skip, limit } = serverSidePagination(req);
+    let totalDevices;
 
     if (!(await isAdmin(session.user))) {
       response = normaliseIds(
         await Device.find({ userId: session.user._id })
           .sort({ createdAt: -1 })
+          .skip(skip)
+          .limit(Number(limit))
           .lean()
       );
+      totalDevices = await Device.find({ userId: session.user._id }).countDocuments();
     } else {
       response = normaliseIds(
         await Device.find({})
           .populate("userId", "email firstName lastName isActive")
           .sort({ createdAt: -1 })
+          .skip(skip)
+          .limit(Number(limit))
           .lean()
       );
+      totalDevices = await Device.find({}).countDocuments();
     }
 
-    return Response.json(response);
+    return Response.json({ "devices": response, "total": totalDevices });
   } catch (error: any) {
     return errorHandler(error);
   }

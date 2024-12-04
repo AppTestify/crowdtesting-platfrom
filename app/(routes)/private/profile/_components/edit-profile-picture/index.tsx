@@ -6,7 +6,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import React, { useEffect, useState } from "react";
 import UploadProfilePicture from "./_components/upload-profile-picture";
-import { IProfilePicture } from "@/app/_interface/user";
 import { ConfirmationDialog } from "@/app/_components/confirmation-dialog";
 import toasterService from "@/app/_services/toaster-service";
 import { deleteProfilePictureService } from "@/app/_services/user.service";

@@ -1,7 +1,9 @@
 import {
   ACCOUNT_VERIFICATION_ENDPOINT,
   ACCOUNT_VERIFICATION_RESEND_ENDPOINT,
+  FORGOT_PASSWORD_ENDPOINT,
   LOGOUT,
+  RESET_PASSWORD_ENDPOINT,
   SIGN_IN_ENDPOINT,
   SIGN_UP_ENDPOINT,
   UPDATE_ROLE,
@@ -9,6 +11,8 @@ import {
 import { StorageKey } from "../_constants/localstorage-keys";
 import {
   IAccountVerificationPayload,
+  IForgotPasswordPayload,
+  IResetPasswordPayload,
   ISignInPayload,
   ISignUpPayload,
 } from "../_interface/auth";
@@ -91,6 +95,26 @@ export const resendAccountVerificationMailService = async (): Promise<any> => {
     return response;
   } catch (error) {
     console.error(`Error > resendAccountVerificationMailService:`, error);
+    throw error;
+  }
+};
+
+export const forgotPasswordService = async (body: IForgotPasswordPayload): Promise<any> => {
+  try {
+    const response = await genericPost(FORGOT_PASSWORD_ENDPOINT, body);
+    return response;
+  } catch (error: any) {
+    console.error(`Error > forgotPasswordService:`, error.message);
+    throw error;
+  }
+};
+
+export const resetPasswordService = async (body: IResetPasswordPayload): Promise<any> => {
+  try {
+    const response = await genericPost(RESET_PASSWORD_ENDPOINT, body);
+    return response;
+  } catch (error: any) {
+    console.error(`Error > resetPasswordService:`, error.message);
     throw error;
   }
 };

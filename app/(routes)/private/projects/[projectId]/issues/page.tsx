@@ -23,19 +23,27 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { getIssuesService } from "@/app/_services/issue.service";
-import { IIssue, IIssuePayload } from "@/app/_interface/issue";
+import { IIssue } from "@/app/_interface/issue";
 import { AddIssue } from "./_components/add-issue";
 import { IssueRowActions } from "./_components/row-actions";
 import { useParams } from "next/navigation";
+import { displayIcon, statusBadge } from "@/app/_utils/common-functionality";
 
 export default function Issues() {
   const columns: ColumnDef<IIssue>[] = [
     {
       accessorKey: "title",
       header: "Title",
-      cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("title")}</div>
-      ),
+      cell: ({ row }) => {
+        const title = row.getValue("title");
+        if (typeof title === "string") {
+          return (
+            <div className="capitalize" >
+              {title.length > 40 ? `${title.substring(0, 40)}...` : title}
+            </div>
+          )
+        }
+      },
     },
     {
       accessorKey: "severity",
@@ -48,21 +56,14 @@ export default function Issues() {
       accessorKey: "priority",
       header: "Priority",
       cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("priority")}</div>
-      ),
-    },
-    {
-      accessorKey: "description",
-      header: "Description",
-      cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("description")}</div>
+        <div className="capitalize flex items-center"><span className="mr-1">{displayIcon(row.getValue("priority"))} </span>{row.getValue("priority")}</div>
       ),
     },
     {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("status")}</div>
+        <div className="capitalize">{statusBadge(row.getValue("status"))}</div>
       ),
     },
     {
@@ -168,9 +169,9 @@ export default function Issues() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}

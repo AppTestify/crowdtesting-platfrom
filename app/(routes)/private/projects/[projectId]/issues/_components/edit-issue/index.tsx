@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { ChevronDown, ChevronUp, Equal, Loader2 } from "lucide-react";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -23,7 +23,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { IIssue} from "@/app/_interface/issue";
+import { IIssue } from "@/app/_interface/issue";
 import {
   Select,
   SelectContent,
@@ -38,15 +38,18 @@ import {
   ISSUE_STATUS_LIST,
 } from "@/app/_constants/issue";
 import { updateIssueService } from "@/app/_services/issue.service";
-import { Textarea } from "@/components/ui/text-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import IssueAttachments from "../attachments";
+import IssueAttachments from "../attachments/issue-attachment";
+import TextEditor from "../../../../_components/text-editor";
+import { displayIcon } from "@/app/_utils/common-functionality";
 
 const issueSchema = z.object({
   title: z.string().min(1, "Required"),
   severity: z.string().min(1, "Required"),
   priority: z.string().min(1, "Required"),
-  description: z.string().min(1, "Required"),
+  description: z.string()
+    .min(10, "The description must be at least 10 characters long.")
+    .nonempty("Required."),
   status: z.string().optional(),
   projectId: z.string().optional(),
 });
@@ -143,7 +146,7 @@ const EditIssue = ({
                             onValueChange={field.onChange}
                             value={field.value}
                           >
-                            <SelectTrigger className="w-[250px]">
+                            <SelectTrigger className="w-full">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -171,14 +174,17 @@ const EditIssue = ({
                             onValueChange={field.onChange}
                             value={field.value}
                           >
-                            <SelectTrigger className="w-[250px]">
+                            <SelectTrigger className="w-full">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
                               <SelectGroup>
                                 {PRIORITY_LIST.map((priority) => (
                                   <SelectItem value={priority}>
-                                    {priority}
+                                    <div className="flex items-center">
+                                      <span className="mr-1">{displayIcon(priority)}</span>
+                                      {priority}
+                                    </div>
                                   </SelectItem>
                                 ))}
                               </SelectGroup>
@@ -227,13 +233,13 @@ const EditIssue = ({
                         <FormItem>
                           <FormLabel>Description</FormLabel>
                           <FormControl>
-                            <FormControl>
-                              <Textarea
-                                {...field}
-                                className="h-[140px]"
-                                placeholder="Type issue description"
-                              />
-                            </FormControl>
+                            <TextEditor
+                              markup={field.value || ""}
+                              onChange={(value) => {
+                                form.setValue("description", value);
+                                form.trigger("description");
+                              }}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -269,7 +275,7 @@ const EditIssue = ({
             </div>
           </TabsContent>
           <TabsContent value="attachments">
-            <IssueAttachments />
+            <IssueAttachments issueId={issueId} isUpdate={true} isView={false} />
           </TabsContent>
         </Tabs>
       </SheetContent>

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { IDocument } from "@/app/_interface/document";
+import { IDocument, IUserDocument } from "@/app/_interface/document";
 import { Row } from "@tanstack/react-table";
 import {
   File,
@@ -9,8 +9,9 @@ import {
   FileText,
 } from "lucide-react";
 import { ContentType } from "@/app/(routes)/private/profile/_components/tester-profile/_components/documents/_constants";
+import { IIssueAttachmentDisplay } from "@/app/_interface/issue";
 
-export function DocumentName({ document }: { document: Row<IDocument> }) {
+export function DocumentName({ document }: { document: Row<IDocument | IIssueAttachmentDisplay | IUserDocument> }) {
   const contentType = document.getValue("contentType");
 
   const getIconByContentType = (type: any) => {

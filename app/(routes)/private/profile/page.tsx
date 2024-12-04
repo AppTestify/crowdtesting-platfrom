@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import ActivateAccountAlert from "@/app/_components/warning-alert";
 import { UserRoles } from "@/app/_constants/user-roles";
 import TesterProfile from "./_components/tester-profile";
+import AdminProfile from "./_components/admin-profile";
 
 export default function Dashboard() {
   const { data } = useSession();
@@ -20,7 +21,9 @@ export default function Dashboard() {
     <main className="mx-4 mt-4">
       {user ? (
         <>
-          {user?.role === UserRoles.TESTER ? <TesterProfile user={user} /> : <>Profile</>}
+          {user?.role === UserRoles.TESTER ? <TesterProfile user={user} /> :
+            user?.role === UserRoles.ADMIN ? <AdminProfile user={user} /> : <>Profile</>
+          }
         </>
       ) : null}
     </main>

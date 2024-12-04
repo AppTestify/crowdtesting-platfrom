@@ -1,4 +1,5 @@
 import {
+  GET_ISSUE_ENPOINT,
   GET_ISSUES_ENPOINT,
   ISSUES_ENDPOINT,
 } from "../_constants/api-endpoints";
@@ -61,6 +62,16 @@ export const updateIssueService = async (
     return response || {};
   } catch (error) {
     console.error(`Error > updateIssueService:`, error);
+    throw error;
+  }
+};
+
+export const getIssueService = async (projectId: string, issueId: string): Promise<any> => {
+  try {
+    const response = await genericGet(GET_ISSUE_ENPOINT(projectId, issueId));
+    return response || [];
+  } catch (error) {
+    console.error(`Error > getIssues:`, error);
     throw error;
   }
 };

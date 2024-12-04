@@ -56,6 +56,16 @@ export const getFileMetaData = async (file: any) => {
   return data;
 }
 
+export const generateCustomPassword = (length = 12) => {
+  const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_-+=<>?';
+  let password = '';
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * charset.length);
+    password += charset[randomIndex];
+  }
+  return password;
+}
+
 export const serverSidePagination = (req: Request) => {
   const url = new URL(req.url);
   const page = parseInt(url.searchParams.get('page') || '1', 10);

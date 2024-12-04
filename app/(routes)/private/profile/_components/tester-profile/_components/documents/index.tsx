@@ -22,7 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { RowActions } from "./_components/row-actions";
 import { IDocument } from "@/app/_interface/document";
-import { getFilesByUserIdService } from "@/app/_services/file.service";
+import { getFilesByUserIdService, getFilesByUserIdToAdminService } from "@/app/_services/file.service";
 import AddDocument from "./_components/add-document";
 import { MAX_DOCUMENTS_LIMIT } from "../../_constants";
 import { DocumentName } from "@/app/_components/document-name";
@@ -30,7 +30,7 @@ import { FileType } from "./_components/file-type";
 import { useMediaQuery } from "react-responsive";
 import { MOBILE_BREAKPOINT } from "@/app/_constants/media-queries";
 
-export default function Documents() {
+export default function Documents({ userId }: { userId?: string }) {
   const columns: ColumnDef<IDocument>[] = [
     {
       accessorKey: "id",
@@ -69,7 +69,7 @@ export default function Documents() {
       id: "actions",
       enableHiding: false,
       cell: ({ row }) => (
-        <RowActions row={row} refreshDocuments={refreshDocuments} />
+        <RowActions row={row} refreshDocuments={refreshDocuments} userId={userId} />
       ),
     },
   ];
@@ -116,7 +116,12 @@ export default function Documents() {
 
   const getDocuments = async () => {
     setIsLoading(true);
-    const documents = await getFilesByUserIdService();
+    let documents;
+    if (userId) {
+      documents = await getFilesByUserIdToAdminService(userId);
+    } else {
+      documents = await getFilesByUserIdService();
+    }
     setDocuments(documents);
     setIsLoading(false);
   };
@@ -136,30 +141,34 @@ export default function Documents() {
 
       <main className="mt-4">
         <div>
-          <h2 className="text-lg">Personal Documents</h2>
-          <span className="text-gray-500 text-xs">
-            All your personal documents are stored here, you will find updated
-            documents or create new one.
-          </span>
+          <h2 className={`text-lg ${userId ? 'mb-2' : ''}`}>Personal Documents</h2>
+          {!userId &&
+            <span className="text-gray-500 text-xs">
+              All your personal documents are stored here, you will find updated
+              documents or create new one.
+            </span>
+          }
         </div>
         <div className="w-full">
-          <div className="flex items-center py-4 justify-between">
-            <Input
-              placeholder="Filter documents"
-              value={(globalFilter as string) ?? ""}
-              onChange={(event) => {
-                table.setGlobalFilter(String(event.target.value));
-              }}
-              className="max-w-sm"
-            />
-            <Button
-              className="ml-2"
-              onClick={() => setIsAddDocumentOpen(true)}
-              disabled={documents.length >= MAX_DOCUMENTS_LIMIT}
-            >
-              <Upload /> Upload document
-            </Button>
-          </div>
+          {!userId &&
+            <div className="flex items-center py-4 justify-between">
+              <Input
+                placeholder="Filter documents"
+                value={(globalFilter as string) ?? ""}
+                onChange={(event) => {
+                  table.setGlobalFilter(String(event.target.value));
+                }}
+                className="max-w-sm"
+              />
+              <Button
+                className="ml-2"
+                onClick={() => setIsAddDocumentOpen(true)}
+                disabled={documents.length >= MAX_DOCUMENTS_LIMIT}
+              >
+                <Upload /> Upload document
+              </Button>
+            </div>
+          }
           <div className="rounded-md border">
             <Table>
               <TableBody>
@@ -192,11 +201,13 @@ export default function Documents() {
               </TableBody>
             </Table>
           </div>
-          <div className="flex items-center justify-end space-x-2 py-4">
-            <div className="flex-1 text-sm text-muted-foreground">
-              You can only have {MAX_DOCUMENTS_LIMIT} documents at once.
+          {!userId &&
+            <div className="flex items-center justify-end space-x-2 py-4">
+              <div className="flex-1 text-sm text-muted-foreground">
+                You can only have {MAX_DOCUMENTS_LIMIT} documents at once.
+              </div>
             </div>
-          </div>
+          }
         </div>
       </main>
     </>

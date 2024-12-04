@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { AddProject } from "./_components/add-project";
 import {
   ColumnDef,
+  Row,
   SortingState,
   VisibilityState,
   flexRender,
@@ -31,9 +32,10 @@ import { BulkDelete } from "./_components/bulk-delete";
 import ProjectStatus from "./_components/project-status";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { PAGINATION_LIMIT } from "@/app/_utils/common";
 
 export default function Projects() {
-  const columns: ColumnDef<IProject>[] = [
+  let columns: ColumnDef<IProjectPayload>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -70,7 +72,7 @@ export default function Projects() {
       header: "Start Date",
       cell: ({ row }) => (
         <div className="capitalize">
-          {formatDate(row.getValue("startDate"))}
+          {row.getValue("startDate")}
         </div>
       ),
     },
@@ -79,26 +81,8 @@ export default function Projects() {
       header: "End Date",
       cell: ({ row }) => (
         <div className="capitalize">
-          {formatDate(row.getValue("endDate"))}
+          {row.getValue("endDate")}
         </div>
-      ),
-    },
-    {
-      accessorKey: "isActive",
-      header: "Status",
-      cell: ({ row }) => (
-        <ProjectStatus
-          status={row.getValue("isActive")}
-          projectId={row.original?.id as string}
-          refreshProjects={refreshProjects}
-        />
-      ),
-    },
-    {
-      id: "actions",
-      enableHiding: false,
-      cell: ({ row }) => (
-        <RowActions row={row} refreshProjects={refreshProjects} />
       ),
     },
   ];
@@ -108,20 +92,60 @@ export default function Projects() {
   const [rowSelection, setRowSelection] = useState({});
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [globalFilter, setGlobalFilter] = useState<unknown>([]);
-  const [projects, setProjects] = useState<IProject[]>([]);
+  const [projects, setProjects] = useState<IProjectPayload[]>([]);
+  const [pageIndex, setPageIndex] = useState(1);
+  const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
+  const [totalPageCount, setTotalPageCount] = useState(0);
 
 
-  const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize, setPageSize] = useState(7);
+  const statusColumn: ColumnDef<IProjectPayload> = {
+    accessorKey: "isActive",
+    header: "Status",
+    cell: ({ row }) => ( 
+      <ProjectStatus
+        status={row.getValue("isActive")}
+        projectId={row.original.id as string}
+        refreshProjects={refreshProjects}
+      />
+    ),
+  };
+
+  const actionsColumn: ColumnDef<IProjectPayload> = {
+    id: "actions",
+    enableHiding: false,
+    cell: ({ row }) => <RowActions row={row as Row<IProject>} refreshProjects={refreshProjects} />,
+  };
+
+  const hasUserId = projects.some((item) => item.userId?._id);
+  columns = hasUserId
+    ? [
+      ...columns,
+      {
+        accessorKey: "createdBy",
+        header: "Created By",
+        cell: ({ row }) => <div>
+          {`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}
+        </div>,
+      },
+      statusColumn,
+      actionsColumn
+    ]
+    : [...columns, statusColumn, actionsColumn];
 
   useEffect(() => {
     getProjects();
-  }, []);
+  }, [pageIndex, pageSize]);
 
   const getProjects = async () => {
     setIsLoading(true);
-    const projects = await getProjectsService();
-    setProjects(projects as IProject[]);
+    const response = await getProjectsService(pageIndex, pageSize);
+    const formattedProjects = response?.projects?.map((project: any) => ({
+      ...project,
+      startDate: formatDate(project.startDate),
+      endDate: formatDate(project.endDate),
+    }));
+    setProjects(formattedProjects as IProjectPayload[]);
+    setTotalPageCount(response?.total)
     setIsLoading(false);
   };
 
@@ -147,26 +171,26 @@ export default function Projects() {
       globalFilter,
       columnVisibility,
       rowSelection,
-      pagination: {
-        pageIndex,
-        pageSize,
-      },
     },
     onGlobalFilterChange: setGlobalFilter,
-    onPaginationChange: (updater) => {
-      const newPagination =
-        typeof updater === "function"
-          ? updater({ pageIndex, pageSize })
-          : updater;
-      setPageIndex(newPagination.pageIndex);
-      setPageSize(newPagination.pageSize);
-    },
   });
 
   const getSelectedRows = () => {
     return table.getFilteredSelectedRowModel().rows.map((row) => {
       return row.original.id;
     });
+  };
+
+  const handlePreviousPage = () => {
+    if (pageIndex > 1) {
+      setPageIndex(pageIndex - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (pageIndex < Math.ceil(totalPageCount / pageSize)) {
+      setPageIndex(pageIndex + 1);
+    }
   };
 
   return (
@@ -259,16 +283,16 @@ export default function Projects() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
+              onClick={handlePreviousPage}
+              disabled={pageIndex === 1}
             >
               Previous
             </Button>
             <Button
               variant="outline"
               size="sm"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
+              onClick={handleNextPage}
+              disabled={pageIndex >= Math.ceil(totalPageCount / pageSize)}
             >
               Next
             </Button>

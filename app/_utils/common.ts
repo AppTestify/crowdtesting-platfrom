@@ -9,3 +9,5 @@ export const downloadDocument = (contentType: any, base64: any, name: any) => {
 
   downloadLink.click();
 };
+
+export const PAGINATION_LIMIT = 7;

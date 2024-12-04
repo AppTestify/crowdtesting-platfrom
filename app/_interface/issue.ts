@@ -19,5 +19,18 @@ export interface IIssuePayload {
 }
 
 export interface IIssueAttachment {
-  attachments: File;
+  attachments: File[];
+}
+
+export interface IssueAttachmentsProps {
+  issueId: string;
+  isUpdate: boolean;
+  isView: boolean;
+}
+
+export interface IIssueAttachmentDisplay {
+  id: string;
+  data: string;
+  name: string;
+  contentType: string;
 }

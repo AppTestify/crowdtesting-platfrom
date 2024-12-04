@@ -34,6 +34,7 @@ import {
   SheetTitle
 } from "@/components/ui/sheet";
 import TextEditor from "../text-editor";
+import { formatSimpleDate } from "@/app/_constants/date-formatter";
 
 const projectSchema = z.object({
   title: z.string().min(1, "Required"),
@@ -61,7 +62,6 @@ const EditProject = ({
   const projectId = project?.id as string;
   const { title, startDate, endDate, description } = project;
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
   const form = useForm<z.infer<typeof projectSchema>>({
     resolver: zodResolver(projectSchema),
     defaultValues: {
@@ -78,8 +78,9 @@ const EditProject = ({
     try {
       const response = await updateProjectService(projectId, {
         ...values,
-        startDate: new Date(values.startDate.toISOString()),
-        endDate: new Date(values.endDate.toISOString()),
+        startDate: values.startDate,
+        endDate: values.endDate,
+        id: project.id
       });
       if (response) {
         refreshProjects();
@@ -91,6 +92,10 @@ const EditProject = ({
       setSheetOpen(false);
       setIsLoading(false);
     }
+  }
+
+  const formatDate = (date: Date) => {
+    return formatSimpleDate(date);
   }
 
   return (
@@ -138,8 +143,8 @@ const EditProject = ({
                                 !field.value && "text-muted-foreground"
                               )}
                             >
-                              {field.value ? (
-                                format(field.value, "PPP")
+                              {field?.value ? (
+                                format(formatDate(field.value), "PPP")
                               ) : (
                                 <span>Start date</span>
                               )}
@@ -178,8 +183,8 @@ const EditProject = ({
                                 !field.value && "text-muted-foreground"
                               )}
                             >
-                              {field.value ? (
-                                format(field.value, "PPP")
+                              {field?.value ? (
+                                format(formatDate(field.value), "PPP")
                               ) : (
                                 <span>End date</span>
                               )}

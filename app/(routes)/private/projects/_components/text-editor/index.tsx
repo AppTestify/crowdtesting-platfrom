@@ -15,7 +15,12 @@ type GroupName =
 
 const TextEditor: React.FC<TextEditorProps> = ({ markup, onChange }) => {
   const [value, setValue] = useState<string>();
+  const [content, setContent] = React.useState(markup);
 
+  React.useEffect(() => {
+    setContent(markup);
+  }, [markup]);
+  
   const editorRef = useRef<HTMLDivElement | null>(null);
 
   const handleChange = (newValue: any) => {
@@ -70,6 +75,7 @@ const TextEditor: React.FC<TextEditorProps> = ({ markup, onChange }) => {
       /> */}
 
       <Textarea
+        value={content}
         onChange={(event) => {
           handleChange(event?.target?.value);
         }}

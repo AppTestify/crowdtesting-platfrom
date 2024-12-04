@@ -42,9 +42,10 @@ import { AddDevice } from "./_components/add-device";
 import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
 import { RowActions } from "./_components/row-actions";
 import { BulkDelete } from "./_components/bulk-delete";
+import { PAGINATION_LIMIT } from "@/app/_utils/common";
 
 export default function Devices() {
-  const columns: ColumnDef<IDevice>[] = [
+  let columns: ColumnDef<IDevice>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -121,17 +122,6 @@ export default function Devices() {
         </div>
       ),
     },
-    {
-      id: "actions",
-      enableHiding: false,
-      cell: ({ row }) => (
-        <RowActions
-          row={row}
-          refreshDevices={refreshDevices}
-          browsers={browsers}
-        />
-      ),
-    },
   ];
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -142,6 +132,34 @@ export default function Devices() {
   const [browsers, setBrowsers] = useState<IBrowser[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [globalFilter, setGlobalFilter] = useState<any>([]);
+  const [pageIndex, setPageIndex] = useState(1);
+  const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
+  const [totalPageCount, setTotalPageCount] = useState(0);
+
+  const actionsColumn: ColumnDef<IDevice> = {
+    id: "actions",
+    enableHiding: false,
+    cell: ({ row }) => <RowActions
+      row={row}
+      refreshDevices={refreshDevices}
+      browsers={browsers}
+    />,
+  };
+
+  const hasUserId = devices.some((item) => item.userId?._id);
+  columns = hasUserId
+    ? [
+      ...columns,
+      {
+        accessorKey: "createdBy",
+        header: "Created By",
+        cell: ({ row }) => <div>
+          {`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}
+        </div>,
+      },
+      actionsColumn
+    ]
+    : [...columns, actionsColumn];
 
   const table = useReactTable({
     data: devices,
@@ -165,13 +183,17 @@ export default function Devices() {
 
   useEffect(() => {
     getDevices();
+  }, [pageIndex, pageSize]);
+
+  useEffect(() => {
     getBrowsers();
   }, []);
 
   const getDevices = async () => {
     setIsLoading(true);
-    const devices = await getDevicesService();
-    setDevices(devices);
+    const devices = await getDevicesService(pageIndex, pageSize);
+    setDevices(devices.devices);
+    setTotalPageCount(devices.total);
     setIsLoading(false);
   };
 
@@ -189,6 +211,18 @@ export default function Devices() {
     return table.getFilteredSelectedRowModel().rows.map((row) => {
       return row.original.id;
     });
+  };
+
+  const handlePreviousPage = () => {
+    if (pageIndex > 1) {
+      setPageIndex(pageIndex - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (pageIndex < Math.ceil(totalPageCount / pageSize)) {
+      setPageIndex(pageIndex + 1);
+    }
   };
 
   return (
@@ -274,6 +308,25 @@ export default function Devices() {
           <div className="flex-1 text-sm text-muted-foreground">
             {table.getFilteredSelectedRowModel().rows.length} of{" "}
             {table.getFilteredRowModel().rows.length} row(s) selected.
+          </div>
+
+          <div className="flex space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handlePreviousPage}
+              disabled={pageIndex === 1}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleNextPage}
+              disabled={pageIndex >= Math.ceil(totalPageCount / pageSize)}
+            >
+              Next
+            </Button>
           </div>
         </div>
       </div>
