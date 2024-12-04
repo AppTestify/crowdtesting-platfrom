@@ -8,6 +8,8 @@ export interface ITestCaseResult extends Document {
     remarks: string;
     result: string;
     actualResult: string;
+    updatedAt: Date;
+    updatedBy: string;
 }
 
 
@@ -19,9 +21,11 @@ const TestCaseResultSchema = new Schema<ITestCaseResult>(
         remarks: { type: String, required: false },
         result: { type: String, required: false },
         actualResult: { type: String, required: false },
+        updatedAt: { type: Date, default: null },
+        updatedBy: { type: String, required: false },
     },
     {
-        timestamps: true,
+        timestamps: { createdAt: true, updatedAt: false },
     }
 );
 

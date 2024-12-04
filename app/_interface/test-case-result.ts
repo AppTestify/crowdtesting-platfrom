@@ -4,9 +4,15 @@ import { IUserByAdmin } from "./user";
 
 export interface ITestCaseResult {
     id: string;
+    _id?: string;
+    userId?: IUserByAdmin;
     testCycleId: ITestCycle;
     testCaseId: ITestCase;
-    userId?: IUserByAdmin;
     createdAt?: string;
-    _id?: string;
+    updatedAt?: string;
+    actualResult?: string;
+    result?: string;
+    remarks?: string;
+    isStarted: boolean;
+    updatedBy?: string;
 }

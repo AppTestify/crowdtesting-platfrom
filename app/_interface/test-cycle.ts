@@ -15,6 +15,7 @@ export interface ITestCycle {
     description: string;
     id: string;
     testCaseResults: ITestCaseResult[];
+    customId?: string;
 }
 
 export interface IAssignedTestCase {
