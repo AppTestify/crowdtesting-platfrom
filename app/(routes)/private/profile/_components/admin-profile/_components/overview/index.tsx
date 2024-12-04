@@ -1,9 +1,12 @@
+import { IUserByAdmin } from '@/app/_interface/user'
+import { getAdminProfile, updateAdminProfile } from '@/app/_services/admin.service'
 import toasterService from '@/app/_services/toaster-service'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { zodResolver } from '@hookform/resolvers/zod'
-import React from 'react'
+import { Loader2 } from 'lucide-react'
+import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -12,22 +15,54 @@ const formSchema = z.object({
     lastName: z.string().min(1, "Last name is required")
 })
 
-export default function AdminProfileOverview({ user }: { user: any }) {
+export default function AdminProfileOverview() {
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [user, setUser] = useState<IUserByAdmin | null>(null);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
+        defaultValues: {
+            firstName: user?.firstName || "",
+            lastName: user?.lastName || "",
+        },
     });
+
+    useEffect(() => {
+        if (user) {
+            form.reset({
+                firstName: user.firstName || "",
+                lastName: user.lastName || "",
+            });
+        }
+    }, [user, form]);
+
+    useEffect(() => {
+        adminProfile();
+    }, []);
+
+    const adminProfile = async () => {
+        try {
+            const response = await getAdminProfile();
+            setUser(response);
+        } catch (error) {
+            toasterService.error();
+        }
+    }
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
-
+            const response = await updateAdminProfile({ ...values });
+            if (response) {
+                setIsLoading(false);
+                adminProfile();
+                toasterService.success(response?.message);
+            }
         } catch (error) {
             toasterService.error();
         }
     }
 
     return (
-        // <div>
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col">
                 <div>
@@ -71,19 +106,17 @@ export default function AdminProfileOverview({ user }: { user: any }) {
                 </div>
                 <div className="w-full flex justify-end mt-4">
                     <Button
-                        // disabled={isLoading || !form.formState.isValid}
+                        disabled={isLoading || !form.formState.isValid}
                         type="submit"
                         className="w-full md:w-fit"
                     >
-                        {/* {isLoading ? (
+                        {isLoading ? (
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         ) : null}
-                        {isLoading ? "Saving profile" : "Save profile"} */}
-                        Save profile
+                        {isLoading ? "Saving profile" : "Save profile"}
                     </Button>
                 </div>
             </form>
         </Form>
-        // </div>
     )
 }

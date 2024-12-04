@@ -17,6 +17,7 @@ export const ISSUES_ENDPOINT = "/api/project/issue";
 export const PROFILE_PICTURE_ENDPOINT = "/api/users/profile-picture";
 export const PAYMENT_ENDPOINT = "/api/users/payment";
 export const TESTER_ENDPOINT = "/api/users/testers";
+export const ADMIN_ENDPOINT = "/api/users/admin";
 export const TESTER_PROFILE_ENDPOINT = "/api/users/testers/profile";
 export const FILES_ENDPOINT = "/api/users/file";
 export const USERS_ENDPOINT = "/api/users";

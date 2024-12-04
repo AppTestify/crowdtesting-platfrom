@@ -152,7 +152,7 @@ export default function Devices() {
       ...columns,
       {
         accessorKey: "createdBy",
-        header: "Created By",
+        header: "Owner",
         cell: ({ row }) => <div>
           {`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}
         </div>,
