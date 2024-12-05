@@ -56,7 +56,7 @@ export async function POST(req: Request) {
         });
     } catch (error: any) {
         return Response.json(
-            { message: GENERIC_ERROR_MESSAGE },
+            { message: error },
             { status: HttpStatusCode.INTERNAL_SERVER_ERROR }
         );
     }
