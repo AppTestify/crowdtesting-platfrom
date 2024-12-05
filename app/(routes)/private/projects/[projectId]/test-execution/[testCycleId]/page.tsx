@@ -7,11 +7,12 @@ import toasterService from '@/app/_services/toaster-service';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ColumnDef, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, SortingState, useReactTable, VisibilityState } from '@tanstack/react-table';
-import { ArrowUpDown, ChevronsRight, Play, Triangle } from 'lucide-react';
+import { ArrowUpDown, ChevronRight, ChevronsRight, Play, Slash, Triangle } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 import Moderate from './_components/moderate';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 
 export default function TestCasesInTestExecution() {
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -108,7 +109,7 @@ export default function TestCasesInTestExecution() {
             cell: ({ row }) => (
                 <div>
                     <Button size={"sm"} onClick={() => moderateOpen(row.original)}>
-                        <Triangle className='w-3 h-3' />
+                        <Play className='w-3 h-3' />
                     </Button>
                 </div>
             ),
@@ -164,21 +165,21 @@ export default function TestCasesInTestExecution() {
                 testCaseResult={moderate}
             />
             <div className="mb-4">
-                <h2 className="text-medium flex text-primary">
-                    <Link href={`/private/projects/${projectId}/test-execution`}>
-                        Test execution
-                    </Link>
-                    <div className='flex items-center justify-center ml-1 text-black'>
-                        <ChevronsRight className='h-4 w-4 ' />
-                        <p className='ml-1'>
-                            {testExecution[0]?.testCycleId?.title} ({testExecution[0]?.testCycleId?.customId})
-                        </p>
-                    </div>
-                </h2>
-                {/* <span className="text-xs text-gray-600">
-                    Lorem ipsum dolor sit, amet consectetur adipisicing elit.
-                    cumque vel nesciunt sunt velit possimus sapiente tempore repudiandae fugit fugiat.
-                </span> */}
+                <Breadcrumb>
+                    <BreadcrumbList>
+                        <BreadcrumbItem>
+                            <BreadcrumbLink href={`/private/projects/${projectId}/test-execution`}>
+                                Test execution
+                            </BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator>
+                            <ChevronRight className='h-3 w-3' />
+                        </BreadcrumbSeparator>
+                        <BreadcrumbItem>
+                            <BreadcrumbPage>{testExecution[0]?.testCycleId?.title}</BreadcrumbPage>
+                        </BreadcrumbItem>
+                    </BreadcrumbList>
+                </Breadcrumb>
             </div>
             <div className='w-full'>
                 <div className="rounded-md border">

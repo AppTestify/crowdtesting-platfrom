@@ -64,7 +64,7 @@ export async function POST(
         const attachmentIds =
             await Promise.all(
                 attachments.map(async (file) => {
-                    if (file instanceof File) {
+                    if (file) {
                         const { data, name, contentType } = await getFileMetaData(file);
                         const newAttachment = new RequirementAttachment({
                             data: data,

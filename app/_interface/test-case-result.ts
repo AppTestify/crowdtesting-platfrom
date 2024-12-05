@@ -1,4 +1,6 @@
 import { ITestCase } from "./test-case";
+import { ITestCaseData } from "./test-case-data";
+import { ITestCaseStep } from "./test-case-step";
 import { ITestCycle } from "./test-cycle";
 import { IUserByAdmin } from "./user";
 
@@ -15,4 +17,6 @@ export interface ITestCaseResult {
     remarks?: string;
     isStarted: boolean;
     updatedBy?: string;
+    testCaseData: ITestCaseData[];
+    testCaseStep: ITestCaseStep[];
 }
