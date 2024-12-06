@@ -157,9 +157,6 @@ export default function TestExecution() {
                         }}
                         className="max-w-sm"
                     />
-                    {/* <div className="flex gap-2 ml-2">
-                        <AddTestCycle refreshTestCycle={refreshTestCycle} />
-                    </div> */}
                 </div>
                 <div className="rounded-md border">
                     <Table>

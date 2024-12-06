@@ -7,8 +7,7 @@ import toasterService from '@/app/_services/toaster-service';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ColumnDef, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, SortingState, useReactTable, VisibilityState } from '@tanstack/react-table';
-import { ArrowUpDown, ChevronRight, ChevronsRight, Play, Slash, Triangle } from 'lucide-react';
-import Link from 'next/link';
+import { ArrowUpDown, ChevronRight, Play } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 import Moderate from './_components/moderate';
@@ -22,7 +21,7 @@ export default function TestCasesInTestExecution() {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
     const [rowSelection, setRowSelection] = useState({});
-    const [globalFilter, setGlobalFilter] = useState<unknown>([]);
+    const [globalFilter, setGlobalFilter] = useState<unknown>("");
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [moderate, setModerate] = useState<ITestCaseResult | null>(null);
 
@@ -80,7 +79,7 @@ export default function TestCasesInTestExecution() {
             header: "Moderated By",
             cell: ({ row }) => (
                 <div className="capitalize">
-                    {/* {row.original?.testCaseId?.expectedResult} */}
+                    {row.original?.updatedBy}
                 </div>
             ),
         },
@@ -98,7 +97,7 @@ export default function TestCasesInTestExecution() {
             header: "Result",
             cell: ({ row }) => (
                 <div className="capitalize">
-                    {/* {row.original?.updatedAt} */}
+                    {row.original?.result}
                 </div>
             ),
         },
@@ -141,7 +140,11 @@ export default function TestCasesInTestExecution() {
         onGlobalFilterChange: setGlobalFilter,
     });
 
-    const getTestCycle = async () => {
+    const refershTestExecution = () => {
+        getTestExecution();
+    }
+
+    const getTestExecution = async () => {
         setIsLoading(true);
         try {
             const response = await getTestExecutionsService(projectId, testCycleId);
@@ -154,7 +157,7 @@ export default function TestCasesInTestExecution() {
     };
 
     useEffect(() => {
-        getTestCycle();
+        getTestExecution();
     }, []);
 
     return (
@@ -163,6 +166,7 @@ export default function TestCasesInTestExecution() {
                 sheetOpen={isOpen}
                 setSheetOpen={setIsOpen}
                 testCaseResult={moderate}
+                refershTestExecution={refershTestExecution}
             />
             <div className="mb-4">
                 <Breadcrumb>

@@ -58,7 +58,7 @@ export default function IdFormatSettings() {
     }
 
     return (
-        <div className="mt-2">
+        <div className="mt-2 p-1">
             {idFormats.map((idFormat, index) => {
                 const [prefix, suffix] = idFormat.idFormat.split('{customId}');
                 return (

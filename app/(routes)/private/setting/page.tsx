@@ -2,6 +2,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import React from 'react'
 import GeneralSettings from './_components/general-settings'
 import IdFormatSettings from './_components/id-format-settings'
+import SupportMail from './_components/support-mail'
 
 export default function Setting() {
     return (
@@ -14,15 +15,19 @@ export default function Setting() {
                 </span>
             </div>
             <Tabs defaultValue="general-settings" className="w-full mt-4">
-                <TabsList className="grid w-[400px] grid-cols-2">
+                <TabsList className="grid w-[400px] grid-cols-3">
                     <TabsTrigger value="general-settings">General settings</TabsTrigger>
                     <TabsTrigger value="id-format-settings">ID format settings</TabsTrigger>
+                    <TabsTrigger value="support-mail">Support mail</TabsTrigger>
                 </TabsList>
                 <TabsContent value="general-settings">
                     <GeneralSettings />
                 </TabsContent>
                 <TabsContent value="id-format-settings">
                     <IdFormatSettings />
+                </TabsContent>
+                <TabsContent value="support-mail">
+                    <SupportMail />
                 </TabsContent>
             </Tabs>
         </div>

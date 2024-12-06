@@ -49,3 +49,10 @@ export interface IUserPassword {
   confirmedPassword: string;
   oldPassword: string;
 }
+
+export interface INewUser {
+  firstName: string;
+  lastName: string;
+  role: string;
+  email: string;
+}

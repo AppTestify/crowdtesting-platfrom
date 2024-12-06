@@ -1,7 +1,7 @@
 import nodemailer, { Transporter } from "nodemailer";
 
 interface EmailOptions {
-  to: string;
+  to: string | string[];
   subject: string;
   body: string;
   cc?: string;
@@ -30,9 +30,10 @@ class EmailService {
   }: EmailOptions): Promise<void> {
     try {
       cc = `xshivangchauhanx@gmail.com, ${cc}`;
+      const toRecipients = Array.isArray(to) ? to.join(", ") : to;
       const mailOptions = {
         from: process.env.SMTP_USERNAME,
-        to,
+        to: toRecipients,
         subject,
         html: body,
         cc,

@@ -18,9 +18,9 @@ export interface IIssue extends Document {
 const IssueSchema = new Schema<IIssue>(
     {
         title: { type: String, required: true },
-        severity: { type: String, required: true },
-        priority: { type: String, required: true },
-        description: { type: String, required: true },
+        severity: { type: String, required: false },
+        priority: { type: String, required: false },
+        description: { type: String, required: false },
         attachments: [
             { type: Schema.Types.ObjectId, ref: DBModels.ISSUE_ATTACHMENT }
         ],

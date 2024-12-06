@@ -2,10 +2,11 @@ import { ACTIVATE_ACOUNT_LINK_TEMPLATE } from "@/email-templates/activate-accoun
 import EmailService from "../_helpers/email.helper";
 import { EmailSubjects } from "../_constants/email-subject";
 import { generateVerificationLink } from "./common-server-side";
-import { IUserCredentialsEmail } from "../_interface/user";
+import { INewUser, IUserCredentialsEmail } from "../_interface/user";
 import { SEND_CREDENTIALS_TEMPLATE } from "@/email-templates/send-credentials.template";
 import { IForgotPasswordPayload } from "../_interface/auth";
 import { FORGOT_PASSWORD_TEMPLATE } from "@/email-templates/forgot-password.template";
+import { NEW_USER_ADDED_TEMPLATE } from "@/email-templates/new-user.template";
 
 interface IReplaceTemplateTags {
   tagValuesObject: any;
@@ -71,6 +72,22 @@ export const sendCredentialsEmail = async (
     }),
   });
 }
+
+export const sendSignUpEmailToAdmin = async (
+  templateTags: INewUser,
+  emails: string[]
+) => {
+  const emailService = new EmailService();
+
+  emailService.sendEmail({
+    to: emails,
+    subject: EmailSubjects.NEW_USER_ADDED,
+    body: replaceEmailTemplateTagsInternalService({
+      emailBody: NEW_USER_ADDED_TEMPLATE,
+      tagValuesObject: templateTags,
+    }),
+  });
+};
 
 export const sendForgotPasswordLink = async (
   templateTags: IForgotPasswordPayload

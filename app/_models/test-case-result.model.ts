@@ -10,6 +10,7 @@ export interface ITestCaseResult extends Document {
     actualResult: string;
     updatedAt: Date;
     updatedBy: string;
+    isIssue: boolean;
 }
 
 
@@ -23,6 +24,7 @@ const TestCaseResultSchema = new Schema<ITestCaseResult>(
         actualResult: { type: String, required: false },
         updatedAt: { type: Date, default: null },
         updatedBy: { type: String, required: false },
+        isIssue: { type: Boolean, required: false }
     },
     {
         timestamps: { createdAt: true, updatedAt: false },

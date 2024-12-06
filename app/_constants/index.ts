@@ -20,7 +20,8 @@ export enum DBModels {
   FILE = "File",
   ID_FORMAT = "IdFormat",
   COUNTER = "Counter",
-  NOTE = "Note"
+  NOTE = "Note",
+  SUPPORT_EMAIL = "SupportEmail"
 }
 
 export const JWT_TOKEN_EXPIRE_LIMIT = "8h";

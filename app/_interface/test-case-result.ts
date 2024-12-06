@@ -20,3 +20,10 @@ export interface ITestCaseResult {
     testCaseData: ITestCaseData[];
     testCaseStep: ITestCaseStep[];
 }
+
+export interface ITestCaseResultPayload {
+    actualResult: string;
+    result: string;
+    remarks?: string;
+    isIssue?: boolean;
+}
