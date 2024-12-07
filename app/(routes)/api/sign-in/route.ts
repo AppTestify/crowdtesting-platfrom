@@ -39,6 +39,7 @@ export async function POST(req: Request) {
 
     const { email, password, rememberMe } = response.data;
     const existingUser = await User.findOne({ email });
+    console.log(existingUser);
 
     if (!existingUser) {
       return Response.json(
@@ -58,6 +59,8 @@ export async function POST(req: Request) {
       password,
       existingUser.password
     );
+
+    console.log('isPasswordValid: ', existingUser.password)
 
     if (!isPasswordValid) {
       return Response.json(

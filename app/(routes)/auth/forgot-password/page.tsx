@@ -55,7 +55,13 @@ export default function ForgotPassword() {
         <div className="flex flex-col p-10 h-full">
             <div className="flex justify-end">
                 <Link href={'/auth/sign-in'}>
-                    <Button variant="ghost">Login</Button>
+                    {/* <Button variant="ghost">Login</Button> */}
+                    <div>
+                        <span className="mr-0">Remember password?</span>
+                        <Link href={'/auth/sign-in'}>
+                            <span className="text-primary ml-2">Sign in!</span>
+                        </Link>
+                    </div>
                 </Link>
             </div>
             <div className="flex items-center justify-center h-4/5">

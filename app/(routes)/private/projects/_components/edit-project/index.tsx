@@ -18,7 +18,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage
+  FormMessage,
 } from "@/components/ui/form";
 import {
   Popover,
@@ -31,10 +31,13 @@ import {
   SheetContent,
   SheetDescription,
   SheetHeader,
-  SheetTitle
+  SheetTitle,
 } from "@/components/ui/sheet";
 import TextEditor from "../text-editor";
-import { formatDateReverse, formatSimpleDate } from "@/app/_constants/date-formatter";
+import {
+  formatDateReverse,
+  formatSimpleDate,
+} from "@/app/_constants/date-formatter";
 
 const projectSchema = z.object({
   title: z.string().min(1, "Required"),
@@ -62,7 +65,6 @@ const EditProject = ({
   const projectId = project?.id as string;
   const { title, startDate, endDate, description } = project;
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
   const form = useForm<z.infer<typeof projectSchema>>({
     resolver: zodResolver(projectSchema),
     defaultValues: {
@@ -94,10 +96,10 @@ const EditProject = ({
   }
   const formatDate = (date: Date) => {
     return formatSimpleDate(date);
-  }
+  };
 
   function parseDate(date: string | Date): Date {
-    if (typeof date === 'string') {
+    if (typeof date === "string") {
       const parsedDate = new Date(date);
       if (!isNaN(parsedDate.getTime())) {
         return parsedDate;

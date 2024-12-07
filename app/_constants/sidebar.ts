@@ -36,7 +36,6 @@ export const getSidebarItems = (user: any) => {
     });
     return adminNavbar;
   }
-
 }
 
 export const navMain = [

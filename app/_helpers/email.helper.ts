@@ -13,6 +13,8 @@ class EmailService {
 
   constructor() {
     this.transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: parseInt(process.env.SMTP_PORT || '587', 10),
       service: process.env.SMTP_SERVICE,
       auth: {
         user: process.env.SMTP_USERNAME,

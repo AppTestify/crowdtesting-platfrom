@@ -1,5 +1,10 @@
 import { DBModels } from "@/app/_constants";
-import { DB_CONNECTION_ERROR_MESSAGE, INVALID_INPUT_ERROR_MESSAGE, USER_EXISTS_ERROR_MESSAGE, USER_UNAUTHORIZED_ERROR_MESSAGE } from "@/app/_constants/errors";
+import {
+  DB_CONNECTION_ERROR_MESSAGE,
+  INVALID_INPUT_ERROR_MESSAGE,
+  USER_EXISTS_ERROR_MESSAGE,
+  USER_UNAUTHORIZED_ERROR_MESSAGE,
+} from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { UserRoles } from "@/app/_constants/user-roles";
 import { connectDatabase } from "@/app/_db";
@@ -15,146 +20,150 @@ import { errorHandler } from "@/app/_utils/error-handler";
 import { URL } from "url";
 
 export async function GET(req: Request) {
-    try {
-        const session = await verifySession();
+  try {
+    const session = await verifySession();
 
-        if (!session) {
-            return Response.json(
-                { message: USER_UNAUTHORIZED_ERROR_MESSAGE },
-                { status: HttpStatusCode.UNAUTHORIZED }
-            );
-        }
-
-        if (!(await isAdmin(session?.user))) {
-            return Response.json(
-                { message: USER_UNAUTHORIZED_ERROR_MESSAGE },
-                { status: HttpStatusCode.UNAUTHORIZED }
-            );
-        }
-
-        const isDBConnected = await connectDatabase();
-        if (!isDBConnected) {
-            return Response.json(
-                {
-                    message: DB_CONNECTION_ERROR_MESSAGE,
-                },
-                { status: HttpStatusCode.INTERNAL_SERVER_ERROR }
-            );
-        }
-
-        // Filter by role and status
-        const url = new URL(req.url);
-        const role = url.searchParams.get("role");
-        const status = url.searchParams.get("status");
-        const filter: any = { _id: { $ne: session.user._id } };
-        if (role) {
-            filter.role = role;
-        }
-        if (status) {
-            filter.isActive = status;
-        }
-
-        const userIdFormat = await IdFormat.findOne({ entity: DBModels.USER });
-        const { skip, limit } = serverSidePagination(req);
-
-
-        const users = addCustomIds(
-            await User.find(filter)
-                .populate("profilePicture")
-                .sort({ createdAt: -1 })
-                .skip(skip)
-                .limit(Number(limit))
-                .lean(),
-            userIdFormat.idFormat
-        );
-        for (let i = 0; i < users.length; i++) {
-            if (users[i].role === UserRoles.TESTER) {
-                const tester = await Tester.findOne({ user: users[i].id }).sort({ _id: -1 }).populate("user").lean();
-                users[i].tester = tester;
-            }
-        }
-
-        const totalUsers = await User.countDocuments(filter);
-        return Response.json({ users, total: totalUsers });
-    } catch (error: any) {
-        return errorHandler(error);
+    if (!session) {
+      return Response.json(
+        { message: USER_UNAUTHORIZED_ERROR_MESSAGE },
+        { status: HttpStatusCode.UNAUTHORIZED }
+      );
     }
+
+    if (!(await isAdmin(session?.user))) {
+      return Response.json(
+        { message: USER_UNAUTHORIZED_ERROR_MESSAGE },
+        { status: HttpStatusCode.UNAUTHORIZED }
+      );
+    }
+
+    const isDBConnected = await connectDatabase();
+    if (!isDBConnected) {
+      return Response.json(
+        {
+          message: DB_CONNECTION_ERROR_MESSAGE,
+        },
+        { status: HttpStatusCode.INTERNAL_SERVER_ERROR }
+      );
+    }
+
+    // Filter by role and status
+    const url = new URL(req.url);
+    const role = url.searchParams.get("role");
+    const status = url.searchParams.get("status");
+    const filter: any = { _id: { $ne: session.user._id } };
+    if (role) {
+      filter.role = role;
+    }
+    if (status) {
+      filter.isActive = status;
+    }
+
+    const userIdFormat = await IdFormat.findOne({ entity: DBModels.USER });
+    const { skip, limit } = serverSidePagination(req);
+
+    const users = addCustomIds(
+      await User.find(filter)
+        .populate("profilePicture")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(Number(limit))
+        .lean(),
+      userIdFormat.idFormat
+    );
+    for (let i = 0; i < users.length; i++) {
+      if (users[i].role === UserRoles.TESTER) {
+        const tester = await Tester.findOne({ user: users[i].id })
+          .sort({ _id: -1 })
+          .populate("user")
+          .lean();
+        users[i].tester = tester;
+      }
+    }
+
+    const totalUsers = await User.countDocuments(filter);
+    return Response.json({ users, total: totalUsers });
+  } catch (error: any) {
+    return errorHandler(error);
+  }
 }
 
 export async function POST(req: Request) {
-    try {
-        const session = await verifySession();
+  try {
+    const session = await verifySession();
 
-        if (!session) {
-            return Response.json(
-                { message: USER_UNAUTHORIZED_ERROR_MESSAGE },
-                { status: HttpStatusCode.UNAUTHORIZED }
-            );
-        }
-
-        if (!(await isAdmin(session?.user))) {
-            return Response.json(
-                { message: USER_UNAUTHORIZED_ERROR_MESSAGE },
-                { status: HttpStatusCode.UNAUTHORIZED }
-            );
-        }
-
-        const isDBConnected = await connectDatabase();
-        if (!isDBConnected) {
-            return Response.json(
-                {
-                    message: DB_CONNECTION_ERROR_MESSAGE,
-                },
-                { status: HttpStatusCode.INTERNAL_SERVER_ERROR }
-            );
-        }
-
-        const body = await req.json();
-        const response = adminUserCreateSchema.safeParse(body);
-
-        if (!response.success) {
-            return Response.json(
-                {
-                    message: INVALID_INPUT_ERROR_MESSAGE,
-                },
-                { status: HttpStatusCode.BAD_REQUEST }
-            );
-        }
-
-        const { email, firstName, lastName, role, sendCredentials } = response.data;
-
-        const emailCredentials = new SendCredentials();
-        const existingUser = await User.findOne({ email });
-
-        if (existingUser) {
-            return Response.json(
-                {
-                    message: USER_EXISTS_ERROR_MESSAGE,
-                    status: HttpStatusCode.BAD_REQUEST
-                })
-        }
-        const hashedPassword = await emailCredentials.sendEmailCredentials({ email, role, sendCredentials });
-
-        const newUser = new User({
-            email,
-            password: hashedPassword,
-            role,
-            firstName: firstName,
-            lastName: lastName,
-            sendCredentials: sendCredentials,
-            credentialsSentAt: sendCredentials ? new Date() : "",
-            accountActivationMailSentAt: new Date(),
-        });
-        await newUser.save();
-
-        const { password: _, ...userWithoutPassword } = newUser.toObject();
-
-        return Response.json({
-            message: "User added successfully",
-            user: userWithoutPassword,
-        });
-
-    } catch (error: any) {
-        return errorHandler(error);
+    if (!session) {
+      return Response.json(
+        { message: USER_UNAUTHORIZED_ERROR_MESSAGE },
+        { status: HttpStatusCode.UNAUTHORIZED }
+      );
     }
+
+    if (!(await isAdmin(session?.user))) {
+      return Response.json(
+        { message: USER_UNAUTHORIZED_ERROR_MESSAGE },
+        { status: HttpStatusCode.UNAUTHORIZED }
+      );
+    }
+
+    const isDBConnected = await connectDatabase();
+    if (!isDBConnected) {
+      return Response.json(
+        {
+          message: DB_CONNECTION_ERROR_MESSAGE,
+        },
+        { status: HttpStatusCode.INTERNAL_SERVER_ERROR }
+      );
+    }
+
+    const body = await req.json();
+    const response = adminUserCreateSchema.safeParse(body);
+
+    if (!response.success) {
+      return Response.json(
+        {
+          message: INVALID_INPUT_ERROR_MESSAGE,
+        },
+        { status: HttpStatusCode.BAD_REQUEST }
+      );
+    }
+
+    const { email, firstName, lastName, role, sendCredentials } = response.data;
+
+    const emailCredentials = new SendCredentials();
+    const existingUser = await User.findOne({ email });
+
+    if (existingUser) {
+      return Response.json({
+        message: USER_EXISTS_ERROR_MESSAGE,
+        status: HttpStatusCode.BAD_REQUEST,
+      });
+    }
+    const hashedPassword = await emailCredentials.sendEmailCredentials({
+      email,
+      role,
+      sendCredentials,
+    });
+
+    const newUser = new User({
+      email,
+      password: hashedPassword,
+      role,
+      firstName: firstName,
+      lastName: lastName,
+      sendCredentials: sendCredentials,
+      credentialsSentAt: sendCredentials ? new Date() : "",
+      accountActivationMailSentAt: new Date(),
+    });
+    await newUser.save();
+
+    const { password: _, ...userWithoutPassword } = newUser.toObject();
+
+    return Response.json({
+      message: "User added successfully",
+      user: userWithoutPassword,
+    });
+  } catch (error: any) {
+    return errorHandler(error);
+  }
 }

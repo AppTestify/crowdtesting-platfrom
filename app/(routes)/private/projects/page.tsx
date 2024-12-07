@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { AddProject } from "./_components/add-project";
 import {
   ColumnDef,
+  Row,
   SortingState,
   VisibilityState,
   flexRender,
@@ -25,7 +26,10 @@ import {
 import { IProject, IProjectPayload } from "@/app/_interface/project";
 import { Checkbox } from "@/components/ui/checkbox";
 import { getProjectsService } from "@/app/_services/project.service";
-import { formatDate, formatDateWithoutTime } from "@/app/_constants/date-formatter";
+import {
+  formatDate,
+  formatDateWithoutTime,
+} from "@/app/_constants/date-formatter";
 import { RowActions } from "./_components/row-actions";
 import { BulkDelete } from "./_components/bulk-delete";
 import ProjectStatus from "./_components/project-status";
@@ -74,11 +78,7 @@ export default function Projects() {
           </Button>
         );
       },
-      cell: ({ row }) => (
-        <div className="ml-4">
-          {row.getValue("customId")}
-        </div>
-      ),
+      cell: ({ row }) => <div className="ml-4">{row.getValue("customId")}</div>,
       sortingFn: "alphanumeric",
     },
     {
@@ -86,7 +86,9 @@ export default function Projects() {
       header: "Title",
       cell: ({ row }) => (
         <Link href={`/private/projects/${row.original.id}/overview`}>
-          <div className="capitalize hover:text-primary">{row.getValue("title")}</div>
+          <div className="capitalize hover:text-primary">
+            {row.getValue("title")}
+          </div>
         </Link>
       ),
     },
@@ -94,18 +96,14 @@ export default function Projects() {
       accessorKey: "startDate",
       header: "Start Date",
       cell: ({ row }) => (
-        <div className="capitalize">
-          {row.getValue("startDate")}
-        </div>
+        <div className="capitalize">{row.getValue("startDate")}</div>
       ),
     },
     {
       accessorKey: "endDate",
       header: "End Date",
       cell: ({ row }) => (
-        <div className="capitalize">
-          {row.getValue("endDate")}
-        </div>
+        <div className="capitalize">{row.getValue("endDate")}</div>
       ),
     },
   ];
@@ -137,24 +135,36 @@ export default function Projects() {
   const actionsColumn: ColumnDef<IProjectPayload> = {
     id: "actions",
     enableHiding: false,
-    cell: ({ row }) => <RowActions row={row as any} refreshProjects={refreshProjects} />,
+    cell: ({ row }) => (
+      <RowActions row={row as any} refreshProjects={refreshProjects} />
+    ),
   };
 
   const hasUserId = projects.some((item) => item.userId?._id);
   columns = hasUserId
     ? [
-      ...columns,
-      {
-        accessorKey: "createdBy",
-        header: "Created By",
-        cell: ({ row }) => <div>
-          {`${row.original?.userId?.firstName ? row.original?.userId?.firstName : ""}
-           ${row.original?.userId?.lastName ? row.original?.userId?.lastName : ""}`}
-        </div>,
-      },
-      statusColumn,
-      actionsColumn
-    ]
+        ...columns,
+        {
+          accessorKey: "createdBy",
+          header: "Created By",
+          cell: ({ row }) => (
+            <div>
+              {`${
+                row.original?.userId?.firstName
+                  ? row.original?.userId?.firstName
+                  : ""
+              }
+           ${
+             row.original?.userId?.lastName
+               ? row.original?.userId?.lastName
+               : ""
+           }`}
+            </div>
+          ),
+        },
+        statusColumn,
+        actionsColumn,
+      ]
     : [...columns, statusColumn, actionsColumn];
 
   useEffect(() => {
@@ -170,10 +180,9 @@ export default function Projects() {
       endDate: formatDateWithoutTime(project.endDate),
     }));
     setProjects(formattedProjects as IProjectPayload[]);
-    setTotalPageCount(response?.total)
+    setTotalPageCount(response?.total);
     setIsLoading(false);
   };
-
 
   const refreshProjects = () => {
     getProjects();
@@ -252,9 +261,9 @@ export default function Projects() {
                 refreshProjects={refreshProjects}
               />
             ) : null}
-            {userData?.role != UserRoles.TESTER &&
+            {userData?.role != UserRoles.TESTER && (
               <AddProject refreshProjects={refreshProjects} />
-            }
+            )}
           </div>
         </div>
         <div className="rounded-md border">
@@ -268,9 +277,9 @@ export default function Projects() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}

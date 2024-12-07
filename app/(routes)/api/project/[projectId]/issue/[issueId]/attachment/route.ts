@@ -8,7 +8,6 @@ import { getFileMetaData } from "@/app/_utils/common-server-side";
 import { normaliseIds } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 
-
 export async function POST(
     req: Request,
     { params }: { params: { issueId: string } }
@@ -39,7 +38,7 @@ export async function POST(
         const attachmentIds =
             await Promise.all(
                 attachments.map(async (file) => {
-                    if (file instanceof File) {
+                    if (file) {
                         const { data, name, contentType } = await getFileMetaData(file);
                         const newAttachment = new IssueAttachment({
                             data: data,

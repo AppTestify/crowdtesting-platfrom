@@ -14,7 +14,7 @@ export const getProjectsService = async (index: Number, pageSize: Number): Promi
   }
 };
 
-export const addProjectService = async (body: IProject): Promise<any> => {
+export const addProjectService = async (body: IProjectPayload): Promise<any> => {
   try {
     const response = await genericPost(PROJECTS_ENDPOINT, body);
     return response || {};

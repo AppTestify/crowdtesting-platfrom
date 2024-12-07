@@ -1,4 +1,6 @@
+import { MinimalTiptapEditor } from "@/app/_components/minimal-tiptap";
 import { Textarea } from "@/components/ui/text-area";
+import { cn } from "@/lib/utils";
 import React, { useEffect, useRef, useState } from "react";
 // import RichTextEditor from "react-rte";
 
@@ -6,12 +8,6 @@ interface TextEditorProps {
   markup: string;
   onChange: (value: string) => void;
 }
-type GroupName =
-  | "INLINE_STYLE_BUTTONS"
-  | "BLOCK_TYPE_BUTTONS"
-  | "HISTORY_BUTTONS"
-  | "BLOCK_ALIGNMENT_BUTTONS"
-  | "BLOCK_TYPE_DROPDOWN";
 
 const TextEditor: React.FC<TextEditorProps> = ({ markup, onChange }) => {
   const [value, setValue] = useState<string>();
@@ -20,7 +16,11 @@ const TextEditor: React.FC<TextEditorProps> = ({ markup, onChange }) => {
   React.useEffect(() => {
     setContent(markup);
   }, [markup]);
-  
+
+  React.useEffect(() => {
+    setContent(markup);
+  }, [markup]);
+
   const editorRef = useRef<HTMLDivElement | null>(null);
 
   const handleChange = (newValue: any) => {
@@ -30,54 +30,19 @@ const TextEditor: React.FC<TextEditorProps> = ({ markup, onChange }) => {
     }
   };
 
-  const toolbarConfig = {
-    display: [
-      "INLINE_STYLE_BUTTONS",
-      "BLOCK_TYPE_BUTTONS",
-      "HISTORY_BUTTONS",
-    ] as GroupName[],
-    INLINE_STYLE_BUTTONS: [
-      { label: "Bold", style: "BOLD" },
-      { label: "Italic", style: "ITALIC" },
-      { label: "Strikethrough", style: "STRIKETHROUGH" },
-    ],
-    BLOCK_TYPE_BUTTONS: [
-      { label: "UL", style: "unordered-list-item" },
-      { label: "OL", style: "ordered-list-item" },
-    ],
-    HISTORY_BUTTONS: [
-      { label: "Undo", style: "UNDO" },
-      { label: "Redo", style: "REDO" },
-    ],
-    BLOCK_ALIGNMENT_BUTTONS: [],
-    BLOCK_TYPE_DROPDOWN: [],
-  };
-
-  // useEffect(() => {
-  //   if (editorRef.current) {
-  //     const contentEditable = editorRef.current.querySelector(
-  //       ".DraftEditor-root"
-  //     ) as HTMLElement;
-  //     if (contentEditable) {
-  //       contentEditable.style.minHeight = "200px";
-  //       contentEditable.style.maxHeight = "200px";
-  //       contentEditable.style.overflowY = "auto";
-  //     }
-  //   }
-  // }, [editorRef]);
-
   return (
     <div ref={editorRef}>
-      {/* <RichTextEditor
-        value={value}
-        onChange={handleChange}
-        toolbarConfig={toolbarConfig}
-      /> */}
-
-      <Textarea
+      <MinimalTiptapEditor
+        throttleDelay={2000}
+        className={cn("h-full min-h-56 w-full rounded-lg")}
+        editorContentClassName="overflow-auto h-full"
+        output="html"
+        placeholder="Type your description here..."
+        editable={true}
+        editorClassName="focus:outline-none px-5 py-4 h-full"
         value={content}
-        onChange={(event) => {
-          handleChange(event?.target?.value);
+        onChange={(value) => {
+          handleChange(value);
         }}
       />
     </div>

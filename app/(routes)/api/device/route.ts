@@ -84,7 +84,7 @@ export async function GET(req: Request) {
 
     let response = null;
     const { skip, limit } = serverSidePagination(req);
-    const totalProjects = await Device.countDocuments();
+    let totalDevices;
 
     if (!(await isAdmin(session.user))) {
       response = normaliseIds(
@@ -94,6 +94,7 @@ export async function GET(req: Request) {
           .limit(Number(limit))
           .lean()
       );
+      totalDevices = await Device.find({ userId: session.user._id }).countDocuments();
     } else {
       response = normaliseIds(
         await Device.find({})
@@ -103,6 +104,7 @@ export async function GET(req: Request) {
           .limit(Number(limit))
           .lean()
       );
+      totalDevices = await Device.find({}).countDocuments();
     }
     response = response.map((res) => ({
       ...res,
@@ -112,7 +114,7 @@ export async function GET(req: Request) {
       }
     }));
 
-    return Response.json({ "devices": response, "total": totalProjects });
+    return Response.json({ "devices": response, "total": totalDevices });
   } catch (error: any) {
     return errorHandler(error);
   }
