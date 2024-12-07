@@ -78,7 +78,7 @@ export default function Moderate({
 
     return (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-            <SheetContent className="w-full !max-w-full md:w-[80%] md:!max-w-[80%] ">
+            <SheetContent className="w-full !max-w-full md:w-[80%] md:!max-w-[80%] overflow-y-auto">
                 <div className=" grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
                     <div className="mt-4 overflow-y-auto h-full">
 

@@ -20,4 +20,5 @@ export interface ITestPlan {
     customId?: string;
     userId?: IUserByAdmin;
     createdAt?: string;
+    updatedAt: string;
 }

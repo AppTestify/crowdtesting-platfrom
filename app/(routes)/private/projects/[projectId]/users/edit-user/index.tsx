@@ -81,7 +81,7 @@ const EditProjectUser = ({
 
     return (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-            <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px]">
+            <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto">
                 <SheetHeader>
                     <SheetTitle className="text-left">Edit user</SheetTitle>
                     <SheetDescription className="text-left">

@@ -144,7 +144,7 @@ export function EditDevice({
 
   return (
     <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-      <SheetContent className="w-full !max-w-full md:w-[550px] md:!max-w-[550px]">
+      <SheetContent className="w-full !max-w-full md:w-[550px] md:!max-w-[550px] overflow-y-auto">
         <SheetHeader>
           <SheetTitle className="text-left">Edit device</SheetTitle>
           <SheetDescription className="text-left">

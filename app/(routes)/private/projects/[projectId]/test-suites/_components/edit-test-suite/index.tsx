@@ -121,7 +121,7 @@ export function EditTestSuite({
 
     return (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-            <SheetContent className="w-full !max-w-full md:w-[550px] md:!max-w-[550px]">
+            <SheetContent className="w-full !max-w-full md:w-[550px] md:!max-w-[550px] overflow-y-auto">
                 <SheetHeader>
                     <SheetTitle className="text-left">Edit test suite</SheetTitle>
                     <SheetDescription className="text-left">

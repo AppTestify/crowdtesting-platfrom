@@ -1,60 +1,65 @@
-import { Sheet, SheetContent, SheetHeader } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetHeader } from "@/components/ui/sheet";
 import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { ITestPlan } from "@/app/_interface/test-plan";
 import { formatDate } from "@/app/_constants/date-formatter";
+import { formatDistanceToNow } from "date-fns";
 
 const ViewTestPlan = ({
-    testPlan,
-    sheetOpen,
-    setSheetOpen,
+  testPlan,
+  sheetOpen,
+  setSheetOpen,
 }: {
-    testPlan: ITestPlan;
-    sheetOpen: boolean;
-    setSheetOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  testPlan: ITestPlan;
+  sheetOpen: boolean;
+  setSheetOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
-    return (
-        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-            <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px]">
-                <SheetHeader className="mb-4">
-                    <div className="flex justify-between items-center mt-4">
-                        <p className="text-md">
-                            <div className="capitalize">
-                                <span className="mr-2">
-                                    {testPlan?.customId}:
-                                </span>
-                                {testPlan?.title}
-                            </div>
-                            <p className="text-sm mt-1 text-primary">
-                                Created by {testPlan?.userId?.firstName} {testPlan?.userId?.lastName} on {formatDate(testPlan?.createdAt || "")}
-                            </p>
-                        </p>
-                    </div>
-                </SheetHeader>
-                <DropdownMenuSeparator className="border-b" />
-                <div className="mt-2">
-                    Parameters
-                    <div className="space-y-2 py-2">
-                        {testPlan?.parameters?.map((parameter, index) => (
-                            <div
-                                key={index}
-                                className="flex space-x-3 px-2 "
-                            >
-                                <div className="">{index + 1}.</div>
-                                <div>
-                                    <p className="text-md font-medium text-gray-800">
-                                        {parameter?.parameter}
-                                    </p>
-                                    <p className=" text-gray-600">
-                                        {parameter?.description}
-                                    </p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+  console.log(testPlan);
+
+  return (
+    <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+      <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto">
+        <SheetHeader className="mb-4">
+          <div className="flex justify-between items-center mt-4">
+            <p className="text-xl font-medium capitalize">
+              <span className="mr-2 text-primary">{testPlan?.customId}:</span>
+              {testPlan?.title}
+            </p>
+          </div>
+          <span className="text-mute text-sm">
+            {testPlan?.userId?.firstName ? (
+              <span>
+                Created by {testPlan?.userId?.firstName}{" "}
+                {testPlan?.userId?.lastName}{", "}
+              </span>
+            ) : null}
+            Created on {formatDate(testPlan?.createdAt || "")}
+          </span>
+        </SheetHeader>
+        <DropdownMenuSeparator className="border-b" />
+        <div className="mt-2">
+          <span className="text-xl mb-2">Parameters</span>
+          <div className="space-y-2 py-2">
+            {testPlan?.parameters?.map((parameter, index) => (
+              <div key={index} className="flex space-x-3">
+                <div className="w-full border rounded-md p-3">
+                  <p className="text-lg font-semibold text-gray-800">
+                    {parameter?.parameter}
+                  </p>
+                  <DropdownMenuSeparator className="border-b my-2" />
+                  <div
+                    className="text-sm leading-relaxed text-gray-700 rich-description"
+                    dangerouslySetInnerHTML={{
+                      __html: parameter?.description || "",
+                    }}
+                  />
                 </div>
-            </SheetContent>
-        </Sheet>
-    )
-}
+              </div>
+            ))}
+          </div>
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+};
 
 export default ViewTestPlan;

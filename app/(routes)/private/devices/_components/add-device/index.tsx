@@ -123,7 +123,7 @@ export function AddDevice({
           <Plus /> Add device
         </Button>
       </SheetTrigger>
-      <SheetContent className="w-full !max-w-full md:w-[550px] md:!max-w-[550px]">
+      <SheetContent className="w-full !max-w-full md:w-[550px] md:!max-w-[550px] overflow-y-auto">
         <SheetHeader>
           <SheetTitle className="text-left">Add new device</SheetTitle>
           <SheetDescription className="text-left">
