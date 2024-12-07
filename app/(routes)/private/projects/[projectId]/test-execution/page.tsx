@@ -27,10 +27,8 @@ import { useParams } from "next/navigation";
 import { PAGINATION_LIMIT } from "@/app/_utils/common";
 import { getTestCycleService } from "@/app/_services/test-cycle.service";
 import { ITestCycle, ITestCyclePayload } from "@/app/_interface/test-cycle";
-// import { AddTestCycle } from "./_components/add-test-cycle";
-// import { TestCycleRowActions } from "./_components/row-actions";
-import { formatDate } from "@/app/_constants/date-formatter";
 import { ArrowUpDown } from "lucide-react";
+import { TestExecutionRowActions } from "./_components/row-actions";
 
 export default function TestExecution() {
     const [testCycle, setTestCycle] = useState<ITestCyclePayload[]>([]);
@@ -71,13 +69,13 @@ export default function TestExecution() {
                 <div className="capitalize">{row.getValue("description")}</div>
             ),
         },
-        // {
-        //     id: "actions",
-        //     enableHiding: false,
-        //     cell: ({ row }) => (
-        //         <TestCycleRowActions row={row as Row<ITestCycle>} refreshTestCycle={refreshTestCycle} />
-        //     ),
-        // },
+        {
+            id: "actions",
+            enableHiding: false,
+            cell: ({ row }) => (
+                <TestExecutionRowActions row={row as Row<ITestCycle>} refreshTestCycle={refreshTestCycle} />
+            ),
+        },
     ];
 
     const [sorting, setSorting] = useState<SortingState>([]);
@@ -159,9 +157,6 @@ export default function TestExecution() {
                         }}
                         className="max-w-sm"
                     />
-                    {/* <div className="flex gap-2 ml-2">
-                        <AddTestCycle refreshTestCycle={refreshTestCycle} />
-                    </div> */}
                 </div>
                 <div className="rounded-md border">
                     <Table>

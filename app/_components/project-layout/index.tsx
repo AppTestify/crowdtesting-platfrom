@@ -67,14 +67,14 @@ export default function ProjectLayouts({ onLoaded }: { onLoaded: () => void }) {
             {!isLoading ?
                 <>
                     <div className='mt-1 mb-3'>
-                        <p className='text-2xl text-green-600 flex items-center'>
+                        <div className='text-2xl text-green-600 flex items-center'>
                             <Link href={`/private/projects`}>
                                 <ChevronLeft className='text-black' />
                             </Link>
-                            <div className='ml-2 capitalize'>
+                            <p className='ml-2 capitalize'>
                                 {project?.title}
-                            </div>
-                        </p>
+                            </p>
+                        </div>
                     </div>
                     <DropdownMenuSeparator className="border-b" />
                     <div className='mt-4'>
@@ -82,14 +82,14 @@ export default function ProjectLayouts({ onLoaded }: { onLoaded: () => void }) {
                             {roleBasedTab?.length ?
                                 <>
                                     <TabsList className={`flex w-full `}>
-                                        {roleBasedTab?.map((tab) => (
-                                            <TabsTrigger className="w-fit" value={tab.replace(/ /g, '-')}>
+                                        {roleBasedTab?.map((tab, index) => (
+                                            <TabsTrigger key={index} className="w-fit" value={tab.replace(/ /g, '-')}>
                                                 {tab.charAt(0).toUpperCase() + tab.slice(1)}
                                             </TabsTrigger>
                                         ))}
                                     </TabsList>
-                                    {roleBasedTab?.map((tab) => (
-                                        <TabsContent value={tab}>
+                                    {roleBasedTab?.map((tab, index) => (
+                                        <TabsContent key={index} value={tab}>
                                         </TabsContent>
                                     ))}
                                 </>

@@ -31,6 +31,13 @@ export const enum TestCaseStep {
     NOTES = "Notes",
 }
 
+export const enum TestCaseExecutionResult {
+    PASS = "pass",
+    FAIL = "fail",
+    CAUTION = "caution",
+    BLOCKED = "blocked",
+}
+
 export const aditionalStepTypes = [
     TestCaseStep.CONDITION,
     TestCaseStep.IMPACT,
@@ -63,3 +70,6 @@ export const TEST_CASE_DATA_LIST = [
     TestCaseDataType.NUMBER,
     TestCaseDataType.OTHER,
 ];
+
+export const accrodionColors = ["bg-purple-300", "bg-orange-300", "bg-pink-300", "bg-blue-300", "bg-green-300"];
+export const accordionBodyColors = ["bg-purple-50", "bg-orange-50", "bg-pink-50", "bg-blue-50", "bg-green-50"];

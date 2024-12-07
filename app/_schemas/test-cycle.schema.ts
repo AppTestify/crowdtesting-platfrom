@@ -9,3 +9,8 @@ export const testCycleSchema = z.object({
 export const assignTestCasesSchema = z.object({
     testCaseIds: z.array(z.string().min(1, 'Atleast one testCase required'))
 })
+
+export const unAssignTestCasesSchema = z.object({
+    testCaseIds: z.array(z.string().min(1, 'Atleast one testCase required')),
+    isSingleDelete: z.boolean(),
+});

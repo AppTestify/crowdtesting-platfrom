@@ -25,16 +25,17 @@ import {
 import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
 import { PAGINATION_LIMIT } from "@/app/_utils/common";
-import { ITestCyclePayload } from "@/app/_interface/test-cycle";
 import { formatDate } from "@/app/_constants/date-formatter";
 import { AddNote } from "./_components/add-note";
 import toasterService from "@/app/_services/toaster-service";
 import { getNotesService } from "@/app/_services/note.service";
+import { INote, INotePayload } from "@/app/_interface/note";
+import { NoteRowActions } from "./_components/row-actions";
 
 export default function TestPlan() {
-    const [notes, setNotes] = useState<ITestCyclePayload[]>([]);
+    const [notes, setNotes] = useState<INotePayload[]>([]);
 
-    const columns: ColumnDef<ITestCyclePayload>[] = [
+    const columns: ColumnDef<INotePayload>[] = [
         {
             accessorKey: "title",
             header: "Title",
@@ -67,6 +68,13 @@ export default function TestPlan() {
                 <div className="capitalize">
                     {formatDate(row.getValue("createdAt"))}
                 </div>
+            ),
+        },
+        {
+            id: "actions",
+            enableHiding: false,
+            cell: ({ row }) => (
+                <NoteRowActions row={row as Row<INote>} refreshNotes={refreshNotes} />
             ),
         },
     ];

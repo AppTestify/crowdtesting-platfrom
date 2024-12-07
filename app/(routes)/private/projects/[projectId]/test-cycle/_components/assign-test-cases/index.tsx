@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
     ColumnDef,
     Row,
@@ -32,6 +32,7 @@ import { ITestCycle } from "@/app/_interface/test-cycle";
 import { assignTestCase, getAssignTestCaseService, unAssignTestCase } from "@/app/_services/test-cycle.service";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileInput, FileOutput, Loader2 } from "lucide-react";
+import { ITestCaseResult } from "@/app/_interface/test-case-result";
 
 export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
     {
@@ -92,8 +93,8 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
             id: "assign",
             header: "",
             cell: ({ row }) => (
-                <Button variant="ghost" size="sm" onClick={() => singleUnAssign(row.original.id)} >
-                    {unassignedLoading && loadingRowIdUnAssign === row.original.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileOutput />}
+                <Button variant="ghost" size="sm" onClick={() => singleUnAssign(row.original._id as string)} >
+                    {unassignedLoading && loadingRowIdUnAssign === row.original._id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileOutput />}
                 </Button>
             ),
             enableSorting: false,
@@ -167,7 +168,7 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
     const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
     const [unAssignrowSelection, setUnAssignRowSelection] = useState<Record<string, boolean>>({});
     const [unAssignTestCaseIds, setUnAssignTestCaseIds] = useState<string[]>([]);
-    const [assignTestCases, setAssignTestCases] = useState<ITestCase[]>([]);
+    const [assignTestCases, setAssignTestCases] = useState<ITestCaseResult[]>([]);
     const [isViewLoading, setIsViewLoading] = useState<boolean>(false);
     const [assignIsViewLoading, setAssignIsViewLoading] = useState<boolean>(false);
     const [activeTab, setActiveTab] = useState<string>("un-assigned");
@@ -205,7 +206,7 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
     const unAssignTestCaseInTestCycle = async () => {
         setUnAssignedLoading(true);
         try {
-            const response = await unAssignTestCase(projectId, testCycleId, { testCaseIds: unAssignTestCaseIds })
+            const response = await unAssignTestCase(projectId, testCycleId, { testCaseIds: unAssignTestCaseIds, isSingleDelete: false })
             if (response) {
                 refreshTestCases();
                 toasterService.success(response.message);
@@ -236,7 +237,7 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
         try {
             const response = await getAssignTestCaseService(projectId, testCycleId);
             if (response) {
-                setAssignTestCases(response);
+                setAssignTestCases(response?.testCaseResults);
             }
         } catch (error) {
             toasterService.error();
@@ -245,8 +246,9 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
         }
     }
 
+    const memoizedData = useMemo(() => assignTestCases?.map((testCaseResult) => testCaseResult.testCaseId) || [], [assignTestCases]);
     const table = useReactTable({
-        data: assignTestCases as ITestCase[],
+        data: memoizedData,
         columns,
         onSortingChange: setSorting,
         getCoreRowModel: getCoreRowModel(),
@@ -290,7 +292,7 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
         setUnAssignedLoading(true);
         try {
             setLoadingRowIdUnAssign(id);
-            const response = await unAssignTestCase(projectId, testCycleId, { testCaseIds: [id] })
+            const response = await unAssignTestCase(projectId, testCycleId, { testCaseIds: [id], isSingleDelete: true })
             if (response) {
                 refreshTestCases();
                 toasterService.success(response.message);
@@ -307,8 +309,7 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
         setAssignedLoading(true);
         try {
             setLoadingRowIdAssign(id);
-            const assignTestCaseIds = assignTestCases?.map((assignTestCase) => assignTestCase.id) || [];
-            const totalAssignTestCaseId = [...assignTestCaseIds, id];
+            const assignTestCaseIds = assignTestCases?.map((assignTestCase) => assignTestCase?.testCaseId?._id).filter((id): id is string => id !== undefined) || []; const totalAssignTestCaseId = [...assignTestCaseIds, id];
             const response = await assignTestCase(projectId, testCycleId, { testCaseIds: totalAssignTestCaseId })
             if (response) {
                 toasterService.success(response.message);
@@ -334,18 +335,23 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
             .filter((key) => rowSelection[key])
             .map((key) => testCases[parseInt(key)]?.id)
             .filter((id): id is string => id !== undefined);
-        const assignTestCaseIds = assignTestCases?.map((assignTestCase) => assignTestCase.id) || [];
+        const assignTestCaseIds = assignTestCases?.map((assignTestCase) => assignTestCase?.testCaseId?._id) || [];
         const allTestCaseIds = [...assignTestCaseIds, ...selectedIds];
-        setTestCaseIds(allTestCaseIds);
+        setTestCaseIds(allTestCaseIds as string[]);
     }, [rowSelection, testCases]);
 
     useEffect(() => {
         const selectedIds = Object.keys(unAssignrowSelection)
             .filter((key) => unAssignrowSelection[key])
-            .map((key) => assignTestCases?.[parseInt(key)]?.id)
-            .filter((id): id is string => id !== undefined);
+            .map((key) => {
+                const index = parseInt(key, 10);
+                const testCase = assignTestCases?.[index]?._id;
+                return testCase;
+            })
+            .filter((_id, index, self) => _id !== undefined && self.indexOf(_id) === index);
+
         if (selectedIds.length > 0) {
-            setUnAssignTestCaseIds(selectedIds);
+            setUnAssignTestCaseIds(selectedIds as string[]);
         }
     }, [unAssignrowSelection, assignTestCases]);
 
@@ -392,7 +398,7 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
                                             ))}
                                         </TableHeader>
                                         <TableBody>
-                                            {table && table.getRowModel() && table?.getRowModel()?.rows?.length ? (
+                                            {table && table?.getRowModel() && table?.getRowModel()?.rows?.length ? (
                                                 table.getRowModel().rows.map((row) => (
                                                     <TableRow
                                                         key={row.id}

@@ -17,13 +17,18 @@ export const ISSUES_ENDPOINT = "/api/project/issue";
 export const PROFILE_PICTURE_ENDPOINT = "/api/users/profile-picture";
 export const PAYMENT_ENDPOINT = "/api/users/payment";
 export const TESTER_ENDPOINT = "/api/users/testers";
-export const ADMIN_ENDPOINT = "/api/users/admin";
 export const TESTER_PROFILE_ENDPOINT = "/api/users/testers/profile";
 export const FILES_ENDPOINT = "/api/users/file";
 export const USERS_ENDPOINT = "/api/users";
 export const USER_PASSWORD_ENDPOINT = "/api/users/password"
 export const USERS_BULK_DELETE_ENDPOINT = "/api/users/bulk/delete";
 export const PROJECT_USERS_ENDPOINT = "/api/project/users";
+export const ADMIN_ENDPOINT = "/api/users/admin";
+export const ADMIN_EMAIL_ENDPOINT = "/api/admin-email";
+export const ADMIN_SELECTED_EMAIL_ENDPOINT = "/api/admin-selected-email";
+export const WEBSITE_LOGO_ENDPOINT = "/api/setting/logo";
+export const WEBSITE_ENDPOINT = "/api/setting/website";
+export const ID_FORMAT_ENDPOINT = "/api/setting/id-format";
 
 export const GET_USER_ENDPOINT = (email: string) => {
   return `/api/users/${email}`;
@@ -84,3 +89,7 @@ export const TEST_CASE_DATA_ENPOINT = (projectId: string, testCaseId: string) =>
 export const NOTE_ENPOINT = (projectId: string) => {
   return `${PROJECTS_ENDPOINT}/${projectId}/note`;
 }
+
+export const MODERATE_ENDPOINT = (projectId: string, testCaseExecutionId: string) => {
+  return `/api/project/${projectId}/test-case-execution/${testCaseExecutionId}`;
+};

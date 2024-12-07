@@ -7,10 +7,13 @@ import { CookieKey } from "@/app/_constants/cookie-keys";
 import { GENERIC_ERROR_MESSAGE } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { UserRoles } from "@/app/_constants/user-roles";
+import { INewUser } from "@/app/_interface/user";
 import { createSession } from "@/app/_lib/session";
+import { SupportEmail } from "@/app/_models/support-email.model";
 import { signInService, signUpService } from "@/app/_services/auth-service";
 import { genericPost } from "@/app/_services/generic-api-methods";
 import { getUserByEmailService } from "@/app/_services/user.service";
+import { sendSignUpEmailToAdmin } from "@/app/_utils/email";
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GitHubProvider from "next-auth/providers/github";
@@ -47,6 +50,8 @@ const handler = NextAuth({
   },
   callbacks: {
     async signIn({ user }) {
+      // const adminUsers = await SupportEmail.findOne();
+      // sendSignUpEmailToAdmin(user as any, adminUsers?.emails);
       return handleSignIn(user);
     },
     async redirect({ url, baseUrl }) {
@@ -54,6 +59,7 @@ const handler = NextAuth({
       else if (new URL(url).origin === baseUrl) return url;
       return baseUrl;
     },
+
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;

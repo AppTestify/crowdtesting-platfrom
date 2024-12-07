@@ -23,13 +23,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { IProject, IProjectPayload } from "@/app/_interface/project";
+import { IProjectPayload } from "@/app/_interface/project";
 import { Checkbox } from "@/components/ui/checkbox";
 import { getProjectsService } from "@/app/_services/project.service";
-import {
-  formatDate,
-  formatDateWithoutTime,
-} from "@/app/_constants/date-formatter";
+import { formatDateWithoutTime } from "@/app/_constants/date-formatter";
 import { RowActions } from "./_components/row-actions";
 import { BulkDelete } from "./_components/bulk-delete";
 import ProjectStatus from "./_components/project-status";
