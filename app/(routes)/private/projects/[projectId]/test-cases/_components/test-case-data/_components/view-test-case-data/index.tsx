@@ -4,6 +4,7 @@ import toasterService from "@/app/_services/toaster-service";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu-icon";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Tooltip,
   TooltipContent,
@@ -137,7 +138,14 @@ export default function ViewTestCaseData({
           )}
         </div>
       ) : (
-        <div className="text-center h-24">Loading</div>
+        <div>
+          {Array(2).fill(null).map((_, index) => (
+            <div className='mt-4'>
+              <Skeleton key={index} className="h-40 w-full bg-gray-200" />
+            </div>
+          ))
+          }
+        </div>
       )}
     </div>
   );

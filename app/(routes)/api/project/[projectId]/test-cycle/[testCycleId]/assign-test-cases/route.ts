@@ -8,7 +8,7 @@ import { IdFormat } from "@/app/_models/id-format.model";
 import { TestCaseResult } from "@/app/_models/test-case-result.model";
 import { TestCycle } from "@/app/_models/test-cycle.model";
 import { assignTestCasesSchema } from "@/app/_schemas/test-cycle.schema";
-import { addCustomIds } from "@/app/_utils/data-formatters";
+import { addCustomIds, replaceCustomId } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function PATCH(
@@ -115,6 +115,7 @@ export async function GET(
 
         const { testCycleId } = params;
         const testCaseIdFormat = await IdFormat.findOne({ entity: DBModels.TEST_CASE });
+        const testCycleIdFormat = await IdFormat.findOne({ entity: DBModels.TEST_CYCLE });
         const testCycle = await TestCycle.findById(testCycleId)
             .populate({
                 path: "testCaseResults",
@@ -138,7 +139,14 @@ export async function GET(
             }));
         }
 
-        return Response.json(testCycle);
+        const totalTestCycleData = {
+            ...testCycle,
+            customId: testCycle?.customId
+                ? replaceCustomId(testCycleIdFormat.idFormat, testCycle.customId)
+                : null
+        };
+
+        return Response.json(totalTestCycleData);
 
     } catch (error: any) {
         return errorHandler(error);

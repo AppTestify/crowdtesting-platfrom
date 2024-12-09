@@ -5,6 +5,7 @@ import { getIdFormatService, updateIdFormatService } from '@/app/_services/id-fo
 import toasterService from '@/app/_services/toaster-service';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Loader2 } from 'lucide-react';
 import React, { useEffect, useState } from 'react'
 
@@ -12,14 +13,18 @@ export default function IdFormatSettings() {
 
     const [idFormats, setIdFormats] = useState<IIdFormat[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isViewLoading, setIsViewLoading] = useState<boolean>(false);
     const [idFormatUpdateId, setIdFormatUpdateId] = useState<string>("");
 
     const getIdFormat = async () => {
+        setIsViewLoading(true);
         try {
             const response = await getIdFormatService();
             setIdFormats(response);
         } catch (error) {
             toasterService.error();
+        } finally {
+            setIsViewLoading(false);
         }
     }
 
@@ -59,6 +64,13 @@ export default function IdFormatSettings() {
 
     return (
         <div className="mt-2 p-1">
+            {isViewLoading &&
+                Array(8).fill(null).map((_, index) => (
+                    <div className='mt-6'>
+                        <Skeleton key={index} className="h-11 w-full bg-gray-200" />
+                    </div>
+                ))
+            }
             {idFormats.map((idFormat, index) => {
                 const [prefix, suffix] = idFormat.idFormat.split('{customId}');
                 return (

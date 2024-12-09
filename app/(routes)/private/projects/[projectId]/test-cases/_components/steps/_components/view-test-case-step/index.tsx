@@ -1,6 +1,7 @@
 import { ITestCaseStep } from '@/app/_interface/test-case-step';
 import { getTestCaseStepService } from '@/app/_services/test-case-step.service';
 import toasterService from '@/app/_services/toaster-service';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 
@@ -47,8 +48,13 @@ export default function TestCaseStepView({ testCaseId }: { testCaseId: string })
                     )}
                 </div>
             ) : (
-                <div className='text-center h-24'>
-                    Loading
+                <div>
+                    {Array(3).fill(null).map((_, index) => (
+                        <div className='mt-2'>
+                            <Skeleton key={index} className="h-10 w-full bg-gray-200" />
+                        </div>
+                    ))
+                    }
                 </div>
             )}
         </div>

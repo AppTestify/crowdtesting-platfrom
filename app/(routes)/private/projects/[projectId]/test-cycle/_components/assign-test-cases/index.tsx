@@ -41,7 +41,6 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
         row: Row<ITestCycle>;
     }
 ) {
-
     // Un-Assigned Test case
     const columns: ColumnDef<ITestCase>[] = [
         {
@@ -83,14 +82,7 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
             ),
         },
         {
-            accessorKey: "expectedResult",
-            header: "Expected result",
-            cell: ({ row }) => (
-                <div className="capitalize">{row.getValue("expectedResult")}</div>
-            ),
-        },
-        {
-            id: "assign",
+            id: "unAssign",
             header: "",
             cell: ({ row }) => (
                 <Button variant="ghost" size="sm" onClick={() => singleUnAssign(row.original._id as string)} >
@@ -140,13 +132,6 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
             cell: ({ row }) => (
                 <div className="capitalize ">
                     {row.getValue("title")}</div>
-            ),
-        },
-        {
-            accessorKey: "expectedResult",
-            header: "Expected result",
-            cell: ({ row }) => (
-                <div className="capitalize">{row.getValue("expectedResult")}</div>
             ),
         },
         {
@@ -359,7 +344,10 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
             <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto">
                 <SheetHeader>
-                    <SheetTitle className="text-left">Assign test cases</SheetTitle>
+                    <SheetTitle className="text-left font-medium">
+                        <span className="text-primary">{row.original?.customId}:</span>
+                        <span className="ml-2 capitalize">{row.original?.title}</span>
+                    </SheetTitle>
                     <SheetDescription className="text-left">
                         Lorem ipsum dolor sit amet consectetur adipisicing elit. Beatae laboriosam quas
                         cum expedita quidem sit qui quaerat, ipsa animi nobis
@@ -447,7 +435,7 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
                     </TabsContent>
                     <TabsContent value="assigned">
                         <div className="w-full">
-                            <div className="flex items-center justify-between mb-3">
+                            <div className="flex mb-3">
                                 <div>Assigned test cases</div>
                             </div>
                             <div className="rounded-md border">

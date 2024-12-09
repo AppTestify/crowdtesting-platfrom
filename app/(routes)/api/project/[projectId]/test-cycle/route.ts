@@ -1,6 +1,7 @@
 import { DBModels } from "@/app/_constants";
 import { DB_CONNECTION_ERROR_MESSAGE, INVALID_INPUT_ERROR_MESSAGE, USER_UNAUTHORIZED_ERROR_MESSAGE, USER_UNAUTHORIZED_SERVER_ERROR_MESSAGE } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
+import { TestCaseExecutionResult } from "@/app/_constants/test-case";
 import { connectDatabase } from "@/app/_db";
 import { ITestCase } from "@/app/_interface/test-case";
 import { isAdmin, verifySession } from "@/app/_lib/dal";
@@ -127,10 +128,29 @@ export async function GET(
                 ...testCase,
                 customId: replaceCustomId(testCaseIdFormat.idFormat, testCase?.customId)
             })),
+            resultCounts: countResults(res.testCaseResults || [])
         }));
 
         return Response.json({ "testCycles": result, "total": totalTestCycles });
     } catch (error: any) {
         return errorHandler(error);
     }
+}
+
+function countResults(testCaseResults: any[]) {
+    const resultCount = {
+        blocked: 0,
+        passed: 0,
+        failed: 0,
+        caused: 0,
+    };
+
+    testCaseResults.forEach((result) => {
+        if (result.result === TestCaseExecutionResult.BLOCKED) resultCount.blocked++;
+        if (result.result === TestCaseExecutionResult.PASSED) resultCount.passed++;
+        if (result.result === TestCaseExecutionResult.FAILED) resultCount.failed++;
+        if (result.result === TestCaseExecutionResult.CAUTION) resultCount.caused++;
+    });
+
+    return resultCount;
 }

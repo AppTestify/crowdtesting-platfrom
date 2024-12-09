@@ -27,8 +27,8 @@ import { useParams } from "next/navigation";
 import { PAGINATION_LIMIT } from "@/app/_utils/common";
 import { getTestCycleService } from "@/app/_services/test-cycle.service";
 import { ITestCycle, ITestCyclePayload } from "@/app/_interface/test-cycle";
-import { ArrowUpDown } from "lucide-react";
-import { TestExecutionRowActions } from "./_components/row-actions";
+import { ArrowUpDown, ChartNoAxesGantt } from "lucide-react";
+import Link from "next/link";
 
 export default function TestExecution() {
     const [testCycle, setTestCycle] = useState<ITestCyclePayload[]>([]);
@@ -70,10 +70,39 @@ export default function TestExecution() {
             ),
         },
         {
+            accessorKey: "totalTestCases",
+            header: "Total Test Cases",
+            cell: ({ row }) => (
+                <div className="capitalize flex gap-1">
+                    <div className="w-6 h-6 border border-1 bg-primary rounded-full text-white flex items-center justify-center">
+                        {row.original?.resultCounts?.passed}
+                    </div>
+                    <div className="w-6 h-6 border border-1 bg-destructive rounded-full text-white flex items-center justify-center">
+                        {row.original?.resultCounts?.failed}
+                    </div>
+                    <div className="w-6 h-6 border border-1 bg-yellow-500 rounded-full text-white flex items-center justify-center">
+                        {row.original?.resultCounts?.caused}
+                    </div>
+                    <div className="w-6 h-6 border border-1 bg-gray-500 rounded-full text-white flex items-center justify-center">
+                        {row.original?.resultCounts?.blocked}
+                    </div>
+                </div>
+            ),
+        },
+        {
             id: "actions",
             enableHiding: false,
             cell: ({ row }) => (
-                <TestExecutionRowActions row={row as Row<ITestCycle>} refreshTestCycle={refreshTestCycle} />
+                <div className="">
+                    <Button variant={"outline"} size={"sm"} className="px-2 text-sm ">
+                        <Link href={`/private/projects/${projectId}/test-execution/${row.original?.id}`}>
+                            <div className="flex items-center">
+                                <ChartNoAxesGantt className="h-5 w-5 mr-2" />
+                                Test cases
+                            </div>
+                        </Link>
+                    </Button>
+                </div>
             ),
         },
     ];

@@ -12,6 +12,9 @@ import {
 import { formatDate } from "@/app/_constants/date-formatter";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { TestSuiteTabs } from "@/app/_constants/project";
+import ViewRequirement from "../../../requirements/_components/view-requirement";
+import { useState } from "react";
+import { IRequirement } from "@/app/_interface/requirement";
 
 const ViewTestSuite = ({
   testSuite,
@@ -22,8 +25,21 @@ const ViewTestSuite = ({
   sheetOpen: boolean;
   setSheetOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
+  const [isRequirementViewOpen, setIsRequirementViewOpen] = useState<boolean>(false);
+  const [requirement, setRequirement] = useState<IRequirement>();
+
+  const getRequirement = (requirement: IRequirement) => {
+    setRequirement(requirement);
+    setIsRequirementViewOpen(true);
+  }
+
   return (
     <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+      <ViewRequirement
+        requirement={requirement as IRequirement}
+        sheetOpen={isRequirementViewOpen}
+        setSheetOpen={setIsRequirementViewOpen}
+      />
       <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto">
         <SheetHeader className="mb-4">
           <div className="flex justify-between items-center mt-4">
@@ -82,7 +98,10 @@ const ViewTestSuite = ({
                   {testSuite?.requirements?.length ? (
                     testSuite.requirements.map((requirement, index) => (
                       <TableRow key={index}>
-                        <TableCell>{requirement.customId}</TableCell>
+                        <TableCell className="hover:text-primary hover:cursor-pointer"
+                          onClick={() => getRequirement(requirement)}
+                        >
+                          {requirement.customId}</TableCell>
                         <TableCell>{requirement.title}</TableCell>
                       </TableRow>
                     ))

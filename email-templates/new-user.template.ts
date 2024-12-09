@@ -53,7 +53,6 @@ export const NEW_USER_ADDED_TEMPLATE = `
         <p class="content">A new user has been added to the system. Below are the details of the new user:</p>
 
         <div class="user-details">
-            <strong>Name:</strong> {firstName lastName} <br>
             <strong>Email:</strong> {email} <br>
             <strong>Role:</strong> {role} <br>
         </div>

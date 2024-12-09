@@ -3,6 +3,7 @@ import { IssueStatus, Priority } from "../_constants/issue";
 import { Badge } from "@/components/ui/badge";
 import { UserRoles } from "../_constants/user-roles";
 import { ProjectUserRoles } from "../_constants/project-user-roles";
+import { TestCaseExecutionResult } from "../_constants/test-case";
 
 export const displayIcon = (priority: string) => {
     switch (priority) {
@@ -63,6 +64,29 @@ export const statusBadgeProjectUserRole = (role: string) => {
             return <Badge className="bg-orange-400 hover:bg-orange-400 font-medium">{ProjectUserRoles.MANAGER}</Badge>;
         case ProjectUserRoles.DEVELOPER:
             return <Badge className="bg-purple-400 hover:bg-purple-400 font-medium">{ProjectUserRoles.DEVELOPER}</Badge>;
+        default:
+            return null;
+    }
+}
+
+export const showTestCaseResultStatusBadge = (role: string) => {
+    switch (role) {
+        case TestCaseExecutionResult.FAILED:
+            return <Badge className="bg-red-400 hover:bg-red-400 font-medium">
+                {TestCaseExecutionResult.FAILED}
+            </Badge>;
+        case TestCaseExecutionResult.PASSED:
+            return <Badge className="bg-primary hover:bg-primary font-medium">
+                {TestCaseExecutionResult.PASSED}
+            </Badge>;
+        case TestCaseExecutionResult.BLOCKED:
+            return <Badge className="bg-gray-500 hover:bg-gray-500 font-medium">
+                {TestCaseExecutionResult.BLOCKED}
+            </Badge>;
+        case TestCaseExecutionResult.CAUTION:
+            return <Badge className="bg-yellow-500 hover:bg-yellow-500 font-medium">
+                {TestCaseExecutionResult.CAUTION}
+            </Badge>;
         default:
             return null;
     }

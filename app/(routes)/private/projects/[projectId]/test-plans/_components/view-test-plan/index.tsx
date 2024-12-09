@@ -13,7 +13,6 @@ const ViewTestPlan = ({
   sheetOpen: boolean;
   setSheetOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
-  console.log(testPlan);
 
   return (
     <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>

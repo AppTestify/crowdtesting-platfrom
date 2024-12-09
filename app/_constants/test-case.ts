@@ -32,8 +32,8 @@ export const enum TestCaseStep {
 }
 
 export const enum TestCaseExecutionResult {
-    PASS = "pass",
-    FAIL = "fail",
+    PASSED = "passed",
+    FAILED = "failed",
     CAUTION = "caution",
     BLOCKED = "blocked",
 }

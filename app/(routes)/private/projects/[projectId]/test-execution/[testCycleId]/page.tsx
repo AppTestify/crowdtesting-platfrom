@@ -12,6 +12,7 @@ import { useParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 import Moderate from './_components/moderate';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
+import { showTestCaseResultStatusBadge } from '@/app/_utils/common-functionality';
 
 export default function TestCasesInTestExecution() {
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -57,15 +58,6 @@ export default function TestCasesInTestExecution() {
             ),
         },
         {
-            accessorKey: "expectedResult",
-            header: "Expected Result",
-            cell: ({ row }) => (
-                <div className="capitalize">
-                    {row.original?.testCaseId?.expectedResult}
-                </div>
-            ),
-        },
-        {
             accessorKey: "actualResult",
             header: "Actual Result",
             cell: ({ row }) => (
@@ -97,7 +89,7 @@ export default function TestCasesInTestExecution() {
             header: "Result",
             cell: ({ row }) => (
                 <div className="capitalize">
-                    {row.original?.result}
+                    {showTestCaseResultStatusBadge(row.original?.result as string)}
                 </div>
             ),
         },
@@ -107,9 +99,11 @@ export default function TestCasesInTestExecution() {
             enableHiding: false,
             cell: ({ row }) => (
                 <div>
-                    <Button size={"sm"} onClick={() => moderateOpen(row.original)}>
-                        <Play className='w-3 h-3' />
-                    </Button>
+                    {!row.original?.result &&
+                        <Button size={"sm"} onClick={() => moderateOpen(row.original)}>
+                            <Play className='w-3 h-3' />
+                        </Button>
+                    }
                 </div>
             ),
         },

@@ -40,7 +40,7 @@ const ViewRequirement = ({
                   </span>
                 ) : null}
                 Last updated at{" "}
-                {formatDistanceToNow(new Date(requirement.updatedAt), {
+                {requirement.updatedAt && formatDistanceToNow(new Date(requirement.updatedAt), {
                   addSuffix: true,
                 })}
               </span>

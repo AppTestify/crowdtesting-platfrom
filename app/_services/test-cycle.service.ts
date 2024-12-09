@@ -80,3 +80,14 @@ export const getAssignTestCaseService = async (projectId: string, testCaseId: st
         throw error;
     }
 };
+
+export const getTestCycleListService = async (projectId: string):
+    Promise<any> => {
+    try {
+        const response = await genericGet(`${TEST_CYCLE_ENPOINT(projectId)}/list`);
+        return response || [];
+    } catch (error) {
+        console.error(`Error > getTestCycleListService:`, error);
+        throw error;
+    }
+};

@@ -7,6 +7,13 @@ export interface ITestCyclePayload {
     projectId?: string;
     description: string;
     userId?: IUserByAdmin;
+    id?: string;
+    resultCounts?: {
+        blocked: number;
+        passed: number;
+        failed: number;
+        caused: number;
+    };
 }
 
 export interface ITestCycle {

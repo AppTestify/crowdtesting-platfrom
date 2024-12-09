@@ -35,11 +35,12 @@ import { ITestSuite } from "@/app/_interface/test-suite";
 import { TestCaseRowActions } from "./_components/row-actions";
 import ViewTestCase from "./_components/view-test-case";
 import { ArrowUpDown } from "lucide-react";
+import ExpandableTable from "@/app/_components/expandable-table";
 
 export default function TestPlan() {
-    const [testCases, setTestCases] = useState<ITestCasePayload[]>([]);
+    const [testCases, setTestCases] = useState<ITestCase[]>([]);
 
-    const columns: ColumnDef<ITestCasePayload>[] = [
+    const columns: ColumnDef<ITestCase>[] = [
         {
             accessorKey: "customId",
             header: ({ column }) => {
@@ -69,10 +70,19 @@ export default function TestPlan() {
             ),
         },
         {
-            accessorKey: "expectedResult",
-            header: "Expected result",
+            accessorKey: "testSuite",
+            header: "Test suite",
             cell: ({ row }) => (
-                <div className="capitalize">{row.getValue("expectedResult")}</div>
+                <div className="capitalize">{row.original.testSuite?.title}</div>
+            ),
+        },
+        {
+            accessorKey: "requirements",
+            header: "Requirements",
+            cell: ({ row }) => (
+                <div className="capitalize">
+                    <ExpandableTable row={row?.original?.requirements} />
+                </div>
             ),
         },
         ...(

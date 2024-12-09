@@ -44,10 +44,11 @@ export async function PUT(
             );
         }
         const { testCaseExecutionId, projectId } = params;
+        let newIssue;
 
         if (response.data.isIssue) {
             const TestExecution = await TestCaseResult.findById(testCaseExecutionId).populate("testCaseId", "_id title");
-            const newIssue = new Issue({
+            newIssue = new Issue({
                 title: TestExecution.testCaseId?.title,
                 userId: session.user._id,
                 projectId: projectId,
@@ -58,6 +59,7 @@ export async function PUT(
 
         const updateResponse = await TestCaseResult.findByIdAndUpdate(testCaseExecutionId, {
             ...response.data,
+            issueId: response.data.isIssue ? newIssue._id : null,
             updatedBy: `${session.user.firstName} ${session.user.lastName}`,
             updatedAt: Date.now()
         }, { new: true });

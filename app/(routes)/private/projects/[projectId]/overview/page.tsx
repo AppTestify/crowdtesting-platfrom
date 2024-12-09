@@ -42,7 +42,7 @@ export default function Projects() {
         </div>
       ) : (
         <div className="flex flex-col space-y-3">
-          <Skeleton className="bg-gray-300 h-[225px] w-full rounded-xl" />
+          <Skeleton className="bg-gray-200 h-[225px] w-full rounded-xl" />
         </div>
       )}
     </div>

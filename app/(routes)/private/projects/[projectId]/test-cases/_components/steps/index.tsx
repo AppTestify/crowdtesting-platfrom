@@ -7,7 +7,7 @@ import { z } from "zod";
 import { useParams } from "next/navigation";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Edit, Loader2, Trash } from "lucide-react";
+import { Edit, Loader2, MoreHorizontal, Plus, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { addTestCaseStepService, deleteTestCaseStepService, getTestCaseStepService, updateTestCaseSequenceService } from "@/app/_services/test-case-step.service";
@@ -19,6 +19,7 @@ import { ConfirmationDialog } from "@/app/_components/confirmation-dialog";
 import { aditionalStepTypes, testCaseAddList } from "@/app/_constants/test-case";
 import { Textarea } from "@/components/ui/text-area";
 import EditTestCaseStep from "./_components/edit-test-case-step";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 const testSuiteSchema = z.object({
     description: z.string().min(1, "Required"),
@@ -36,6 +37,7 @@ export function AddTestStep({ testCaseId }: { testCaseId: string }) {
     const [testCaseStepId, setTestCaseStepId] = useState<string>("");
     const [isEditOpen, setIsEditOpen] = useState<boolean>(false);
     const [testCaseStepEdit, setTestCaseStepEdit] = useState<ITestCaseStep | null>(null);
+    const [isSelectOpen, setSelectOpen] = useState<boolean>(false);
     const { projectId } = useParams<{ projectId: string }>();
 
     const form = useForm<z.infer<typeof testSuiteSchema>>({
@@ -49,6 +51,7 @@ export function AddTestStep({ testCaseId }: { testCaseId: string }) {
 
     const handleSelectChange = (value: string) => {
         setSelectedItem(value);
+        setSelectOpen(false);
         resetForm();
     };
 
@@ -238,9 +241,10 @@ export function AddTestStep({ testCaseId }: { testCaseId: string }) {
             )
             }
             <div className="grid grid-cols-1 gap-2 mt-4">
-                <Select disabled={selectedItem != ""} value={selectedItem} onValueChange={handleSelectChange}>
+                {/* <Select disabled={selectedItem != ""} onOpenChange={(open) => setSelectOpen(open)} open={isSelectOpen}
+                    value={selectedItem} onValueChange={handleSelectChange}>
                     <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select step type" />
+                        <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                         <SelectGroup>
@@ -249,7 +253,26 @@ export function AddTestStep({ testCaseId }: { testCaseId: string }) {
                             ))}
                         </SelectGroup>
                     </SelectContent>
-                </Select>
+                </Select> */}
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button className="w-full" disabled={selectedItem !== ""}>
+                            <Plus />
+                            Select step type
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="center" className="min-w-96">
+                        {testCaseAddList.map((addTestCase, index) => (
+                            <DropdownMenuItem
+                                key={index}
+                                onSelect={() => handleSelectChange(addTestCase)}
+                                className="cursor-pointer"
+                            >
+                                {addTestCase}
+                            </DropdownMenuItem>
+                        ))}
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
             {
                 selectedItem != "" && (

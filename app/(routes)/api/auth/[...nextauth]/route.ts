@@ -50,8 +50,6 @@ const handler = NextAuth({
   },
   callbacks: {
     async signIn({ user }) {
-      // const adminUsers = await SupportEmail.findOne();
-      // sendSignUpEmailToAdmin(user as any, adminUsers?.emails);
       return handleSignIn(user);
     },
     async redirect({ url, baseUrl }) {
@@ -172,6 +170,9 @@ const handleAuthorization = async (credentials: any) => {
       role: role,
     });
     if (response?.user) {
+      const adminUsers = await SupportEmail.findOne();
+      sendSignUpEmailToAdmin(response?.user as any, adminUsers?.emails);
+
       return response.user;
     } else {
       return null;

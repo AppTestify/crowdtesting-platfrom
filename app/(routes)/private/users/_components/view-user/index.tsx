@@ -19,10 +19,10 @@ import { showUsersRoleInBadges } from "@/app/_utils/common-functionality";
 import { formatDistanceToNow } from "date-fns";
 import { UserRoles } from "@/app/_constants/user-roles";
 import Documents from "../../../profile/_components/tester-profile/_components/documents";
-import { getDevicesByUserService, getDevicesWithoutPaginationService } from "@/app/_services/device.service";
+import { getDevicesByUserService } from "@/app/_services/device.service";
 import { IDevice } from "@/app/_interface/device";
-import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import ViewUserDevice from "../view-device";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ViewTesterIssue = ({
     user,
@@ -79,12 +79,25 @@ const ViewTesterIssue = ({
 
     return (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-
             <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto">
                 <SheetHeader>
                     <SheetTitle className="text-left">Profile view</SheetTitle>
                     <DropdownMenuSeparator className="border-b" />
                 </SheetHeader>
+                {isViewLoading &&
+                    <>
+                        <div className="flex items-center space-x-4 mt-4">
+                            <Skeleton className="h-16 w-16 rounded-full bg-gray-200" />
+                            <div className="space-y-2">
+                                <Skeleton className="h-4 w-[380px] bg-gray-200" />
+                                <Skeleton className="h-4 w-[330px] bg-gray-200" />
+                            </div>
+                        </div>
+                        <div className="flex mt-5">
+                            <Skeleton className="h-8 w-[390px] bg-gray-200" />
+                        </div>
+                    </>
+                }
                 {isViewLoading ? (
                     <div className="flex justify-center items-center h-32">
                         <p className="text-gray-500">Loading</p>

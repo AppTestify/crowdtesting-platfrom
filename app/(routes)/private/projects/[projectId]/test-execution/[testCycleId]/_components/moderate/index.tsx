@@ -49,7 +49,7 @@ export default function Moderate({
 
     // default is issue value set
     useEffect(() => {
-        if (form.watch("result") === TestCaseExecutionResult.FAIL) {
+        if (form.watch("result") === TestCaseExecutionResult.FAILED) {
             form.setValue("isIssue", true);
         } else {
             form.setValue("isIssue", false);
@@ -66,6 +66,7 @@ export default function Moderate({
                 if (response) {
                     refershTestExecution();
                     toasterService.success(response.message);
+                    form.reset();
                 }
             }
         } catch (error) {
@@ -158,9 +159,12 @@ export default function Moderate({
                             <div className='text-lg font-semibold'>
                                 Expected result
                             </div>
-                            <p className="ml-2 mt-1 text-gray-700 text-[15px]">
-                                {testCaseResult?.testCaseId?.expectedResult}
-                            </p>
+                            <div
+                                className="text-sm leading-relaxed text-gray-700 space-y-2 rich-description"
+                                dangerouslySetInnerHTML={{
+                                    __html: testCaseResult?.testCaseId?.expectedResult || "",
+                                }}
+                            />
                         </div>
                     </div>
 
@@ -187,12 +191,12 @@ export default function Moderate({
                                                                     <Tooltip delayDuration={200}>
                                                                         <TooltipTrigger asChild>
                                                                             <ToggleGroupItem
-                                                                                variant={"outline"} size={"lg"} className={`rounded-r-none ${field.value === TestCaseExecutionResult.PASS ? 'bg-primary hover:bg-primary' : ''}`} value={TestCaseExecutionResult.PASS} aria-label={TestCaseExecutionResult.PASS}>
-                                                                                <Smile className={`h-5 w-5 ${field.value === TestCaseExecutionResult.PASS ? 'text-white' : 'text-primary'} `} />
+                                                                                variant={"outline"} size={"lg"} className={`rounded-r-none ${field.value === TestCaseExecutionResult.PASSED ? 'bg-primary hover:bg-primary' : ''}`} value={TestCaseExecutionResult.PASSED} aria-label={TestCaseExecutionResult.PASSED}>
+                                                                                <Smile className={`h-5 w-5 ${field.value === TestCaseExecutionResult.PASSED ? 'text-white' : 'text-primary'} `} />
                                                                             </ToggleGroupItem>
                                                                         </TooltipTrigger>
                                                                         <TooltipContent className='bg-black'>
-                                                                            <p>{TestCaseExecutionResult.PASS}</p>
+                                                                            <p>{TestCaseExecutionResult.PASSED}</p>
                                                                         </TooltipContent>
                                                                     </Tooltip>
 
@@ -211,12 +215,12 @@ export default function Moderate({
                                                                     {/* Fail */}
                                                                     <Tooltip delayDuration={200}>
                                                                         <TooltipTrigger asChild>
-                                                                            <ToggleGroupItem variant={"outline"} size={"lg"} className={`rounded-none ${field.value === TestCaseExecutionResult.FAIL ? 'bg-destructive hover:bg-destructive' : ''}`} value={TestCaseExecutionResult.FAIL} aria-label={TestCaseExecutionResult.FAIL}>
-                                                                                <Frown className={`h-5 w-5 ${field.value === TestCaseExecutionResult.FAIL ? 'text-white' : 'text-destructive'}`} />
+                                                                            <ToggleGroupItem variant={"outline"} size={"lg"} className={`rounded-none ${field.value === TestCaseExecutionResult.FAILED ? 'bg-destructive hover:bg-destructive' : ''}`} value={TestCaseExecutionResult.FAILED} aria-label={TestCaseExecutionResult.FAILED}>
+                                                                                <Frown className={`h-5 w-5 ${field.value === TestCaseExecutionResult.FAILED ? 'text-white' : 'text-destructive'}`} />
                                                                             </ToggleGroupItem>
                                                                         </TooltipTrigger>
                                                                         <TooltipContent className='bg-black'>
-                                                                            <p>{TestCaseExecutionResult.FAIL}</p>
+                                                                            <p>{TestCaseExecutionResult.FAILED}</p>
                                                                         </TooltipContent>
                                                                     </Tooltip>
 
@@ -241,7 +245,7 @@ export default function Moderate({
                                         />
                                     </div>
 
-                                    {form.watch("result") === TestCaseExecutionResult.FAIL &&
+                                    {form.watch("result") === TestCaseExecutionResult.FAILED &&
                                         <div className="mx-1 my-4">
                                             <FormField
                                                 control={form.control}
@@ -284,7 +288,7 @@ export default function Moderate({
                                             )}
                                         />
                                     </div>
-                                    <div className="mx-1">
+                                    <div className="mx-1 mt-2">
                                         <FormField
                                             control={form.control}
                                             name="remarks"

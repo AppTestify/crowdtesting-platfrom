@@ -109,7 +109,7 @@ export async function GET(
             response = addCustomIds(
                 await TestSuite.find({ projectId: projectId })
                     .populate("userId", "id firstName lastName")
-                    .populate("requirements", "_id title customId")
+                    .populate("requirements")
                     .sort({ createdAt: -1 })
                     .skip(skip)
                     .limit(Number(limit))
