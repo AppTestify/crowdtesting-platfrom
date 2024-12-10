@@ -16,6 +16,8 @@ import { useParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import TestStep from '../../_section/test-step';
+import TestData from '../../_section/test-data';
 
 const testCaseResultSchema = z.object({
     actualResult: z.string().min(1, "Required"),
@@ -84,75 +86,10 @@ export default function Moderate({
                     <div className="mt-4 overflow-y-auto h-full">
 
                         {/* test case step */}
-                        <div className="">
-                            <div className="text-lg font-semibold mb-4">
-                                Test Step
-                            </div>
-                            <div className="flex flex-col space-y-4">
-                                {testCaseResult?.testCaseStep?.map((testStep, index) => (
-                                    <div key={index} className="flex items-start relative">
-                                        <div className="flex flex-col items-center relative">
-                                            <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-xs z-10">
-                                                {!testStep?.additionalSelectType && (
-                                                    testCaseResult?.testCaseStep
-                                                        .filter(step => !step?.additionalSelectType)
-                                                        .indexOf(testStep) + 1
-                                                )}
-                                                {testStep?.additionalSelectType === "Impact" ? <CircleGauge className='h-4 w-4' /> :
-                                                    testStep?.additionalSelectType === "Notes" ? <NotepadText className='h-4 w-4' /> :
-                                                        testStep?.additionalSelectType === "Condition" ? <FileCheck className='h-4 w-4' /> : ""
-                                                }
-                                            </div>
-                                            {index < testCaseResult?.testCaseStep?.length - 1 && (
-                                                <div className="absolute top-4 w-[2px] h-full bg-primary"></div>
-                                            )}
-                                        </div>
-
-                                        <div className="ml-4 text-gray-700 text-[15px]">
-                                            {testStep?.additionalSelectType && (
-                                                <span className="font-semibold text-black mr-2">
-                                                    {testStep?.additionalSelectType} -
-                                                </span>
-                                            )}
-                                            {testStep?.description}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
+                        <TestStep testCaseResult={testCaseResult as ITestCaseResult} />
 
                         {/* test case data */}
-                        <div className="mt-5">
-                            <div className="text-lg font-semibold mb-2">
-                                Test data
-                            </div>
-                            {testCaseResult?.testCaseData?.map((testData, index) => (
-                                <Accordion type="single" collapsible className={`mb-2 rounded-lg w-[95%] ${accordionBodyColors[index % accordionBodyColors.length]} relative`}>
-                                    <AccordionItem value="item-1">
-                                        <AccordionTrigger className="ml-4 pr-8">{testData?.name}</AccordionTrigger>
-                                        <AccordionContent className="pr-8">
-                                            <div className="ml-4 mt-1 space-y-1">
-                                                <p className="text-gray-700">
-                                                    <span className="font-medium">Name:</span> {testData?.name}
-                                                </p>
-                                                <p className="text-gray-700">
-                                                    <span className="font-medium">Type:</span> {testData?.type}
-                                                </p>
-                                                <p className="text-gray-700">
-                                                    <span className="font-medium">Input Value:</span> {testData?.inputValue}
-                                                </p>
-                                                <p className="text-gray-700">
-                                                    <span className="font-medium">Description:</span> {testData?.description}
-                                                </p>
-                                            </div>
-                                        </AccordionContent>
-                                    </AccordionItem>
-                                    <div
-                                        className={`absolute rounded-r-none rounded-lg left-0 top-0 w-1.5 h-full ${accrodionColors[index % accrodionColors.length]}`}
-                                    ></div>
-                                </Accordion>
-                            ))}
-                        </div>
+                        <TestData testCaseResult={testCaseResult as ITestCaseResult} />
 
                         {/* expected results */}
                         <div className='mt-5'>

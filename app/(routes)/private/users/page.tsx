@@ -265,12 +265,7 @@ export default function Users() {
                             }}
                             className="w-full"
                         />
-                        {getSelectedRows().length ? (
-                            <UserBulkDelete
-                                ids={getSelectedRows()}
-                                refreshUsers={refreshUsers}
-                            />
-                        ) : null}
+
                         <div>
                             <Select
                                 value={selectedStatus || ""}
@@ -303,7 +298,15 @@ export default function Users() {
                             : null
                         }
                     </div>
-                    <AddUser refreshUsers={refreshUsers} />
+                    <div className="flex justify-end items-center gap-2 mx-1">
+                        {getSelectedRows().length ? (
+                            <UserBulkDelete
+                                ids={getSelectedRows()}
+                                refreshUsers={refreshUsers}
+                            />
+                        ) : null}
+                        <AddUser refreshUsers={refreshUsers} />
+                    </div>
                 </div>
             </div>
             <div className="mt-2 mb-3">

@@ -38,6 +38,13 @@ export const enum TestCaseExecutionResult {
     BLOCKED = "blocked",
 }
 
+export const TestCaseExecutionResultList = [
+    TestCaseExecutionResult.PASSED,
+    TestCaseExecutionResult.FAILED,
+    TestCaseExecutionResult.CAUTION,
+    TestCaseExecutionResult.BLOCKED
+];
+
 export const aditionalStepTypes = [
     TestCaseStep.CONDITION,
     TestCaseStep.IMPACT,

@@ -27,7 +27,7 @@ import { useParams } from "next/navigation";
 import { PAGINATION_LIMIT } from "@/app/_utils/common";
 import { formatDate } from "@/app/_constants/date-formatter";
 import { getTestCaseService } from "@/app/_services/test-case.service";
-import { ITestCase, ITestCasePayload } from "@/app/_interface/test-case";
+import { ITestCase } from "@/app/_interface/test-case";
 import { AddTestCase } from "./_components/add-test-case";
 import toasterService from "@/app/_services/toaster-service";
 import { getTestWithoutPaginationSuiteService } from "@/app/_services/test-suite.service";
@@ -36,6 +36,7 @@ import { TestCaseRowActions } from "./_components/row-actions";
 import ViewTestCase from "./_components/view-test-case";
 import { ArrowUpDown } from "lucide-react";
 import ExpandableTable from "@/app/_components/expandable-table";
+import { IRequirement } from "@/app/_interface/requirement";
 
 export default function TestPlan() {
     const [testCases, setTestCases] = useState<ITestCase[]>([]);
@@ -81,7 +82,7 @@ export default function TestPlan() {
             header: "Requirements",
             cell: ({ row }) => (
                 <div className="capitalize">
-                    <ExpandableTable row={row?.original?.requirements} />
+                    <ExpandableTable row={row?.original?.requirements as IRequirement[]} />
                 </div>
             ),
         },

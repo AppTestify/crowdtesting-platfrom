@@ -84,24 +84,19 @@ const ViewTesterIssue = ({
                     <SheetTitle className="text-left">Profile view</SheetTitle>
                     <DropdownMenuSeparator className="border-b" />
                 </SheetHeader>
-                {isViewLoading &&
+                {isViewLoading ? (
                     <>
                         <div className="flex items-center space-x-4 mt-4">
                             <Skeleton className="h-16 w-16 rounded-full bg-gray-200" />
                             <div className="space-y-2">
-                                <Skeleton className="h-4 w-[380px] bg-gray-200" />
-                                <Skeleton className="h-4 w-[330px] bg-gray-200" />
+                                <Skeleton className="h-4 w-[400px] bg-gray-200" />
+                                <Skeleton className="h-4 w-[350px] bg-gray-200" />
                             </div>
                         </div>
                         <div className="flex mt-5">
                             <Skeleton className="h-8 w-[390px] bg-gray-200" />
                         </div>
                     </>
-                }
-                {isViewLoading ? (
-                    <div className="flex justify-center items-center h-32">
-                        <p className="text-gray-500">Loading</p>
-                    </div>
                 ) : (
                     <>
                         <SheetTitle>

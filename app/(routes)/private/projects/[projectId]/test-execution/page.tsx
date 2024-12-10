@@ -29,6 +29,7 @@ import { getTestCycleService } from "@/app/_services/test-cycle.service";
 import { ITestCycle, ITestCyclePayload } from "@/app/_interface/test-cycle";
 import { ArrowUpDown, ChartNoAxesGantt } from "lucide-react";
 import Link from "next/link";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export default function TestExecution() {
     const [testCycle, setTestCycle] = useState<ITestCyclePayload[]>([]);
@@ -66,7 +67,8 @@ export default function TestExecution() {
             accessorKey: "description",
             header: "Description",
             cell: ({ row }) => (
-                <div className="capitalize">{row.getValue("description")}</div>
+                <div className="capitalize w-48 overflow-hidden text-ellipsis line-clamp-2">
+                    {row.getValue("description")}</div>
             ),
         },
         {
@@ -95,12 +97,27 @@ export default function TestExecution() {
             cell: ({ row }) => (
                 <div className="">
                     <Button variant={"outline"} size={"sm"} className="px-2 text-sm ">
-                        <Link href={`/private/projects/${projectId}/test-execution/${row.original?.id}`}>
-                            <div className="flex items-center">
-                                <ChartNoAxesGantt className="h-5 w-5 mr-2" />
-                                Test cases
-                            </div>
-                        </Link>
+                        {row.original?.testCaseResults && row.original?.testCaseResults.length > 0 ?
+                            <Link href={`/private/projects/${projectId}/test-execution/${row.original?.id}`}>
+                                <div className="flex items-center">
+                                    <ChartNoAxesGantt className="h-5 w-5 mr-2" />
+                                    Test cases
+                                </div>
+                            </Link> :
+                            <TooltipProvider>
+                                <Tooltip delayDuration={200}>
+                                    <TooltipTrigger asChild>
+                                        <div className="flex items-center text-gray-500 cursor-not-allowed">
+                                            <ChartNoAxesGantt className="h-5 w-5 mr-2" />
+                                            Test cases
+                                        </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent className="bg-black">
+                                        <p>First assign test case</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                        }
                     </Button>
                 </div>
             ),

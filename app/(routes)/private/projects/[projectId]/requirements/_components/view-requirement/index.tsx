@@ -1,7 +1,6 @@
 import { IRequirement } from "@/app/_interface/requirement";
 import { Sheet, SheetContent, SheetHeader } from "@/components/ui/sheet";
 import RequirementAttachments from "../attachments/requirement-attachment";
-import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { RequirementTabs } from "@/app/_constants/project";
 import { formatDistanceToNow } from "date-fns";

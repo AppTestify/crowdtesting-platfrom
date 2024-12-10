@@ -36,7 +36,7 @@ export default function AdminProfile({ user }: { user: any }) {
                         </TabsTrigger>
                     </TabsList>
                     <TabsContent value={AdminProfileTabs.OVERVIEW} className="w-full">
-                        <AdminProfileOverview />
+                        <AdminProfileOverview user={user} />
                     </TabsContent>
                     <TabsContent value={AdminProfileTabs.SETTINGS} className="w-full">
                         <PasswordSetting />

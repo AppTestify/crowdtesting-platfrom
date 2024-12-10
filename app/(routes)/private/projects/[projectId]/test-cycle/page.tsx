@@ -68,7 +68,9 @@ export default function TestPlan() {
             accessorKey: "description",
             header: "Description",
             cell: ({ row }) => (
-                <div className="capitalize">{row.getValue("description")}</div>
+                <div className="capitalize w-48 overflow-hidden text-ellipsis line-clamp-2">
+                    {row.getValue("description")}
+                </div>
             ),
         },
         ...(

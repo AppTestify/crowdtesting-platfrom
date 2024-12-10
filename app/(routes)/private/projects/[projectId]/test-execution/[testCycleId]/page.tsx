@@ -6,13 +6,23 @@ import { getTestExecutionsService } from '@/app/_services/test-execution.service
 import toasterService from '@/app/_services/toaster-service';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ColumnDef, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, SortingState, useReactTable, VisibilityState } from '@tanstack/react-table';
-import { ArrowUpDown, ChevronRight, Play } from 'lucide-react';
+import {
+    ColumnDef, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel,
+    getSortedRowModel, SortingState, useReactTable, VisibilityState
+} from '@tanstack/react-table';
+import { ArrowUpDown, ChevronRight, Eye, MoreHorizontal, Play, X } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 import Moderate from './_components/moderate';
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator }
+    from '@/components/ui/breadcrumb';
 import { showTestCaseResultStatusBadge } from '@/app/_utils/common-functionality';
+import { Input } from '@/components/ui/input';
+import { PAGINATION_LIMIT } from '@/app/_utils/common';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import ModerateView from './_components/view-moderate';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { TestCaseExecutionResult, TestCaseExecutionResultList } from '@/app/_constants/test-case';
 
 export default function TestCasesInTestExecution() {
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -22,9 +32,23 @@ export default function TestCasesInTestExecution() {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
     const [rowSelection, setRowSelection] = useState({});
-    const [globalFilter, setGlobalFilter] = useState<unknown>("");
+    const [globalFilter, setGlobalFilter] = useState<unknown>([]);
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [moderate, setModerate] = useState<ITestCaseResult | null>(null);
+    const [pageIndex, setPageIndex] = useState(1);
+    const [totalPageCount, setTotalPageCount] = useState(0);
+    const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
+    const [isViewOpen, setIsViewOpen] = useState<boolean>(false);
+    const [selectedResult, setSelectedResult] = useState<TestCaseExecutionResult | any>("");
+
+    const handleStatusChange = (status: TestCaseExecutionResult) => {
+        setSelectedResult(status);
+    };
+
+    const resetFilter = () => {
+        setSelectedResult("");
+        // setFilteredUsers(users);
+    }
 
     const columns: ColumnDef<ITestCaseResult>[] = [
         {
@@ -49,13 +73,19 @@ export default function TestCasesInTestExecution() {
             sortingFn: "alphanumeric"
         },
         {
+            accessorFn: (row) => row.testCaseId?.title || "",
             accessorKey: "title",
+            id: "title",
             header: "Title",
             cell: ({ row }) => (
                 <div className="capitalize hover:text-primary cursor-pointer">
                     {row.original?.testCaseId?.title}
                 </div>
             ),
+            filterFn: (row, columnId, filterValue) => {
+                const cellValue = row.getValue(columnId) as string;
+                return cellValue.toLowerCase().includes(filterValue.toLowerCase());
+            },
         },
         {
             accessorKey: "actualResult",
@@ -94,16 +124,41 @@ export default function TestCasesInTestExecution() {
             ),
         },
         {
-            header: "Action",
+            header: "",
             id: "actions",
             enableHiding: false,
             cell: ({ row }) => (
                 <div>
-                    {!row.original?.result &&
-                        <Button size={"sm"} onClick={() => moderateOpen(row.original)}>
-                            <Play className='w-3 h-3' />
-                        </Button>
-                    }
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                                <span className="sr-only">Open menu</span>
+                                <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                                className="mb-1"
+                                onClick={() => {
+                                    setIsViewOpen(true);
+                                    setModerate(row.original);
+                                }}
+                            >
+                                <Eye className="h-2 w-2" /> View
+                            </DropdownMenuItem>
+                            {!row.original?.result &&
+                                <>
+                                    <DropdownMenuSeparator className="border-b" />
+                                    <DropdownMenuItem
+                                        className="mb-1"
+                                        onClick={() => moderateOpen(row.original)}
+                                    >
+                                        <Play className="h-2 w-2" /> Moderate
+                                    </DropdownMenuItem>
+                                </>
+                            }
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
             ),
         },
@@ -141,8 +196,9 @@ export default function TestCasesInTestExecution() {
     const getTestExecution = async () => {
         setIsLoading(true);
         try {
-            const response = await getTestExecutionsService(projectId, testCycleId);
-            setTestExecution(response);
+            const response = await getTestExecutionsService(projectId, testCycleId, pageIndex, pageSize, selectedResult);
+            setTestExecution(response?.testExecution);
+            setTotalPageCount(response?.total);
         } catch (error) {
             toasterService.error();
         } finally {
@@ -152,17 +208,34 @@ export default function TestCasesInTestExecution() {
 
     useEffect(() => {
         getTestExecution();
-    }, []);
+    }, [pageIndex, pageSize, selectedResult]);
+
+    const handlePreviousPage = () => {
+        if (pageIndex > 1) {
+            setPageIndex(pageIndex - 1);
+        }
+    };
+
+    const handleNextPage = () => {
+        if (pageIndex < Math.ceil(totalPageCount / pageSize)) {
+            setPageIndex(pageIndex + 1);
+        }
+    };
 
     return (
         <main className="mx-4 mt-2">
+            <ModerateView
+                sheetOpen={isViewOpen}
+                setSheetOpen={setIsViewOpen}
+                moderate={moderate as ITestCaseResult}
+            />
             <Moderate
                 sheetOpen={isOpen}
                 setSheetOpen={setIsOpen}
                 testCaseResult={moderate}
                 refershTestExecution={refershTestExecution}
             />
-            <div className="mb-4">
+            <div className="mb-2">
                 <Breadcrumb>
                     <BreadcrumbList>
                         <BreadcrumbItem>
@@ -180,6 +253,48 @@ export default function TestCasesInTestExecution() {
                 </Breadcrumb>
             </div>
             <div className='w-full'>
+                <p>Test Moderate</p>
+                <div className="flex py-2 mb-2 ">
+                    <Input
+                        placeholder="Filter test execution"
+                        value={(globalFilter as string) ?? ""}
+                        onChange={(event) => {
+                            table.setGlobalFilter(String(event.target.value));
+                        }}
+                        className="max-w-sm"
+                    />
+                    <div className='mx-2'>
+                        <Select
+                            value={selectedResult || ""}
+                            onValueChange={(value) => {
+                                handleStatusChange(value as TestCaseExecutionResult);
+                            }}
+                        >
+                            <SelectTrigger className="w-[150px]">
+                                <SelectValue placeholder="Search by result" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                    {TestCaseExecutionResultList.map((result) => (
+                                        <SelectItem value={String(result)} key={result}>
+                                            <div className="flex items-center">
+                                                {result}
+                                            </div>
+                                        </SelectItem>
+                                    ))}
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    {selectedResult ?
+                        <div>
+                            <Button onClick={resetFilter} className="px-3 bg-red-500 hover:bg-red-500">
+                                <X />
+                            </Button>
+                        </div>
+                        : null
+                    }
+                </div>
                 <div className="rounded-md border">
                     <Table>
                         <TableHeader>
@@ -237,7 +352,7 @@ export default function TestCasesInTestExecution() {
                     </div>
 
                     <div className="flex space-x-2">
-                        {/* <Button
+                        <Button
                             variant="outline"
                             size="sm"
                             onClick={handlePreviousPage}
@@ -252,7 +367,7 @@ export default function TestCasesInTestExecution() {
                             disabled={pageIndex >= Math.ceil(totalPageCount / pageSize)}
                         >
                             Next
-                        </Button> */}
+                        </Button>
                     </div>
                 </div>
             </div>

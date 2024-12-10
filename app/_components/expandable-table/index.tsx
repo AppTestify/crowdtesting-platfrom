@@ -1,44 +1,43 @@
 import { MOBILE_BREAKPOINT } from '@/app/_constants/media-queries';
+import { IRequirement } from '@/app/_interface/requirement';
 import { Badge } from '@/components/ui/badge';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import React, { useState } from 'react'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import React, { useState } from 'react';
 import { useMediaQuery } from 'react-responsive';
 
-export default function ExpandableTable({ row }:
-    { row: any }
-) {
+export default function ExpandableTable({ row }: { row: IRequirement[] }) {
     const isMobile = useMediaQuery({ query: MOBILE_BREAKPOINT });
 
     const mobileVisibleCount = 1;
-    const desktopVisibleCount = 2;
+    const desktopVisibleCount = 1;
     const [showAll, setShowAll] = useState(false);
 
-    const displayedRows = showAll
-        ? row
-        : row.slice(0, isMobile ? mobileVisibleCount : desktopVisibleCount);
+    const visibleCount = isMobile ? mobileVisibleCount : desktopVisibleCount;
 
-    const hiddenCount = row.length - (isMobile ? mobileVisibleCount : desktopVisibleCount);
-
+    const displayedRows = row.slice(0, visibleCount);
+    const hiddenRows = row.slice(visibleCount);
 
     return (
         <div className="flex gap-2 items-center">
-            {displayedRows.map((rowItem: any) => (
-                <div className=' truncate'>
-                    <Badge className='font-medium'>
+
+            {displayedRows.map((rowItem, index) => (
+                <div key={index} className="truncate">
+                    <Badge variant="outline" className="font-medium">
                         {rowItem?.title}
                     </Badge>
                 </div>
             ))}
-            {hiddenCount > 0 && !showAll && (
+
+            {hiddenRows.length > 0 && !showAll && (
                 <DropdownMenu>
-                    <DropdownMenuTrigger>
-                        <span className="text-sm text-gray-500">+{hiddenCount}</span>
+                    <DropdownMenuTrigger asChild>
+                        <button className="text-sm text-gray-500">+{hiddenRows.length}</button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
-                        {displayedRows.map((requirement: any) => (
-                            <DropdownMenuItem key={displayedRows.id} className="pointer-events-none">
+                        {hiddenRows.map((hiddenItem, index) => (
+                            <DropdownMenuItem key={index} className="pointer-events-none">
                                 <div>
-                                    {requirement?.title}
+                                    {hiddenItem?.title}
                                 </div>
                             </DropdownMenuItem>
                         ))}
@@ -46,5 +45,5 @@ export default function ExpandableTable({ row }:
                 </DropdownMenu>
             )}
         </div>
-    )
+    );
 }

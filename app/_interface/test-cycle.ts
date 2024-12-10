@@ -4,6 +4,7 @@ import { IUserByAdmin } from "./user";
 
 export interface ITestCyclePayload {
     title: string;
+    testCaseResults?: string;
     projectId?: string;
     description: string;
     userId?: IUserByAdmin;
@@ -17,11 +18,12 @@ export interface ITestCyclePayload {
 }
 
 export interface ITestCycle {
+    _id?: string;
     title: string;
     projectId?: string;
     description: string;
     id: string;
-    testCaseResults: ITestCaseResult[];
+    testCaseResults: ITestCaseResult[] | undefined;
     customId?: string;
 }
 

@@ -127,7 +127,7 @@ export async function GET(
             .lean() as ITestCycle | null;
 
         if (testCycle) {
-            testCycle.testCaseResults = testCycle.testCaseResults.map((testCaseResult) => ({
+            testCycle.testCaseResults = testCycle?.testCaseResults?.map((testCaseResult) => ({
                 ...testCaseResult,
                 testCaseId: {
                     ...testCaseResult.testCaseId,

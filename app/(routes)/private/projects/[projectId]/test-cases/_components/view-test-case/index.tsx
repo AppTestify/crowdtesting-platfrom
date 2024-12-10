@@ -14,6 +14,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEffect, useState } from "react";
 import TestCaseStepView from "../steps/_components/view-test-case-step";
 import ViewTestCaseData from "../test-case-data/_components/view-test-case-data";
+import ViewTestSuite from "../../../test-suites/_components/view-test-suite";
+import { ITestSuite } from "@/app/_interface/test-suite";
+import ViewRequirement from "../../../requirements/_components/view-requirement";
+import { IRequirement } from "@/app/_interface/requirement";
 
 const ViewTestCase = ({
   testCase,
@@ -25,14 +29,37 @@ const ViewTestCase = ({
   setSheetOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const [activeTab, setActiveTab] = useState("test-case");
+  const [isTestSuiteOpen, setIsTestSuiteOpen] = useState<boolean>(false);
+  const [isRequirementOpen, setIsRequirementOpen] = useState<boolean>(false);
+  const [requirement, setRequirement] = useState<IRequirement>();
 
   useEffect(() => {
     if (sheetOpen) {
       setActiveTab("test-case");
     }
   }, [sheetOpen]);
+
+  const viewRequirements = (requirement: IRequirement) => {
+    setRequirement(requirement);
+    setIsRequirementOpen(true);
+  }
+
   return (
     <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+      {/* test suite */}
+      <ViewTestSuite
+        sheetOpen={isTestSuiteOpen}
+        setSheetOpen={setIsTestSuiteOpen}
+        testSuite={testCase?.testSuite as ITestSuite}
+        isView={true}
+      />
+
+      {/* requirement */}
+      <ViewRequirement
+        sheetOpen={isRequirementOpen}
+        setSheetOpen={setIsRequirementOpen}
+        requirement={requirement as IRequirement}
+      />
       <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto">
         <SheetHeader className="mb-4">
           <div className="flex justify-between items-center mt-4">
@@ -91,7 +118,9 @@ const ViewTestCase = ({
                     <TableBody>
                       {testCase?.testSuite ? (
                         <TableRow>
-                          <TableCell>{testCase?.testSuite?.customId}</TableCell>
+                          <TableCell className="hover:text-primary hover:cursor-pointer" onClick={() => setIsTestSuiteOpen(true)}>
+                            {testCase?.testSuite?.customId}
+                          </TableCell>
                           <TableCell>{testCase?.testSuite?.title}</TableCell>
                         </TableRow>
                       ) : (
@@ -121,7 +150,9 @@ const ViewTestCase = ({
                       {testCase?.requirements?.length ? (
                         testCase.requirements.map((requirement, index) => (
                           <TableRow key={index}>
-                            <TableCell>{requirement.customId}</TableCell>
+                            <TableCell className="hover:text-primary hover:cursor-pointer" onClick={() => viewRequirements(requirement)}>
+                              {requirement.customId}
+                            </TableCell>
                             <TableCell>{requirement.title}</TableCell>
                           </TableRow>
                         ))

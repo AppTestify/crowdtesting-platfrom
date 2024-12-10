@@ -5,7 +5,7 @@ import { getProjectService } from '@/app/_services/project.service';
 import toasterService from '@/app/_services/toaster-service';
 import { DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ChevronLeft } from 'lucide-react'
+import { ChevronLeft, Plus } from 'lucide-react'
 import { useSession } from 'next-auth/react';
 import Link from 'next/link'
 import { useParams, usePathname, useRouter } from 'next/navigation'
@@ -81,9 +81,12 @@ export default function ProjectLayouts({ onLoaded }: { onLoaded: () => void }) {
                         <Tabs value={activeTab} onValueChange={handleTabChange} defaultValue="overview" className="w-fit">
                             {roleBasedTab?.length ?
                                 <>
-                                    <TabsList className={`flex w-full `}>
+                                    <TabsList className={`flex w-full`}>
                                         {roleBasedTab?.map((tab, index) => (
                                             <TabsTrigger key={index} className="w-fit" value={tab.replace(/ /g, '-')}>
+                                                {/* <div className='mr-1'>
+                                                    <Plus className='w-4 h-4' />
+                                                </div> */}
                                                 {tab.charAt(0).toUpperCase() + tab.slice(1)}
                                             </TabsTrigger>
                                         ))}

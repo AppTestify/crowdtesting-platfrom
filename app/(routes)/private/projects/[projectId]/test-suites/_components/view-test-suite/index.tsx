@@ -20,10 +20,12 @@ const ViewTestSuite = ({
   testSuite,
   sheetOpen,
   setSheetOpen,
+  isView
 }: {
   testSuite: ITestSuite;
   sheetOpen: boolean;
   setSheetOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  isView?: boolean;
 }) => {
   const [isRequirementViewOpen, setIsRequirementViewOpen] = useState<boolean>(false);
   const [requirement, setRequirement] = useState<IRequirement>();
@@ -59,64 +61,75 @@ const ViewTestSuite = ({
             Created on {formatDate(testSuite?.createdAt || "")}
           </span>
         </SheetHeader>
-
-        <Tabs defaultValue={TestSuiteTabs.DESCRIPTION} className="w-full mt-4">
-          <TabsList className="grid grid-cols-2 mb-4 w-full md:w-fit">
-            <TabsTrigger
-              value={TestSuiteTabs.DESCRIPTION}
-              className="flex items-center"
-            >
-              Description
-            </TabsTrigger>
-            <TabsTrigger
-              value={TestSuiteTabs.REQUIREMENTS}
-              className="flex items-center"
-            >
-              Requirements
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value={TestSuiteTabs.DESCRIPTION} className="w-full">
-            <div className="mt-4">
-              <div
-                className="px-2 text-sm leading-relaxed text-gray-700 rich-description"
-                dangerouslySetInnerHTML={{
-                  __html: testSuite?.description || "",
-                }}
-              />
-            </div>
-          </TabsContent>
-          <TabsContent value={TestSuiteTabs.REQUIREMENTS} className="w-full">
-            <div className="mt-2 rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>ID</TableHead>
-                    <TableHead>Title</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {testSuite?.requirements?.length ? (
-                    testSuite.requirements.map((requirement, index) => (
-                      <TableRow key={index}>
-                        <TableCell className="hover:text-primary hover:cursor-pointer"
-                          onClick={() => getRequirement(requirement)}
-                        >
-                          {requirement.customId}</TableCell>
-                        <TableCell>{requirement.title}</TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
+        {!isView ?
+          <Tabs defaultValue={TestSuiteTabs.DESCRIPTION} className="w-full mt-4">
+            <TabsList className="grid grid-cols-2 mb-4 w-full md:w-fit">
+              <TabsTrigger
+                value={TestSuiteTabs.DESCRIPTION}
+                className="flex items-center"
+              >
+                Description
+              </TabsTrigger>
+              {!isView &&
+                <TabsTrigger
+                  value={TestSuiteTabs.REQUIREMENTS}
+                  className="flex items-center"
+                >
+                  Requirements
+                </TabsTrigger>
+              }
+            </TabsList>
+            <TabsContent value={TestSuiteTabs.DESCRIPTION} className="w-full">
+              <div className="mt-4">
+                <div
+                  className="px-2 text-sm leading-relaxed text-gray-700 rich-description"
+                  dangerouslySetInnerHTML={{
+                    __html: testSuite?.description || "",
+                  }}
+                />
+              </div>
+            </TabsContent>
+            <TabsContent value={TestSuiteTabs.REQUIREMENTS} className="w-full">
+              <div className="mt-2 rounded-md border">
+                <Table>
+                  <TableHeader>
                     <TableRow>
-                      <TableCell colSpan={2} className="text-center">
-                        No requirements found
-                      </TableCell>
+                      <TableHead>ID</TableHead>
+                      <TableHead>Title</TableHead>
                     </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          </TabsContent>
-        </Tabs>
+                  </TableHeader>
+                  <TableBody>
+                    {testSuite?.requirements?.length ? (
+                      testSuite.requirements.map((requirement, index) => (
+                        <TableRow key={index}>
+                          <TableCell className="hover:text-primary hover:cursor-pointer"
+                            onClick={() => getRequirement(requirement)}
+                          >
+                            {requirement.customId}</TableCell>
+                          <TableCell>{requirement.title}</TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={2} className="text-center">
+                          No requirements found
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </TabsContent>
+          </Tabs>
+          : <div className="mt-4">
+            <div
+              className="px-2 text-sm leading-relaxed text-gray-700 rich-description"
+              dangerouslySetInnerHTML={{
+                __html: testSuite?.description || "",
+              }}
+            />
+          </div>
+        }
       </SheetContent>
     </Sheet>
   );
