@@ -25,6 +25,8 @@ export interface ITestCycle {
     id: string;
     testCaseResults: ITestCaseResult[] | undefined;
     customId?: string;
+    userId?: IUserByAdmin;
+    createdAt?: string;
 }
 
 export interface IAssignedTestCase {

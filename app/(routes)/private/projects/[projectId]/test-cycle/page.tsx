@@ -31,6 +31,7 @@ import { AddTestCycle } from "./_components/add-test-cycle";
 import { TestCycleRowActions } from "./_components/row-actions";
 import { formatDate } from "@/app/_constants/date-formatter";
 import { ArrowUpDown } from "lucide-react";
+import TestCycleView from "./_components/view-test-cycle";
 
 export default function TestPlan() {
     const [testCycle, setTestCycle] = useState<ITestCyclePayload[]>([]);
@@ -51,7 +52,7 @@ export default function TestPlan() {
                 );
             },
             cell: ({ row }) => (
-                <div className="hover:text-primary cursor-pointer ml-4">
+                <div className="hover:text-primary cursor-pointer ml-4" onClick={() => ViewTestCycle(row.original as ITestCycle)}>
                     {row.getValue("customId")}</div>
             ),
             sortingFn: "alphanumeric"
@@ -60,7 +61,7 @@ export default function TestPlan() {
             accessorKey: "title",
             header: "Title",
             cell: ({ row }) => (
-                <div className="capitalize hover:text-primary cursor-pointer">
+                <div className="capitalize hover:text-primary cursor-pointer" onClick={() => ViewTestCycle(row.original as ITestCycle)}>
                     {row.getValue("title")}</div>
             ),
         },
@@ -108,12 +109,19 @@ export default function TestPlan() {
     const [globalFilter, setGlobalFilter] = useState<unknown>([]);
     const [pageIndex, setPageIndex] = useState(1);
     const [totalPageCount, setTotalPageCount] = useState(0);
+    const [isViewOpen, setIsViewOpen] = useState<boolean>(false);
+    const [testCycleData, setTestCycleData] = useState<ITestCycle>();
     const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
     const { projectId } = useParams<{ projectId: string }>();
 
     useEffect(() => {
         getTestCycle();
     }, [pageIndex, pageSize]);
+
+    const ViewTestCycle = (testCycle: ITestCycle) => {
+        setTestCycleData(testCycle);
+        setIsViewOpen(true);
+    }
 
     const getTestCycle = async () => {
         setIsLoading(true);
@@ -163,6 +171,11 @@ export default function TestPlan() {
 
     return (
         <main className="mx-4 mt-2">
+            <TestCycleView
+                sheetOpen={isViewOpen}
+                setSheetOpen={setIsViewOpen}
+                testCycle={testCycleData as ITestCycle}
+            />
             <div className="">
                 <h2 className="text-medium">Test cycle</h2>
                 <span className="text-xs text-gray-600">

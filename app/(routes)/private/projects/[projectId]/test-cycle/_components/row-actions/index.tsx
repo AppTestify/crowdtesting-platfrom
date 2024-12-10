@@ -12,10 +12,11 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Row } from "@tanstack/react-table";
-import { ChartNoAxesGantt, Edit, MoreHorizontal, Trash } from "lucide-react";
+import { ChartNoAxesGantt, Edit, Eye, MoreHorizontal, Trash } from "lucide-react";
 import { useState } from "react";
 import { EditTestCycle } from "../edit-test-cycle";
 import AssignTestCase from "../assign-test-cases";
+import TestCycleView from "../view-test-cycle";
 
 export function TestCycleRowActions({
     row,
@@ -25,6 +26,7 @@ export function TestCycleRowActions({
     refreshTestCycle: () => void;
 }) {
     const [isEditOpen, setIsEditOpen] = useState(false);
+    const [isViewOpen, setIsViewOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [isActionOpen, setIsActionOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -50,6 +52,11 @@ export function TestCycleRowActions({
 
     return (
         <>
+            <TestCycleView
+                sheetOpen={isViewOpen}
+                setSheetOpen={setIsViewOpen}
+                testCycle={row.original as ITestCycle}
+            />
             <EditTestCycle
                 testCycle={row.original as ITestCycle}
                 sheetOpen={isEditOpen}
@@ -90,6 +97,15 @@ export function TestCycleRowActions({
                         }}
                     >
                         <ChartNoAxesGantt className="h-2 w-2" /> Test cases
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator className="border-b" />
+                    <DropdownMenuItem
+                        className="mb-1"
+                        onClick={() => {
+                            setIsViewOpen(true);
+                        }}
+                    >
+                        <Eye className="h-2 w-2" /> View
                     </DropdownMenuItem>
                     <DropdownMenuSeparator className="border-b" />
                     <DropdownMenuItem
