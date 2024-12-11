@@ -15,7 +15,7 @@ import { Tester } from "@/app/_models/tester.model";
 import { User } from "@/app/_models/user.model";
 import { adminUserCreateSchema } from "@/app/_schemas/auth.schema";
 import { serverSidePagination } from "@/app/_utils/common-server-side";
-import { addCustomIds, normaliseIds } from "@/app/_utils/data-formatters";
+import { addCustomIds } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 import { URL } from "url";
 

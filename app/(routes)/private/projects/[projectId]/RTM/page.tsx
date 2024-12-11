@@ -1,6 +1,5 @@
 "use client";
 
-import { SEVERITY_LIST } from '@/app/_constants/issue';
 import { ITestCycle } from '@/app/_interface/test-cycle';
 import { ITestSuite } from '@/app/_interface/test-suite';
 import { getTestCycleListService } from '@/app/_services/test-cycle.service';
@@ -14,6 +13,7 @@ import { useParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import RtmTable from './_components/rtm-table';
 
 const rtmSchema = z.object({
     testCycle: z.string().optional(),
@@ -25,6 +25,8 @@ export default function RTM() {
     const { projectId } = useParams<{ projectId: string }>();
     const [testCycles, setTestCycles] = useState<ITestCycle[]>([]);
     const [testSuites, setTestSuites] = useState<ITestSuite[]>([]);
+    const [testSuite, setTestSuite] = useState<ITestSuite>();
+    const [testCycle, setTestCycle] = useState<ITestCycle>();
     const [isViewLoading, setIsViewLoading] = useState<boolean>(false);
     const form = useForm<z.infer<typeof rtmSchema>>({
         resolver: zodResolver(rtmSchema),
@@ -79,6 +81,16 @@ export default function RTM() {
         }
     }
 
+    useEffect(() => {
+        const testSuite = testSuites?.find((suite) => suite._id === form.watch("testSuite"));
+        setTestSuite(testSuite);
+    }, [form.watch("testSuite")]);
+
+    useEffect(() => {
+        const testCycle = testCycles?.find((cycle) => cycle._id === form.watch("testCycle"));
+        setTestCycle(testCycle);
+    }, [form.watch("testCycle")]);
+
     return (
         <main className="mx-4 mt-2">
             <div className="">
@@ -92,9 +104,14 @@ export default function RTM() {
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} method="post">
                         {isViewLoading ?
-                            <div className='flex mt-10'>
-                                <Skeleton className="h-10 w-[325px]" />
-                                <Skeleton className="ml-3 h-10 w-[325px]" />
+                            <div className=''>
+                                <div className='flex mt-10'>
+                                    <Skeleton className="h-10 w-[325px] bg-gray-300" />
+                                    <Skeleton className="ml-3 h-10 w-[325px] bg-gray-300" />
+                                </div>
+                                <div className='flex'>
+                                    <Skeleton className="mt-5 h-80 w-full bg-gray-300" />
+                                </div>
                             </div>
                             :
                             <div className="grid grid-cols-3 gap-2 mt-3">
@@ -113,8 +130,8 @@ export default function RTM() {
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     <SelectGroup>
-                                                        {testCycles.map((testCycle) => (
-                                                            <SelectItem value={testCycle?._id as string}>
+                                                        {testCycles.map((testCycle, index) => (
+                                                            <SelectItem key={index} value={testCycle?._id as string}>
                                                                 {testCycle.title}
                                                             </SelectItem>
                                                         ))}
@@ -142,7 +159,7 @@ export default function RTM() {
                                                 <SelectContent>
                                                     <SelectGroup>
                                                         {testSuites.map((testSuite) => (
-                                                            <SelectItem value={testSuite?._id as string}>
+                                                            <SelectItem key={testSuite._id} value={testSuite?._id as string}>
                                                                 {testSuite.title}
                                                             </SelectItem>
                                                         ))}
@@ -158,7 +175,12 @@ export default function RTM() {
                     </form>
                 </Form>
             </div>
-
+            {!isViewLoading &&
+                <RtmTable
+                    testCycle={testCycle as ITestCycle}
+                    testSuite={testSuite as ITestSuite}
+                />
+            }
         </main>
     )
 }

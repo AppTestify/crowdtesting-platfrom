@@ -1,4 +1,5 @@
 import {
+  DBModels,
   DEFAULT_PASSWORD,
   JWT_SECRET,
   JWT_TOKEN_EXPIRE_LIMIT,
@@ -13,6 +14,7 @@ import {
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
 import { createSession } from "@/app/_lib/session";
+import { Counter } from "@/app/_models/counter.model";
 import { User } from "@/app/_models/user.model";
 import { signUpSchema } from "@/app/_schemas/auth.schema";
 import { sendVerificationEmail } from "@/app/_utils/email";
@@ -54,11 +56,19 @@ export async function POST(req: Request) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    // const counter = await Counter.findOneAndUpdate(
+    //   { entity: DBModels.USER },
+    //   { $inc: { sequence: 1 } },
+    //   { new: true, upsert: true }
+    // );
+
     const newUser = new User({
       email,
       password: hashedPassword,
       role,
       accountActivationMailSentAt: new Date(),
+      isActive: true,
+      // customId: counter.sequence
     });
     await newUser.save();
 

@@ -1,3 +1,4 @@
+import { IProject } from "./project";
 import { IUserByAdmin } from "./user";
 
 export interface IRequirementPayload {
@@ -11,7 +12,7 @@ export interface IRequirement {
   _id?: string;
   id: string;
   title: string;
-  projectId: string;
+  projectId: IProject;
   description?: string;
   userId: IUserByAdmin;
   customId: string;
