@@ -67,8 +67,12 @@ export default function TestExecution() {
             accessorKey: "description",
             header: "Description",
             cell: ({ row }) => (
-                <div className="capitalize w-48 overflow-hidden text-ellipsis line-clamp-2">
-                    {row.getValue("description")}</div>
+                <div
+                    title={row.getValue("description")}
+                    className="capitalize w-48 overflow-hidden text-ellipsis line-clamp-2"
+                >
+                    {row.getValue("description")}
+                </div>
             ),
         },
         {

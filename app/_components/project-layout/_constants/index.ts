@@ -9,6 +9,7 @@ export const getProjectTabs = (user: any) => {
             return ["overview", "requirements", "test plans", "test suites", "test cases", "test cycle",
                 "test execution", "issues", "RTM", "notes"];
         default:
-            return ["overview"];
+            return ["overview", "requirements", "test plans", "test suites", "test cases", "test cycle",
+                "test execution", "issues", "notes"];
     }
 }

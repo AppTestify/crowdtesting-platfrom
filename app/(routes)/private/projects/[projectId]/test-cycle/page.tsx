@@ -32,9 +32,12 @@ import { TestCycleRowActions } from "./_components/row-actions";
 import { formatDate } from "@/app/_constants/date-formatter";
 import { ArrowUpDown } from "lucide-react";
 import TestCycleView from "./_components/view-test-cycle";
+import { useSession } from "next-auth/react";
+import { UserRoles } from "@/app/_constants/user-roles";
 
 export default function TestPlan() {
     const [testCycle, setTestCycle] = useState<ITestCyclePayload[]>([]);
+    const [userData, setUserData] = useState<any>();
 
     const columns: ColumnDef<ITestCyclePayload>[] = [
         {
@@ -69,7 +72,9 @@ export default function TestPlan() {
             accessorKey: "description",
             header: "Description",
             cell: ({ row }) => (
-                <div className="capitalize w-48 overflow-hidden text-ellipsis line-clamp-2">
+                <div
+                    title={row.getValue("description")}
+                    className="capitalize w-48 overflow-hidden text-ellipsis line-clamp-2">
                     {row.getValue("description")}
                 </div>
             ),
@@ -93,13 +98,16 @@ export default function TestPlan() {
                 </div>
             ),
         },
-        {
-            id: "actions",
-            enableHiding: false,
-            cell: ({ row }) => (
-                <TestCycleRowActions row={row as Row<ITestCycle>} refreshTestCycle={refreshTestCycle} />
-            ),
-        },
+        ...(
+            userData?.role != UserRoles.TESTER ?
+                [{
+                    id: "actions",
+                    enableHiding: false,
+                    cell: ({ row }: { row: any }) => (
+                        <TestCycleRowActions row={row as Row<ITestCycle>} refreshTestCycle={refreshTestCycle} />
+                    ),
+                }] : []
+        )
     ];
 
     const [sorting, setSorting] = useState<SortingState>([]);
@@ -113,7 +121,14 @@ export default function TestPlan() {
     const [testCycleData, setTestCycleData] = useState<ITestCycle>();
     const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
     const { projectId } = useParams<{ projectId: string }>();
+    const { data } = useSession();
 
+    useEffect(() => {
+        if (data) {
+            const { user } = data;
+            setUserData(user);
+        }
+    }, [data]);
     useEffect(() => {
         getTestCycle();
     }, [pageIndex, pageSize]);
@@ -193,9 +208,11 @@ export default function TestPlan() {
                         }}
                         className="max-w-sm"
                     />
-                    <div className="flex gap-2 ml-2">
-                        <AddTestCycle refreshTestCycle={refreshTestCycle} />
-                    </div>
+                    {userData?.role != UserRoles.TESTER &&
+                        <div className="flex gap-2 ml-2">
+                            <AddTestCycle refreshTestCycle={refreshTestCycle} />
+                        </div>
+                    }
                 </div>
                 <div className="rounded-md border">
                     <Table>

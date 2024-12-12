@@ -33,6 +33,7 @@ import { assignTestCase, getAssignTestCaseService, unAssignTestCase } from "@/ap
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileInput, FileOutput, Loader2 } from "lucide-react";
 import { ITestCaseResult } from "@/app/_interface/test-case-result";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
     {
@@ -85,9 +86,16 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
             id: "unAssign",
             header: "",
             cell: ({ row }) => (
-                <Button variant="ghost" size="sm" onClick={() => singleUnAssign(row.original._id as string)} >
-                    {unassignedLoading && loadingRowIdUnAssign === row.original._id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileOutput />}
-                </Button>
+                <Tooltip delayDuration={200}>
+                    <TooltipTrigger asChild>
+                        <Button variant="ghost" size="sm" onClick={() => singleUnAssign(row.original._id as string)} >
+                            {unassignedLoading && loadingRowIdUnAssign === row.original._id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileOutput />}
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent className='bg-black'>
+                        <p>Un assign</p>
+                    </TooltipContent>
+                </Tooltip>
             ),
             enableSorting: false,
             enableHiding: false,
@@ -138,9 +146,16 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
             id: "assign",
             header: "",
             cell: ({ row }) => (
-                <Button variant="ghost" size="sm" onClick={() => singleAssign(row.original.id)} >
-                    {assignedLoading && loadingRowIdAssign === row.original.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileInput />}
-                </Button>
+                <Tooltip delayDuration={200}>
+                    <TooltipTrigger asChild>
+                        <Button variant="ghost" size="sm" onClick={() => singleAssign(row.original.id)} >
+                            {assignedLoading && loadingRowIdAssign === row.original.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileInput />}
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent className='bg-black'>
+                        <p>Assign</p>
+                    </TooltipContent>
+                </Tooltip>
             ),
             enableSorting: false,
             enableHiding: false,

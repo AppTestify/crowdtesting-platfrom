@@ -32,9 +32,12 @@ import { ITestSuite } from "@/app/_interface/test-suite";
 import { TestSuiteRowActions } from "./_components/row-actions";
 import ViewTestSuite from "./_components/view-test-suite";
 import { ArrowUpDown } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { UserRoles } from "@/app/_constants/user-roles";
 
 export default function TestSuite() {
     const [testSuite, setTestSuite] = useState<ITestSuite[]>([]);
+    const [userData, setUserData] = useState<any>();
 
     const columns: ColumnDef<ITestSuite>[] = [
         {
@@ -84,13 +87,18 @@ export default function TestSuite() {
                 </div>
             ),
         },
-        {
-            id: "actions",
-            enableHiding: false,
-            cell: ({ row }) => (
-                <TestSuiteRowActions row={row as Row<ITestSuite>} refreshTestSuites={refreshTestSuites} />
-            ),
-        },
+        ...(
+            userData?.role != UserRoles.TESTER ?
+                [
+                    {
+                        id: "actions",
+                        enableHiding: false,
+                        cell: ({ row }: { row: any }) => (
+                            <TestSuiteRowActions row={row as Row<ITestSuite>} refreshTestSuites={refreshTestSuites} />
+                        ),
+                    }
+                ] : []
+        )
     ];
 
     const [sorting, setSorting] = useState<SortingState>([]);
@@ -104,6 +112,14 @@ export default function TestSuite() {
     const [testSuiteData, setTestSuiteData] = useState<ITestSuite>();
     const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
     const { projectId } = useParams<{ projectId: string }>();
+    const { data } = useSession();
+
+    useEffect(() => {
+        if (data) {
+            const { user } = data;
+            setUserData(user);
+        }
+    }, [data]);
 
     useEffect(() => {
         getTestSuites();
@@ -183,9 +199,11 @@ export default function TestSuite() {
                         }}
                         className="max-w-sm"
                     />
-                    <div className="flex gap-2 ml-2">
-                        <AddTestSuite refreshTestSuites={refreshTestSuites} />
-                    </div>
+                    {userData?.role != UserRoles.TESTER &&
+                        <div className="flex gap-2 ml-2">
+                            <AddTestSuite refreshTestSuites={refreshTestSuites} />
+                        </div>
+                    }
                 </div>
                 <div className="rounded-md border">
                     <Table>
@@ -215,7 +233,8 @@ export default function TestSuite() {
                                         data-state={row.getIsSelected() && "selected"}
                                     >
                                         {row.getVisibleCells().map((cell) => (
-                                            <TableCell key={cell.id}>
+                                            <TableCell key={cell.id}
+                                                className={`${userData?.role != UserRoles.TESTER ? "" : "py-3"}`}>
                                                 {flexRender(
                                                     cell.column.columnDef.cell,
                                                     cell.getContext()

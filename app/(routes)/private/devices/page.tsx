@@ -35,38 +35,43 @@ import { BulkDelete } from "./_components/bulk-delete";
 import { PAGINATION_LIMIT } from "@/app/_utils/common";
 import ViewTesterIssue from "../users/_components/view-user";
 import { IUserByAdmin } from "@/app/_interface/user";
+import { useSession } from "next-auth/react";
+import { UserRoles } from "@/app/_constants/user-roles";
 
 export default function Devices() {
   const [devices, setDevices] = useState<IDevice[]>([]);
+  const [userData, setUserData] = useState<any>();
 
   let columns: ColumnDef<IDevice>[] = [
-    {
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
-          }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
+    ...(
+      userData?.role === UserRoles.TESTER ?
+        [{
+          id: "select",
+          header: ({ table }: { table: any }) => (
+            <Checkbox
+              checked={
+                table.getIsAllPageRowsSelected() ||
+                (table.getIsSomePageRowsSelected() && "indeterminate")
+              }
+              onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+              aria-label="Select all"
+            />
+          ),
+          cell: ({ row }: { row: any }) => (
+            <Checkbox
+              checked={row.getIsSelected()}
+              onCheckedChange={(value) => row.toggleSelected(!!value)}
+              aria-label="Select row"
+            />
+          ),
+          enableSorting: false,
+          enableHiding: false,
+        }] : []),
     ...(
       devices.some((item) => item?.userId?._id) ?
         [{
           accessorKey: "createdBy",
-          header: "Owner",
+          header: "Tester",
           cell: ({ row }: { row: any }) =>
             <div className="hover:text-primary cursor-pointer"
               onClick={() => getUser(row.original?.userId as IUserByAdmin)}
@@ -129,15 +134,18 @@ export default function Devices() {
         <div className="capitalize">{row.getValue("name")}</div>
       ),
     },
-    {
-      accessorKey: "actions",
-      header: "",
-      cell: ({ row }) => <RowActions
-        row={row}
-        refreshDevices={refreshDevices}
-        browsers={browsers}
-      />,
-    },
+    ...(
+      userData?.role === UserRoles.TESTER ?
+        [{
+          accessorKey: "actions",
+          header: "",
+          cell: ({ row }: { row: any }) => <RowActions
+            row={row}
+            refreshDevices={refreshDevices}
+            browsers={browsers}
+          />,
+        }] : []
+    ),
   ];
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -152,6 +160,14 @@ export default function Devices() {
   const [totalPageCount, setTotalPageCount] = useState(0);
   const [user, setUser] = useState<IUserByAdmin>();
   const [isViewOpen, setIsViewOpen] = useState(false);
+  const { data } = useSession();
+
+  useEffect(() => {
+    if (data) {
+      const { user } = data;
+      setUserData(user);
+    }
+  }, [data]);
 
   const table = useReactTable({
     data: devices,
@@ -246,15 +262,17 @@ export default function Devices() {
             }}
             className="max-w-sm"
           />
-          <div className="flex gap-2 ml-2">
-            {getSelectedRows().length ? (
-              <BulkDelete
-                ids={getSelectedRows()}
-                refreshDevices={refreshDevices}
-              />
-            ) : null}
-            <AddDevice browsers={browsers} refreshDevices={refreshDevices} />
-          </div>
+          {userData?.role === UserRoles.TESTER &&
+            <div className="flex gap-2 ml-2">
+              {getSelectedRows().length ? (
+                <BulkDelete
+                  ids={getSelectedRows()}
+                  refreshDevices={refreshDevices}
+                />
+              ) : null}
+              <AddDevice browsers={browsers} refreshDevices={refreshDevices} />
+            </div>
+          }
         </div>
         <div className="rounded-md border">
           <Table>

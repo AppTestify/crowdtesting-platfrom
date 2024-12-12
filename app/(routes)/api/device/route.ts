@@ -6,7 +6,7 @@ import {
 } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
-import { isAdmin, verifySession } from "@/app/_lib/dal";
+import { isAdmin, isClient, verifySession } from "@/app/_lib/dal";
 import { Device } from "@/app/_models/device.model";
 import { deviceSchema } from "@/app/_schemas/device.schema";
 import { serverSidePagination } from "@/app/_utils/common-server-side";
@@ -86,16 +86,7 @@ export async function GET(req: Request) {
     const { skip, limit } = serverSidePagination(req);
     let totalDevices;
 
-    if (!(await isAdmin(session.user))) {
-      response = normaliseIds(
-        await Device.find({ userId: session.user._id })
-          .sort({ createdAt: -1 })
-          .skip(skip)
-          .limit(Number(limit))
-          .lean()
-      );
-      totalDevices = await Device.find({ userId: session.user._id }).countDocuments();
-    } else {
+    if (await isAdmin(session.user)) {
       response = normaliseIds(
         await Device.find({})
           .populate("userId", "id email firstName lastName isActive")
@@ -105,6 +96,24 @@ export async function GET(req: Request) {
           .lean()
       );
       totalDevices = await Device.find({}).countDocuments();
+    } else if (await isClient(session.user)) {
+      response = normaliseIds(
+        await Device.find({})
+          .sort({ createdAt: -1 })
+          .skip(skip)
+          .limit(Number(limit))
+          .lean()
+      );
+      totalDevices = await Device.find({}).countDocuments();
+    } else {
+      response = normaliseIds(
+        await Device.find({ userId: session.user._id })
+          .sort({ createdAt: -1 })
+          .skip(skip)
+          .limit(Number(limit))
+          .lean()
+      );
+      totalDevices = await Device.find({ userId: session.user._id }).countDocuments();
     }
     response = response.map((res) => ({
       ...res,

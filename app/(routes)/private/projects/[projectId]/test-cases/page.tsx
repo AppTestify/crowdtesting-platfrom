@@ -37,9 +37,12 @@ import ViewTestCase from "./_components/view-test-case";
 import { ArrowUpDown } from "lucide-react";
 import ExpandableTable from "@/app/_components/expandable-table";
 import { IRequirement } from "@/app/_interface/requirement";
+import { useSession } from "next-auth/react";
+import { UserRoles } from "@/app/_constants/user-roles";
 
 export default function TestPlan() {
     const [testCases, setTestCases] = useState<ITestCase[]>([]);
+    const [userData, setUserData] = useState<any>();
 
     const columns: ColumnDef<ITestCase>[] = [
         {
@@ -66,8 +69,12 @@ export default function TestPlan() {
             accessorKey: "title",
             header: "Title",
             cell: ({ row }) => (
-                <div className="capitalize hover:text-primary cursor-pointer" onClick={() => getTestCase(row.original as unknown as ITestCase)}>
-                    {row.getValue("title")}</div>
+                <div
+                    title={row.getValue("title")}
+                    className="capitalize hover:text-primary cursor-pointer w-48 overflow-hidden text-ellipsis line-clamp-2"
+                    onClick={() => getTestCase(row.original as unknown as ITestCase)}>
+                    {row.getValue("title")}
+                </div>
             ),
         },
         {
@@ -105,13 +112,16 @@ export default function TestPlan() {
                 </div>
             ),
         },
-        {
-            id: "actions",
-            enableHiding: false,
-            cell: ({ row }) => (
-                <TestCaseRowActions row={row as unknown as Row<ITestCase>} testSuites={testSuites} refreshTestCases={refreshTestCases} />
-            ),
-        },
+        ...(
+            userData?.role != UserRoles.TESTER ?
+                [{
+                    id: "actions",
+                    enableHiding: false,
+                    cell: ({ row }: { row: any }) => (
+                        <TestCaseRowActions row={row as unknown as Row<ITestCase>} testSuites={testSuites} refreshTestCases={refreshTestCases} />
+                    ),
+                }] : []
+        )
     ];
 
     const [sorting, setSorting] = useState<SortingState>([]);
@@ -126,6 +136,14 @@ export default function TestPlan() {
     const [testSuites, setTestSuites] = useState<ITestSuite[]>([]);
     const [testCase, setTestCase] = useState<ITestCase>();
     const [isViewOpen, setIsViewOpen] = useState<boolean>(false);
+    const { data } = useSession();
+
+    useEffect(() => {
+        if (data) {
+            const { user } = data;
+            setUserData(user);
+        }
+    }, [data]);
 
     useEffect(() => {
         getTestCases();
@@ -218,9 +236,12 @@ export default function TestPlan() {
                         }}
                         className="max-w-sm"
                     />
-                    <div className="flex gap-2 ml-2">
-                        <AddTestCase refreshTestCases={refreshTestCases} testSuites={testSuites} />
-                    </div>
+                    {
+                        userData?.role != UserRoles.TESTER &&
+                        <div className="flex gap-2 ml-2">
+                            <AddTestCase refreshTestCases={refreshTestCases} testSuites={testSuites} />
+                        </div>
+                    }
                 </div>
                 <div className="rounded-md border">
                     <Table>

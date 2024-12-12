@@ -7,7 +7,7 @@ import {
 } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
-import { isAdmin, verifySession } from "@/app/_lib/dal";
+import { isAdmin, isClient, verifySession } from "@/app/_lib/dal";
 import { IdFormat } from "@/app/_models/id-format.model";
 import { Project } from "@/app/_models/project.model";
 import { User } from "@/app/_models/user.model";
@@ -91,7 +91,35 @@ export async function GET(req: Request) {
     const projectIdFormat = await IdFormat.findOne({
       entity: DBModels.PROJECT,
     });
-    if (!(await isAdmin(session.user))) {
+    if (await isAdmin(session.user)) {
+      response = addCustomIds(
+        await Project.find({ deletedAt: { $exists: false } })
+          .populate("userId")
+          .sort({ createdAt: -1 })
+          .skip(skip)
+          .limit(Number(limit))
+          .lean(),
+        projectIdFormat.idFormat
+      );
+      totalProjects = await Project.find({
+        deletedAt: { $exists: false },
+      }).countDocuments();
+    } else if (await isClient(session.user)) {
+      response = addCustomIds(
+        await Project.find({ deletedAt: { $exists: false }, userId: session.user._id })
+          .populate("userId")
+          .sort({ createdAt: -1 })
+          .skip(skip)
+          .limit(Number(limit))
+          .lean(),
+        projectIdFormat.idFormat
+      );
+      totalProjects = await Project.find({
+        deletedAt: { $exists: false },
+        userId: session.user._id
+      }).countDocuments();
+    }
+    else {
       response = addCustomIds(
         await Project.find({
           "users.userId": session.user._id,
@@ -105,19 +133,6 @@ export async function GET(req: Request) {
       );
       totalProjects = await Project.find({
         "users.userId": session.user._id,
-        deletedAt: { $exists: false },
-      }).countDocuments();
-    } else {
-      response = addCustomIds(
-        await Project.find({ deletedAt: { $exists: false } })
-          .populate("userId")
-          .sort({ createdAt: -1 })
-          .skip(skip)
-          .limit(Number(limit))
-          .lean(),
-        projectIdFormat.idFormat
-      );
-      totalProjects = await Project.find({
         deletedAt: { $exists: false },
       }).countDocuments();
     }

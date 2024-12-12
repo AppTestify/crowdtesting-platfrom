@@ -32,9 +32,13 @@ import { RequirementRowActions } from "./_components/row-actions";
 import { IRequirement } from "@/app/_interface/requirement";
 import ViewRequirement from "./_components/view-requirement";
 import { ArrowUpDown } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { UserRoles } from "@/app/_constants/user-roles";
+import { IUserByAdmin } from "@/app/_interface/user";
 
 export default function Issues() {
   const [requirements, setRequirements] = useState<IRequirement[]>([]);
+  const [userData, setUserData] = useState<any>();
 
   const columns: ColumnDef<IRequirement>[] = [
     {
@@ -75,14 +79,14 @@ export default function Issues() {
     },
     ...(requirements.some((item) => item.userId?._id)
       ? [
-          {
-            accessorKey: "createdBy",
-            header: "Created By",
-            cell: ({ row }: { row: any }) => (
-              <div className="">{`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}</div>
-            ),
-          },
-        ]
+        {
+          accessorKey: "createdBy",
+          header: "Created By",
+          cell: ({ row }: { row: any }) => (
+            <div className="">{`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}</div>
+          ),
+        },
+      ]
       : []),
     {
       accessorKey: "updatedAt",
@@ -95,16 +99,18 @@ export default function Issues() {
         </div>
       ),
     },
-    {
-      id: "actions",
-      enableHiding: false,
-      cell: ({ row }) => (
-        <RequirementRowActions
-          row={row as Row<IRequirement>}
-          refreshRequirements={refreshRequirements}
-        />
-      ),
-    },
+    ...(
+      userData?.role != UserRoles.TESTER ?
+        [{
+          id: "actions",
+          enableHiding: false,
+          cell: ({ row }: { row: any }) => (
+            <RequirementRowActions
+              row={row as Row<IRequirement>}
+              refreshRequirements={refreshRequirements}
+            />
+          ),
+        }] : [])
   ];
 
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -118,6 +124,14 @@ export default function Issues() {
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
   const { projectId } = useParams<{ projectId: string }>();
+  const { data } = useSession();
+
+  useEffect(() => {
+    if (data) {
+      const { user } = data;
+      setUserData(user);
+    }
+  }, [data]);
 
   useEffect(() => {
     getRequirements();
@@ -202,9 +216,11 @@ export default function Issues() {
             }}
             className="max-w-sm"
           />
-          <div className="flex gap-2 ml-2">
-            <AddRequirement refreshRequirements={refreshRequirements} />
-          </div>
+          {userData?.role != UserRoles.TESTER &&
+            <div className="flex gap-2 ml-2">
+              <AddRequirement refreshRequirements={refreshRequirements} />
+            </div>
+          }
         </div>
         <div className="rounded-md border">
           <Table>
@@ -217,9 +233,9 @@ export default function Issues() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}
@@ -234,7 +250,9 @@ export default function Issues() {
                     data-state={row.getIsSelected() && "selected"}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
+                      <TableCell key={cell.id}
+                        className={`${userData?.role != UserRoles.TESTER ? "" : "py-3"}`}
+                      >
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()

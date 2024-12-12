@@ -145,9 +145,9 @@ export function AddProjectUser({ refreshProjectUsers }: { refreshProjectUsers: (
                                                                 .filter(user => user.firstName || user.lastName)
                                                                 .map(user => (
                                                                     <SelectItem key={user._id} value={user._id as string}>
-                                                                        {user.firstName && user.lastName
-                                                                            ? `${user.firstName} ${user.lastName}`
-                                                                            : user.firstName || user.lastName
+                                                                        {user.email
+                                                                            ? `${user.email}`
+                                                                            : user.email
                                                                         }
                                                                     </SelectItem>
                                                                 ))}

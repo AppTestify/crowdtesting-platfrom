@@ -75,7 +75,11 @@ export default function Projects() {
           </Button>
         );
       },
-      cell: ({ row }) => <div className="ml-4">{row.getValue("customId")}</div>,
+      cell: ({ row }) =>
+        <Link href={`/private/projects/${row.original.id}/overview`}>
+          <div className="ml-4 hover:text-primary">{row.getValue("customId")}</div>
+        </Link>
+      ,
       sortingFn: "alphanumeric",
     },
     {
@@ -138,31 +142,23 @@ export default function Projects() {
   };
 
   const hasUserId = projects.some((item) => item.userId?._id);
+  const createdByColumn = {
+    accessorKey: "createdBy",
+    header: "Created By",
+    cell: ({ row }: { row: any }) => {
+      const firstName = row.original?.userId?.firstName || "";
+      const lastName = row.original?.userId?.lastName || "";
+      return (
+        <div>
+          {`${firstName} ${lastName}`.trim()}
+        </div>
+      );
+    },
+  };
   columns = hasUserId
-    ? [
-        ...columns,
-        {
-          accessorKey: "createdBy",
-          header: "Created By",
-          cell: ({ row }) => (
-            <div>
-              {`${
-                row.original?.userId?.firstName
-                  ? row.original?.userId?.firstName
-                  : ""
-              }
-           ${
-             row.original?.userId?.lastName
-               ? row.original?.userId?.lastName
-               : ""
-           }`}
-            </div>
-          ),
-        },
-        statusColumn,
-        actionsColumn,
-      ]
-    : [...columns, statusColumn, actionsColumn];
+    ? [...columns, createdByColumn, statusColumn, actionsColumn] :
+    userData?.role === UserRoles.TESTER ? [...columns, statusColumn]
+      : [...columns, statusColumn, actionsColumn];
 
   useEffect(() => {
     getProjects();
@@ -274,9 +270,9 @@ export default function Projects() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}

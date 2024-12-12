@@ -101,6 +101,7 @@ export async function GET(
         if (!(await isAdmin(session.user))) {
             response = addCustomIds(
                 await TestCase.find({ projectId: projectId })
+                    .populate("testSuite requirements")
                     .sort({ createdAt: -1 })
                     .skip(skip)
                     .limit(Number(limit))

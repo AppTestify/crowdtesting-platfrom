@@ -29,3 +29,15 @@ export const isAdmin = cache(async (user: IUser) => {
     throw error;
   }
 });
+
+export const isClient = cache(async (user: IUser) => {
+  try {
+    if (user.role !== UserRoles.CLIENT) {
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    throw error;
+  }
+});
