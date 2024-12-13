@@ -90,17 +90,24 @@ export async function GET(
 
         let response = null;
         const { projectId } = params;
-        const totalTestCases = await TestCase.find({ projectId: projectId }).countDocuments();
         const { skip, limit } = serverSidePagination(req);
 
         // For custom Id
+        const url = new URL(req.url);
+        const requirement = url.searchParams.get("requirement");
+        const filter: any = { projectId: projectId };
+        if (requirement) {
+            filter.requirements = requirement;
+        }
+
+        const totalTestCases = await TestCase.find(filter).countDocuments();
         const userIdFormat = await IdFormat.findOne({ entity: DBModels.TEST_CASE });
         const requirementUserIdFormat = await IdFormat.findOne({ entity: DBModels.REQUIREMENT });
         const testSuiteIdFormat = await IdFormat.findOne({ entity: DBModels.TEST_SUITE });
 
         if (!(await isAdmin(session.user))) {
             response = addCustomIds(
-                await TestCase.find({ projectId: projectId })
+                await TestCase.find(filter)
                     .populate("testSuite requirements")
                     .sort({ createdAt: -1 })
                     .skip(skip)
@@ -110,7 +117,7 @@ export async function GET(
             );
         } else {
             response = addCustomIds(
-                await TestCase.find({ projectId: projectId })
+                await TestCase.find(filter)
                     .populate("userId", "id firstName lastName")
                     .populate("testSuite requirements")
                     .sort({ createdAt: -1 })

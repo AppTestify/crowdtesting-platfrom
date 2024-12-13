@@ -10,7 +10,7 @@ export default function TestStep({ testCaseResult }:
             <div className="text-lg font-semibold">
                 Test Step
             </div>
-            {testCaseResult?.testCaseStep.length > 0 ?
+            {testCaseResult?.testCaseStep?.length > 0 ?
                 <div className="flex flex-col space-y-4 mt-4">
                     {testCaseResult?.testCaseStep?.map((testStep, index) => (
                         <div key={index} className="flex items-start relative">

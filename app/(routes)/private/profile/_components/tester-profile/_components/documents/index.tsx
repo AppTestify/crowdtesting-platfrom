@@ -89,7 +89,6 @@ export default function Documents({ userId }: { userId?: string }) {
   const [documents, setDocuments] = useState<IDocument[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [globalFilter, setGlobalFilter] = useState<any>([]);
-
   const table = useReactTable({
     data: documents,
     columns,

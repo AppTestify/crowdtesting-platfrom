@@ -34,11 +34,13 @@ import { getTestWithoutPaginationSuiteService } from "@/app/_services/test-suite
 import { ITestSuite } from "@/app/_interface/test-suite";
 import { TestCaseRowActions } from "./_components/row-actions";
 import ViewTestCase from "./_components/view-test-case";
-import { ArrowUpDown } from "lucide-react";
+import { ArrowUpDown, X } from "lucide-react";
 import ExpandableTable from "@/app/_components/expandable-table";
 import { IRequirement } from "@/app/_interface/requirement";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { getRequirementsWithoutPaginationService } from "@/app/_services/requirement.service";
 
 export default function TestPlan() {
     const [testCases, setTestCases] = useState<ITestCase[]>([]);
@@ -78,6 +80,7 @@ export default function TestPlan() {
             ),
         },
         {
+            accessorFn: (row) => row.testSuite?.title || "",
             accessorKey: "testSuite",
             header: "Test suite",
             cell: ({ row }) => (
@@ -135,8 +138,14 @@ export default function TestPlan() {
     const { projectId } = useParams<{ projectId: string }>();
     const [testSuites, setTestSuites] = useState<ITestSuite[]>([]);
     const [testCase, setTestCase] = useState<ITestCase>();
+    const [requirements, setRequirements] = useState<IRequirement[]>([]);
     const [isViewOpen, setIsViewOpen] = useState<boolean>(false);
+    const [selectedRequirement, setSelectedRequirment] = useState<string>("");
     const { data } = useSession();
+
+    const resetFilter = () => {
+        setSelectedRequirment("");
+    }
 
     useEffect(() => {
         if (data) {
@@ -147,19 +156,35 @@ export default function TestPlan() {
 
     useEffect(() => {
         getTestCases();
-    }, [pageIndex, pageSize]);
+    }, [pageIndex, pageSize, selectedRequirement]);
 
     const getTestCases = async () => {
         setIsLoading(true);
-        const response = await getTestCaseService(projectId, pageIndex, pageSize);
+        const response = await getTestCaseService(projectId, pageIndex, pageSize, selectedRequirement);
         setTestCases(response?.testCases);
         setTotalPageCount(response?.total);
         setIsLoading(false);
     };
 
+    const handleRequirementChange = (requirment: string) => {
+        setSelectedRequirment(requirment);
+    };
+
     useEffect(() => {
         getTestSuites();
+        getRequirements();
     }, []);
+
+    const getRequirements = async () => {
+        try {
+            const response = await getRequirementsWithoutPaginationService(projectId);
+            if (response) {
+                setRequirements(response);
+            }
+        } catch (error) {
+            toasterService.error();
+        }
+    }
 
     const getTestSuites = async () => {
         try {
@@ -227,7 +252,7 @@ export default function TestPlan() {
                 </span>
             </div>
             <div className="w-full">
-                <div className="flex py-4 justify-between">
+                <div className="flex py-4 items-center">
                     <Input
                         placeholder="Filter test cases"
                         value={(globalFilter as string) ?? ""}
@@ -236,9 +261,40 @@ export default function TestPlan() {
                         }}
                         className="max-w-sm"
                     />
+                    <div className='mx-2'>
+                        <Select
+                            value={selectedRequirement || ""}
+                            onValueChange={(value) => {
+                                handleRequirementChange(value as string);
+                            }}
+                        >
+                            <SelectTrigger className="w-[150px]">
+                                <SelectValue placeholder="Search by result" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                    {requirements.map((requirement) => (
+                                        <SelectItem value={requirement?.id as string} key={requirement.id}>
+                                            <div className="flex items-center">
+                                                {requirement.title}
+                                            </div>
+                                        </SelectItem>
+                                    ))}
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    {selectedRequirement ?
+                        <div>
+                            <Button onClick={resetFilter} className="px-3 bg-red-500 hover:bg-red-500">
+                                <X />
+                            </Button>
+                        </div>
+                        : null
+                    }
                     {
                         userData?.role != UserRoles.TESTER &&
-                        <div className="flex gap-2 ml-2">
+                        <div className="flex gap-2 ml-auto">
                             <AddTestCase refreshTestCases={refreshTestCases} testSuites={testSuites} />
                         </div>
                     }

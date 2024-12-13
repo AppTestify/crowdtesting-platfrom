@@ -13,9 +13,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Row } from "@tanstack/react-table";
 import { Edit, Eye, MoreHorizontal, Trash } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import EditIssue from "../edit-issue";
 import ViewIssue from "../view-issue";
+import { useSession } from "next-auth/react";
+import { UserRoles } from "@/app/_constants/user-roles";
 
 export function IssueRowActions({
   row,
@@ -28,8 +30,17 @@ export function IssueRowActions({
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [userData, setUserData] = useState<any>();
+  const { data } = useSession();
   const projectId = row.original.projectId as string;
   const issueId = row.original.id as string;
+
+  useEffect(() => {
+    if (data) {
+      const { user } = data;
+      setUserData(user);
+    }
+  }, [data]);
 
   const deleteIssue = async () => {
     try {
@@ -101,17 +112,21 @@ export function IssueRowActions({
           >
             <Edit className="h-2 w-2" /> Edit
           </DropdownMenuItem>
-          <DropdownMenuSeparator className="border-b" />
-          <DropdownMenuItem
-            className="my-1"
-            onClick={() => {
-              setIsDeleteOpen(true);
-              setIsLoading(false);
-            }}
-          >
-            <Trash className="h-2 w-2 text-destructive" />{" "}
-            <span className="text-destructive">Delete</span>
-          </DropdownMenuItem>
+          {userData?.role != UserRoles.TESTER &&
+            <>
+              <DropdownMenuSeparator className="border-b" />
+              <DropdownMenuItem
+                className="my-1"
+                onClick={() => {
+                  setIsDeleteOpen(true);
+                  setIsLoading(false);
+                }}
+              >
+                <Trash className="h-2 w-2 text-destructive" />{" "}
+                <span className="text-destructive">Delete</span>
+              </DropdownMenuItem>
+            </>
+          }
         </DropdownMenuContent>
       </DropdownMenu>
     </>

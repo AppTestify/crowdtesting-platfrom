@@ -66,7 +66,9 @@ export default function TestCasesInTestExecution() {
                 );
             },
             cell: ({ row }) => (
-                <div className="hover:text-primary cursor-pointer ml-4">
+                <div
+                    onClick={() => showView(row as unknown as ITestCaseResult)}
+                    className="hover:text-primary cursor-pointer ml-4">
                     {row.original?.testCaseId?.customId}
                 </div>
             ),
@@ -78,7 +80,9 @@ export default function TestCasesInTestExecution() {
             id: "title",
             header: "Title",
             cell: ({ row }) => (
-                <div className="capitalize hover:text-primary cursor-pointer">
+                <div
+                    onClick={() => showView(row as unknown as ITestCaseResult)}
+                    className="capitalize hover:text-primary cursor-pointer">
                     {row.original?.testCaseId?.title}
                 </div>
             ),
@@ -129,40 +133,27 @@ export default function TestCasesInTestExecution() {
             enableHiding: false,
             cell: ({ row }) => (
                 <div>
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                                <span className="sr-only">Open menu</span>
-                                <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuItem
+                    {!row.original?.result &&
+                        <>
+                            <Button
+                                type={'button'}
+                                size={"sm"}
                                 className="mb-1"
-                                onClick={() => {
-                                    setIsViewOpen(true);
-                                    setModerate(row.original);
-                                }}
+                                onClick={() => moderateOpen(row.original)}
                             >
-                                <Eye className="h-2 w-2" /> View
-                            </DropdownMenuItem>
-                            {!row.original?.result &&
-                                <>
-                                    <DropdownMenuSeparator className="border-b" />
-                                    <DropdownMenuItem
-                                        className="mb-1"
-                                        onClick={() => moderateOpen(row.original)}
-                                    >
-                                        <Play className="h-2 w-2" /> Moderate
-                                    </DropdownMenuItem>
-                                </>
-                            }
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                                <Play className="h-2 w-2" />
+                            </Button>
+                        </>
+                    }
                 </div>
             ),
         },
     ];
+
+    const showView = (row: ITestCaseResult) => {
+        setIsViewOpen(true);
+        setModerate(row);
+    }
 
     const moderateOpen = async (row: ITestCaseResult) => {
         setModerate(row);
@@ -253,7 +244,7 @@ export default function TestCasesInTestExecution() {
                 </Breadcrumb>
             </div>
             <div className='w-full'>
-                <p>Test Moderate</p>
+                <p>Moderate tests</p>
                 <div className="flex py-2 mb-2 ">
                     <Input
                         placeholder="Filter test execution"

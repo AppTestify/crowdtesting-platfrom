@@ -1,8 +1,7 @@
-import { accordionBodyColors, accrodionColors, TestCaseExecutionResult } from '@/app/_constants/test-case';
+import { TestCaseExecutionResult } from '@/app/_constants/test-case';
 import { ITestCaseResult } from '@/app/_interface/test-case-result';
 import { testModerateService } from '@/app/_services/test-execution.service';
 import toasterService from '@/app/_services/toaster-service';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -11,7 +10,7 @@ import { Textarea } from '@/components/ui/text-area';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Bomb, CircleGauge, FileCheck, Frown, Loader2, Meh, NotepadText, Smile } from 'lucide-react';
+import { Bomb, Frown, Loader2, Meh, Smile } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form';
@@ -24,7 +23,13 @@ const testCaseResultSchema = z.object({
     result: z.string().min(1, "Required"),
     remarks: z.string().optional(),
     isIssue: z.boolean().optional()
-});
+}).refine(
+    (data) => !(data.result === TestCaseExecutionResult.FAILED && !data.remarks?.trim()),
+    {
+        message: "Required",
+        path: ["remarks"],
+    }
+);
 
 export default function Moderate({
     sheetOpen,
@@ -78,6 +83,10 @@ export default function Moderate({
             setIsLoading(false);
         }
     }
+
+    useEffect(() => {
+        form.reset();
+    }, [sheetOpen])
 
     return (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>

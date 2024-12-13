@@ -148,7 +148,7 @@ export function AddTestCase({ refreshTestCases, testSuites }: { refreshTestCases
     return (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
             <SheetTrigger asChild>
-                <Button onClick={() => resetForm()}>
+                <Button onClick={() => resetForm()} >
                     <Plus /> Add test case
                 </Button>
             </SheetTrigger>

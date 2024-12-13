@@ -2,10 +2,10 @@ import { PAGINATION_QUERY_ENDPOINT, TEST_CASE_ENPOINT, TEST_CYCLE_ENPOINT } from
 import { ITestCasePayload } from "../_interface/test-case";
 import { genericDelete, genericGet, genericPost, genericPut } from "./generic-api-methods";
 
-export const getTestCaseService = async (projectId: string, index: Number, pageSize: Number):
+export const getTestCaseService = async (projectId: string, index: Number, pageSize: Number, requirement: string):
     Promise<any> => {
     try {
-        const response = await genericGet(`${TEST_CASE_ENPOINT(projectId)}${PAGINATION_QUERY_ENDPOINT(index, pageSize)}`);
+        const response = await genericGet(`${TEST_CASE_ENPOINT(projectId)}${PAGINATION_QUERY_ENDPOINT(index, pageSize)}&requirement=${requirement}`);
         return response || [];
     } catch (error) {
         console.error(`Error > getTestCaseService:`, error);

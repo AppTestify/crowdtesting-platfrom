@@ -4,6 +4,7 @@ import {
   genericFileGet,
   genericGet,
   genericPostFormData,
+  genericPut,
 } from "./generic-api-methods";
 
 export const getFilesByUserIdService = async (): Promise<any> => {
@@ -85,6 +86,28 @@ export const getFilesByUserIdToAdminService = async (userId: string): Promise<an
     return response || {};
   } catch (error) {
     console.error(`Error > getFilesByUserIdToAdminService:`, error);
+    throw error;
+  }
+};
+
+export const getApprovalFilesService = async (verify: boolean): Promise<any> => {
+  try {
+    const response = await genericGet(`${FILES_ENDPOINT}/approval?verify=${verify}`);
+
+    return response || {};
+  } catch (error) {
+    console.error(`Error > getApprovalFilesService:`, error);
+    throw error;
+  }
+};
+
+export const verifyFileService = async (fileId: string): Promise<any> => {
+  try {
+    const response = await genericPut(`${FILES_ENDPOINT}/${fileId}/verify`);
+
+    return response || {};
+  } catch (error) {
+    console.error(`Error > verifyFileService:`, error);
     throw error;
   }
 };

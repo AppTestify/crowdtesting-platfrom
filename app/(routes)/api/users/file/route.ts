@@ -66,6 +66,7 @@ export async function POST(req: Request) {
       contentType: contentType,
       fileType: response.data.fileType,
       userId: userId,
+      isVerify: false
     });
 
     const saveFile = await newFile.save();
