@@ -38,4 +38,5 @@ export interface IProjectUserDisplay {
     lastName: string;
     role: string;
     createdAt: string;
+    customId: string;
 }

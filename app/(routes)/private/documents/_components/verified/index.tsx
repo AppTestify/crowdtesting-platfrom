@@ -116,7 +116,6 @@ export default function VerifiedDocuments() {
         onGlobalFilterChange: setGlobalFilter,
     });
 
-    console.log("rowSelection", rowSelection);
 
     const verifyDocument = async () => {
         setIsLoading(true);

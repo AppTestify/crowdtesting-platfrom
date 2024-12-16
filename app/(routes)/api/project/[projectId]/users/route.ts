@@ -1,3 +1,4 @@
+import { DBModels } from "@/app/_constants";
 import {
     DB_CONNECTION_ERROR_MESSAGE, GENERIC_ERROR_MESSAGE, INVALID_INPUT_ERROR_MESSAGE,
     USER_UNAUTHORIZED_ERROR_MESSAGE,
@@ -5,9 +6,13 @@ import {
 } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
+import { IProject } from "@/app/_interface/project";
+import { IUserByAdmin } from "@/app/_interface/user";
 import { verifySession } from "@/app/_lib/dal";
+import { IdFormat } from "@/app/_models/id-format.model";
 import { Project } from "@/app/_models/project.model";
 import { projectUserSchema } from "@/app/_schemas/project.schema";
+import { addCustomIds, replaceCustomId } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function GET(
@@ -35,12 +40,28 @@ export async function GET(
         }
 
         const { projectId } = params;
+        const userIdFormat = await IdFormat.findOne({ entity: DBModels.USER });
 
-        const response = await Project.findById(projectId)
+        const response: any = await Project.findById(projectId)
             .populate("users.userId")
-            .select("_id users");
+            .select("_id users")
+            .lean();
 
-        return Response.json(response);
+        const usersWithCustomIds = response?.users.map((user: any) => {
+            const customIdTransformed = replaceCustomId(userIdFormat.idFormat, user.userId?.customId);
+            return {
+                ...user,
+                customId: customIdTransformed
+            };
+        });
+
+        const result = {
+            ...response,
+            users: usersWithCustomIds
+        };
+
+
+        return Response.json(result);
     } catch (error: any) {
         return errorHandler(error);
     }

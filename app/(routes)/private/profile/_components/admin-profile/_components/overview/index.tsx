@@ -1,5 +1,7 @@
+import { IUserByAdmin } from "@/app/_interface/user";
 import { updateAdminProfile } from "@/app/_services/admin.service";
 import toasterService from "@/app/_services/toaster-service";
+import { getUserService } from "@/app/_services/user.service";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -31,15 +33,15 @@ export default function AdminProfileOverview({ user }: { user: any }) {
     },
   });
 
-  const setFormDefaultValues = () => {
+  const setFormDefaultValues = (userData: IUserByAdmin) => {
     form.reset({
-      firstName: user?.firstName || "",
-      lastName: user?.lastName || "",
+      firstName: userData?.firstName || "",
+      lastName: userData?.lastName || "",
     });
   };
 
   const getClientByUserId = async () => {
-    setFormDefaultValues();
+    setFormDefaultValues(await getUserService(user?._id as string));
   };
 
   useEffect(() => {
@@ -47,6 +49,7 @@ export default function AdminProfileOverview({ user }: { user: any }) {
   }, []);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsLoading(true);
     try {
       const response = await updateAdminProfile({ ...values });
       if (response) {
@@ -55,6 +58,8 @@ export default function AdminProfileOverview({ user }: { user: any }) {
       }
     } catch (error) {
       toasterService.error();
+    } finally {
+      setIsLoading(false);
     }
   }
 

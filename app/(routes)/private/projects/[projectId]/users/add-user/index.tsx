@@ -130,29 +130,29 @@ export function AddProjectUser({ refreshProjectUsers }: { refreshProjectUsers: (
                                     name="userId"
                                     render={({ field }) => (
                                         <FormItem className="flex flex-col">
-                                            <FormLabel>Select user</FormLabel>
+                                            <FormLabel>Select tester</FormLabel>
                                             <Select
                                                 onValueChange={field.onChange}
                                                 value={field.value}
                                             >
                                                 <SelectTrigger className="w-full">
-                                                    <SelectValue />
+                                                    <SelectValue>{users?.find(user => user.id === field.value)?.customId}</SelectValue>
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     {!isViewLoading ?
                                                         <SelectGroup>
                                                             {(Array.isArray(users) ? users : [])
-                                                                .filter(user => user.firstName || user.lastName)
+                                                                .filter(user => user.customId)
                                                                 .map(user => (
-                                                                    <SelectItem key={user._id} value={user._id as string}>
-                                                                        {user.email
-                                                                            ? `${user.email}`
-                                                                            : user.email
-                                                                        }
+                                                                    <SelectItem key={user.id} value={user.id as string}>
+                                                                        {user?.customId}
                                                                     </SelectItem>
                                                                 ))}
                                                         </SelectGroup>
-                                                        : <p className="text-center">Loading</p>}
+                                                        : <p className="text-center h-12 flex items-center justify-center">
+                                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                                        </p>
+                                                    }
                                                 </SelectContent>
                                             </Select>
                                             <FormMessage />

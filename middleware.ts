@@ -11,6 +11,11 @@ const forgotPasswordRoutes = "/auth/reset-password";
 
 export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
+
+  if (path === "/") {
+    return NextResponse.redirect(new URL("/auth/sign-in", req.nextUrl));
+  }
+
   const isProtectedRoute = path.startsWith(protectedRoutePattern);
   const isAuthRoute = path.startsWith(authRoutePattern);
   const isVerificationRoute = path.startsWith(verificationRoutePattern);

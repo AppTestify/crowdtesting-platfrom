@@ -6,6 +6,7 @@ import ActivateAccountAlert from "@/app/_components/warning-alert";
 import { UserRoles } from "@/app/_constants/user-roles";
 import TesterProfile from "./_components/tester-profile";
 import AdminProfile from "./_components/admin-profile";
+import ClientProfile from "./_components/client-profile";
 
 export default function Dashboard() {
   const { data } = useSession();
@@ -22,7 +23,8 @@ export default function Dashboard() {
       {user ? (
         <>
           {user?.role === UserRoles.TESTER ? <TesterProfile user={user} /> :
-            user?.role === UserRoles.ADMIN ? <AdminProfile user={user} /> : <>Profile</>
+            user?.role === UserRoles.ADMIN ? <AdminProfile user={user} /> :
+              user?.role === UserRoles.CLIENT ? <ClientProfile user={user} /> : <></>
           }
         </>
       ) : null}

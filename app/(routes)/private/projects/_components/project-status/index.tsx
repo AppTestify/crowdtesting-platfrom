@@ -1,10 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { updateProjectStausService } from "@/app/_services/project.service";
 import toasterService from "@/app/_services/toaster-service";
+import { useSession } from "next-auth/react";
+import { UserRoles } from "@/app/_constants/user-roles";
 
 export function SwitchProject({
   isActive,
@@ -16,6 +18,15 @@ export function SwitchProject({
   refreshProjects: () => void;
 }) {
   const [status, setStatus] = useState(isActive);
+  const [userData, setUserData] = useState<any>();
+  const { data } = useSession();
+
+  useEffect(() => {
+    if (data) {
+      const { user } = data;
+      setUserData(user);
+    }
+  }, [data]);
 
   const toggleStatus = async () => {
     try {
@@ -29,6 +40,7 @@ export function SwitchProject({
   return (
     <div className="flex items-center space-x-2">
       <Switch
+        disabled={userData?.role === UserRoles.CLIENT}
         id="project-mode"
         checked={status}
         onCheckedChange={toggleStatus}

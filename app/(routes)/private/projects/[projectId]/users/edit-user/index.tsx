@@ -98,10 +98,10 @@ const EditProjectUser = ({
                                     name="userId"
                                     render={({ field }) => (
                                         <FormItem className="flex flex-col">
-                                            <FormLabel>Select user</FormLabel>
+                                            <FormLabel>Select tester</FormLabel>
                                             <Input disabled
                                                 {...field}
-                                                value={`${projectUser?.userId?.firstName} ${projectUser?.userId?.lastName}`} />
+                                                value={`${projectUser?.customId}`} />
                                             <FormMessage />
                                         </FormItem>
                                     )}

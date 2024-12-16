@@ -14,5 +14,5 @@ export const checkIfOneDayPassed = (date: string) => {
   if (!date) {
     return true;
   }
-  return moment().diff(moment(date), "days") >= 1;
+  return moment().diff(moment(date), "minutes") >= 10;
 };

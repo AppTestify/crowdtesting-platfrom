@@ -9,8 +9,7 @@ export const getProjectTabs = (user: any) => {
             return ["overview", "requirements", "test plans", "test suites", "test cases", "test cycle",
                 "test execution", "issues", "RTM"];
         case UserRoles.CLIENT:
-            return ["overview", "requirements", "test plans", "test suites", "test cases", "test cycle",
-                "test execution", "issues", "notes"];
+            return ["overview", "users", "issues", "notes"];
         default:
             return ["overview"];
     }

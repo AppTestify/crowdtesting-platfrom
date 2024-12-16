@@ -34,10 +34,10 @@ export default function ProjectUsers() {
     const columns: ColumnDef<IProjectUserDisplay>[] = [
         {
             accessorKey: "name",
-            header: "Name",
+            header: "ID",
             cell: ({ row }) => (
                 <div className="capitalize">
-                    {`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}
+                    {`${row.original?.customId}`}
                 </div>
             ),
         },

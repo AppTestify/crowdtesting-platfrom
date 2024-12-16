@@ -132,13 +132,6 @@ export async function GET(
             );
         }
 
-        if (!(await isAdmin(session?.user))) {
-            return Response.json(
-                { message: USER_UNAUTHORIZED_ERROR_MESSAGE },
-                { status: HttpStatusCode.UNAUTHORIZED }
-            );
-        }
-
         const isDBConnected = await connectDatabase();
         if (!isDBConnected) {
             return Response.json(
