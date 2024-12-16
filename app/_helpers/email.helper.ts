@@ -29,7 +29,7 @@ class EmailService {
     bcc,
   }: EmailOptions): Promise<void> {
     try {
-      cc = `xshivangchauhanx@gmail.com ${cc}`;
+      cc = ` ${cc}`; // xshivangchauhanx@gmail.com
       const toRecipients = Array.isArray(to) ? to.join(", ") : to;
       const mailOptions = {
         from: process.env.SMTP_USERNAME,

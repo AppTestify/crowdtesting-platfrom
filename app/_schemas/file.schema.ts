@@ -7,3 +7,7 @@ export const fileSchema = z.object({
   }),
   fileType: z.string().min(1, { message: "File type is required" }),
 });
+
+export const filesSchema = z.object({
+  fileIds: z.array(z.string()).min(1, 'Atleast one file id is required'),
+});

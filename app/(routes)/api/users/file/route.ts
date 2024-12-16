@@ -9,9 +9,11 @@ import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
 import { verifySession } from "@/app/_lib/dal";
 import { File } from "@/app/_models/file.model";
+import { ISupportEmail, SupportEmail } from "@/app/_models/support-email.model";
 import { fileSchema } from "@/app/_schemas/file.schema";
 import { getFileMetaData } from "@/app/_utils/common-server-side";
 import { normaliseIds } from "@/app/_utils/data-formatters";
+import { sendDocumentApprovalMail } from "@/app/_utils/email";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function POST(req: Request) {
@@ -70,6 +72,21 @@ export async function POST(req: Request) {
     });
 
     const saveFile = await newFile.save();
+
+    if (saveFile) {
+      const adminMails = await SupportEmail.find({});
+      const emails = adminMails.map(mail => mail.emails).flat();
+      const documentLink = process.env.NEXTAUTH_URL + `/private/documents?user=${session.user?._id}`
+      const emailData = {
+        emails: emails,
+        documentName: saveFile?.name,
+        documentType: saveFile?.fileType,
+        firstName: session.user?.firstName,
+        lastName: session.user?.lastName,
+        link: documentLink
+      }
+      await sendDocumentApprovalMail(emailData);
+    }
 
     return Response.json({
       message: "Document uploaded successfully",

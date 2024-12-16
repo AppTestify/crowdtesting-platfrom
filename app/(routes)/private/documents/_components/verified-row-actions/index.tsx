@@ -4,12 +4,12 @@ import { verifyFileService } from '@/app/_services/file.service';
 import toasterService from '@/app/_services/toaster-service';
 import { downloadDocument } from '@/app/_utils/common';
 import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Row } from '@tanstack/react-table';
-import { Download, MoreHorizontal, ShieldCheck } from 'lucide-react';
+import { Download, ShieldCheck } from 'lucide-react';
 import React, { useState } from 'react'
 
-export default function UnVerifyRowActions({ row, refreshDocuments }:
+export default function VerifiedRowActions({ row, refreshDocuments }:
     {
         row: Row<IDocument>;
         refreshDocuments: () => void;
@@ -52,8 +52,8 @@ export default function UnVerifyRowActions({ row, refreshDocuments }:
             <ConfirmationDialog
                 isOpen={isVerifyOpen}
                 setIsOpen={setIsVerifyOpen}
-                title="Verify document"
-                description="Are you sure you want verify this document?"
+                title="Verified document"
+                description="Are you sure you want verified this document?"
                 isLoading={isLoading}
                 successAction={verifyDocument}
                 successLabel="Verify"
@@ -61,15 +61,24 @@ export default function UnVerifyRowActions({ row, refreshDocuments }:
                 successVariant={"default"}
             />
 
-            <div className="flex justify-end pr-4">
+            <div className="flex justify-end pr-8">
                 <Button variant="ghost" size="icon" onClick={() => getFile()}>
                     <Download className="h-5 w-5" />
                 </Button>
-                {/* <Button size="icon" variant="ghost"
-                    onClick={() => setIsVerifyOpen(true)}
-                >
-                    <ShieldCheck className="text-primary h-5 w-5" />
-                </Button> */}
+                <TooltipProvider delayDuration={100}>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button size="icon" variant="ghost"
+                                onClick={() => setIsVerifyOpen(true)}
+                            >
+                                <ShieldCheck className="text-primary h-5 w-5" />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>Verified</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
             </div>
         </>
     )

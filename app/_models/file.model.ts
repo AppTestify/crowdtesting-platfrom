@@ -8,7 +8,7 @@ export interface IFile extends Document {
   fileType: string;
   userId: Types.ObjectId;
   isVerify: boolean;
-  verifyBy: string;
+  verifyBy?: Types.ObjectId;
 }
 
 const FileSchema: Schema = new Schema(
@@ -19,7 +19,7 @@ const FileSchema: Schema = new Schema(
     fileType: String,
     userId: { type: Schema.Types.ObjectId, ref: DBModels.USER },
     isVerify: Boolean,
-    verifyBy: String
+    verifyBy: { type: Schema.Types.ObjectId, ref: DBModels.USER }
   },
   { timestamps: true }
 );

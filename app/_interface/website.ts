@@ -8,7 +8,7 @@ export interface IWebsitePayload {
 }
 
 export interface IWebsite {
-    logo: File;
+    logo: any;
     websiteName: string;
     timeZone: string;
 }

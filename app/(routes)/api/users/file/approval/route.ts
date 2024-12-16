@@ -38,10 +38,21 @@ export async function GET(req: Request) {
 
         const result = normaliseIds(
             await File.find({ isVerify: verify })
-                .populate("userId")
+                .populate("userId verifyBy")
                 .sort({ createdAt: -1 })
                 .lean()
-        );
+        ).map(doc => {
+            const { _id, userId, verifyBy, ...rest } = doc;
+            return {
+                ...rest,
+                userId: userId
+                    ? { id: userId._id, ...userId }
+                    : null,
+                verifyBy: verifyBy
+                    ? { id: verifyBy._id, ...verifyBy }
+                    : null,
+            };
+        });
 
         return Response.json(result);
     } catch (error: any) {

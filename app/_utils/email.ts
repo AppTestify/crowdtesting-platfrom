@@ -7,6 +7,8 @@ import { SEND_CREDENTIALS_TEMPLATE } from "@/email-templates/send-credentials.te
 import { IForgotPasswordPayload } from "../_interface/auth";
 import { FORGOT_PASSWORD_TEMPLATE } from "@/email-templates/forgot-password.template";
 import { NEW_USER_ADDED_TEMPLATE } from "@/email-templates/new-user.template";
+import { DOCUMENT_APPROVAL_TEMPLATE } from "@/email-templates/document-approval.template";
+import { IDocumentApprovalPayload } from "../_interface/document";
 
 interface IReplaceTemplateTags {
   tagValuesObject: any;
@@ -98,6 +100,20 @@ export const sendForgotPasswordLink = async (
     subject: EmailSubjects.FORGOT_PASSWORD,
     body: replaceEmailTemplateTagsInternalService({
       emailBody: FORGOT_PASSWORD_TEMPLATE,
+      tagValuesObject: templateTags
+    }),
+  });
+}
+
+export const sendDocumentApprovalMail = async (
+  templateTags: IDocumentApprovalPayload
+) => {
+  const emailService = new EmailService();
+  await emailService.sendEmail({
+    to: templateTags?.emails,
+    subject: EmailSubjects.DOCUMENT_APPROVAL,
+    body: replaceEmailTemplateTagsInternalService({
+      emailBody: DOCUMENT_APPROVAL_TEMPLATE,
       tagValuesObject: templateTags
     }),
   });

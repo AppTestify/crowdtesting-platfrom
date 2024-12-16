@@ -3,6 +3,7 @@ import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
 import { isAdmin, verifySession } from "@/app/_lib/dal";
 import { File } from "@/app/_models/file.model";
+import { filesSchema } from "@/app/_schemas/file.schema";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function PUT(
@@ -36,11 +37,14 @@ export async function PUT(
             );
         }
 
-        const { fileId } = params;
-        const response = await File.findByIdAndUpdate(fileId, {
-            isVerify: true,
-            verifyBy: session.user?._id
-        }, { new: true });
+        const body = await req.json();
+        const res = filesSchema.safeParse(body);
+        const response = await File.updateMany(
+            { _id: { $in: res.data?.fileIds } },
+            {
+                isVerify: true,
+                verifyBy: session.user?._id
+            }, { new: true });
 
         if (!response) {
             throw new Error(GENERIC_ERROR_MESSAGE);

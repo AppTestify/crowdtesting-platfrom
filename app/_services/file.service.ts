@@ -111,3 +111,14 @@ export const verifyFileService = async (fileId: string): Promise<any> => {
     throw error;
   }
 };
+
+export const verifyFilesService = async (fileIds: string): Promise<any> => {
+  try {
+    const response = await genericPut(`${FILES_ENDPOINT}/multiple-verify`, fileIds);
+
+    return response || {};
+  } catch (error) {
+    console.error(`Error > verifyFileService:`, error);
+    throw error;
+  }
+};

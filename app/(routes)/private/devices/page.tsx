@@ -44,7 +44,7 @@ export default function Devices() {
 
   let columns: ColumnDef<IDevice>[] = [
     ...(
-      userData?.role === UserRoles.TESTER ?
+      userData?.role != UserRoles.CLIENT ?
         [{
           id: "select",
           header: ({ table }: { table: any }) => (
@@ -135,7 +135,7 @@ export default function Devices() {
       ),
     },
     ...(
-      userData?.role === UserRoles.TESTER ?
+      userData?.role != UserRoles.CLIENT ?
         [{
           accessorKey: "actions",
           header: "",
@@ -262,7 +262,7 @@ export default function Devices() {
             }}
             className="max-w-sm"
           />
-          {userData?.role === UserRoles.TESTER &&
+          {userData?.role != UserRoles.CLIENT &&
             <div className="flex gap-2 ml-2">
               {getSelectedRows().length ? (
                 <BulkDelete

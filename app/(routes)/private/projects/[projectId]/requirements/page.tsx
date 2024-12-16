@@ -34,7 +34,6 @@ import ViewRequirement from "./_components/view-requirement";
 import { ArrowUpDown } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
-import { IUserByAdmin } from "@/app/_interface/user";
 
 export default function Issues() {
   const [requirements, setRequirements] = useState<IRequirement[]>([]);

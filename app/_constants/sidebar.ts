@@ -6,6 +6,7 @@ import {
   Shield,
   Users,
   Settings,
+  Files,
 } from "lucide-react";
 import { UserRoles } from "./user-roles";
 
@@ -124,6 +125,12 @@ export const adminNavbar = [
     title: "Devices",
     url: "/private/devices",
     icon: MonitorSmartphone,
+    disabled: false
+  },
+  {
+    title: "Documents",
+    url: "/private/documents",
+    icon: Files,
     disabled: false
   },
   {
