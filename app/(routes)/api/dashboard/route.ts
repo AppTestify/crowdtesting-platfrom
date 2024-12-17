@@ -92,11 +92,13 @@ export async function GET(req: Request) {
                 };
             });
 
+        } else if (await isClient(session.user)) {
+
         } else {
             const projectCounts = await Project.aggregate([
                 {
                     $match: {
-                        // userId: session.user._id,
+                        // userId?.userId: session.user._id,
                         createdAt: { $gte: sixMonthsAgo },
                     },
                 },
@@ -120,7 +122,7 @@ export async function GET(req: Request) {
             const issueCounts = await Issue.aggregate([
                 {
                     $match: {
-                        // userId: session.user._id,
+                        userId: session.user._id,
                         createdAt: { $gte: sixMonthsAgo },
                     },
                 },

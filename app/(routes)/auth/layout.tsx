@@ -22,7 +22,7 @@ export default function AuthLayout({
             case "/auth/tester-sign-up":
                 return "/assets/images/Office.png";
             case "/auth/forgot-password":
-                return "/assets/images/map.jpg";
+                return "/assets/images/map-2.png";
             default:
                 return "/assets/images/Office.png";
         }
@@ -31,29 +31,39 @@ export default function AuthLayout({
     return (
         <div className="w-full lg:grid bg-[#F0F2F5] min-h-[100vh] lg:grid-cols-2 ">
             <div className={` ${pathname == "/auth/sign-in" ? "" : ""}`}>
-
-                {pathname !== "/auth/sign-in" ? (
-                    <div
-                        className="w-full h-screen bg-cover bg-center relative hidden lg:flex lg:flex-col"
-                        style={{ backgroundImage: `url(${imageSrc})` }}
-                    >
-                        {/* <div className="hidden lg:flex lg:flex-col">
+                {pathname === "/auth/forgot-password" ?
+                    (
+                        <div className="bg-[#363E55] h-full hidden lg:flex lg:flex-col justify-center items-start">
+                            <img
+                                src={imageSrc}
+                                alt="Auth Illustration"
+                                className="w-full max-w-[649px] lg:max-w-[649px] lg:pr-4 transition-all"
+                            />
+                        </div>
+                    ) : pathname !== "/auth/sign-in" ? (
+                        <div
+                            className="w-full h-screen bg-cover bg-center relative hidden lg:flex lg:flex-col"
+                            style={{ backgroundImage: `url(${imageSrc})` }}
+                        >
+                            {/* <div className="hidden lg:flex lg:flex-col">
                             <BrandLogo className="text-white" />
                         </div> */}
-                    </div>
-                ) : (
-                    <section className=" overflow-hidden">
-                        {children}
-                    </section>
-                )}
+                        </div>
+                    ) :
+                        (
+                            <section className=" overflow-hidden">
+                                {children}
+                            </section>
+                        )
+                }
             </div>
             {pathname !== "/auth/sign-in" ? (
-                <section className="border rounded-l-3xl overflow-hidden">
+                <section className="">
                     {children}
                 </section>
             ) :
                 (
-                    <div className="bg-gray-200 hidden lg:flex lg:flex-col justify-center items-start">
+                    <div className="bg-[#363E55] hidden lg:flex lg:flex-col justify-center items-start">
                         <img
                             src={imageSrc}
                             alt="Auth Illustration"
