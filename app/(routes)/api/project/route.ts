@@ -106,7 +106,10 @@ export async function GET(req: Request) {
       }).countDocuments();
     } else if (await isClient(session.user)) {
       response = addCustomIds(
-        await Project.find({ deletedAt: { $exists: false }, userId: session.user._id })
+        await Project.find({
+          deletedAt: { $exists: false },
+          userId: session.user._id,
+        })
           .populate("userId")
           .sort({ createdAt: -1 })
           .skip(skip)
@@ -116,10 +119,9 @@ export async function GET(req: Request) {
       );
       totalProjects = await Project.find({
         deletedAt: { $exists: false },
-        userId: session.user._id
+        userId: session.user._id,
       }).countDocuments();
-    }
-    else {
+    } else {
       response = addCustomIds(
         await Project.find({
           "users.userId": session.user._id,

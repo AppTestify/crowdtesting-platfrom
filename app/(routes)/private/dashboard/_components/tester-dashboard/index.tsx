@@ -29,7 +29,7 @@ const chartConfig = {
   },
 };
 
-export default function AdminDashboard() {
+export default function TesterDashboard() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [dashboard, setDashboard] = useState<any>();
   const lastIndex = dashboard?.length - 1;
@@ -50,6 +50,5 @@ export default function AdminDashboard() {
     getDevices();
   }, []);
 
-  return <div>
-  </div>;
+  return <div></div>;
 }

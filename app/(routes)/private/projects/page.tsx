@@ -88,9 +88,7 @@ export default function Projects() {
             </div>
           </Link>
         ) : (
-          <div className="ml-4 text-primary">
-            {row.getValue("customId")}
-          </div>
+          <div className="ml-4 text-primary">{row.getValue("customId")}</div>
         );
       },
 
@@ -110,9 +108,7 @@ export default function Projects() {
             </div>
           </Link>
         ) : (
-          <div className="ml-4 ">
-            {row.getValue("title")}
-          </div>
+          <div className="ml-4 ">{row.getValue("title")}</div>
         );
       },
     },
@@ -174,18 +170,21 @@ export default function Projects() {
       const firstName = row.original?.userId?.firstName || "";
       const lastName = row.original?.userId?.lastName || "";
       return (
-        <div className=""
-        // onClick={() => getUser(row.original?.userId as IUserByAdmin)}
+        <div
+          className=""
+          // onClick={() => getUser(row.original?.userId as IUserByAdmin)}
         >
           {`${firstName} ${lastName}`.trim()}
         </div>
       );
     },
   };
+
   columns = hasUserId
-    ? [...columns, createdByColumn, statusColumn, actionsColumn] :
-    userData?.role === UserRoles.TESTER ? [...columns, statusColumn]
-      : [...columns, statusColumn, actionsColumn];
+    ? [...columns, createdByColumn, statusColumn, actionsColumn]
+    : userData?.role === UserRoles.TESTER
+    ? [...columns, statusColumn]
+    : [...columns, statusColumn, actionsColumn];
 
   useEffect(() => {
     getProjects();
@@ -307,9 +306,9 @@ export default function Projects() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}

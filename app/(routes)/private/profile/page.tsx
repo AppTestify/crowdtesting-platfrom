@@ -2,7 +2,6 @@
 
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
-import ActivateAccountAlert from "@/app/_components/warning-alert";
 import { UserRoles } from "@/app/_constants/user-roles";
 import TesterProfile from "./_components/tester-profile";
 import AdminProfile from "./_components/admin-profile";
