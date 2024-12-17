@@ -39,7 +39,7 @@ export async function POST(req: Request) {
 
     const userId = session.user._id;
     const body = await req.formData();
-    const file = body.get("file") as File;
+    const file = body.get("file");
     const fileType = body.get("fileType");
 
     const response = fileSchema.safeParse({ file: file, fileType: fileType });

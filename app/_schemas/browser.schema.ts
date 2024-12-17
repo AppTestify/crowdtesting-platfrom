@@ -1,4 +1,3 @@
-import { File } from "buffer";
 import { z } from "zod";
 
 export const browserSchema = z.object({
