@@ -1,3 +1,4 @@
+import { ITester } from "./tester";
 import { IUserByAdmin } from "./user";
 
 export interface IProjectPayload {
@@ -39,4 +40,5 @@ export interface IProjectUserDisplay {
     role: string;
     createdAt: string;
     customId: string;
+    tester?: ITester;
 }

@@ -40,7 +40,7 @@ export function SwitchProject({
   return (
     <div className="flex items-center space-x-2">
       <Switch
-        disabled={userData?.role === UserRoles.CLIENT}
+        disabled={userData?.role !== UserRoles.ADMIN}
         id="project-mode"
         checked={status}
         onCheckedChange={toggleStatus}

@@ -3,10 +3,11 @@ import {
   GET_ISSUES_ENPOINT,
   PAGINATION_QUERY_ENDPOINT,
 } from "../_constants/api-endpoints";
-import { IIssuePayload } from "../_interface/issue";
+import { IIssuePayload, IIssueStatusPayload } from "../_interface/issue";
 import {
   genericDelete,
   genericGet,
+  genericPatch,
   genericPostFormData,
   genericPut,
 } from "./generic-api-methods";
@@ -87,6 +88,23 @@ export const getIssueService = async (projectId: string, issueId: string): Promi
     return response || [];
   } catch (error) {
     console.error(`Error > getIssue:`, error);
+    throw error;
+  }
+};
+
+export const updateIssueStatusService = async (
+  projectId: string,
+  issueId: string,
+  body: IIssueStatusPayload
+): Promise<any> => {
+  try {
+    const response = await genericPatch(
+      `${GET_ISSUE_ENPOINT(projectId, issueId)}/status`,
+      body
+    );
+    return response || {};
+  } catch (error) {
+    console.error(`Error > updateIssueStatusService:`, error);
     throw error;
   }
 };

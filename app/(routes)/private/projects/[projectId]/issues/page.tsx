@@ -31,9 +31,13 @@ import { displayIcon, statusBadge } from "@/app/_utils/common-functionality";
 import { ArrowUpDown } from "lucide-react";
 import { PAGINATION_LIMIT } from "@/app/_utils/common";
 import ViewIssue from "./_components/view-issue";
+import { useSession } from "next-auth/react";
+import { UserRoles } from "@/app/_constants/user-roles";
 
 export default function Issues() {
   const [issues, setIssues] = useState<IIssue[]>([]);
+  const [userData, setUserData] = useState<any>();
+
   const columns: ColumnDef<IIssue>[] = [
     {
       accessorKey: "customId",
@@ -114,7 +118,8 @@ export default function Issues() {
           accessorKey: "createdBy",
           header: "created By",
           cell: ({ row }: { row: any }) => (
-            <div className="">{`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}</div>
+            <div className="" >
+              {`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}</div>
           ),
         }] : []
     ),
@@ -146,8 +151,15 @@ export default function Issues() {
   const [totalPageCount, setTotalPageCount] = useState(0);
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
-
   const { projectId } = useParams<{ projectId: string }>();
+  const { data } = useSession();
+
+  useEffect(() => {
+    if (data) {
+      const { user } = data;
+      setUserData(user);
+    }
+  }, [data]);
 
   useEffect(() => {
     getIssues();
@@ -227,9 +239,11 @@ export default function Issues() {
             }}
             className="max-w-sm"
           />
-          <div className="flex gap-2 ml-2">
-            <AddIssue refreshIssues={refreshIssues} />
-          </div>
+          {userData?.role !== UserRoles.CLIENT &&
+            <div className="flex gap-2 ml-2">
+              <AddIssue refreshIssues={refreshIssues} />
+            </div>
+          }
         </div>
         <div className="rounded-md border">
           <Table>

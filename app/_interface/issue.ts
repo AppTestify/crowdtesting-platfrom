@@ -28,6 +28,12 @@ export interface IIssuePayload {
   _id?: string;
 }
 
+export interface IIssueStatusPayload {
+  status: string;
+  id?: string;
+  _id?: string;
+}
+
 export interface IIssueAttachment {
   attachments: File[];
 }

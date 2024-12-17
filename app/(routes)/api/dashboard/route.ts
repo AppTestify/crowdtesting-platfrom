@@ -31,134 +31,135 @@ export async function GET(req: Request) {
         const today = new Date();
         const sixMonthsAgo = new Date(today.getFullYear(), today.getMonth() - 5, 1);
 
-        if (await isAdmin(session.user)) {
+        // if (await isAdmin(session.user)) {
 
-            const projectCounts = await Project.aggregate([
-                {
-                    $match: {
-                        createdAt: { $gte: sixMonthsAgo },
-                    },
+        const projectCounts = await Project.aggregate([
+            {
+                $match: {
+                    createdAt: { $gte: sixMonthsAgo },
                 },
-                {
-                    $addFields: {
-                        month: { $month: "$createdAt" },
-                        year: { $year: "$createdAt" },
-                    },
+            },
+            {
+                $addFields: {
+                    month: { $month: "$createdAt" },
+                    year: { $year: "$createdAt" },
                 },
-                {
-                    $group: {
-                        _id: { month: "$month", year: "$year" },
-                        projectCount: { $sum: 1 },
-                    },
+            },
+            {
+                $group: {
+                    _id: { month: "$month", year: "$year" },
+                    projectCount: { $sum: 1 },
                 },
-                {
-                    $sort: { "_id.year": 1, "_id.month": 1 },
-                },
-            ]);
+            },
+            {
+                $sort: { "_id.year": 1, "_id.month": 1 },
+            },
+        ]);
 
-            const issueCounts = await Issue.aggregate([
-                {
-                    $match: {
-                        createdAt: { $gte: sixMonthsAgo },
-                    },
+        const issueCounts = await Issue.aggregate([
+            {
+                $match: {
+                    createdAt: { $gte: sixMonthsAgo },
                 },
-                {
-                    $addFields: {
-                        month: { $month: "$createdAt" },
-                        year: { $year: "$createdAt" },
-                    },
+            },
+            {
+                $addFields: {
+                    month: { $month: "$createdAt" },
+                    year: { $year: "$createdAt" },
                 },
-                {
-                    $group: {
-                        _id: { month: "$month", year: "$year" },
-                        issueCount: { $sum: 1 },
-                    },
+            },
+            {
+                $group: {
+                    _id: { month: "$month", year: "$year" },
+                    issueCount: { $sum: 1 },
                 },
-                {
-                    $sort: { "_id.year": 1, "_id.month": 1 },
-                },
-            ]);
+            },
+            {
+                $sort: { "_id.year": 1, "_id.month": 1 },
+            },
+        ]);
 
-            response = projectCounts.map(project => {
-                const issue = issueCounts.find(
-                    i => i._id.month === project._id.month && i._id.year === project._id.year
-                );
+        response = projectCounts.map(project => {
+            const issue = issueCounts.find(
+                i => i._id.month === project._id.month && i._id.year === project._id.year
+            );
 
-                return {
-                    month: monthNames[project._id.month - 1],
-                    year: project._id.year,
-                    Project: project.projectCount,
-                    Issue: issue ? issue.issueCount : 0,
-                };
-            });
+            return {
+                month: monthNames[project._id.month - 1],
+                year: project._id.year,
+                Project: project.projectCount,
+                Issue: issue ? issue.issueCount : 0,
+            };
+        });
 
-        } else if (await isClient(session.user)) {
+        // }
+        //  else if (await isClient(session.user)) {
 
-        } else {
-            const projectCounts = await Project.aggregate([
-                {
-                    $match: {
-                        // userId?.userId: session.user._id,
-                        createdAt: { $gte: sixMonthsAgo },
-                    },
-                },
-                {
-                    $addFields: {
-                        month: { $month: "$createdAt" },
-                        year: { $year: "$createdAt" },
-                    },
-                },
-                {
-                    $group: {
-                        _id: { month: "$month", year: "$year" },
-                        projectCount: { $sum: 1 },
-                    },
-                },
-                {
-                    $sort: { "_id.year": 1, "_id.month": 1 },
-                },
-            ]);
+        // } else {
+        //     // const userId = userId?.userId || session.user._id;
+        //     const projectCounts = await Project.aggregate([
+        //         {
+        //             $match: {
+        //                 createdAt: { $gte: sixMonthsAgo },
+        //             },
+        //         },
+        //         {
+        //             $addFields: {
+        //                 month: { $month: "$createdAt" },
+        //                 year: { $year: "$createdAt" },
+        //             },
+        //         },
+        //         {
+        //             $group: {
+        //                 _id: { month: "$month", year: "$year" },
+        //                 projectCount: { $sum: 1 },
+        //             },
+        //         },
+        //         {
+        //             $sort: { "_id.year": 1, "_id.month": 1 },
+        //         },
+        //     ]);
 
-            const issueCounts = await Issue.aggregate([
-                {
-                    $match: {
-                        userId: session.user._id,
-                        createdAt: { $gte: sixMonthsAgo },
-                    },
-                },
-                {
-                    $addFields: {
-                        month: { $month: "$createdAt" },
-                        year: { $year: "$createdAt" },
-                    },
-                },
-                {
-                    $group: {
-                        _id: { month: "$month", year: "$year" },
-                        issueCount: { $sum: 1 },
-                    },
-                },
-                {
-                    $sort: { "_id.year": 1, "_id.month": 1 },
-                },
-            ]);
+        //     const issueCounts = await Issue.aggregate([
+        //         {
+        //             $match: {
+        //                 // userId: session.user._id,
+        //                 createdAt: { $gte: sixMonthsAgo },
+        //             },
+        //         },
+        //         {
+        //             $addFields: {
+        //                 month: { $month: "$createdAt" },
+        //                 year: { $year: "$createdAt" },
+        //             },
+        //         },
+        //         {
+        //             $group: {
+        //                 _id: { month: "$month", year: "$year" },
+        //                 issueCount: { $sum: 1 },
+        //             },
+        //         },
+        //         {
+        //             $sort: { "_id.year": 1, "_id.month": 1 },
+        //         },
+        //     ]);
 
-            response = projectCounts.map(project => {
-                const issue = issueCounts.find(
-                    i => i._id.month === project._id.month && i._id.year === project._id.year
-                );
+        // response = projectCounts.map(project => {
+        //     const issue = issueCounts.find(
+        //         i => i._id.month === project._id.month && i._id.year === project._id.year
+        //     );
 
-                return {
-                    month: monthNames[project._id.month - 1],
-                    year: project._id.year,
-                    Project: project.projectCount,
-                    Issue: issue ? issue.issueCount : 0,
-                };
-            });
-        }
+        //     return {
+        //         month: monthNames[project._id.month - 1],
+        //         year: project._id.year,
+        //         Project: project.projectCount,
+        //         Issue: issue ? issue.issueCount : 0,
+        //     };
+        // });
+    // }
 
         return Response.json(response);
-    } catch (error: any) {
-        return errorHandler(error);
-    }
+} catch (error: any) {
+    return errorHandler(error);
+}
 }

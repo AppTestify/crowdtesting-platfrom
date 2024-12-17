@@ -9,7 +9,13 @@ import {
 import { ContentType } from "@/app/(routes)/private/profile/_components/tester-profile/_components/documents/_constants";
 
 export function DocumentName({ document }: { document: any }) {
-  const contentType =  document.original.contentType;
+  let contentType;
+
+  if (document?.original) {
+    contentType = document?.original?.contentType;
+  } else {
+    contentType = document?.contentType;
+  }
 
   const getIconByContentType = (type: any) => {
     switch (type) {

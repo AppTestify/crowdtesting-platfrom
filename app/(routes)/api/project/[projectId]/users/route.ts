@@ -11,6 +11,7 @@ import { IUserByAdmin } from "@/app/_interface/user";
 import { verifySession } from "@/app/_lib/dal";
 import { IdFormat } from "@/app/_models/id-format.model";
 import { Project } from "@/app/_models/project.model";
+import { Tester } from "@/app/_models/tester.model";
 import { projectUserSchema } from "@/app/_schemas/project.schema";
 import { addCustomIds, replaceCustomId } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
@@ -47,13 +48,17 @@ export async function GET(
             .select("_id users")
             .lean();
 
-        const usersWithCustomIds = response?.users.map((user: any) => {
-            const customIdTransformed = replaceCustomId(userIdFormat.idFormat, user.userId?.customId);
-            return {
-                ...user,
-                customId: customIdTransformed
-            };
-        });
+        const usersWithCustomIds = await Promise.all(
+            response?.users.map(async (user: any) => {
+                const customIdTransformed = replaceCustomId(userIdFormat.idFormat, user.userId?.customId);
+                const tester = await Tester.findOne({ user: user.userId?._id });
+                return {
+                    ...user,
+                    customId: customIdTransformed,
+                    tester: tester
+                };
+            })
+        );
 
         const result = {
             ...response,

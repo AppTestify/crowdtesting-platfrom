@@ -36,8 +36,8 @@ import { PAGINATION_LIMIT } from "@/app/_utils/common";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
 import { ArrowUpDown } from "lucide-react";
-import ViewTesterIssue from "../users/_components/view-user";
 import { IUserByAdmin } from "@/app/_interface/user";
+import ViewTesterIssue from "../users/_components/view-user";
 
 export default function Projects() {
   let columns: ColumnDef<IProjectPayload>[] = [
@@ -174,8 +174,8 @@ export default function Projects() {
       const firstName = row.original?.userId?.firstName || "";
       const lastName = row.original?.userId?.lastName || "";
       return (
-        <div className="hover:text-primary hover:cursor-pointer"
-          onClick={() => getUser(row.getValue("userId") as IUserByAdmin)}
+        <div className=""
+        // onClick={() => getUser(row.original?.userId as IUserByAdmin)}
         >
           {`${firstName} ${lastName}`.trim()}
         </div>

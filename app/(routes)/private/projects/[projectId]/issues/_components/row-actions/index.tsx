@@ -18,6 +18,7 @@ import EditIssue from "../edit-issue";
 import ViewIssue from "../view-issue";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
+import EditIssueStatus from "../edit-issue-status";
 
 export function IssueRowActions({
   row,
@@ -27,6 +28,7 @@ export function IssueRowActions({
   refreshIssues: () => void;
 }) {
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isEditStatusOpen, setIsEditStatusOpen] = useState(false);
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -69,6 +71,13 @@ export function IssueRowActions({
         refreshIssues={refreshIssues}
       />
 
+      <EditIssueStatus
+        issue={row.original as IIssue}
+        sheetOpen={isEditStatusOpen}
+        setSheetOpen={setIsEditStatusOpen}
+        refreshIssues={refreshIssues}
+      />
+
       <ViewIssue
         issue={row.original as IIssue}
         sheetOpen={isViewOpen}
@@ -104,14 +113,25 @@ export function IssueRowActions({
             <Eye className="h-2 w-2" /> View
           </DropdownMenuItem>
           <DropdownMenuSeparator className="border-b" />
-          <DropdownMenuItem
-            className="mb-1"
-            onClick={() => {
-              setIsEditOpen(true);
-            }}
-          >
-            <Edit className="h-2 w-2" /> Edit
-          </DropdownMenuItem>
+          {userData?.role === UserRoles.CLIENT ?
+            <DropdownMenuItem
+              className="mb-1"
+              onClick={() => {
+                setIsEditStatusOpen(true);
+              }}
+            >
+              <Edit className="h-2 w-2" /> Edit
+            </DropdownMenuItem>
+            :
+            <DropdownMenuItem
+              className="mb-1"
+              onClick={() => {
+                setIsEditOpen(true);
+              }}
+            >
+              <Edit className="h-2 w-2" /> Edit
+            </DropdownMenuItem>
+          }
           {userData?.role != UserRoles.TESTER &&
             <>
               <DropdownMenuSeparator className="border-b" />

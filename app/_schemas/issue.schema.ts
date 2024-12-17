@@ -9,3 +9,7 @@ export const issueSchema = z.object({
     status: z.string().optional(),
     device: z.array(z.string()).nonempty("Device is required")
 });
+
+export const issueStatusSchema = z.object({
+    status: z.string().min(1, "Status is required"),
+});

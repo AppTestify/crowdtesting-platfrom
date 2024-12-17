@@ -29,8 +29,12 @@ import { ProjectUserRowActions } from "./row-actions";
 import { IProjectUserDisplay } from "@/app/_interface/project";
 import { formatDate } from "@/app/_constants/date-formatter";
 import { statusBadgeProjectUserRole } from "@/app/_utils/common-functionality";
+import { useSession } from "next-auth/react";
+import { UserRoles } from "@/app/_constants/user-roles";
 
 export default function ProjectUsers() {
+    const [userData, setUserData] = useState<any>();
+
     const columns: ColumnDef<IProjectUserDisplay>[] = [
         {
             accessorKey: "customId",
@@ -50,19 +54,42 @@ export default function ProjectUsers() {
             ),
         },
         {
+            accessorFn: (row) => row.tester?.address?.city || "",
+            accessorKey: "city",
+            header: "City",
+            cell: ({ row }) => (
+                <div className="capitalize">
+                    {row.original?.tester?.address?.city}
+                </div>
+            ),
+        },
+        {
+            accessorFn: (row) => row.tester?.address?.city || "",
+            accessorKey: "country",
+            header: "Country",
+            cell: ({ row }) => (
+                <div className="capitalize">
+                    {row.original?.tester?.address?.country}
+                </div>
+            ),
+        },
+        {
             accessorKey: "createdAt",
             header: "Created on",
             cell: ({ row }) => (
                 <div className="capitalize">{formatDate(row.original?.createdAt)}</div>
             ),
         },
-        {
-            id: "actions",
-            enableHiding: false,
-            cell: ({ row }) => (
-                <ProjectUserRowActions row={row} projectId={projectId} refreshProjectUsers={refreshProjectUsers} />
-            ),
-        },
+        ...(
+            userData?.role === UserRoles.ADMIN ?
+                [{
+                    id: "actions",
+                    enableHiding: false,
+                    cell: ({ row }: { row: any }) => (
+                        <ProjectUserRowActions row={row} projectId={projectId} refreshProjectUsers={refreshProjectUsers} />
+                    ),
+                }] : []
+        ),
     ];
 
     const [sorting, setSorting] = useState<SortingState>([]);
@@ -73,6 +100,14 @@ export default function ProjectUsers() {
     const [projectUsers, setProjectUsers] = useState<IProjectUserDisplay[]>([]);
     const [pageIndex, setPageIndex] = useState(0);
     const [pageSize, setPageSize] = useState(7);
+    const { data } = useSession();
+
+    useEffect(() => {
+        if (data) {
+            const { user } = data;
+            setUserData(user);
+        }
+    }, [data]);
 
     const { projectId } = useParams<{ projectId: string }>();
     useEffect(() => {
@@ -141,9 +176,11 @@ export default function ProjectUsers() {
                         }}
                         className="max-w-sm"
                     />
-                    <div className="flex gap-2 ml-2">
-                        <AddProjectUser refreshProjectUsers={refreshProjectUsers} />
-                    </div>
+                    {userData?.role === UserRoles.ADMIN &&
+                        <div className="flex gap-2 ml-2">
+                            <AddProjectUser refreshProjectUsers={refreshProjectUsers} />
+                        </div>
+                    }
                 </div>
                 <div className="rounded-md border">
                     <Table>
