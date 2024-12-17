@@ -31,7 +31,7 @@ export interface IUserByAdmin {
   sendCredentials?: boolean;
   tester?: ITester;
   paypalId?: string;
-  customId: string;
+  customId?: string;
   file?: IDocument;
 }
 

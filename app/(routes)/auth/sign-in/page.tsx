@@ -12,6 +12,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import toasterService from "@/app/_services/toaster-service"
 import { USER_UNAUTHORIZED_ERROR_MESSAGE } from "@/app/_constants/errors"
 import { SignInForm } from "@/app/_components/sign-in-form"
+import { BrandLogo } from "@/app/_components/brand-logo";
 
 function SignInWrapper() {
   const searchParams = useSearchParams();
@@ -39,34 +40,35 @@ function SignInWrapper() {
     });
   };
 
-    return (
-        <div className="flex flex-col p-5 md:mt-0 h-full">
-            <div className="flex items-center justify-center h-4/5 mt-2">
-                <div className="mx-auto grid w-full md:w-[350px] gap-6">
-                    <div className="grid gap-2 text-left md:text-center">
-                        <h1 className="text-3xl font-bold">Welcome Back</h1>
-                        <p className="text-balance ">
-                            Login into your account
-                        </p>
-                    </div>
-                    <div>
-                        <SignInForm setIsGoogleSignInDisable={setIsGoogleSignInDisable} />
-                        {/* <Button variant="outline" className="w-full" disabled={isGoogleSignInDisable || isLoading} onClick={() => handleGoogleSignIn()}>
+  return (
+    <div className="flex flex-col p-5 md:p-10 h-full">
+      <BrandLogo className="text-white" />
+      <div className="flex items-center justify-center h-4/5 mt-2">
+        <div className="mx-auto grid w-full md:w-[350px] gap-6">
+          <div className="grid gap-2 text-left md:text-center">
+            <h1 className="text-3xl font-bold">Welcome Back</h1>
+            <p className="text-balance ">
+              Login into your account
+            </p>
+          </div>
+          <div>
+            <SignInForm setIsGoogleSignInDisable={setIsGoogleSignInDisable} />
+            {/* <Button variant="outline" className="w-full" disabled={isGoogleSignInDisable || isLoading} onClick={() => handleGoogleSignIn()}>
                             {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                             Login with Google
                         </Button> */}
-                    </div>
-                    <div className="flex justify-between mt-3">
-                        <p>Don't have an account?</p>
-                        <p className="text-primary cursor-pointer">
-                            <Link href={'/auth/sign-up'}>
-                                Sign up
-                            </Link>
-                        </p>
-                    </div>
-                </div>
-            </div>
+          </div>
+          <div className="flex justify-between mt-3">
+            <p>Don't have an account?</p>
+            <p className="text-primary cursor-pointer">
+              <Link href={'/auth/sign-up'}>
+                Sign up
+              </Link>
+            </p>
+          </div>
         </div>
+      </div>
+    </div>
     //   </div>
     // </div>
   );

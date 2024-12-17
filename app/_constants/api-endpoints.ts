@@ -11,6 +11,7 @@ export const UPDATE_ROLE = "/api/users/role";
 export const DEVICES_ENDPOINT = "/api/device";
 export const PROJECTS_ENDPOINT = "/api/project";
 export const BROWSERS_ENDPOINT = "/api/browser";
+export const DASHBOARD_ENDPOINT = "/api/dashboard";
 export const DEVICES_BULK_DELETE_ENDPOINT = "/api/device/bulk/delete";
 export const PROJECTS_BULK_DELETE_ENDPOINT = "/api/project/bulk/delete";
 export const ISSUES_ENDPOINT = "/api/project/issue";

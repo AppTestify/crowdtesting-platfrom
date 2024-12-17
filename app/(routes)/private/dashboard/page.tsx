@@ -3,8 +3,9 @@
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import ActivateAccountAlert from "@/app/_components/warning-alert";
-import comingSoonImg from '../../../../public/assets/images/coming-soon.png';
-import Image from "next/image";
+import { Skeleton } from "@/components/ui/skeleton";
+import { UserRoles } from "@/app/_constants/user-roles";
+import AdminDashboard from "./_components/admin-dashboard";
 
 export default function Dashboard() {
     const { data } = useSession();
@@ -33,24 +34,33 @@ export default function Dashboard() {
     }, [currentTime]);
 
     if (isLoading || currentTime === null) {
-        return <div>Loading</div>;
+        return (
+            <div className="flex justify-between p-4">
+                <Skeleton className="h-12 w-[200px]" />
+                <div className="flex items-center">
+                    <Skeleton className="h-6 w-[300px]" />
+                </div>
+            </div>);
     }
 
     return (
         <main className="mx-4 mt-4">
             {user && !user.isVerified ? <ActivateAccountAlert user={user} /> : null}
-            <div className="mt-3 flex justify-between items-center space-x-4">
-                <div className="text-xl font-medium text-gray-900 px-2">
-                    <span className="block">Hello, Welcome</span>
-                    <span className="font-semibold text-primary">{user?.firstName} {user?.lastName}</span>
-                </div>
-                <div className="text-sm text-gray-500 font-medium px-6">
-                    {currentTime}
-                </div>
-            </div>
-            <div className=" flex items-center justify-center ">
-                <Image className="object-cover w-[70%] h-auto" src={comingSoonImg} alt="coming soon" />
-            </div>
+            {!isLoading &&
+                <>
+                    <div className="mt-3 flex justify-between items-center space-x-4">
+                        <div className="text-xl font-medium text-gray-900 px-2">
+                            <span className="block">Hello, Welcome</span>
+                            <span className="font-semibold text-primary">{user?.firstName} {user?.lastName}</span>
+                        </div>
+                        <div className="text-sm text-gray-500 font-medium px-6">
+                            {currentTime}
+                        </div>
+                    </div>
+                    <AdminDashboard />
+                </>
+            }
+
         </main>
     );
 }

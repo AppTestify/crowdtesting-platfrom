@@ -33,7 +33,7 @@ import { statusBadgeProjectUserRole } from "@/app/_utils/common-functionality";
 export default function ProjectUsers() {
     const columns: ColumnDef<IProjectUserDisplay>[] = [
         {
-            accessorKey: "name",
+            accessorKey: "customId",
             header: "ID",
             cell: ({ row }) => (
                 <div className="capitalize">
@@ -42,6 +42,7 @@ export default function ProjectUsers() {
             ),
         },
         {
+            accessorFn: (row) => row.role || "",
             accessorKey: "projectUserRole",
             header: "Project user role",
             cell: ({ row }) => (

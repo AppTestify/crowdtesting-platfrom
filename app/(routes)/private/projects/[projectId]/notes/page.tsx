@@ -48,7 +48,12 @@ export default function TestPlan() {
             accessorKey: "description",
             header: "Description",
             cell: ({ row }) => (
-                <div className="capitalize">{row.getValue("description")}</div>
+                <div className="capitalize"
+                    dangerouslySetInnerHTML={{
+                        __html: row.original?.description || "",
+                    }}
+                >
+                </div>
             ),
         },
         ...(

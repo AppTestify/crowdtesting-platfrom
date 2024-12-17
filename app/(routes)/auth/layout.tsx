@@ -16,9 +16,9 @@ export default function AuthLayout({
     const imageSrc = (() => {
         switch (pathname) {
             case "/auth/sign-in":
-                return "/assets/images/map.jpg";
+                return "/assets/images/map-2.png";
             case "/auth/sign-up":
-                return "/assets/images/Office.png";
+                return "/assets/images/hand.jpg";
             case "/auth/tester-sign-up":
                 return "/assets/images/Office.png";
             case "/auth/forgot-password":
@@ -30,28 +30,30 @@ export default function AuthLayout({
 
     return (
         <div className="w-full lg:grid bg-[#F0F2F5] min-h-[100vh] lg:grid-cols-2 ">
-            <div className={` p-6  ${pathname == "/auth/sign-in" ? "" : "pr-12"}`}>
-                <BrandLogo className='text-white' />
+            <div className={` ${pathname == "/auth/sign-in" ? "" : ""}`}>
 
                 {pathname !== "/auth/sign-in" ? (
-                    <div className="mt-12 hidden lg:flex lg:flex-col">
-                        <img
-                            src={imageSrc}
-                            className="w-full"
-                        />
-                    </div>) :
-                    (<section>
+                    <div
+                        className="w-full h-screen bg-cover bg-center relative hidden lg:flex lg:flex-col"
+                        style={{ backgroundImage: `url(${imageSrc})` }}
+                    >
+                        {/* <div className="hidden lg:flex lg:flex-col">
+                            <BrandLogo className="text-white" />
+                        </div> */}
+                    </div>
+                ) : (
+                    <section className=" overflow-hidden">
                         {children}
-                    </section>)
-                }
+                    </section>
+                )}
             </div>
             {pathname !== "/auth/sign-in" ? (
-                <section>
+                <section className="border rounded-l-3xl overflow-hidden">
                     {children}
                 </section>
             ) :
                 (
-                    <div className="mt-12 lg:mt-24 hidden lg:flex lg:flex-col justify-center items-start">
+                    <div className="bg-gray-200 hidden lg:flex lg:flex-col justify-center items-start">
                         <img
                             src={imageSrc}
                             alt="Auth Illustration"

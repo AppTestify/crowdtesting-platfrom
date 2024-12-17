@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { UserRoles } from "@/app/_constants/user-roles"
-import { signUpService } from "@/app/_services/auth-service"
 import toasterService from "@/app/_services/toaster-service"
 import { useRouter } from "next/navigation"
 import Cookies from 'js-cookie';
@@ -27,6 +26,7 @@ import { signIn } from "next-auth/react"
 import { ErrorCode } from "@/app/_constants/error-codes"
 import { Loader2 } from "lucide-react"
 import { useState } from "react"
+import Link from "next/link"
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -103,6 +103,12 @@ export function SignUpForm({ role, setIsGoogleSignInDisable }: { role: UserRoles
           {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
           Create an account
         </Button>
+        <div className="text-center">
+          <span className="mr-0">have an account?</span>
+          <Link href={'/auth/sign-in'}>
+            <span className="text-primary ml-2">Sign in!</span>
+          </Link>
+        </div>
       </form>
     </Form>
   )

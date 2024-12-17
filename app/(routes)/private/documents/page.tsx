@@ -6,16 +6,20 @@ import VerifiedDocuments from "./_components/verified";
 import NonVerifiedDocument from "./_components/non-verified";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Documents() {
     const { data } = useSession();
-    const searchParams = useSearchParams();
     const router = useRouter();
     const [userData, setUserData] = useState<any>();
-    const user = searchParams.get('user');
+    const [user, setUser] = useState<string | null>(null);
+
+    useEffect(() => {
+        const searchParams = new URLSearchParams(window.location.search);
+        const userParam = searchParams.get("user");
+        setUser(userParam);
+    }, []);
 
     useEffect(() => {
         if (data) {

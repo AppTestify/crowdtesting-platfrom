@@ -36,6 +36,8 @@ import { PAGINATION_LIMIT } from "@/app/_utils/common";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
 import { ArrowUpDown } from "lucide-react";
+import ViewTesterIssue from "../users/_components/view-user";
+import { IUserByAdmin } from "@/app/_interface/user";
 
 export default function Projects() {
   let columns: ColumnDef<IProjectPayload>[] = [
@@ -75,23 +77,44 @@ export default function Projects() {
           </Button>
         );
       },
-      cell: ({ row }) =>
-        <Link href={`/private/projects/${row.original.id}/overview`}>
-          <div className="ml-4 hover:text-primary">{row.getValue("customId")}</div>
-        </Link>
-      ,
+      cell: ({ row }) => {
+        const { id, isActive } = row.original;
+        const isAdmin = userData?.role === UserRoles.ADMIN;
+
+        return isAdmin || isActive ? (
+          <Link href={`/private/projects/${id}/overview`}>
+            <div className="ml-4 text-primary hover:text-primary">
+              {row.getValue("customId")}
+            </div>
+          </Link>
+        ) : (
+          <div className="ml-4 text-primary">
+            {row.getValue("customId")}
+          </div>
+        );
+      },
+
       sortingFn: "alphanumeric",
     },
     {
       accessorKey: "title",
       header: "Title",
-      cell: ({ row }) => (
-        <Link href={`/private/projects/${row.original.id}/overview`}>
-          <div className="capitalize hover:text-primary">
+      cell: ({ row }) => {
+        const { id, isActive } = row.original;
+        const isAdmin = userData?.role === UserRoles.ADMIN;
+
+        return isAdmin || isActive ? (
+          <Link href={`/private/projects/${id}/overview`}>
+            <div className="ml-4 hover:text-primary">
+              {row.getValue("title")}
+            </div>
+          </Link>
+        ) : (
+          <div className="ml-4 ">
             {row.getValue("title")}
           </div>
-        </Link>
-      ),
+        );
+      },
     },
     {
       accessorKey: "startDate",
@@ -119,6 +142,8 @@ export default function Projects() {
   const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
   const [totalPageCount, setTotalPageCount] = useState(0);
   const [userData, setUserData] = useState<any>();
+  const [isViewOpen, setIsViewOpen] = useState(false);
+  const [user, setUser] = useState<IUserByAdmin>();
   const { data } = useSession();
 
   const statusColumn: ColumnDef<IProjectPayload> = {
@@ -149,7 +174,9 @@ export default function Projects() {
       const firstName = row.original?.userId?.firstName || "";
       const lastName = row.original?.userId?.lastName || "";
       return (
-        <div>
+        <div className="hover:text-primary hover:cursor-pointer"
+          onClick={() => getUser(row.getValue("userId") as IUserByAdmin)}
+        >
           {`${firstName} ${lastName}`.trim()}
         </div>
       );
@@ -227,8 +254,18 @@ export default function Projects() {
     }
   }, [data]);
 
+  const getUser = async (data: IUserByAdmin) => {
+    setUser(data as IUserByAdmin);
+    setIsViewOpen(true);
+  };
+
   return (
     <main className="mx-4 mt-4">
+      <ViewTesterIssue
+        user={user as IUserByAdmin}
+        sheetOpen={isViewOpen}
+        setSheetOpen={setIsViewOpen}
+      />
       <div className="">
         <h2 className="font-medium text-xl text-primary">Projects</h2>
         <span className="text-xs text-gray-600">

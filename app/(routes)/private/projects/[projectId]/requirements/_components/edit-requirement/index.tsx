@@ -60,7 +60,7 @@ const EditRequirement = ({
         defaultValues: {
             title: requirement?.title || "",
             description: requirement?.description || "",
-            projectId: requirement?.projectId || "",
+            projectId: requirement?.projectId as unknown as string || "",
         },
     });
 
@@ -68,7 +68,7 @@ const EditRequirement = ({
     async function onSubmit(values: z.infer<typeof requirementSchema>) {
         setIsLoading(true);
         try {
-            const response = await updateRequirementService(projectId as string, requirementId, {
+            const response = await updateRequirementService(projectId as unknown as string, requirementId, {
                 ...values,
             });
             if (response) {
@@ -86,7 +86,7 @@ const EditRequirement = ({
     const uploadAttachment = async () => {
         setIsLoading(true);
         try {
-            await addRequirementAttachmentsService(projectId as string, requirementId, { attachments });
+            await addRequirementAttachmentsService(projectId as unknown as string, requirementId, { attachments });
         } catch (error) {
             toasterService.error();
         } finally {

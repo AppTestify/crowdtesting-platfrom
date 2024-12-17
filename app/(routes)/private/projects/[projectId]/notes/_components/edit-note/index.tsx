@@ -25,6 +25,7 @@ import toasterService from "@/app/_services/toaster-service";
 import { Textarea } from "@/components/ui/text-area";
 import { INote } from "@/app/_interface/note";
 import { updateNoteService } from "@/app/_services/note.service";
+import TextEditor from "../../../../_components/text-editor";
 
 const NoteSchema = z.object({
     title: z.string().min(1, "Required"),
@@ -118,7 +119,14 @@ export function EditNote({
                                         <FormItem>
                                             <FormLabel>Description</FormLabel>
                                             <FormControl>
-                                                <Textarea {...field} />
+                                                {/* <Textarea {...field} /> */}
+                                                <TextEditor
+                                                    markup={field.value || ""}
+                                                    onChange={(value) => {
+                                                        form.setValue("description", value);
+                                                        form.trigger("description");
+                                                    }}
+                                                />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>

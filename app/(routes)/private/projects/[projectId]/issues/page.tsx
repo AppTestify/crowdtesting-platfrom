@@ -50,7 +50,7 @@ export default function Issues() {
         );
       },
       cell: ({ row }) => (
-        <div className="hover:text-primary cursor-pointer ml-4" onClick={() => getIssue(row.original as IIssue)}>
+        <div className="hover:text-primary text-primary cursor-pointer ml-4" onClick={() => getIssue(row.original as IIssue)}>
           {row.getValue("customId")}</div>
       ),
       sortingFn: "alphanumeric"
@@ -99,6 +99,7 @@ export default function Issues() {
       ),
     },
     {
+      accessorFn: (row) => row.device[0].name || "",
       accessorKey: "Device Name",
       header: "Device",
       cell: ({ row }) => (
