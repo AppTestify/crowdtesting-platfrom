@@ -23,6 +23,8 @@ import { getDevicesByUserService } from "@/app/_services/device.service";
 import { IDevice } from "@/app/_interface/device";
 import ViewUserDevice from "../view-device";
 import { Skeleton } from "@/components/ui/skeleton";
+import Payment from "../payment";
+import { useSession } from "next-auth/react";
 
 const ViewTesterIssue = ({
     user,
@@ -35,10 +37,19 @@ const ViewTesterIssue = ({
 }) => {
     const [isViewLoading, setIsViewLoading] = useState<boolean>(false);
     const [userData, setUserData] = useState<IUserByAdmin>();
+    const [loginUser, setUser] = useState<any>();
     const [devices, setDevices] = useState<IDevice[]>([]);
     const [isPaypalVisible, setIsPaypalVisible] = useState<boolean>(false);
     const [open, setOpen] = useState(false);
     const userId = user?.id as string;
+    const { data } = useSession();
+
+    useEffect(() => {
+        if (data) {
+            const { user } = data;
+            setUser(user);
+        }
+    }, [data]);
 
     const getUser = async () => {
         try {
@@ -79,7 +90,7 @@ const ViewTesterIssue = ({
 
     return (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-            <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto">
+            <SheetContent className="w-full !max-w-full md:w-[50%] md:!max-w-[50%] overflow-y-auto">
                 <SheetHeader>
                     <SheetTitle className="text-left">Profile view</SheetTitle>
                     <DropdownMenuSeparator className="border-b" />
@@ -269,6 +280,11 @@ const ViewTesterIssue = ({
                                     </div>
                                     : <div className="p-2">No Paypal ID found</div>
                                 }
+                                <div>
+                                    {loginUser?.role === UserRoles.ADMIN &&
+                                        <Payment userId={userId} />
+                                    }
+                                </div>
                             </TabsContent>
                         </Tabs>
                     </>

@@ -10,6 +10,7 @@ export const LOGOUT = "/api/logout";
 export const UPDATE_ROLE = "/api/users/role";
 export const DEVICES_ENDPOINT = "/api/device";
 export const PROJECTS_ENDPOINT = "/api/project";
+export const PAYMENTS_ENDPOINT = "/api/payment";
 export const BROWSERS_ENDPOINT = "/api/browser";
 export const DEVICES_BULK_DELETE_ENDPOINT = "/api/device/bulk/delete";
 export const PROJECTS_BULK_DELETE_ENDPOINT = "/api/project/bulk/delete";

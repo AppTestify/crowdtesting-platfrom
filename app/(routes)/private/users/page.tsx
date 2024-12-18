@@ -39,6 +39,7 @@ import { X } from "lucide-react";
 import { PAGINATION_LIMIT } from "@/app/_utils/common";
 import { showUsersRoleInBadges } from "@/app/_utils/common-functionality";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ViewTesterIssue from "./_components/view-user";
 
 export default function Users() {
     const [selectedRole, setSelectedRole] = useState<string>(UserRoles.TESTER);
@@ -70,7 +71,9 @@ export default function Users() {
             accessorKey: "customId",
             header: "ID",
             cell: ({ row }) => (
-                <div className="">{row.getValue("customId")}</div>
+                <div className="hover:text-primary hover:cursor-pointer"
+                    onClick={() => getUser(row.original as IUserByAdmin)}
+                >{row.getValue("customId")}</div>
             ),
         },
         {
@@ -170,6 +173,8 @@ export default function Users() {
     const [totalPageCount, setTotalPageCount] = useState(0);
     const [filteredUsers, setFilteredUsers] = useState<IUserByAdmin[]>([]);
     const [selectedStatus, setSelectedStatus] = useState<UserStatusList | any>("");
+    const [user, setUser] = useState<IUserByAdmin>();
+    const [isViewOpen, setIsViewOpen] = useState(false);
 
     useEffect(() => {
         getUsers();
@@ -245,8 +250,18 @@ export default function Users() {
         }
     };
 
+    const getUser = async (data: IUserByAdmin) => {
+        setUser(data as IUserByAdmin);
+        setIsViewOpen(true);
+    };
+
     return (
         <main className="mx-4 mt-4">
+            <ViewTesterIssue
+                user={user as IUserByAdmin}
+                sheetOpen={isViewOpen}
+                setSheetOpen={setIsViewOpen}
+            />
             <div className="">
                 <h2 className="font-medium text-xl text-primary">Users</h2>
                 <span className="text-xs text-gray-600">
