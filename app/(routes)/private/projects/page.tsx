@@ -79,17 +79,18 @@ export default function Projects() {
       },
       cell: ({ row }) => {
         const { id, isActive } = row.original;
-        const isAdmin = userData?.role === UserRoles.ADMIN;
+        // const isAdmin = userData?.role === UserRoles.ADMIN;
 
-        return isAdmin || isActive ? (
+        return (
           <Link href={`/private/projects/${id}/overview`}>
             <div className="ml-4 text-primary hover:text-primary">
               {row.getValue("customId")}
             </div>
           </Link>
-        ) : (
-          <div className="ml-4 text-primary">{row.getValue("customId")}</div>
         );
+        //  : (
+        //   <div className="ml-4 text-primary">{row.getValue("customId")}</div>
+        // );
       },
 
       sortingFn: "alphanumeric",
@@ -99,17 +100,19 @@ export default function Projects() {
       header: "Title",
       cell: ({ row }) => {
         const { id, isActive } = row.original;
-        const isAdmin = userData?.role === UserRoles.ADMIN;
+        // const isAdmin = userData?.role === UserRoles.ADMIN;
 
-        return isAdmin || isActive ? (
+        // return isAdmin || isActive ? (
+        return (
           <Link href={`/private/projects/${id}/overview`}>
             <div className="ml-4 hover:text-primary">
               {row.getValue("title")}
             </div>
           </Link>
-        ) : (
-          <div className="ml-4 ">{row.getValue("title")}</div>
         );
+        // ) : (
+        //   <div className="ml-4 ">{row.getValue("title")}</div>
+        // );
       },
     },
     {
@@ -172,7 +175,7 @@ export default function Projects() {
       return (
         <div
           className=""
-          // onClick={() => getUser(row.original?.userId as IUserByAdmin)}
+        // onClick={() => getUser(row.original?.userId as IUserByAdmin)}
         >
           {`${firstName} ${lastName}`.trim()}
         </div>
@@ -183,8 +186,8 @@ export default function Projects() {
   columns = hasUserId
     ? [...columns, createdByColumn, statusColumn, actionsColumn]
     : userData?.role === UserRoles.TESTER
-    ? [...columns, statusColumn]
-    : [...columns, statusColumn, actionsColumn];
+      ? [...columns, statusColumn]
+      : [...columns, statusColumn, actionsColumn];
 
   useEffect(() => {
     getProjects();
@@ -306,9 +309,9 @@ export default function Projects() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}

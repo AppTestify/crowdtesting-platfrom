@@ -10,6 +10,7 @@ import { UserRoles } from "@/app/_constants/user-roles";
 import { INewUser } from "@/app/_interface/user";
 import { createSession } from "@/app/_lib/session";
 import { SupportEmail } from "@/app/_models/support-email.model";
+import { Website } from "@/app/_models/website.model";
 import { signInService, signUpService } from "@/app/_services/auth-service";
 import { genericPost } from "@/app/_services/generic-api-methods";
 import { getUserByEmailService } from "@/app/_services/user.service";
@@ -71,7 +72,9 @@ const handler = NextAuth({
       if (!dbUser) {
         redirect("/auth/sign-in");
       }
+      const website = await Website.findOne({ userId: dbUser._id }).lean();
       session.user = { ...dbUser, ...session.user };
+      session.website = { ...website };
       return { ...session };
     },
   },

@@ -34,21 +34,21 @@ export default function TesterDashboard() {
   const [dashboard, setDashboard] = useState<any>();
   const lastIndex = dashboard?.length - 1;
 
-  const getDevices = async () => {
-    try {
-      setIsLoading(true);
-      const response = await getDashboardService();
-      setDashboard(response);
-    } catch (error) {
-      toasterService.error();
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // const getDevices = async () => {
+  //   try {
+  //     setIsLoading(true);
+  //     const response = await getDashboardService();
+  //     setDashboard(response);
+  //   } catch (error) {
+  //     toasterService.error();
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
-  useEffect(() => {
-    getDevices();
-  }, []);
+  // useEffect(() => {
+  //   getDevices();
+  // }, []);
 
   return <div></div>;
 }

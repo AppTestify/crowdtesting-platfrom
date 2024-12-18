@@ -34,6 +34,7 @@ export default function GeneralSettings() {
     const [isDeleteLogoOpen, setIsDeleteLogoOpen] = useState<boolean>(false);
     const [user, setUser] = useState<any | null>();
     const { data } = useSession();
+    const { update } = useSession();
 
     useEffect(() => {
         if (data && data?.user) {
@@ -60,6 +61,7 @@ export default function GeneralSettings() {
 
     const RefreshWebsites = () => {
         getWebsites();
+        update();
     }
 
     async function onSubmit(values: z.infer<typeof generalSettingSchema>) {
@@ -69,6 +71,7 @@ export default function GeneralSettings() {
                 ...values,
             });
             if (response) {
+                RefreshWebsites();
                 toasterService.success(response.message);
             }
         } catch (error) {

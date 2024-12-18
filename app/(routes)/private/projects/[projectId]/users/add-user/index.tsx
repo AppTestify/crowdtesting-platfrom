@@ -90,7 +90,9 @@ export function AddProjectUser({ refreshProjectUsers }: { refreshProjectUsers: (
         try {
             setIsViewLoading(true);
             const response = await getUsersWithoutPaginationService(projectId);
-            if (response) {
+            if (response?.message) {
+                setUsers([]);
+            } else if (response) {
                 setUsers(response);
             }
         } catch (error) {
@@ -136,23 +138,30 @@ export function AddProjectUser({ refreshProjectUsers }: { refreshProjectUsers: (
                                                 value={field.value}
                                             >
                                                 <SelectTrigger className="w-full">
-                                                    <SelectValue>{users?.find(user => user.id === field.value)?.customId}</SelectValue>
+                                                    <SelectValue>{users?.find(user => user?.id === field.value)?.customId}</SelectValue>
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    {!isViewLoading ?
+                                                    {!isViewLoading ? (
                                                         <SelectGroup>
                                                             {(Array.isArray(users) ? users : [])
                                                                 .filter(user => user.customId)
-                                                                .map(user => (
-                                                                    <SelectItem key={user.id} value={user.id as string}>
-                                                                        {user?.customId}
-                                                                    </SelectItem>
-                                                                ))}
+                                                                .length > 0 ? (
+                                                                (Array.isArray(users) ? users : [])
+                                                                    .filter(user => user.customId)
+                                                                    .map(user => (
+                                                                        <SelectItem key={user.id} value={user.id as string}>
+                                                                            {user?.customId}
+                                                                        </SelectItem>
+                                                                    ))
+                                                            ) : (
+                                                                <p className="text-center">No tester found</p>
+                                                            )}
                                                         </SelectGroup>
-                                                        : <p className="text-center h-12 flex items-center justify-center">
+                                                    ) : (
+                                                        <p className="text-center h-12 flex items-center justify-center">
                                                             <Loader2 className="h-4 w-4 animate-spin" />
                                                         </p>
-                                                    }
+                                                    )}
                                                 </SelectContent>
                                             </Select>
                                             <FormMessage />

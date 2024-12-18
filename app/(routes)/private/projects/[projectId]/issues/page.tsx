@@ -33,10 +33,14 @@ import { PAGINATION_LIMIT } from "@/app/_utils/common";
 import ViewIssue from "./_components/view-issue";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
+import toasterService from "@/app/_services/toaster-service";
+import { getProjectService } from "@/app/_services/project.service";
+import { IProject } from "@/app/_interface/project";
 
 export default function Issues() {
   const [issues, setIssues] = useState<IIssue[]>([]);
   const [userData, setUserData] = useState<any>();
+  const [project, setProject] = useState<IProject>();
 
   const columns: ColumnDef<IIssue>[] = [
     {
@@ -132,13 +136,16 @@ export default function Issues() {
         <div className="capitalize max-w-[200px] truncate">{statusBadge(row.getValue("status"))}</div>
       ),
     },
-    {
-      id: "actions",
-      enableHiding: false,
-      cell: ({ row }) => (
-        <IssueRowActions row={row} refreshIssues={refreshIssues} />
-      ),
-    },
+    ...(
+      (project?.isActive === true || userData?.role === UserRoles.ADMIN) ?
+        [{
+          id: "actions",
+          enableHiding: false,
+          cell: ({ row }: { row: any }) => (
+            <IssueRowActions row={row} refreshIssues={refreshIssues} />
+          ),
+        }] : []
+    ),
   ];
 
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -161,8 +168,21 @@ export default function Issues() {
     }
   }, [data]);
 
+  const getProject = async () => {
+    setIsLoading(true);
+    try {
+      const response = await getProjectService(projectId);
+      setProject(response);
+    } catch (error) {
+      toasterService.error();
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   useEffect(() => {
     getIssues();
+    getProject();
   }, [pageIndex, pageSize]);
 
   const getIssues = async () => {

@@ -15,6 +15,7 @@ import {
 import { getSidebarItems, navMain, teams } from "@/app/_constants/sidebar";
 import { useSession } from "next-auth/react";
 import { toTitleCase } from "@/app/_utils/string-formatters";
+import { IWebsite } from "@/app/_interface/website";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data } = useSession();
@@ -24,10 +25,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     profilePicture?: any;
   } | null>(null);
   const [user, setUser] = React.useState<any>();
+  const [website, setWebsite] = React.useState<any>();
 
   React.useEffect(() => {
     if (data) {
       const { user } = data;
+      setWebsite(data);
       setUserIdentity(user);
       setUser(user);
     }
@@ -53,7 +56,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <>
       <Sidebar collapsible="icon" {...props}>
         <SidebarHeader>
-          <TeamSwitcher teams={teams} />
+          <TeamSwitcher teams={teams} user={website} />
         </SidebarHeader>
         <SidebarContent>
           <NavMain items={getSidebarItems(user)} />

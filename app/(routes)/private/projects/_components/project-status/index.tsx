@@ -32,7 +32,10 @@ export function SwitchProject({
     try {
       const newStatus = !status;
       setStatus(newStatus);
-      await updateProjectStausService(projectId, newStatus);
+      const response = await updateProjectStausService(projectId, newStatus);
+      if (response) {
+        // refreshProjects();
+      }
     } catch (error) {
       toasterService.error();
     }

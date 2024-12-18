@@ -5,10 +5,12 @@ import { connectDatabase } from "@/app/_db";
 import { isAdmin, verifySession } from "@/app/_lib/dal";
 import { File } from "@/app/_models/file.model";
 import { ProfilePicture } from "@/app/_models/profile.picture";
+import { Project } from "@/app/_models/project.model";
 import { Tester } from "@/app/_models/tester.model";
 import { User } from "@/app/_models/user.model";
 import { userSchema } from "@/app/_schemas/users.schema";
 import { errorHandler } from "@/app/_utils/error-handler";
+const mongoose = require('mongoose');
 
 export async function DELETE(
     req: Request,
@@ -49,6 +51,15 @@ export async function DELETE(
         if (user?.profilePicture) {
             await ProfilePicture.findByIdAndDelete(user?.profilePicture);
         }
+
+        const objectIdUserId = new mongoose.Types.ObjectId(userId);
+
+        await Project.updateMany(
+            { "users.userId": objectIdUserId },
+            {
+                $pull: { users: { userId: objectIdUserId } }
+            }, { new: true });
+
         const response = await User.findByIdAndDelete(userId);
 
         if (!response) {

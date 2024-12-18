@@ -150,11 +150,11 @@ export default function SupportMail() {
                     {isUpdateloading ? "Updating" : "Update"}
                 </Button>
             </div>
-            {selectedEmails && selectedEmails?.emails?.length > 0 ? (
+            {/* {selectedEmails && selectedEmails?.emails?.length > 0 ? (
                 <div className="mt-4">
                     Selected Emails: {selectedEmails.emails.join(", ")}
                 </div>
-            ) : ""}
+            ) : ""} */}
 
         </div>
     )

@@ -31,9 +31,15 @@ import toasterService from "@/app/_services/toaster-service";
 import { getNotesService } from "@/app/_services/note.service";
 import { INote, INotePayload } from "@/app/_interface/note";
 import { NoteRowActions } from "./_components/row-actions";
+import { IProject } from "@/app/_interface/project";
+import { getProjectService } from "@/app/_services/project.service";
+import { UserRoles } from "@/app/_constants/user-roles";
+import { useSession } from "next-auth/react";
 
 export default function TestPlan() {
     const [notes, setNotes] = useState<INotePayload[]>([]);
+    const [project, setProject] = useState<IProject>();
+    const [userData, setUserData] = useState<any>();
 
     const columns: ColumnDef<INotePayload>[] = [
         {
@@ -75,13 +81,16 @@ export default function TestPlan() {
                 </div>
             ),
         },
-        {
-            id: "actions",
-            enableHiding: false,
-            cell: ({ row }) => (
-                <NoteRowActions row={row as Row<INote>} refreshNotes={refreshNotes} />
-            ),
-        },
+        ...(
+            (project?.isActive === true || userData?.role === UserRoles.ADMIN) ?
+                [{
+                    id: "actions",
+                    enableHiding: false,
+                    cell: ({ row }: { row: any }) => (
+                        <NoteRowActions row={row as Row<INote>} refreshNotes={refreshNotes} />
+                    ),
+                }] : []
+        ),
     ];
 
     const [sorting, setSorting] = useState<SortingState>([]);
@@ -93,6 +102,30 @@ export default function TestPlan() {
     const [totalPageCount, setTotalPageCount] = useState(0);
     const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
     const { projectId } = useParams<{ projectId: string }>();
+    const { data } = useSession();
+
+    const getProject = async () => {
+        setIsLoading(true);
+        try {
+            const response = await getProjectService(projectId);
+            setProject(response);
+        } catch (error) {
+            toasterService.error();
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    useEffect(() => {
+        if (data) {
+            const { user } = data;
+            setUserData(user);
+        }
+    }, [data]);
+
+    useEffect(() => {
+        getProject();
+    }, []);
 
     useEffect(() => {
         getNotes();
@@ -168,9 +201,11 @@ export default function TestPlan() {
                         }}
                         className="max-w-sm"
                     />
-                    <div className="flex gap-2 ml-2">
-                        <AddNote refreshNotes={refreshNotes} />
-                    </div>
+                    {(project?.isActive === true || userData?.role === UserRoles.ADMIN) &&
+                        <div className="flex gap-2 ml-2">
+                            <AddNote refreshNotes={refreshNotes} />
+                        </div>
+                    }
                 </div>
                 <div className="rounded-md border">
                     <Table>

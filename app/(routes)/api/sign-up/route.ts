@@ -56,11 +56,6 @@ export async function POST(req: Request) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    // const counter = await Counter.findOneAndUpdate(
-    //   { entity: DBModels.USER },
-    //   { $inc: { sequence: 1 } },
-    //   { new: true, upsert: true }
-    // );
 
     const newUser = new User({
       email,
@@ -68,7 +63,6 @@ export async function POST(req: Request) {
       role,
       accountActivationMailSentAt: new Date(),
       isActive: true,
-      // customId: counter.sequence
     });
     await newUser.save();
 

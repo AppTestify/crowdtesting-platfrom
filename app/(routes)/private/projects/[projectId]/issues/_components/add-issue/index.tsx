@@ -87,6 +87,7 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
   const { projectId } = useParams<{ projectId: string }>();
   const [attachments, setAttachments] = useState<File[]>([]);
   const [devices, setDevices] = useState<IDevice[]>([]);
+  const [isViewLoading, setIsViewLoading] = useState<boolean>(false);
 
   const form = useForm<z.infer<typeof projectSchema>>({
     resolver: zodResolver(projectSchema),
@@ -156,8 +157,15 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
   };
 
   const getDevices = async () => {
-    const devices = await getDevicesWithoutPaginationService();
-    setDevices(devices);
+    setIsViewLoading(true);
+    try {
+      const devices = await getDevicesWithoutPaginationService();
+      setDevices(devices);
+    } catch (error) {
+      toasterService.error();
+    } finally {
+      setIsViewLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -293,17 +301,25 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
                           </SelectValue>
                         </SelectTrigger>
                         <SelectContent>
-                          {devices.length > 0 ?
-                            <SelectGroup>
-                              {devices.map((device) => (
-                                <SelectItem key={device.id} value={device.id}>
-                                  <div className="flex items-center">
-                                    {device?.name}
-                                  </div>
-                                </SelectItem>
-                              ))}
-                            </SelectGroup>
-                            : <div className="text-center">Loading</div>}
+                          {!isViewLoading ? (
+                            devices.length > 0 ? (
+                              <SelectGroup>
+                                {devices.map((device) => (
+                                  <SelectItem key={device.id} value={device.id}>
+                                    <div className="flex items-center">
+                                      {device?.name}
+                                    </div>
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                            ) : (
+                              <div className="text-center">No device found</div>
+                            )
+                          ) : (
+                            <div className="flex justify-center items-center h-10">
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            </div>
+                          )}
                         </SelectContent>
                       </Select>
                       <FormMessage />

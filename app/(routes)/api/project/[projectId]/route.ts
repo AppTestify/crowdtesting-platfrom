@@ -118,7 +118,7 @@ export async function GET(
 
         const { projectId } = params;
 
-        const response = await Project.findById(projectId).select("_id title description createdAt");
+        const response = await Project.findById(projectId).select("_id title description createdAt isActive");
 
         return Response.json(response);
     } catch (error: any) {
