@@ -15,7 +15,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Crowd Testing",
+  title: "AppTestify Platform",
   description: "Crowd Testing",
 };
 

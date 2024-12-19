@@ -45,15 +45,6 @@ function SignUpWrapper() {
   return (
     <div className="flex flex-col p-5 md:p-10 h-full">
       <BrandLogo className="text-white" />
-      {/* <div className="flex justify-end mb-4">
-        <div>
-          <span className="mr-0">have an account?</span>
-          <Link href={'/auth/sign-in'}>
-            <span className="text-primary ml-2">Sign in!</span>
-          </Link>
-        </div>
-      </div> */}
-
       <div className="flex items-center justify-center h-4/5">
         <div className="mx-auto grid w-full md:w-[350px] gap-6">
           <div className="grid gap-2 text-left md:text-center">
@@ -72,7 +63,7 @@ function SignUpWrapper() {
         </div>
       </div>
       <div className="mt-8 text-muted-foreground text-left md:text-center">
-        By continuing you indicate that you read and  <a href="#" className="underline cursor-pointer">agreed to the Terms of Use</a>
+        By continuing you indicate that you read and  <a target="_blank" href="https://apptestify.com/legal/Privacy_Personal%20Data_Protection_Policy.html" className="underline cursor-pointer">agreed to the Terms of Use</a>
       </div>
     </div>
     //   </div>

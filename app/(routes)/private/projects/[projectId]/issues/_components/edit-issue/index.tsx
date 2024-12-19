@@ -37,6 +37,8 @@ import {
   SEVERITY_LIST,
   ISSUE_STATUS_LIST,
   ISSUE_TESTER_STATUS_LIST,
+  ISSUE_TYPE_LIST,
+  IssueStatus,
 } from "@/app/_constants/issue";
 import { updateIssueService } from "@/app/_services/issue.service";
 import IssueAttachments from "../attachments/issue-attachment";
@@ -47,6 +49,8 @@ import { getDevicesWithoutPaginationService } from "@/app/_services/device.servi
 import { IDevice } from "@/app/_interface/device";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
+import { ITestCycle } from "@/app/_interface/test-cycle";
+import { getTestCycleWithoutPaginationService } from "@/app/_services/test-cycle.service";
 
 const issueSchema = z.object({
   title: z.string().min(1, "Required"),
@@ -59,7 +63,9 @@ const issueSchema = z.object({
   projectId: z.string().optional(),
   device: z
     .array(z.string())
-    .min(1, "Required")
+    .min(1, "Required"),
+  issueType: z.string().min(1, 'Required'),
+  testCycle: z.string().min(1, "Required")
 });
 
 const EditIssue = ({
@@ -82,6 +88,9 @@ const EditIssue = ({
   const [previousDeviceId, setPreviousDeviceId] = useState<string>("");
   const { data } = useSession();
   const deviceName = device?.map(d => d.name) || [];
+  const [testCycles, setTestCycles] = useState<ITestCycle[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+
   const form = useForm<z.infer<typeof issueSchema>>({
     resolver: zodResolver(issueSchema),
     defaultValues: {
@@ -91,7 +100,9 @@ const EditIssue = ({
       description: "",
       status: "",
       projectId: "",
-      device: []
+      device: [],
+      issueType: '',
+      testCycle: ''
     },
   });
 
@@ -108,6 +119,8 @@ const EditIssue = ({
         status: issue.status || "",
         projectId: issue.projectId || "",
         device: deviceName,
+        issueType: issue.issueType || "",
+        testCycle: issue.testCycle || ""
       });
       hasReset.current = true;
     }
@@ -144,21 +157,43 @@ const EditIssue = ({
     }
   };
 
+  const validateIssue = async () => {
+    if (form.formState.isValid) {
+      form.handleSubmit(onSubmit)();
+      const values = form.getValues();
+      await onSubmit(values);
+      await uploadAttachment();
+    }
+  };
+
   const handleSubmit = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    const values = form.getValues();
-    await onSubmit(values);
-    await uploadAttachment();
+    validateIssue();
   };
 
   const getDevices = async () => {
+
     const devices = await getDevicesWithoutPaginationService();
     setDevices(devices);
   };
 
+  const getTestCycle = async () => {
+    setLoading(true);
+    try {
+      const response = await getTestCycleWithoutPaginationService(projectId);
+      if (response) {
+        setTestCycles(response);
+      }
+    } catch (error) {
+      toasterService.error();
+    } finally {
+      setLoading(false);
+    }
+  }
+
   useEffect(() => {
     if (sheetOpen) {
       getDevices();
+      getTestCycle();
       if (data) {
         const { user } = data;
         setUserData(user);
@@ -282,8 +317,12 @@ const EditIssue = ({
                         <SelectContent>
                           {userData?.role === UserRoles.TESTER ?
                             <SelectGroup>
-                              {ISSUE_TESTER_STATUS_LIST.map((status) => (
-                                <SelectItem value={status}>
+                              {ISSUE_TESTER_STATUS_LIST.filter((status) =>
+                                form.watch("status") === IssueStatus.RETEST_PASSED ?
+                                  status === IssueStatus.RETEST_PASSED :
+                                  true
+                              ).map((status) => (
+                                <SelectItem value={status} key={status}>
                                   {status}
                                 </SelectItem>
                               ))}
@@ -345,6 +384,75 @@ const EditIssue = ({
                   )}
                 />
               </div>
+
+              <div className="w-full grid grid-cols-2 gap-2 mt-3">
+                <FormField
+                  control={form.control}
+                  name="issueType"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Issue type</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            {ISSUE_TYPE_LIST.map((issueType) => (
+                              <SelectItem value={issueType}>
+                                <div className="flex items-center">
+                                  {issueType}
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="testCycle"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Test cycle</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value || ""}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            {loading ? (
+                              <div className="text-center">
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              </div>
+                            ) : testCycles.length === 0 ? (
+                              <div className="text-center text-gray-500">No test cycles found</div>
+                            ) : (
+                              testCycles.map((testCycle) => (
+                                <SelectItem key={testCycle._id} value={testCycle._id as string}>
+                                  {testCycle.title}
+                                </SelectItem>
+                              ))
+                            )}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
               <div className="grid grid-cols-1 gap-2 mt-4">
                 <FormField
                   control={form.control}
@@ -397,7 +505,6 @@ const EditIssue = ({
             </form>
           </Form>
         </div>
-
       </SheetContent>
     </Sheet >
   );

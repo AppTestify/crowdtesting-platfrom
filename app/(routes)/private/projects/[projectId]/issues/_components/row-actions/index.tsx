@@ -19,6 +19,7 @@ import ViewIssue from "../view-issue";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
 import EditIssueStatus from "../edit-issue-status";
+import Link from "next/link";
 
 export function IssueRowActions({
   row,
@@ -104,14 +105,21 @@ export function IssueRowActions({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem
-            className="mb-1"
-            onClick={() => {
-              setIsViewOpen(true);
+          <Link href={`/private/projects/${projectId}/issues/${row.original?.id}`}
+            onClick={(e) => {
+              e.preventDefault();
+              window.open(`/private/projects/${projectId}/issues/${row.original?.id}`, "_blank");
             }}
           >
-            <Eye className="h-2 w-2" /> View
-          </DropdownMenuItem>
+            <DropdownMenuItem
+              className="mb-1"
+            // onClick={() => {
+            //   setIsViewOpen(true);
+            // }}
+            >
+              <Eye className="h-2 w-2" /> View
+            </DropdownMenuItem>
+          </Link>
           <DropdownMenuSeparator className="border-b" />
           {userData?.role === UserRoles.CLIENT ?
             <DropdownMenuItem

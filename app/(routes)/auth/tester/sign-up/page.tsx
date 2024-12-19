@@ -14,6 +14,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import toasterService from "@/app/_services/toaster-service";
 import { USER_EXISTS_ERROR_MESSAGE } from "@/app/_constants/errors";
 import { Loader2 } from "lucide-react";
+import { BrandLogo } from "@/app/_components/brand-logo";
 
 function SignUpWrapper() {
   const searchParams = useSearchParams();
@@ -44,12 +45,8 @@ function SignUpWrapper() {
 
   return (
     <div className="flex flex-col p-5 md:p-10 h-full">
-      <div className="flex justify-end">
-        <Link href={"/auth/sign-in"}>
-          <Button variant="ghost">Login</Button>
-        </Link>
-      </div>
-      <div className="flex items-center justify-center h-4/5">
+      <BrandLogo className="text-white" />
+      <div className="flex items-center justify-center h-4/5 mt-8">
         <div className="mx-auto grid w-full md:w-[350px] gap-6">
           <div className="grid gap-2 text-left md:text-center">
             <h1 className="text-3xl font-bold">Create an account</h1>
@@ -67,18 +64,10 @@ function SignUpWrapper() {
                             Sign up with Google
                         </Button> */}
           </div>
-          <div className="text-muted-foreground text-left md:text-center">
-            By clicking continue, you agree to our{" "}
-            <a href="#" className="underline cursor-pointer">
-              Terms of Service
-            </a>{" "}
-            and{" "}
-            <a href="#" className="underline cursor-pointer">
-              Privacy Policy
-            </a>
-            .
-          </div>
         </div>
+      </div>
+      <div className="mt-8 text-muted-foreground text-left md:text-center">
+        By continuing you indicate that you read and <a target="_blank" href="https://apptestify.com/legal/Tester-Terms-Conditions-Privacy.html" className="underline cursor-pointer">agreed to the Terms of Use</a>
       </div>
     </div>
   );

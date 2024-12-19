@@ -36,11 +36,13 @@ import { UserRoles } from "@/app/_constants/user-roles";
 import toasterService from "@/app/_services/toaster-service";
 import { getProjectService } from "@/app/_services/project.service";
 import { IProject } from "@/app/_interface/project";
+import Link from "next/link";
 
 export default function Issues() {
   const [issues, setIssues] = useState<IIssue[]>([]);
   const [userData, setUserData] = useState<any>();
   const [project, setProject] = useState<IProject>();
+  const { projectId } = useParams<{ projectId: string }>();
 
   const columns: ColumnDef<IIssue>[] = [
     {
@@ -58,8 +60,17 @@ export default function Issues() {
         );
       },
       cell: ({ row }) => (
-        <div className="hover:text-primary text-primary cursor-pointer ml-4" onClick={() => getIssue(row.original as IIssue)}>
-          {row.getValue("customId")}</div>
+        <Link href={`/private/projects/${projectId}/issues/${row.original?.id}`}
+          onClick={(e) => {
+            e.preventDefault();
+            window.open(`/private/projects/${projectId}/issues/${row.original?.id}`, "_blank");
+          }}
+        >
+          <div className="hover:text-primary text-primary cursor-pointer ml-4"
+          >
+            {row.getValue("customId")}
+          </ div>
+        </Link>
       ),
       sortingFn: "alphanumeric"
     },
@@ -70,9 +81,16 @@ export default function Issues() {
         const title = row.getValue("title");
         if (typeof title === "string") {
           return (
-            <div className="capitalize hover:text-primary cursor-pointer" onClick={() => getIssue(row.original as IIssue)}>
-              {title.length > 30 ? `${title.substring(0, 30)}...` : title}
-            </div>
+            <Link href={`/private/projects/${projectId}/issues/${row.original?.id}`}
+              onClick={(e) => {
+                e.preventDefault();
+                window.open(`/private/projects/${projectId}/issues/${row.original?.id}`, "_blank");
+              }}
+            >
+              <div className="capitalize hover:text-primary cursor-pointer" >
+                {title.length > 30 ? `${title.substring(0, 30)}...` : title}
+              </div>
+            </Link>
           )
         }
       },
@@ -136,16 +154,31 @@ export default function Issues() {
         <div className="capitalize max-w-[200px] truncate">{statusBadge(row.getValue("status"))}</div>
       ),
     },
-    ...(
-      (project?.isActive === true || userData?.role === UserRoles.ADMIN) ?
-        [{
-          id: "actions",
-          enableHiding: false,
-          cell: ({ row }: { row: any }) => (
-            <IssueRowActions row={row} refreshIssues={refreshIssues} />
-          ),
-        }] : []
-    ),
+    // ...(
+    //   ((project?.isActive === true && row.original?. === userData?.id) || userData?.role === UserRoles.ADMIN) ?
+    //     [{
+    //       id: "actions",
+    //       enableHiding: false,
+    //       cell: ({ row }: { row: any }) => (
+    //         <IssueRowActions row={row} refreshIssues={refreshIssues} />
+    //       ),
+    //     }] : []
+    // ),
+    {
+      id: "actions",
+      enableHiding: false,
+      cell: ({ row }: { row: any }) => {
+        if (
+          (project?.isActive === true &&
+            row.original?.userId?.toString() === userData?._id?.toString()) ||
+          userData?.role === UserRoles.ADMIN || userData?.role === UserRoles.CLIENT
+        ) {
+          return <IssueRowActions row={row} refreshIssues={refreshIssues} />;
+        }
+
+        return null;
+      },
+    },
   ];
 
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -158,7 +191,6 @@ export default function Issues() {
   const [totalPageCount, setTotalPageCount] = useState(0);
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
-  const { projectId } = useParams<{ projectId: string }>();
   const { data } = useSession();
 
   useEffect(() => {

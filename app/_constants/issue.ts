@@ -11,7 +11,8 @@ export const enum Priority {
 }
 
 export const enum IssueStatus {
-  NEW = "New",
+  REPORTED = "Reported",
+  // NEW = "New",
   FIXED = "Fixed",
   DUPLICATE = "Duplicate",
   INVALID = "Invalid",
@@ -19,6 +20,22 @@ export const enum IssueStatus {
   RETEST_FAILED = "Retest failed",
   RETEST_PASSED = "Retest passed"
 }
+
+export const enum IssueType {
+  FUNCTIONAL = "Functional",
+  UI_UX = "UI/UX",
+  USABILITY = "Usability",
+  PERFORMANCE = "Performance",
+  SECURITY = "Security"
+}
+
+export const ISSUE_TYPE_LIST = [
+  IssueType.FUNCTIONAL,
+  IssueType.UI_UX,
+  IssueType.USABILITY,
+  IssueType.PERFORMANCE,
+  IssueType.SECURITY
+];
 
 export const SEVERITY_LIST = [
   Severity.MINOR,
@@ -29,7 +46,8 @@ export const SEVERITY_LIST = [
 export const PRIORITY_LIST = [Priority.LOW, Priority.NORMAL, Priority.HIGH];
 
 export const ISSUE_STATUS_LIST = [
-  IssueStatus.NEW,
+  IssueStatus.REPORTED,
+  // IssueStatus.NEW,
   IssueStatus.FIXED,
   IssueStatus.DUPLICATE,
   IssueStatus.INVALID,

@@ -13,6 +13,8 @@ export interface IIssue extends Document {
     status: string;
     customId: number;
     device: Types.ObjectId[];
+    issueType: string;
+    testCycle: Types.ObjectId;
 }
 
 const IssueSchema = new Schema<IIssue>(
@@ -31,6 +33,8 @@ const IssueSchema = new Schema<IIssue>(
         device: [
             { type: Schema.Types.ObjectId, ref: DBModels.DEVICE }
         ],
+        issueType: { type: String, required: true },
+        testCycle: { type: Schema.Types.ObjectId, ref: DBModels.TEST_CYCLE, required: true },
     },
     {
         timestamps: true

@@ -1,11 +1,14 @@
+import { DBModels } from "@/app/_constants";
 import { DB_CONNECTION_ERROR_MESSAGE, GENERIC_ERROR_MESSAGE, INVALID_INPUT_ERROR_MESSAGE, USER_UNAUTHORIZED_SERVER_ERROR_MESSAGE } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
+import { IIssue } from "@/app/_interface/issue";
 import { verifySession } from "@/app/_lib/dal";
+import { IdFormat } from "@/app/_models/id-format.model";
 import { IssueAttachment } from "@/app/_models/issue-attachment.model";
 import { Issue } from "@/app/_models/issue.model";
 import { issueSchema } from "@/app/_schemas/issue.schema";
-import { normaliseIds } from "@/app/_utils/data-formatters";
+import { addCustomIds, normaliseIds, replaceCustomId } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function PUT(
@@ -121,10 +124,17 @@ export async function GET(
             );
         }
 
-        let response = null;
         const { issueId } = params;
+        const userIdFormat = await IdFormat.findOne({ entity: DBModels.ISSUE });
+        const issue = await Issue.findById(issueId).populate("device", "_id name").lean() as IIssue | null;
 
-        response = await Issue.findById(issueId).populate("device", "_id name")
+        const response = {
+            ...issue,
+            customId: issue?.customId
+                ? replaceCustomId(userIdFormat.idFormat, issue?.customId)
+                : null
+        }
+
         return Response.json(response);
     } catch (error: any) {
         return errorHandler(error);

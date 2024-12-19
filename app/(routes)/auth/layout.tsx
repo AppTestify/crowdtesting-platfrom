@@ -20,11 +20,11 @@ export default function AuthLayout({
             case "/auth/sign-up":
                 return "/assets/images/hand.jpg";
             case "/auth/tester-sign-up":
-                return "/assets/images/Office.png";
+                return "/assets/images/hand.jpg";
             case "/auth/forgot-password":
                 return "/assets/images/map-2.png";
             default:
-                return "/assets/images/Office.png";
+                return "/assets/images/hand.jpg";
         }
     })();
 

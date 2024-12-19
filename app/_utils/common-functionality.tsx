@@ -20,8 +20,8 @@ export const displayIcon = (priority: string) => {
 
 export const statusBadge = (status: string | undefined) => {
     switch (status) {
-        case IssueStatus.NEW:
-            return <Badge className="bg-gray-400 hover:bg-gray-400 font-medium">{IssueStatus?.NEW}</Badge>;
+        case IssueStatus.REPORTED:
+            return <Badge className="bg-gray-400 hover:bg-gray-400 font-medium">{IssueStatus?.REPORTED}</Badge>;
         case IssueStatus.FIXED:
             return <Badge className="bg-primary hover:bg-primary font-medium">{IssueStatus?.FIXED}</Badge>;
         case IssueStatus.DUPLICATE:

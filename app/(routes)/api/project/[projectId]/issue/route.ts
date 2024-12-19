@@ -49,7 +49,9 @@ export async function POST(
       description: body.get("description"),
       projectId: body.get("projectId"),
       status: body.get("status"),
-      device: body.getAll("device[]")
+      device: body.getAll("device[]"),
+      issueType: body.get("issueType"),
+      testCycle: body.get("testCycle")
     };
     const response = issueSchema.safeParse(formData);
 

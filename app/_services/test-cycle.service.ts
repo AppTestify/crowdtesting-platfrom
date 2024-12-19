@@ -91,3 +91,14 @@ export const getTestCycleListService = async (projectId: string):
         throw error;
     }
 };
+
+export const getTestCycleWithoutPaginationService = async (projectId: string):
+    Promise<any> => {
+    try {
+        const response = await genericGet(`${TEST_CYCLE_ENPOINT(projectId)}/without-pagination`);
+        return response || [];
+    } catch (error) {
+        console.error(`Error > getTestCycleWithoutPaginationService:`, error);
+        throw error;
+    }
+};

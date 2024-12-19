@@ -28,7 +28,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { addIssueService } from "@/app/_services/issue.service";
 import {
@@ -40,6 +40,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  ISSUE_TYPE_LIST,
   IssueStatus,
   PRIORITY_LIST,
   SEVERITY_LIST,
@@ -54,6 +55,8 @@ import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { DocumentName } from "@/app/_components/document-name";
 import { getDevicesWithoutPaginationService } from "@/app/_services/device.service";
 import { IDevice } from "@/app/_interface/device";
+import { getTestCycleWithoutPaginationService } from "@/app/_services/test-cycle.service";
+import { ITestCycle } from "@/app/_interface/test-cycle";
 
 const projectSchema = z.object({
   title: z.string().min(1, "Required"),
@@ -62,12 +65,14 @@ const projectSchema = z.object({
   description: z.string().min(1, "Required"),
   status: z.string().optional(),
   projectId: z.string().optional(),
+  issueType: z.string().min(1, 'Required'),
   attachments: z
     .array(z.instanceof(File))
     .optional(),
   device: z
     .array(z.string())
-    .min(1, "Required")
+    .min(1, "Required"),
+  testCycle: z.string().min(1, 'Required')
 });
 
 export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
@@ -88,6 +93,7 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
   const [attachments, setAttachments] = useState<File[]>([]);
   const [devices, setDevices] = useState<IDevice[]>([]);
   const [isViewLoading, setIsViewLoading] = useState<boolean>(false);
+  const [testCycles, setTestCycles] = useState<ITestCycle[]>([]);
 
   const form = useForm<z.infer<typeof projectSchema>>({
     resolver: zodResolver(projectSchema),
@@ -96,10 +102,12 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
       severity: "",
       priority: "",
       description: "",
-      status: IssueStatus.NEW,
+      status: IssueStatus.REPORTED,
       projectId: projectId,
+      issueType: "",
       attachments: [],
-      device: []
+      device: [],
+      testCycle: ""
     },
   });
 
@@ -168,6 +176,20 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
     }
   };
 
+  const getTestCycle = async () => {
+    setIsViewLoading(true);
+    try {
+      const response = await getTestCycleWithoutPaginationService(projectId);
+      if (response) {
+        setTestCycles(response);
+      }
+    } catch (error) {
+      toasterService.error();
+    } finally {
+      setIsViewLoading(false);
+    }
+  }
+
   useEffect(() => {
     if (!sheetOpen) {
       setAttachments([]);
@@ -177,6 +199,7 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
 
   useEffect(() => {
     if (sheetOpen) {
+      getTestCycle();
       getDevices();
     }
   }, [sheetOpen]);
@@ -278,7 +301,7 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
                 />
               </div>
 
-              <div className="grid grid-cols-1 gap-2 mt-3">
+              <div className="grid grid-cols-2 gap-2 mt-3">
                 <FormField
                   control={form.control}
                   name="device"
@@ -320,6 +343,66 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
                               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                             </div>
                           )}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="issueType"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Issue type</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            {ISSUE_TYPE_LIST.map((issueType) => (
+                              <SelectItem value={issueType}>
+                                <div className="flex items-center">
+                                  {issueType}
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 gap-2 mt-4">
+                <FormField
+                  control={form.control}
+                  name="testCycle"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Test suite</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            {testCycles.map((testCycle) => (
+                              <SelectItem key={testCycle._id} value={testCycle._id as string}>
+                                {testCycle.title}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -428,6 +511,6 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
         </div>
 
       </SheetContent>
-    </Sheet>
+    </Sheet >
   );
 }

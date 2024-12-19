@@ -29,6 +29,8 @@ export const addIssueService = async (
   try {
     const formData = new FormData();
     formData.append("title", body?.title);
+    formData.append("testCycle", body?.testCycle);
+    formData.append("issueType", body?.issueType);
     formData.append("severity", body?.severity);
     formData.append("priority", body?.priority);
     formData.append("description", body?.description || "");

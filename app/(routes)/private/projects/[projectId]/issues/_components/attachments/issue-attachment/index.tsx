@@ -128,7 +128,7 @@ export default function IssueAttachments({ issueId, isUpdate, isView, setAttachm
   };
 
   return (
-    <div className="mt-4">
+    <div className="mt-3 mb-2">
       <div className="flex w-full items-center gap-2">
         {!isView ?
           <>

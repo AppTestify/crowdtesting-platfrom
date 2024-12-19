@@ -13,15 +13,19 @@ export interface IIssue {
   device: IDevice[];
   createdAt?: string;
   customId?: string;
+  issueType?: string;
+  testCycle: string;
 }
 
 export interface IIssuePayload {
+  testCycle: string;
   title: string;
   severity: string;
   priority: string;
   description?: string;
   status?: string;
   projectId?: string;
+  issueType: string;
   attachments?: File[];
   device: string[];
   id?: string;
