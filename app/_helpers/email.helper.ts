@@ -28,7 +28,7 @@ class EmailService {
     subject,
     body,
     cc = "",
-    bcc,
+    bcc = "",
   }: EmailOptions): Promise<void> {
     try {
       cc = ` ${cc}`; // xshivangchauhanx@gmail.com

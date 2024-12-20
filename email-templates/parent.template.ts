@@ -1,5 +1,10 @@
-export const WELCOME_CLIENT_MESSAGE_TEMPLATE = ` 
-<style media="all" type="text/css">
+export const PARENT_EMAIL_TEMPLATE = `<!doctype html>
+<html lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Simple Transactional Email</title>
+    <style media="all" type="text/css">
     /* -------------------------------------
     GLOBAL RESETS
 ------------------------------------- */
@@ -291,26 +296,37 @@ export const WELCOME_CLIENT_MESSAGE_TEMPLATE = `
       }
     }
     </style>
-    <div class="container"> 
-        <h1>Hi <span class="highlight">{name}</span>,</h1> 
-        <p>Congratulations on joining AppTestify - the ultimate platform to elevate your software quality! We're thrilled to have you on board and can't wait to help you bring your vision to life.</p> 
-
-        <p>Here's what awaits you:</p> 
-        <ul> 
-            <li>✅ Effortless Project Setup - Create projects, define goals, and assign test cycles in just a few clicks.</li> 
-            <li>✅ Expert Testers at Your Fingertips - Access a network of skilled professionals who ensure comprehensive coverage.</li> 
-            <li>✅ Data-Driven Insights - Stay on top of progress with detailed dashboards and real-time defect tracking.</li> 
-        </ul> 
-
-        <p>💡 Ready to Get Started?</p> 
-        <p>Log in now and create your first project today:</p> 
-        <a href="{link}" class="button">Log in to AppTestify</a> 
-
-        <p>📚 Need assistance? Write to <a href="mailto:contact@appTestify.com">contact@appTestify.com</a>.</p> 
-
-        <p>Let's work together to create software that's flawless and user-friendly. We're here every step of the way!</p> 
-
-        <p>Cheers to a successful testing journey,</p> 
-        <p class="highlight">The AppTestify Team</p> 
-    </div>  
-`;
+  </head>
+  <body>
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="body">
+      <tr>
+        <td>&nbsp;</td>
+        <td class="container">
+            <!-- START HEADER -->
+                <div class="header">
+                <img src="https://platform.apptestify.com/assets/images/logo.png" alt="AppTestify Logo" />
+                </div>
+            <!-- END HEADER -->
+          <div class="content">
+            <!-- START CENTERED WHITE CONTAINER -->
+            <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="main">
+              <!-- START MAIN CONTENT AREA -->
+              <tr>
+                <td class="wrapper">
+                   {mainContent}
+                </td>
+              </tr>
+              <!-- END MAIN CONTENT AREA -->
+            </table>
+            </div>
+            <!-- START FOOTER -->
+            <div class="footer">
+            Footer content goes here
+            </div>
+            <!-- END FOOTER -->
+        </td>
+        <td>&nbsp;</td>
+      </tr>
+    </table>
+  </body>
+</html>`;

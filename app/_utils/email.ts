@@ -2,7 +2,11 @@ import { ACTIVATE_ACOUNT_LINK_TEMPLATE } from "@/email-templates/activate-accoun
 import EmailService from "../_helpers/email.helper";
 import { EmailSubjects } from "../_constants/email-subject";
 import { generateVerificationLink } from "./common-server-side";
-import { IClientWelcomePayload, INewUser, IUserCredentialsEmail } from "../_interface/user";
+import {
+  IClientWelcomePayload,
+  INewUser,
+  IUserCredentialsEmail,
+} from "../_interface/user";
 import { SEND_CREDENTIALS_TEMPLATE } from "@/email-templates/send-credentials.template";
 import { IForgotPasswordPayload } from "../_interface/auth";
 import { FORGOT_PASSWORD_TEMPLATE } from "@/email-templates/forgot-password.template";
@@ -11,6 +15,7 @@ import { DOCUMENT_APPROVAL_TEMPLATE } from "@/email-templates/document-approval.
 import { IDocumentApprovalPayload } from "../_interface/document";
 import { WELCOME_CLIENT_MESSAGE_TEMPLATE } from "@/email-templates/welcome-client.template";
 import { WELCOME_TESTER_MESSAGE_TEMPLATE } from "@/email-templates/welcome-tester.template";
+import { PARENT_EMAIL_TEMPLATE } from "@/email-templates/parent.template";
 
 interface IReplaceTemplateTags {
   tagValuesObject: any;
@@ -46,6 +51,13 @@ export const replaceEmailTemplateTagsInternalService = (
   }
 };
 
+export const prepareEmailTemplate = (mainContent: string) => {
+  return replaceEmailTemplateTagsInternalService({
+    emailBody: PARENT_EMAIL_TEMPLATE,
+    tagValuesObject: { mainContent },
+  });
+};
+
 export const sendVerificationEmail = async (user: any) => {
   const emailService = new EmailService();
 
@@ -72,10 +84,10 @@ export const sendCredentialsEmail = async (
     subject: EmailSubjects.SEND_CREDENTIALS,
     body: replaceEmailTemplateTagsInternalService({
       emailBody: SEND_CREDENTIALS_TEMPLATE,
-      tagValuesObject: templateTags
+      tagValuesObject: templateTags,
     }),
   });
-}
+};
 
 export const sendSignUpEmailToAdmin = async (
   templateTags: INewUser,
@@ -102,10 +114,10 @@ export const sendForgotPasswordLink = async (
     subject: EmailSubjects.FORGOT_PASSWORD,
     body: replaceEmailTemplateTagsInternalService({
       emailBody: FORGOT_PASSWORD_TEMPLATE,
-      tagValuesObject: templateTags
+      tagValuesObject: templateTags,
     }),
   });
-}
+};
 
 export const sendDocumentApprovalMail = async (
   templateTags: IDocumentApprovalPayload
@@ -116,10 +128,10 @@ export const sendDocumentApprovalMail = async (
     subject: EmailSubjects.DOCUMENT_APPROVAL,
     body: replaceEmailTemplateTagsInternalService({
       emailBody: DOCUMENT_APPROVAL_TEMPLATE,
-      tagValuesObject: templateTags
+      tagValuesObject: templateTags,
     }),
   });
-}
+};
 
 export const welcomeClientMail = async (
   templateTags: IClientWelcomePayload
@@ -129,11 +141,11 @@ export const welcomeClientMail = async (
     to: templateTags?.email,
     subject: EmailSubjects.CLIENT_SIGN_UP,
     body: replaceEmailTemplateTagsInternalService({
-      emailBody: WELCOME_CLIENT_MESSAGE_TEMPLATE,
-      tagValuesObject: templateTags
+      emailBody: prepareEmailTemplate(WELCOME_CLIENT_MESSAGE_TEMPLATE),
+      tagValuesObject: templateTags,
     }),
   });
-}
+};
 
 export const welcomeTesterMail = async (
   templateTags: IClientWelcomePayload
@@ -143,8 +155,8 @@ export const welcomeTesterMail = async (
     to: templateTags?.email,
     subject: EmailSubjects.TESTER_SIGN_UP,
     body: replaceEmailTemplateTagsInternalService({
-      emailBody: WELCOME_TESTER_MESSAGE_TEMPLATE,
-      tagValuesObject: templateTags
+      emailBody: prepareEmailTemplate(WELCOME_TESTER_MESSAGE_TEMPLATE),
+      tagValuesObject: templateTags,
     }),
   });
-}
+};
