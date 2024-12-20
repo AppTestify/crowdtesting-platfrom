@@ -84,7 +84,7 @@ export async function GET(req: Request) {
             );
         }
 
-        const response = await Website.findOne({ userId: session.user._id }).lean();
+        const response = await Website.find({}).lean();
 
         return Response.json(response);
     } catch (error: any) {

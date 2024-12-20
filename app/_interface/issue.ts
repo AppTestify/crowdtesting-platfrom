@@ -1,4 +1,5 @@
 import { IDevice } from "./device";
+import { ITestCycle } from "./test-cycle";
 import { IUserByAdmin } from "./user";
 
 export interface IIssue {
@@ -15,6 +16,22 @@ export interface IIssue {
   customId?: string;
   issueType?: string;
   testCycle: string;
+}
+
+export interface IIssueView {
+  id: string;
+  title: string;
+  severity: string;
+  priority: string;
+  projectId: string;
+  description?: string;
+  status?: string;
+  userId?: IUserByAdmin;
+  device: IDevice[];
+  createdAt?: string;
+  customId?: string;
+  issueType?: string;
+  testCycle: ITestCycle;
 }
 
 export interface IIssuePayload {

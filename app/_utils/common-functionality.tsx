@@ -1,9 +1,10 @@
-import { ChevronDown, ChevronUp, Equal } from "lucide-react";
+import { ChevronDown, ChevronUp, Equal, FileSpreadsheet } from "lucide-react";
 import { IssueStatus, Priority } from "../_constants/issue";
 import { Badge } from "@/components/ui/badge";
 import { UserRoles } from "../_constants/user-roles";
 import { ProjectUserRoles } from "../_constants/project-user-roles";
 import { TestCaseExecutionResult } from "../_constants/test-case";
+import { Button } from "@/components/ui/button";
 
 export const displayIcon = (priority: string) => {
     switch (priority) {
@@ -90,4 +91,17 @@ export const showTestCaseResultStatusBadge = (role: string) => {
         default:
             return null;
     }
+}
+
+export const ExportExcelFile = (excel: () => void) => {
+    return (
+        <Button
+            type={"button"}
+            variant={"outline"}
+            // size="icon"
+            onClick={excel}
+        >
+            <FileSpreadsheet /> Export
+        </Button>
+    )
 }

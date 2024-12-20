@@ -146,14 +146,14 @@ export async function GET(
           .sort({ createdAt: -1 })
           .skip(skip)
           .limit(Number(limit))
-          .populate("device")
+          .populate("device testCycle")
           .lean(),
         userIdFormat.idFormat
       );
     } else {
       response = addCustomIds(
         await Issue.find({ projectId: projectId })
-          .populate("userId")
+          .populate("userId testCycle")
           .sort({ createdAt: -1 })
           .skip(skip)
           .limit(Number(limit))

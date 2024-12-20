@@ -13,8 +13,7 @@ export const WELCOME_TESTER_MESSAGE_TEMPLATE = `
             padding: 0; 
         } 
         .container { 
-            background-color: #ffffff; 
-            padding: 30px; 
+            padding: 2px; 
             margin: 50px auto; 
             max-width: 600px; 
             border-radius: 8px; 
@@ -23,7 +22,7 @@ export const WELCOME_TESTER_MESSAGE_TEMPLATE = `
         h1 { 
             color: #333; 
             font-size: 24px; 
-            margin-bottom: 20px; 
+            margin-bottom: 10px; 
         } 
         p { 
             color: #666; 
@@ -63,10 +62,13 @@ export const WELCOME_TESTER_MESSAGE_TEMPLATE = `
             color: #4CAF50; 
             text-decoration: none; 
         } 
+            a {
+            margin-bottom: 10px;
+            }
     </style> 
 </head> 
 <body> 
-    <div class="container"> 
+    <div> 
         <h1>Hi <span class="highlight">{name}</span>,</h1> 
         <p>🎉 You've just taken the first step toward a rewarding testing journey - welcome to AppTestify!</p> 
 
@@ -75,10 +77,10 @@ export const WELCOME_TESTER_MESSAGE_TEMPLATE = `
             <li>🌟 Exciting Projects - Work with top clients and test cutting-edge apps across industries.</li> 
             <li>💵 Earn as You Test - Get rewarded for your expertise in identifying bugs and validating features.</li> 
             <li>📈 Grow Your Career - Sharpen your skills in functional, UI, performance, and security testing.</li> 
+            <li >🔓 Your Dashboard is Waiting!</li> 
+            <li>Log in now to explore available projects and start testing today:</li> 
         </ul> 
 
-        <p>🔓 Your Dashboard is Waiting!</p> 
-        <p>Log in now to explore available projects and start testing today:</p> 
         <a href="{link}" class="button">Log in to AppTestify</a> 
 
         <p>👩💻 Need help? Reach out at <a href="mailto:contact@appTestify.com">contact@appTestify.com</a>.</p> 

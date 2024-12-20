@@ -7,7 +7,7 @@ export const PARENT_EMAIL_TEMPLATE = `<!doctype html>
     <style media="all" type="text/css">
     /* -------------------------------------
     GLOBAL RESETS
-------------------------------------- */
+    ------------------------------------- */
     
     body {
       font-family: Helvetica, sans-serif;
@@ -32,7 +32,7 @@ export const PARENT_EMAIL_TEMPLATE = `<!doctype html>
     }
     /* -------------------------------------
     BODY & CONTAINER
-------------------------------------- */
+    ------------------------------------- */
     
     body {
       background-color: #f4f5f6;
@@ -60,10 +60,19 @@ export const PARENT_EMAIL_TEMPLATE = `<!doctype html>
       max-width: 600px;
       padding: 0;
     }
+
+    .logo {
+      width: 150px;
+      height: auto;
+    }
     /* -------------------------------------
     HEADER, FOOTER, MAIN
-------------------------------------- */
-    
+    ------------------------------------- */
+
+    .header {
+    margin-top: 24px;
+    }
+        
     .main {
       background: #ffffff;
       border: 1px solid #eaebed;
@@ -78,9 +87,10 @@ export const PARENT_EMAIL_TEMPLATE = `<!doctype html>
     
     .footer {
       clear: both;
-      padding-top: 24px;
+      padding-top: 15px;
       text-align: center;
       width: 100%;
+      margin-bottom: 10px;
     }
     
     .footer td,
@@ -93,7 +103,7 @@ export const PARENT_EMAIL_TEMPLATE = `<!doctype html>
     }
     /* -------------------------------------
     TYPOGRAPHY
-------------------------------------- */
+    ------------------------------------- */
     
     p {
       font-family: Helvetica, sans-serif;
@@ -109,7 +119,7 @@ export const PARENT_EMAIL_TEMPLATE = `<!doctype html>
     }
     /* -------------------------------------
     BUTTONS
-------------------------------------- */
+    ------------------------------------- */
     
     .btn {
       box-sizing: border-box;
@@ -170,7 +180,7 @@ export const PARENT_EMAIL_TEMPLATE = `<!doctype html>
     
     /* -------------------------------------
     OTHER STYLES THAT MIGHT BE USEFUL
-------------------------------------- */
+    ------------------------------------- */
     
     .last {
       margin-bottom: 0;
@@ -228,24 +238,21 @@ export const PARENT_EMAIL_TEMPLATE = `<!doctype html>
     
     /* -------------------------------------
     RESPONSIVE AND MOBILE FRIENDLY STYLES
-------------------------------------- */
+    ------------------------------------- */
     
     @media only screen and (max-width: 640px) {
       .main p,
       .main td,
       .main span {
-        font-size: 16px !important;
+        font-size: 14px !important; /* Reduce text size for better readability */
+        line-height: 1.5 !important; /* Improve text clarity */
       }
       .wrapper {
-        padding: 8px !important;
-      }
-      .content {
-        padding: 0 !important;
+        padding: 12px !important; /* Increase padding for better spacing */
       }
       .container {
-        padding: 0 !important;
-        padding-top: 8px !important;
-        width: 100% !important;
+        padding: 8px !important;
+        padding-top: 16px !important; /* Adjust padding for better layout on mobile */
       }
       .main {
         border-left-width: 0 !important;
@@ -257,14 +264,25 @@ export const PARENT_EMAIL_TEMPLATE = `<!doctype html>
         width: 100% !important;
       }
       .btn a {
-        font-size: 16px !important;
-        max-width: 100% !important;
+        font-size: 14px !important; /* Adjust button text size */
+        padding: 12px 16px !important; /* Adjust button padding for touch targets */
         width: 100% !important;
+      }
+      .logo {
+        max-width: 100%;
+        height: auto;
+      }
+      .footer {
+        padding-top: 16px;
+      }
+      .footer td,
+      .footer p {
+        font-size: 14px !important; /* Smaller footer text */
       }
     }
     /* -------------------------------------
     PRESERVE THESE STYLES IN THE HEAD
-------------------------------------- */
+    ------------------------------------- */
     
     @media all {
       .ExternalClass {
@@ -304,7 +322,7 @@ export const PARENT_EMAIL_TEMPLATE = `<!doctype html>
         <td class="container">
             <!-- START HEADER -->
                 <div class="header">
-                <img src="https://platform.apptestify.com/assets/images/logo.png" alt="AppTestify Logo" />
+                <img class="logo" src="https://platform.apptestify.com/assets/images/logo.png" alt="AppTestify Logo" />
                 </div>
             <!-- END HEADER -->
           <div class="content">
@@ -321,7 +339,7 @@ export const PARENT_EMAIL_TEMPLATE = `<!doctype html>
             </div>
             <!-- START FOOTER -->
             <div class="footer">
-            Footer content goes here
+              &copy; 2024 Crowd Testing. All Rights Reserved.
             </div>
             <!-- END FOOTER -->
         </td>
@@ -329,4 +347,5 @@ export const PARENT_EMAIL_TEMPLATE = `<!doctype html>
       </tr>
     </table>
   </body>
-</html>`;
+</html>
+`;

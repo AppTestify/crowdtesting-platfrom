@@ -79,7 +79,7 @@ export async function POST(req: Request) {
       if (existingUser?.role === UserRoles.CLIENT) {
         welcomeClientMail({
           email: existingUser.email,
-          name: existingUser.name,
+          name: `${existingUser.firstName} ${existingUser.lastName}`,
           link: `${process.env.URL}/auth/sign-in`,
         })
       } else if (existingUser?.role === UserRoles.TESTER) {

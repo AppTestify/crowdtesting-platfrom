@@ -1,297 +1,74 @@
 export const WELCOME_CLIENT_MESSAGE_TEMPLATE = ` 
-<style media="all" type="text/css">
-    /* -------------------------------------
-    GLOBAL RESETS
-------------------------------------- */
-    
-    body {
-      font-family: Helvetica, sans-serif;
-      -webkit-font-smoothing: antialiased;
-      font-size: 16px;
-      line-height: 1.3;
-      -ms-text-size-adjust: 100%;
-      -webkit-text-size-adjust: 100%;
-    }
-    
-    table {
-      border-collapse: separate;
-      mso-table-lspace: 0pt;
-      mso-table-rspace: 0pt;
-      width: 100%;
-    }
-    
-    table td {
-      font-family: Helvetica, sans-serif;
-      font-size: 16px;
-      vertical-align: top;
-    }
-    /* -------------------------------------
-    BODY & CONTAINER
-------------------------------------- */
-    
-    body {
-      background-color: #f4f5f6;
-      margin: 0;
-      padding: 0;
-    }
-    
-    .body {
-      background-color: #f4f5f6;
-      width: 100%;
-    }
-    
-    .container {
-      margin: 0 auto !important;
-      max-width: 600px;
-      padding: 0;
-      padding-top: 24px;
-      width: 600px;
-    }
-    
-    .content {
-      box-sizing: border-box;
-      display: block;
-      margin: 0 auto;
-      max-width: 600px;
-      padding: 0;
-    }
-    /* -------------------------------------
-    HEADER, FOOTER, MAIN
-------------------------------------- */
-    
-    .main {
-      background: #ffffff;
-      border: 1px solid #eaebed;
-      border-radius: 16px;
-      width: 100%;
-    }
-    
-    .wrapper {
-      box-sizing: border-box;
-      padding: 24px;
-    }
-    
-    .footer {
-      clear: both;
-      padding-top: 24px;
-      text-align: center;
-      width: 100%;
-    }
-    
-    .footer td,
-    .footer p,
-    .footer span,
-    .footer a {
-      color: #9a9ea6;
-      font-size: 16px;
-      text-align: center;
-    }
-    /* -------------------------------------
-    TYPOGRAPHY
-------------------------------------- */
-    
-    p {
-      font-family: Helvetica, sans-serif;
-      font-size: 16px;
-      font-weight: normal;
-      margin: 0;
-      margin-bottom: 16px;
-    }
-    
-    a {
-      color: #439D43;
-      text-decoration: underline;
-    }
-    /* -------------------------------------
-    BUTTONS
-------------------------------------- */
-    
-    .btn {
-      box-sizing: border-box;
-      min-width: 100% !important;
-      width: 100%;
-    }
-    
-    .btn > tbody > tr > td {
-      padding-bottom: 16px;
-    }
-    
-    .btn table {
-      width: auto;
-    }
-    
-    .btn table td {
-      background-color: #ffffff;
-      border-radius: 4px;
-      text-align: center;
-    }
-    
-    .btn a {
-      background-color: #ffffff;
-      border: solid 2px #439D43;
-      border-radius: 4px;
-      box-sizing: border-box;
-      color: #439D43;
-      cursor: pointer;
-      display: inline-block;
-      font-size: 16px;
-      font-weight: bold;
-      margin: 0;
-      padding: 0.5rem 1rem;
-      text-decoration: none;
-      text-transform: capitalize;
-    }
-    
-    .btn-primary table td {
-      background-color: #439D43;
-    }
-    
-    .btn-primary a {
-      background-color: #439D43;
-      border-color: #439D43;
-      color: #ffffff;
-      cursor: pointer;
-    }
-    
-    @media all {
-      .btn-primary table td:hover {
-        background-color: #419641 !important;
-      }
-      .btn-primary a:hover {
-        background-color: #419641 !important;
-        border-color: #419641 !important;
-      }
-    }
-    
-    /* -------------------------------------
-    OTHER STYLES THAT MIGHT BE USEFUL
-------------------------------------- */
-    
-    .last {
-      margin-bottom: 0;
-    }
-    
-    .first {
-      margin-top: 0;
-    }
-    
-    .align-center {
-      text-align: center;
-    }
-    
-    .align-right {
-      text-align: right;
-    }
-    
-    .align-left {
-      text-align: left;
-    }
-    
-    .text-link {
-      color: #439D43 !important;
-      text-decoration: underline !important;
-    }
-    
-    .clear {
-      clear: both;
-    }
-    
-    .mt0 {
-      margin-top: 0;
-    }
-    
-    .mb0 {
-      margin-bottom: 0;
-    }
-    
-    .preheader {
-      color: transparent;
-      display: none;
-      height: 0;
-      max-height: 0;
-      max-width: 0;
-      opacity: 0;
-      overflow: hidden;
-      mso-hide: all;
-      visibility: hidden;
-      width: 0;
-    }
-    
-    .powered-by a {
-      text-decoration: none;
-    }
-    
-    /* -------------------------------------
-    RESPONSIVE AND MOBILE FRIENDLY STYLES
-------------------------------------- */
-    
-    @media only screen and (max-width: 640px) {
-      .main p,
-      .main td,
-      .main span {
-        font-size: 16px !important;
-      }
-      .wrapper {
-        padding: 8px !important;
-      }
-      .content {
-        padding: 0 !important;
-      }
-      .container {
-        padding: 0 !important;
-        padding-top: 8px !important;
-        width: 100% !important;
-      }
-      .main {
-        border-left-width: 0 !important;
-        border-radius: 0 !important;
-        border-right-width: 0 !important;
-      }
-      .btn table {
-        max-width: 100% !important;
-        width: 100% !important;
-      }
-      .btn a {
-        font-size: 16px !important;
-        max-width: 100% !important;
-        width: 100% !important;
-      }
-    }
-    /* -------------------------------------
-    PRESERVE THESE STYLES IN THE HEAD
-------------------------------------- */
-    
-    @media all {
-      .ExternalClass {
-        width: 100%;
-      }
-      .ExternalClass,
-      .ExternalClass p,
-      .ExternalClass span,
-      .ExternalClass font,
-      .ExternalClass td,
-      .ExternalClass div {
-        line-height: 100%;
-      }
-      .apple-link a {
-        color: inherit !important;
-        font-family: inherit !important;
-        font-size: inherit !important;
-        font-weight: inherit !important;
-        line-height: inherit !important;
-        text-decoration: none !important;
-      }
-      #MessageViewBody a {
-        color: inherit;
-        text-decoration: none;
-        font-size: inherit;
-        font-family: inherit;
-        font-weight: inherit;
-        line-height: inherit;
-      }
-    }
-    </style>
-    <div class="container"> 
+<!DOCTYPE html> 
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>Welcome to AppTestify</title> 
+<style> 
+        body { 
+            font-family: Arial, sans-serif; 
+            background-color: #f4f7fc; 
+            margin: 0; 
+            padding: 0; 
+        } 
+        .container { 
+            padding: 2px; 
+            margin: 50px auto; 
+            max-width: 600px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+        } 
+        h1 { 
+            color: #333; 
+            font-size: 24px; 
+            margin-bottom: 10px; 
+        } 
+        p { 
+            color: #666; 
+            font-size: 16px; 
+            line-height: 1.6; 
+        } 
+        ul { 
+            color: #666; 
+            font-size: 16px; 
+            line-height: 1.6; 
+            padding-left: 20px; 
+        } 
+        .highlight { 
+            color: #4CAF50; 
+            font-weight: bold; 
+        } 
+        .button { 
+            display: inline-block; 
+            padding: 12px 25px; 
+            background-color: #4CAF50; 
+            color: white !important; 
+            text-decoration: none; 
+            border-radius: 4px; 
+            font-size: 16px; 
+            margin-top: 20px; 
+        } 
+        .button:hover { 
+            background-color: #45a049; 
+        } 
+        .footer { 
+            margin-top: 30px; 
+            font-size: 12px; 
+            text-align: center; 
+            color: #999; 
+        } 
+        .footer a { 
+            color: #4CAF50; 
+            text-decoration: none; 
+        } 
+            a {
+            margin-bottom: 10px;
+            }
+    </style> 
+    </head> 
+    <body>
+    <div> 
         <h1>Hi <span class="highlight">{name}</span>,</h1> 
         <p>Congratulations on joining AppTestify - the ultimate platform to elevate your software quality! We're thrilled to have you on board and can't wait to help you bring your vision to life.</p> 
 
@@ -313,4 +90,6 @@ export const WELCOME_CLIENT_MESSAGE_TEMPLATE = `
         <p>Cheers to a successful testing journey,</p> 
         <p class="highlight">The AppTestify Team</p> 
     </div>  
+    </body> 
+</html>
 `;

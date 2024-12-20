@@ -23,12 +23,12 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { getIssuesService } from "@/app/_services/issue.service";
-import { IIssue } from "@/app/_interface/issue";
+import { IIssue, IIssueView } from "@/app/_interface/issue";
 import { AddIssue } from "./_components/add-issue";
 import { IssueRowActions } from "./_components/row-actions";
 import { useParams } from "next/navigation";
-import { displayIcon, statusBadge } from "@/app/_utils/common-functionality";
-import { ArrowUpDown } from "lucide-react";
+import { displayIcon, ExportExcelFile, statusBadge } from "@/app/_utils/common-functionality";
+import { ArrowUpDown, FileSpreadsheet, FileText } from "lucide-react";
 import { PAGINATION_LIMIT } from "@/app/_utils/common";
 import ViewIssue from "./_components/view-issue";
 import { useSession } from "next-auth/react";
@@ -37,14 +37,15 @@ import toasterService from "@/app/_services/toaster-service";
 import { getProjectService } from "@/app/_services/project.service";
 import { IProject } from "@/app/_interface/project";
 import Link from "next/link";
+import { generateExcelFile } from "@/app/_helpers/generate-excel.helper";
 
 export default function Issues() {
-  const [issues, setIssues] = useState<IIssue[]>([]);
+  const [issues, setIssues] = useState<IIssueView[]>([]);
   const [userData, setUserData] = useState<any>();
   const [project, setProject] = useState<IProject>();
   const { projectId } = useParams<{ projectId: string }>();
 
-  const columns: ColumnDef<IIssue>[] = [
+  const columns: ColumnDef<IIssueView>[] = [
     {
       accessorKey: "customId",
       header: ({ column }) => {
@@ -267,6 +268,22 @@ export default function Issues() {
     }
   };
 
+  const generateExcel = () => {
+    const header = ["ID", "Title", "Severity", "Priority", "issueType", "testCycle", "Device Name", "Created By", "Status"];
+    const data = table.getRowModel().rows?.map((row) => [
+      row.original.customId,
+      row.original.title,
+      row.original.severity,
+      row.original.priority,
+      row.original.issueType,
+      row.original.testCycle?.title || "",
+      row.original.device?.[0]?.name || "",
+      `${row.original.userId?.firstName} ${row.original.userId?.lastName}` || "",
+      row.original.status,
+    ]);
+    generateExcelFile(header, data, "Issues.xlsx");
+  }
+
   return (
     <main className="mx-4 mt-2">
       <ViewIssue
@@ -292,6 +309,9 @@ export default function Issues() {
           />
           {userData?.role !== UserRoles.CLIENT &&
             <div className="flex gap-2 ml-2">
+              <div>
+                {ExportExcelFile(generateExcel)}
+              </div>
               <AddIssue refreshIssues={refreshIssues} />
             </div>
           }
