@@ -126,10 +126,6 @@ export function AddDevice({
       <SheetContent className="w-full !max-w-full md:w-[550px] md:!max-w-[550px] overflow-y-auto">
         <SheetHeader>
           <SheetTitle className="text-left">Add new device</SheetTitle>
-          <SheetDescription className="text-left">
-            Expand your device inventory! The more devices you add, the greater
-            your chances of receiving project recommendations.
-          </SheetDescription>
         </SheetHeader>
         <div className="mt-4">
           <Form {...form}>

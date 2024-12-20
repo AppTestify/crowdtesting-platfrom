@@ -57,3 +57,15 @@ export interface INewUser {
   role: string;
   email: string;
 }
+
+export interface IClientWelcomePayload {
+  name: string,
+  email: string,
+  link: string
+}
+
+export interface ITesterWelcomePayload {
+  name: string,
+  email: string,
+  link: string
+}

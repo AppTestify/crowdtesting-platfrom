@@ -12,10 +12,6 @@ export default function AdminProfile({ user }: { user: any }) {
         <>
             <div className="border-b pb-3">
                 <h2 className="font-medium text-xl text-primary">Profile Overview</h2>
-                <span className="text-xs text-gray-600">
-                    Your profile information helps us recommend projects and tailor
-                    resources to support your development.
-                </span>
             </div>
             <div className="my-4">
                 <EditProfilePicture user={user} />

@@ -14,9 +14,10 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Row } from "@tanstack/react-table";
-import { Edit, MoreHorizontal, Trash } from "lucide-react";
+import { Edit, Eye, MoreHorizontal, Trash } from "lucide-react";
 import { useState } from "react";
 import { EditNote } from "../edit-note";
+import ViewNote from "../view-note";
 
 export function NoteRowActions({
     row,
@@ -26,6 +27,7 @@ export function NoteRowActions({
     refreshNotes: () => void;
 }) {
     const [isEditOpen, setIsEditOpen] = useState(false);
+    const [isViewOpen, setIsViewOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const projectId = row.original.projectId as string;
@@ -57,6 +59,12 @@ export function NoteRowActions({
                 refreshNotes={refreshNotes}
             />
 
+            <ViewNote
+                sheetOpen={isViewOpen}
+                setSheetOpen={setIsViewOpen}
+                note={row.original as INote}
+            />
+
             <ConfirmationDialog
                 isOpen={isDeleteOpen}
                 setIsOpen={setIsDeleteOpen}
@@ -77,6 +85,15 @@ export function NoteRowActions({
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                        className="mb-1"
+                        onClick={() => {
+                            setIsViewOpen(true);
+                        }}
+                    >
+                        <Eye className="h-2 w-2" /> View
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator className="border-b" />
                     <DropdownMenuItem
                         className="mb-1"
                         onClick={() => {

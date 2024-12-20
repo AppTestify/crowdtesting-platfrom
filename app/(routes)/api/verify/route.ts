@@ -7,6 +7,7 @@ import {
   USER_NOT_FOUND_ERROR_MESSAGE,
 } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
+import { UserRoles } from "@/app/_constants/user-roles";
 import { connectDatabase } from "@/app/_db";
 import { User } from "@/app/_models/user.model";
 import { accountVerificationSchema } from "@/app/_schemas/auth.schema";
@@ -14,6 +15,7 @@ import {
   checkExpired,
   extractDataFromVerificationToken,
 } from "@/app/_utils/common-server-side";
+import { welcomeClientMail, welcomeTesterMail } from "@/app/_utils/email";
 
 export async function POST(req: Request) {
   try {
@@ -71,7 +73,23 @@ export async function POST(req: Request) {
 
     existingUser.isVerified = true;
     existingUser.isActive = true;
-    existingUser.save();
+    const data = existingUser.save();
+
+    if (data) {
+      if (existingUser?.role === UserRoles.CLIENT) {
+        welcomeClientMail({
+          email: existingUser.email,
+          name: existingUser.name,
+          link: `${process.env.URL}/auth/sign-in`,
+        })
+      } else if (existingUser?.role === UserRoles.TESTER) {
+        welcomeTesterMail({
+          email: existingUser.email,
+          name: `${existingUser.firstName} ${existingUser.lastName}`,
+          link: `${process.env.URL}/auth/sign-in`,
+        })
+      }
+    }
 
     return Response.json({
       message: "Account verified successfully",

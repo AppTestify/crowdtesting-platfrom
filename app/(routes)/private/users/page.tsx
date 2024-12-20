@@ -264,10 +264,6 @@ export default function Users() {
             />
             <div className="">
                 <h2 className="font-medium text-xl text-primary">Users</h2>
-                <span className="text-xs text-gray-600">
-                    Unlock your potential! We'll match your unique skills and experience with projects tailored just for you,
-                    helping you shine in roles that showcase your talents.
-                </span>
             </div>
             <div className="w-full">
                 <div className="flex items-center py-4 justify-between">

@@ -2,13 +2,15 @@ import { ACTIVATE_ACOUNT_LINK_TEMPLATE } from "@/email-templates/activate-accoun
 import EmailService from "../_helpers/email.helper";
 import { EmailSubjects } from "../_constants/email-subject";
 import { generateVerificationLink } from "./common-server-side";
-import { INewUser, IUserCredentialsEmail } from "../_interface/user";
+import { IClientWelcomePayload, INewUser, IUserCredentialsEmail } from "../_interface/user";
 import { SEND_CREDENTIALS_TEMPLATE } from "@/email-templates/send-credentials.template";
 import { IForgotPasswordPayload } from "../_interface/auth";
 import { FORGOT_PASSWORD_TEMPLATE } from "@/email-templates/forgot-password.template";
 import { NEW_USER_ADDED_TEMPLATE } from "@/email-templates/new-user.template";
 import { DOCUMENT_APPROVAL_TEMPLATE } from "@/email-templates/document-approval.template";
 import { IDocumentApprovalPayload } from "../_interface/document";
+import { WELCOME_CLIENT_MESSAGE_TEMPLATE } from "@/email-templates/welcome-client.template";
+import { WELCOME_TESTER_MESSAGE_TEMPLATE } from "@/email-templates/welcome-tester.template";
 
 interface IReplaceTemplateTags {
   tagValuesObject: any;
@@ -114,6 +116,34 @@ export const sendDocumentApprovalMail = async (
     subject: EmailSubjects.DOCUMENT_APPROVAL,
     body: replaceEmailTemplateTagsInternalService({
       emailBody: DOCUMENT_APPROVAL_TEMPLATE,
+      tagValuesObject: templateTags
+    }),
+  });
+}
+
+export const welcomeClientMail = async (
+  templateTags: IClientWelcomePayload
+) => {
+  const emailService = new EmailService();
+  await emailService.sendEmail({
+    to: templateTags?.email,
+    subject: EmailSubjects.CLIENT_SIGN_UP,
+    body: replaceEmailTemplateTagsInternalService({
+      emailBody: WELCOME_CLIENT_MESSAGE_TEMPLATE,
+      tagValuesObject: templateTags
+    }),
+  });
+}
+
+export const welcomeTesterMail = async (
+  templateTags: IClientWelcomePayload
+) => {
+  const emailService = new EmailService();
+  await emailService.sendEmail({
+    to: templateTags?.email,
+    subject: EmailSubjects.TESTER_SIGN_UP,
+    body: replaceEmailTemplateTagsInternalService({
+      emailBody: WELCOME_TESTER_MESSAGE_TEMPLATE,
       tagValuesObject: templateTags
     }),
   });

@@ -247,10 +247,6 @@ export default function Devices() {
       />
       <div>
         <h2 className="font-medium text-xl text-primary">Available Devices</h2>
-        <span className="text-xs text-gray-600">
-          Your devices will help us recommend and assign projects that match
-          your expertise.
-        </span>
       </div>
       <div className="w-full">
         <div className="flex items-center py-4 justify-between">

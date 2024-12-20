@@ -5,6 +5,8 @@ export interface INote {
     title: string;
     projectId: string;
     _id: string;
+    userId: IUserByAdmin;
+    createdAt: string;
 }
 
 export interface INotePayload {

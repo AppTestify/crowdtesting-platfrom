@@ -90,8 +90,8 @@ export function EditTestCycle({
                 <SheetHeader>
                     <SheetTitle className="text-left">Edit test plan</SheetTitle>
                     <SheetDescription className="text-left">
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Beatae laboriosam quas
-                        cum expedita quidem sit qui quaerat, ipsa animi nobis
+                        A series of iterative testing phases, including planning, execution,
+                        and closure, to validate product functionality.
                     </SheetDescription>
                 </SheetHeader>
                 <div className="mt-4">

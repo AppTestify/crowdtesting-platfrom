@@ -81,10 +81,6 @@ export default function Payment({ user }: { user: any }) {
         <div>
           <div className="flex flex-col mb-3 gap-1">
             <span className="text-lg">Payment information</span>
-            <span className="text-gray-500 text-xs">
-              Please fill up the payment information, it will help us with the
-              invocing and future payments with regards to your project.
-            </span>
           </div>
           <div className="flex gap-4 w-full md:w-[600px]">
             <FormField

@@ -35,31 +35,37 @@ import { IProject } from "@/app/_interface/project";
 import { getProjectService } from "@/app/_services/project.service";
 import { UserRoles } from "@/app/_constants/user-roles";
 import { useSession } from "next-auth/react";
+import ViewNote from "./_components/view-note";
 
 export default function TestPlan() {
     const [notes, setNotes] = useState<INotePayload[]>([]);
     const [project, setProject] = useState<IProject>();
     const [userData, setUserData] = useState<any>();
+    const [isViewOpen, setIsViewOpen] = useState(false);
+    const [note, setNote] = useState<INote>();
 
     const columns: ColumnDef<INotePayload>[] = [
         {
             accessorKey: "title",
             header: "Title",
             cell: ({ row }) => (
-                <div className="capitalize hover:text-primary cursor-pointer">
-                    {row.getValue("title")}</div>
+                <div className="capitalize hover:text-primary cursor-pointer"
+                    onClick={() => openView(row.original as INote)}>
+                    {row.getValue("title")}
+                </div>
             ),
         },
         {
             accessorKey: "description",
             header: "Description",
             cell: ({ row }) => (
-                <div className="capitalize"
+                <div
+                    title={row.getValue("descripiton")}
+                    className="capitalize w-40 overflow-hidden text-ellipsis line-clamp-2"
                     dangerouslySetInnerHTML={{
                         __html: row.original?.description || "",
                     }}
-                >
-                </div>
+                />
             ),
         },
         ...(
@@ -92,6 +98,11 @@ export default function TestPlan() {
                 }] : []
         ),
     ];
+
+    const openView = (note: INote) => {
+        setIsViewOpen(true);
+        setNote(note);
+    }
 
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -184,17 +195,18 @@ export default function TestPlan() {
 
     return (
         <main className="mx-4 mt-2">
+            <ViewNote
+                sheetOpen={isViewOpen}
+                setSheetOpen={setIsViewOpen}
+                note={note as INote}
+            />
             <div className="">
-                <h2 className="text-medium">Test cycle</h2>
-                <span className="text-xs text-gray-600">
-                    Lorem ipsum dolor sit, amet consectetur adipisicing elit.
-                    cumque vel nesciunt sunt velit possimus sapiente tempore repudiandae fugit fugiat.
-                </span>
+                <h2 className="text-medium">Notes</h2>
             </div>
             <div className="w-full">
                 <div className="flex py-4 justify-between">
                     <Input
-                        placeholder="Filter test cycle"
+                        placeholder="Filter note"
                         value={(globalFilter as string) ?? ""}
                         onChange={(event) => {
                             table.setGlobalFilter(String(event.target.value));

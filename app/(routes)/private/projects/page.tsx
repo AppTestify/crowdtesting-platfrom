@@ -270,11 +270,6 @@ export default function Projects() {
       />
       <div className="">
         <h2 className="font-medium text-xl text-primary">Projects</h2>
-        <span className="text-xs text-gray-600">
-          Let us harness your expertise! Our system will analyze your skills to
-          connect you with projects that are a perfect fit for your background
-          and talents.
-        </span>
       </div>
       <div className="w-full">
         <div className="flex items-center py-4 justify-between">

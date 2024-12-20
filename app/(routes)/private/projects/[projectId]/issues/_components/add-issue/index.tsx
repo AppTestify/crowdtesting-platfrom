@@ -217,8 +217,7 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
         <SheetHeader>
           <SheetTitle className="text-left">Add new issue</SheetTitle>
           <SheetDescription className="text-left">
-            We are experiencing difficulties with state management across multiple tabs,
-            leading to inconsistent data in certain components.
+            Problems or defects discovered during testing that need resolution before the product is finalized.
           </SheetDescription>
         </SheetHeader>
 

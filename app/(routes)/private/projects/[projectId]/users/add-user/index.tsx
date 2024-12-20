@@ -118,9 +118,6 @@ export function AddProjectUser({ refreshProjectUsers }: { refreshProjectUsers: (
             <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto">
                 <SheetHeader>
                     <SheetTitle className="text-left">Add new user</SheetTitle>
-                    <SheetDescription className="text-left">
-                        Meet the team driving the success of this project with their expertise and dedication.
-                    </SheetDescription>
                 </SheetHeader>
 
                 <div>

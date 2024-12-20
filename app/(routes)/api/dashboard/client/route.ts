@@ -2,9 +2,11 @@ import { DB_CONNECTION_ERROR_MESSAGE, USER_UNAUTHORIZED_SERVER_ERROR_MESSAGE } f
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { IssueStatus, IssueType, Priority, Severity } from "@/app/_constants/issue";
 import { connectDatabase } from "@/app/_db";
+import { IProject } from "@/app/_interface/project";
 import { verifySession } from "@/app/_lib/dal";
 import { Issue } from "@/app/_models/issue.model";
 import { Project } from "@/app/_models/project.model";
+import { TestCycle } from "@/app/_models/test-cycle.model";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function GET(req: Request) {
@@ -28,20 +30,33 @@ export async function GET(req: Request) {
         }
 
         const projects = await Project.find({ userId: session.user._id });
-        // const projectByStatus = projects.countDocuments({
-        //     userId: session.user._id,
-        //     status: 'active' 
-        // });
         const issues = await Issue.find({ projectId: projects.map((project) => project._id) });
+        const testCycleCounts = await TestCycle.find({ projectId: projects.map((project) => project._id) }).countDocuments();
+
+        const projectCounts = countProjectResults(projects);
 
         const { severityCounts, priorityCounts, statusCounts, issueTypeCounts } = countresults(issues);
         return Response.json({
             "severity": severityCounts, "priority": priorityCounts, "status": statusCounts,
-            "issueType": issueTypeCounts,
+            "issueType": issueTypeCounts, "project": projectCounts, "totalTestCycle": testCycleCounts
         });
     } catch (error: any) {
         return errorHandler(error);
     }
+}
+
+function countProjectResults(projects: IProject[]) {
+    const statusCounts = {
+        active: 0,
+        inActive: 0,
+    };
+
+    projects.forEach((project) => {
+        if (project?.isActive === true) statusCounts.active++
+        else statusCounts.inActive++;
+    })
+
+    return statusCounts;
 }
 
 function countresults(issue: any[]) {

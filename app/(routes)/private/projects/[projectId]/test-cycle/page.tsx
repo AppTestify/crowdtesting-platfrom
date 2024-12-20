@@ -194,8 +194,8 @@ export default function TestPlan() {
             <div className="">
                 <h2 className="text-medium">Test cycle</h2>
                 <span className="text-xs text-gray-600">
-                    Lorem ipsum dolor sit, amet consectetur adipisicing elit.
-                    cumque vel nesciunt sunt velit possimus sapiente tempore repudiandae fugit fugiat.
+                    A series of iterative testing phases, including planning, execution, and closure,
+                    to validate product functionality.
                 </span>
             </div>
             <div className="w-full">

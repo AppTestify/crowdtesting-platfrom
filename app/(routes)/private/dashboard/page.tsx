@@ -61,10 +61,7 @@ export default function Dashboard() {
     if (isLoading || currentTime === null) {
         return (
             <div className="flex justify-between p-4">
-                <Skeleton className="h-12 w-[200px]" />
-                <div className="flex items-center">
-                    <Skeleton className="h-6 w-[300px]" />
-                </div>
+                <Skeleton className="h-12 w-[250px]" />
             </div>
         );
     }

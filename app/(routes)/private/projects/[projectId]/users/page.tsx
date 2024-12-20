@@ -162,9 +162,6 @@ export default function ProjectUsers() {
         <main className="mx-4 mt-2">
             <div className="">
                 <h2 className="text-medium">Users</h2>
-                <span className="text-xs text-gray-600">
-                    Meet the team driving the success of this project with their expertise and dedication.
-                </span>
             </div>
             <div className="w-full">
                 <div className="flex items-center py-4 justify-between">

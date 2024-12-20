@@ -83,7 +83,7 @@ export function SignInForm({ setIsGoogleSignInDisable }: { setIsGoogleSignInDisa
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="grid gap-4 mt-8 mb-4"
+        className="grid gap-4 mt-8"
       >
         <FormField
           control={form.control}
@@ -112,8 +112,8 @@ export function SignInForm({ setIsGoogleSignInDisable }: { setIsGoogleSignInDisa
           )}
         />
 
-        <div className="mt-4 flex justify-between">
-          <div className="flex items-center space-x-2">
+        <div className="mt-4 flex justify-end">
+          {/* <div className="flex items-center space-x-2">
             <FormField
               control={form.control}
               name="rememberMe"
@@ -131,7 +131,7 @@ export function SignInForm({ setIsGoogleSignInDisable }: { setIsGoogleSignInDisa
                 </FormItem>
               )}
             />
-          </div>
+          </div> */}
           <div className="text-red-400 text-sm flex items-center">
             <Link href={'/auth/forgot-password'}>
               Recover Password

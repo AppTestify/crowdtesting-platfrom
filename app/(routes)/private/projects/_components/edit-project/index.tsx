@@ -113,10 +113,6 @@ const EditProject = ({
       <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto">
         <SheetHeader>
           <SheetTitle className="text-left">Edit project</SheetTitle>
-          <SheetDescription className="text-left">
-            Expand your project opportunities! The more skills you showcase, the
-            better the recommendations we can provide.
-          </SheetDescription>
         </SheetHeader>
         <div className="mt-4">
           <Form {...form}>

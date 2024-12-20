@@ -58,13 +58,19 @@ function SignInWrapper() {
                             Login with Google
                         </Button> */}
           </div>
-          <div className="flex justify-between mt-3">
+          {/* <div className="flex justify-between mt-3">
             <p>Don't have an account?</p>
             <p className="text-primary cursor-pointer">
               <Link href={'/auth/sign-up'}>
                 Sign up
               </Link>
             </p>
+          </div> */}
+          <div className="text-center">
+            <span className="mr-0">have an account?</span>
+            <Link href={'/auth/sign-up'}>
+              <span className="text-primary ml-2">Sign up</span>
+            </Link>
           </div>
         </div>
       </div>

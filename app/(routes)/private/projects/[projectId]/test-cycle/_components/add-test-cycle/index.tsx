@@ -95,8 +95,8 @@ export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => voi
                 <SheetHeader>
                     <SheetTitle className="text-left">Add new test cycle</SheetTitle>
                     <SheetDescription className="text-left">
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Perspiciatis,
-                        ut deleniti excepturi, quo nemo! Quisquam, saepe quo.
+                        A series of iterative testing phases, including planning, execution, and closure,
+                        to validate product functionality.
                     </SheetDescription>
                 </SheetHeader>
 

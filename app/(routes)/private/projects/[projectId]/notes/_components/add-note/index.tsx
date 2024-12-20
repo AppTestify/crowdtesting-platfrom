@@ -93,10 +93,6 @@ export function AddNote({ refreshNotes }: { refreshNotes: () => void }) {
             >
                 <SheetHeader>
                     <SheetTitle className="text-left">Add new note</SheetTitle>
-                    <SheetDescription className="text-left">
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Perspiciatis,
-                        ut deleniti excepturi, quo nemo! Quisquam, saepe quo.
-                    </SheetDescription>
                 </SheetHeader>
 
                 <div className="mt-4">

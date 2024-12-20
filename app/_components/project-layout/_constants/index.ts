@@ -5,7 +5,7 @@ export const getProjectTabs = (user: any) => {
         case UserRoles.ADMIN:
             return ["overview", "users", "issues", "test cycle", "notes"];
         case UserRoles.TESTER:
-            return ["overview", "issues", "notes"];
+            return ["overview", "issues", "test cycle", "notes"];
         case UserRoles.CLIENT:
             return ["overview", "users", "issues", "test cycle", "notes"];
         default:

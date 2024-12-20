@@ -87,10 +87,6 @@ export function EditNote({
             <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto">
                 <SheetHeader>
                     <SheetTitle className="text-left">Edit note</SheetTitle>
-                    <SheetDescription className="text-left">
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Beatae laboriosam quas
-                        cum expedita quidem sit qui quaerat, ipsa animi nobis
-                    </SheetDescription>
                 </SheetHeader>
                 <div className="mt-4">
                     <Form {...form}>

@@ -216,9 +216,7 @@ const EditIssue = ({
         <SheetHeader>
           <SheetTitle className="text-left">Edit Issue</SheetTitle>
           <SheetDescription className="text-left">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor a
-            totam blanditiis veniam laudantium dolores quidem id magni ut
-            dignissimos.
+            Problems or defects discovered during testing that need resolution before the product is finalized.
           </SheetDescription>
         </SheetHeader>
 

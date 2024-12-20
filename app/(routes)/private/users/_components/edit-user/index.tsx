@@ -92,10 +92,6 @@ const EditUser = ({
             <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto">
                 <SheetHeader>
                     <SheetTitle className="text-left">Edit user</SheetTitle>
-                    <SheetDescription className="text-left">
-                        Unlock your potential! We'll match your unique skills and experience with projects tailored just for you,
-                        helping you shine in roles that showcase your talents.
-                    </SheetDescription>
                 </SheetHeader>
 
                 <div className="mt-4">

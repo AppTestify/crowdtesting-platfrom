@@ -50,10 +50,6 @@ export default function Documents() {
         <main className='mx-4 mt-4'>
             <div className="flex flex-col mb-3 gap-1 mt-2">
                 <h2 className="font-medium text-xl text-primary">Documents approval</h2>
-                <span className="text-xs text-gray-600">
-                    Lorem ipsum dolor sit amet consectetur, adipisicing elit.
-                    Cum corrupti laborum velit culpa unde pariatur.
-                </span>
             </div>
             <Tabs defaultValue={user ? "nonVerified" : "verified"} className=" mt-3">
                 <TabsList className="grid grid-cols-2 w-[400px]">

@@ -49,7 +49,7 @@ function SignUpWrapper() {
       <div className="flex items-center justify-center h-4/5 mt-8">
         <div className="mx-auto grid w-full md:w-[350px] gap-6">
           <div className="grid gap-2 text-left md:text-center">
-            <h1 className="text-3xl font-bold">Create an account</h1>
+            <h1 className="text-3xl font-bold">Sign up as tester</h1>
             <p className="text-balance text-muted-foreground">
               Enter your email below to create your account
             </p>

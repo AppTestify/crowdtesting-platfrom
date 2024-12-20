@@ -277,8 +277,7 @@ export default function Issues() {
       <div className="">
         <h2 className="text-medium">Issues</h2>
         <span className="text-xs text-gray-600">
-          We are experiencing difficulties with state management across multiple tabs,
-          leading to inconsistent data in certain components.
+          Problems or defects discovered during testing that need resolution before the product is finalized.
         </span>
       </div>
       <div className="w-full">
