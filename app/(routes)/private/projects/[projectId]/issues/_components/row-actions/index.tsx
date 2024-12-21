@@ -128,7 +128,7 @@ export function IssueRowActions({
                 setIsEditStatusOpen(true);
               }}
             >
-              <Edit className="h-2 w-2" /> Edit
+              <Edit className="h-2 w-2" /> Edit Issue
             </DropdownMenuItem>
             :
             <DropdownMenuItem

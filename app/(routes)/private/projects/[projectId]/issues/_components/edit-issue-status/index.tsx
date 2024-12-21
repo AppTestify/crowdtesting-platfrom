@@ -58,9 +58,9 @@ export default function EditIssueStatus({
             <Dialog open={sheetOpen} onOpenChange={setSheetOpen}>
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
-                        <DialogTitle>Edit issue</DialogTitle>
+                        <DialogTitle>Edit issue status</DialogTitle>
                         <DialogDescription>
-                            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Sit, repudiandae.
+                            Update the status of the issue to keep track of the progress.
                         </DialogDescription>
                     </DialogHeader>
                     <Form {...form}>
