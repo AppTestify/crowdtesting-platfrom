@@ -32,9 +32,9 @@ export const statusBadge = (status: string | undefined) => {
         case IssueStatus.DEFERRED:
             return <Badge className="bg-yellow-400 hover:bg-yellow-400 font-medium">{IssueStatus?.DEFERRED}</Badge>;
         case IssueStatus.RETEST_FAILED:
-            return <Badge className="bg-red-400 hover:bg-red-400 font-medium text-center">{IssueStatus?.RETEST_FAILED}</Badge>;
+            return <Badge className="bg-orange-400 hover:bg-orange-400 font-medium text-center">{IssueStatus?.RETEST_FAILED}</Badge>;
         case IssueStatus.RETEST_PASSED:
-            return <Badge className="bg-primary hover:bg-primary font-medium text-center">{IssueStatus?.RETEST_PASSED}</Badge>;
+            return <Badge className="bg-green-700 hover:bg-green-700 font-medium text-center">{IssueStatus?.RETEST_PASSED}</Badge>;
         default:
             return null;
     }

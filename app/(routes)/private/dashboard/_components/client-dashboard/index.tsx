@@ -4,7 +4,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Label } from "@/components/ui/label";
 import React, { useEffect, useState } from "react";
-import { Bar, BarChart, CartesianGrid, Pie, PieChart, XAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, Pie, XAxis } from "recharts";
+import HorizontalBarChart from "./_components/horizontal-bar-chart";
+import PieCharts from "./_components/pie-chart";
 
 const chartConfig = {
   visitors: {
@@ -65,7 +67,26 @@ export default function ClientDashboard() {
 
   return (
     <div>
-      <Card className="flex flex-col mt-4 w-[50%]">
+      <div className="grid gap-2 mt-1 sm:mt-2 grid-cols-1 sm:gap-4 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3">
+        <HorizontalBarChart
+          title="Severity Chart"
+          description="Showing issue severity levels"
+          dataKey="severity"
+          chartData={dashboard?.severity || {}}
+        />
+        <HorizontalBarChart
+          title="Priority Chart"
+          description="Showing issue priority levels"
+          dataKey="priority"
+          chartData={dashboard?.priority || {}}
+        />
+        <PieCharts
+          title="Status Chart"
+          description="Showing status priority levels"
+          chartData={dashboard?.status || {}}
+          dataKey="status"
+        />
+        {/* <Card className="w-[30%] mt-2">
         <CardHeader className="items-center pb-0">
           <CardTitle>Issue Type</CardTitle>
         </CardHeader>
@@ -91,14 +112,13 @@ export default function ClientDashboard() {
           </ChartContainer>
         </CardContent>
         <CardFooter className="flex-col gap-2 text-sm">
-          {/* <div className="flex items-center gap-2 font-medium leading-none">
-            Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-          </div> */}
           <div className="leading-none text-muted-foreground">
             Showing total issue type
           </div>
         </CardFooter>
-      </Card>
+      </Card> */}
+      </div>
+
     </div>
   );
 }
