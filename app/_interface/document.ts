@@ -7,7 +7,8 @@ export interface IDocument {
   contentType: string;
   fileType: string;
   userId: IUserByAdmin;
-  verifyBy: IUserByAdmin
+  verifyBy: IUserByAdmin;
+  cloudId: string;
 }
 
 export interface IUserDocument {

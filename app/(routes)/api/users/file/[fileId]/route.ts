@@ -6,6 +6,7 @@ import {
 } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
+import AttachmentService from "@/app/_helpers/attachment.helper";
 import { verifySession } from "@/app/_lib/dal";
 import { File } from "@/app/_models/file.model";
 import { errorHandler } from "@/app/_utils/error-handler";
@@ -35,7 +36,10 @@ export async function DELETE(
     }
 
     const { fileId } = params;
-    const response = await File.findByIdAndDelete(fileId);
+    const response = await File.findOneAndDelete({ cloudId: fileId });
+
+    const attachmentService = new AttachmentService();
+    await attachmentService.deleteFileFromDrive(fileId);
 
     if (!response) {
       throw new Error(GENERIC_ERROR_MESSAGE);

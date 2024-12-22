@@ -7,3 +7,10 @@ export const monthNames = [
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December",
 ];
+
+export const enum AttachmentFolder {
+    USERS = 'users',
+    ISSUES = 'issues',
+    REQUIREMENTS = 'requirements',
+    SYSTEM = 'SYSTEM'
+}

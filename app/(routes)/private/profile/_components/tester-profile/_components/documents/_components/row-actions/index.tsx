@@ -13,7 +13,7 @@ import { Row } from "@tanstack/react-table";
 import { Download, Trash } from "lucide-react";
 import { useState } from "react";
 import { ContentType } from "../../_constants";
-import { downloadDocument } from "@/app/_utils/common";
+import { downloadDocument, downloadFileFromDrive } from "@/app/_utils/common";
 
 export function RowActions({
   row,
@@ -26,7 +26,7 @@ export function RowActions({
 }) {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const fileId = row.original.id as string;
+  const fileId = row.original.cloudId as string;
 
   const deleteDocument = async () => {
     try {
@@ -48,12 +48,10 @@ export function RowActions({
 
   const getFile = async () => {
     try {
-      downloadDocument(
-        row.getValue("contentType"),
-        row.getValue("data"),
-        row.getValue("name")
-      );
+      const fileName = row.original.name;
+      await downloadFileFromDrive(fileId, fileName)
     } catch (error) {
+      console.log(error)
       toasterService.error();
       console.log("Error > getFile", error);
     }

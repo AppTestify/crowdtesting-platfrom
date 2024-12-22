@@ -30,6 +30,7 @@ export const ADMIN_SELECTED_EMAIL_ENDPOINT = "/api/admin-selected-email";
 export const WEBSITE_LOGO_ENDPOINT = "/api/setting/logo";
 export const WEBSITE_ENDPOINT = "/api/setting/website";
 export const ID_FORMAT_ENDPOINT = "/api/setting/id-format";
+export const DOWNLOAD_FILE_ENDPOINT = "/api/attachment/";
 
 export const GET_USER_ENDPOINT = (email: string) => {
   return `/api/users/${email}`;

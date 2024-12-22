@@ -1,3 +1,4 @@
+import { AttachmentFolder } from "@/app/_constants/constant-server-side";
 import {
   DB_CONNECTION_ERROR_MESSAGE,
   GENERIC_ERROR_MESSAGE,
@@ -7,6 +8,7 @@ import {
 } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
+import AttachmentService from "@/app/_helpers/attachment.helper";
 import { verifySession } from "@/app/_lib/dal";
 import { File } from "@/app/_models/file.model";
 import { ISupportEmail, SupportEmail } from "@/app/_models/support-email.model";
@@ -54,7 +56,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const { data, name, contentType } = await getFileMetaData(
+    const { name, contentType } = await getFileMetaData(
       response.data.file
     );
 
@@ -62,13 +64,16 @@ export async function POST(req: Request) {
       throw new Error(GENERIC_ERROR_MESSAGE);
     }
 
+    const attachmentService = new AttachmentService();
+    const cloudId = await attachmentService.uploadFileInGivenFolderInDrive(file, AttachmentFolder.USERS);
+
     const newFile = new File({
-      data: data,
       name: name,
-      contentType: contentType,
       fileType: response.data.fileType,
       userId: userId,
-      isVerify: false
+      isVerify: false,
+      cloudId: cloudId,
+      contentType: contentType
     });
 
     const saveFile = await newFile.save();

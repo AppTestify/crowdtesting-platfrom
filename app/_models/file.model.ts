@@ -2,9 +2,9 @@ import mongoose, { Schema, Document, Types, model } from "mongoose";
 import { DBModels } from "../_constants";
 
 export interface IFile extends Document {
-  data: Buffer;
   name: string;
   contentType: string;
+  cloudId: string;
   fileType: string;
   userId: Types.ObjectId;
   isVerify: boolean;
@@ -13,13 +13,13 @@ export interface IFile extends Document {
 
 const FileSchema: Schema = new Schema(
   {
-    data: Buffer,
     name: String,
-    contentType: String,
     fileType: String,
+    contentType: String,
+    cloudId: { type: String, unique: true },
     userId: { type: Schema.Types.ObjectId, ref: DBModels.USER },
     isVerify: Boolean,
-    verifyBy: { type: Schema.Types.ObjectId, ref: DBModels.USER }
+    verifyBy: { type: Schema.Types.ObjectId, ref: DBModels.USER },
   },
   { timestamps: true }
 );
