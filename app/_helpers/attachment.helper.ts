@@ -10,7 +10,6 @@ import { FILE_UPLOAD_ERROR_MESSAGE } from "../_constants/errors";
 class AttachmentService {
   private auth: any;
   private drive: any;
-
   private USERS_FOLDER_ID = "1e6MWJ323MJnwqBWGzkUiTOSfau5M6Ifm";
 
   constructor() {

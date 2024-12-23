@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Row } from "@tanstack/react-table";
 import { Download, Trash } from "lucide-react";
 import { useState } from "react";
-import { downloadDocument } from "@/app/_utils/common";
+import { downloadDocument, downloadFileFromDrive } from "@/app/_utils/common";
 import { IIssueAttachmentDisplay } from "@/app/_interface/issue";
 import { deleteIssueAttachmentService } from "@/app/_services/issue-attachment.service";
 import { useParams } from "next/navigation";
@@ -25,11 +25,12 @@ export function AttachmentRowActions({
     const [isLoading, setIsLoading] = useState(false);
     const attachmentId = row.original.id as string;
     const { projectId } = useParams<{ projectId: string }>();
+    const fileId = row.original.cloudId as string;
 
     const deleteAttachment = async () => {
         try {
             setIsLoading(true);
-            const response = await deleteIssueAttachmentService(projectId, issueId, attachmentId);
+            const response = await deleteIssueAttachmentService(projectId, issueId, fileId);
 
             if (response?.message) {
                 setIsLoading(false);
@@ -46,12 +47,10 @@ export function AttachmentRowActions({
 
     const getFile = async () => {
         try {
-            downloadDocument(
-                row.getValue("contentType"),
-                row.getValue("data"),
-                row.getValue("name")
-            );
+            const fileName = row.original.name;
+            await downloadFileFromDrive(fileId, fileName)
         } catch (error) {
+            console.log(error)
             toasterService.error();
             console.log("Error > getFile", error);
         }

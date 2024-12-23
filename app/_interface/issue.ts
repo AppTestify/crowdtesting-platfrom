@@ -15,7 +15,7 @@ export interface IIssue {
   createdAt?: string;
   customId?: string;
   issueType?: string;
-  testCycle: string;
+  testCycle: ITestCycle;
 }
 
 export interface IIssueView {
@@ -71,4 +71,5 @@ export interface IIssueAttachmentDisplay {
   data: string;
   name: string;
   contentType?: string;
+  cloudId: string;
 }

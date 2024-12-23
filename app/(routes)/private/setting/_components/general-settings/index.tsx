@@ -102,8 +102,8 @@ export default function GeneralSettings() {
     const setFormDefaultValues = (website: any) => {
         setWebsites(website);
         form.reset({
-            websiteName: website?.websiteName || "",
-            timeZone: website?.timeZone || "",
+            websiteName: website[0]?.websiteName || "",
+            timeZone: website[0]?.timeZone || "",
         });
     };
 

@@ -386,7 +386,7 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
                   name="testCycle"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel>Test suite</FormLabel>
+                      <FormLabel>Test cycle</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         value={field.value}
@@ -396,11 +396,15 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectGroup>
-                            {testCycles.map((testCycle) => (
-                              <SelectItem key={testCycle._id} value={testCycle._id as string}>
-                                {testCycle.title}
-                              </SelectItem>
-                            ))}
+                            {testCycles.length > 0 ? (
+                              testCycles.map((testCycle) => (
+                                <SelectItem key={testCycle._id} value={testCycle._id as string}>
+                                  {testCycle.title}
+                                </SelectItem>
+                              ))
+                            ) : (
+                              <div className="p-1 text-center text-gray-500">Test suite not found</div>
+                            )}
                           </SelectGroup>
                         </SelectContent>
                       </Select>

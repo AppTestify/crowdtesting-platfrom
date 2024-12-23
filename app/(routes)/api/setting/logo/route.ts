@@ -1,6 +1,8 @@
-import { DB_CONNECTION_ERROR_MESSAGE, INVALID_INPUT_ERROR_MESSAGE, USER_UNAUTHORIZED_ERROR_MESSAGE, USER_UNAUTHORIZED_SERVER_ERROR_MESSAGE } from "@/app/_constants/errors";
+import { AttachmentFolder } from "@/app/_constants/constant-server-side";
+import { DB_CONNECTION_ERROR_MESSAGE, GENERIC_ERROR_MESSAGE, INVALID_INPUT_ERROR_MESSAGE, USER_UNAUTHORIZED_ERROR_MESSAGE, USER_UNAUTHORIZED_SERVER_ERROR_MESSAGE } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
+import AttachmentService from "@/app/_helpers/attachment.helper";
 import { verifySession } from "@/app/_lib/dal";
 import { Website } from "@/app/_models/website.model";
 import { websiteLogoSchema } from "@/app/_schemas/website.schema";
@@ -49,24 +51,23 @@ export async function POST(req: Request) {
             );
         }
 
-        const { data, name, contentType } = await getFileMetaData(
-            response.data.logo
-        );
+        if (!logo) {
+            throw new Error(GENERIC_ERROR_MESSAGE);
+        }
+
+        const attachmentService = new AttachmentService();
+        const cloudId = await attachmentService.uploadFileInGivenFolderInDrive(logo, AttachmentFolder.USERS);
 
         if (checkImageAlreadyExists) {
             await Website.findOneAndUpdate({ userId: userId }, {
                 logo: {
-                    data: data,
-                    name: name,
-                    contentType: contentType,
+                    cloudId: cloudId
                 }
             });
         } else {
             const newLogo = new Website({
                 logo: {
-                    data: data,
-                    name: name,
-                    contentType: contentType,
+                    cloudId: cloudId
                 },
                 userId: session.user._id
             });

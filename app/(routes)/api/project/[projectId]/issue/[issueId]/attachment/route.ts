@@ -1,6 +1,8 @@
+import { AttachmentFolder } from "@/app/_constants/constant-server-side";
 import { DB_CONNECTION_ERROR_MESSAGE, GENERIC_ERROR_MESSAGE, USER_UNAUTHORIZED_ERROR_MESSAGE } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
+import AttachmentService from "@/app/_helpers/attachment.helper";
 import { verifySession } from "@/app/_lib/dal";
 import { IssueAttachment } from "@/app/_models/issue-attachment.model";
 import { Issue } from "@/app/_models/issue.model";
@@ -35,13 +37,17 @@ export async function POST(
         const { issueId } = params;
         const body = await req.formData();
         const attachments = body.getAll("attachments");
+        const attachmentService = new AttachmentService();
+
         const attachmentIds =
             await Promise.all(
                 attachments.map(async (file) => {
                     if (file) {
-                        const { data, name, contentType } = await getFileMetaData(file);
+                        const { name, contentType } = await getFileMetaData(file);
+                        const cloudId = await attachmentService.uploadFileInGivenFolderInDrive(file, AttachmentFolder.ISSUES);
+
                         const newAttachment = new IssueAttachment({
-                            data: data,
+                            cloudId: cloudId,
                             name,
                             contentType,
                             issueId: issueId,

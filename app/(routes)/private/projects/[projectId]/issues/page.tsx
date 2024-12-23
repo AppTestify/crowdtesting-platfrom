@@ -126,7 +126,7 @@ export default function Issues() {
       ),
     },
     {
-      accessorFn: (row) => row.device[0].name || "",
+      accessorFn: (row) => row.device?.[0]?.name || "",
       accessorKey: "Device Name",
       header: "Device",
       cell: ({ row }) => (
@@ -312,7 +312,9 @@ export default function Issues() {
               <div>
                 {ExportExcelFile(generateExcel)}
               </div>
-              <AddIssue refreshIssues={refreshIssues} />
+              {(project?.isActive === true || userData?.role === UserRoles.ADMIN) &&
+                <AddIssue refreshIssues={refreshIssues} />
+              }
             </div>
           }
         </div>

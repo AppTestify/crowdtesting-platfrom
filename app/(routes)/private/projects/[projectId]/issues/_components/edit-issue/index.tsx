@@ -120,7 +120,7 @@ const EditIssue = ({
         projectId: issue.projectId || "",
         device: deviceName,
         issueType: issue.issueType || "",
-        testCycle: issue.testCycle || ""
+        testCycle: issue.testCycle?._id as string || ""
       });
       hasReset.current = true;
     }
@@ -134,6 +134,7 @@ const EditIssue = ({
         ...values,
         device: isSameDevice ? [previousDeviceId] : values?.device || [],
       });
+      await uploadAttachment();
       if (response) {
         refreshIssues();
         toasterService.success(response?.message);
@@ -161,8 +162,8 @@ const EditIssue = ({
     if (form.formState.isValid) {
       form.handleSubmit(onSubmit)();
       const values = form.getValues();
+      // await uploadAttachment();
       await onSubmit(values);
-      await uploadAttachment();
     }
   };
 

@@ -2,7 +2,7 @@ import mongoose, { Schema, Document, model } from "mongoose";
 import { DBModels } from "../_constants";
 
 export interface IIssueAttachemnt extends Document {
-    data: Buffer;
+    cloudId: string;
     name: string;
     contentType: string;
     issueId: string;
@@ -10,7 +10,7 @@ export interface IIssueAttachemnt extends Document {
 
 const IssueAttachmentSchema: Schema = new Schema(
     {
-        data: Buffer,
+        cloudId: { type: String, unique: true },
         name: String,
         contentType: String,
         issueId: String,

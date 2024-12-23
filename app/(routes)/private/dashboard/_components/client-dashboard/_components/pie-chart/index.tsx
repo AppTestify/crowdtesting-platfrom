@@ -33,6 +33,14 @@ const chartConfig = {
         label: IssueStatus.RETEST_PASSED,
         color: "#15803D",
     },
+    Completed: {
+        label: "Completed",
+        color: 'hsl(var(--primary))'
+    },
+    Ongoing: {
+        label: 'Ongoing',
+        color: '#F4A462'
+    }
 } satisfies ChartConfig
 
 const getColorForStatus = (status: string) => {
@@ -40,7 +48,7 @@ const getColorForStatus = (status: string) => {
         case IssueStatus.REPORTED.toLowerCase():
             return '#9CA3AF';
         case IssueStatus.FIXED.toLowerCase():
-            return '#FACC15';
+            return 'hsl(var(--primary))';
         case IssueStatus.DUPLICATE.toLowerCase():
             return '#60A5FA';
         case IssueStatus.INVALID.toLowerCase():
@@ -51,6 +59,10 @@ const getColorForStatus = (status: string) => {
             return '#FB923C';
         case IssueStatus.RETEST_PASSED.toLowerCase().split(' ').join('_'):
             return '#15803D';
+        case "completed":
+            return 'hsl(var(--primary))';
+        case "ongoing":
+            return '#F4A462';
         default:
             return 'hsl(var(--primary))';
     }
@@ -66,7 +78,7 @@ interface HorizontalBarChartProps {
 export default function PieCharts({ title, description, chartData, dataKey }: HorizontalBarChartProps) {
     const formattedData = chartData
         ? Object.entries(chartData).map(([key, value]) => ({
-            level: key.charAt(0).toUpperCase() + key.slice(1),
+            level: key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' '),
             [dataKey]: value,
             fill: getColorForStatus(key),
         }))
@@ -85,11 +97,12 @@ export default function PieCharts({ title, description, chartData, dataKey }: Ho
                     config={chartConfig}
                     className="mx-auto aspect-square max-h-[250px] [&_.recharts-text]:fill-background"
                 >
-                    <PieChart>
+                    <PieChart >
                         <ChartTooltip
                             content={<ChartTooltipContent nameKey="level" hideLabel />}
                         />
-                        <Pie data={filteredData} dataKey="status">
+                        <Pie data={filteredData} dataKey={dataKey}
+                        >
                             <LabelList
                                 dataKey="level"
                                 className="fill-background"

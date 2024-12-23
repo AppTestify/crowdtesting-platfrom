@@ -6,9 +6,7 @@ export interface IWebsite extends Document {
     timeZone: string;
     userId: Types.ObjectId;
     logo: {
-        data: Buffer;
-        name: string;
-        contentType: string;
+        cloudId: string;
     }
 }
 
@@ -18,9 +16,7 @@ const WebsiteSchema = new Schema<IWebsite>(
         timeZone: { type: String, required: false },
         userId: { type: Schema.Types.ObjectId, ref: DBModels.USER, required: true },
         logo: {
-            data: { type: Buffer },
-            name: { type: String },
-            contentType: { type: String }
+            cloudId: { type: String, unique: true },
         }
     },
     {

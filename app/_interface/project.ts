@@ -13,6 +13,7 @@ export interface IProjectPayload {
 }
 
 export interface IProject {
+    _id?: string;
     id?: string;
     title: string;
     startDate: Date;

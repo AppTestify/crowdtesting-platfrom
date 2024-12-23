@@ -2,7 +2,7 @@ import mongoose, { Schema, Document, model } from "mongoose";
 import { DBModels } from "../_constants";
 
 export interface IProfilePicture extends Document {
-  data: Buffer;
+  cloudId: Buffer;
   name: string;
   contentType: string;
   userId: string;
@@ -10,7 +10,7 @@ export interface IProfilePicture extends Document {
 
 const ProfilePictureSchema: Schema = new Schema(
   {
-    data: Buffer,
+    cloudId: { type: String, unique: true },
     name: String,
     contentType: String,
     userId: String,

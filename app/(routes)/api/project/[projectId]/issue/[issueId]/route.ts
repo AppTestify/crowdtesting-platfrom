@@ -2,6 +2,7 @@ import { DBModels } from "@/app/_constants";
 import { DB_CONNECTION_ERROR_MESSAGE, GENERIC_ERROR_MESSAGE, INVALID_INPUT_ERROR_MESSAGE, USER_UNAUTHORIZED_SERVER_ERROR_MESSAGE } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
+import AttachmentService from "@/app/_helpers/attachment.helper";
 import { IIssue } from "@/app/_interface/issue";
 import { verifySession } from "@/app/_lib/dal";
 import { IdFormat } from "@/app/_models/id-format.model";
@@ -89,6 +90,17 @@ export async function DELETE(
 
         const { issueId } = params;
         const response = await Issue.findByIdAndDelete(issueId);
+
+        const issueAttachment = await IssueAttachment.find({ issueId: issueId }).exec();
+        const issueAttachmentCloudIds = issueAttachment.map((attachment) => attachment.cloudId);
+
+        // delete attachments from drive
+        const attachmentService = new AttachmentService();
+        for (const cloudId of issueAttachmentCloudIds) {
+            if (cloudId) {
+                await attachmentService.deleteFileFromDrive(cloudId);
+            }
+        }
 
         if (!response) {
             throw new Error(GENERIC_ERROR_MESSAGE);

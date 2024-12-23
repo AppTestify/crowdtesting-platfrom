@@ -37,7 +37,7 @@ export async function PUT(
     const attachmentService = new AttachmentService();
     const body = await req.formData();
     const file = body.get("file");
-    
+
     const response = await attachmentService.updateFileInDrive(fileId, file);
 
     return Response.json({ message: "File uploaded successfully", response });
@@ -57,7 +57,7 @@ export async function DELETE(
 
     const response = await attachmentService.deleteFileFromDrive(fileId);
 
-    return Response.json({ message: "File deleted successfully", response});
+    return Response.json({ message: "File deleted successfully", response });
   } catch (error: any) {
     console.log(error);
     return errorHandler(error);

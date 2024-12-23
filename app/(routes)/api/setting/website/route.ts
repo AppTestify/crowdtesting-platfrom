@@ -1,6 +1,7 @@
 import { DB_CONNECTION_ERROR_MESSAGE, INVALID_INPUT_ERROR_MESSAGE, USER_UNAUTHORIZED_ERROR_MESSAGE, USER_UNAUTHORIZED_SERVER_ERROR_MESSAGE } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
+import AttachmentService from "@/app/_helpers/attachment.helper";
 import { verifySession } from "@/app/_lib/dal";
 import { Website } from "@/app/_models/website.model";
 import { websiteSchema } from "@/app/_schemas/website.schema";
@@ -85,6 +86,8 @@ export async function GET(req: Request) {
         }
 
         const response = await Website.find({}).lean();
+        // const attachmentService = new AttachmentService();
+        // const fileResponse = await attachmentService.downloadFileFromDrive(response[0]?.logo?.cloudId);
 
         return Response.json(response);
     } catch (error: any) {

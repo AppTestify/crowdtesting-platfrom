@@ -12,5 +12,6 @@ export const enum AttachmentFolder {
     USERS = 'users',
     ISSUES = 'issues',
     REQUIREMENTS = 'requirements',
-    SYSTEM = 'SYSTEM'
+    SYSTEM = 'system',
+    PROFILE_PICTURES = 'profile-pictures',
 }

@@ -16,7 +16,17 @@ export const getDashboardClientService = async (): Promise<any> => {
         const response = await genericGet(`${DASHBOARD_ENDPOINT}/client`);
         return response || [];
     } catch (error) {
-        console.error(`Error > getDashboardService:`, error);
+        console.error(`Error > getDashboardClientService:`, error);
+        throw error;
+    }
+};
+
+export const getTesterDashboardService = async (): Promise<any> => {
+    try {
+        const response = await genericGet(`${DASHBOARD_ENDPOINT}/tester`);
+        return response || [];
+    } catch (error) {
+        console.error(`Error > getTesterDashboardService:`, error);
         throw error;
     }
 };

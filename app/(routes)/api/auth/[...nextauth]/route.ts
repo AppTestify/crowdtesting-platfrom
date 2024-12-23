@@ -72,7 +72,7 @@ const handler = NextAuth({
       if (!dbUser) {
         redirect("/auth/sign-in");
       }
-      const website = await Website.findOne({ userId: dbUser._id }).lean();
+      const website = await Website.find({}).lean();
       session.user = { ...dbUser, ...session.user };
       session.website = { ...website };
       return { ...session };

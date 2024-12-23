@@ -2,6 +2,7 @@ import { DB_CONNECTION_ERROR_MESSAGE, USER_UNAUTHORIZED_SERVER_ERROR_MESSAGE } f
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { IssueStatus, IssueType, Priority, Severity } from "@/app/_constants/issue";
 import { connectDatabase } from "@/app/_db";
+import { IIssue } from "@/app/_interface/issue";
 import { IProject } from "@/app/_interface/project";
 import { verifySession } from "@/app/_lib/dal";
 import { Issue } from "@/app/_models/issue.model";
@@ -29,18 +30,36 @@ export async function GET(req: Request) {
             );
         }
 
-        const projects = await Project.find({ userId: session.user._id });
+        const projects = await Project.find({ "users.userId": session.user._id });
         const issues = await Issue.find({ projectId: projects.map((project) => project._id) });
-        const topDevices = await topDevicesData(projects);
-        const testCycleCounts = await TestCycle.find({ projectId: projects.map((project) => project._id) }).countDocuments();
+
+        // 
+        let completedCount = 0;
+        let ongoingCount = 0;
+
+        projects.forEach((project) => {
+            const projectIssues = issues.filter((issue) => issue.projectId.equals(project._id));
+            const isCompleted = projectIssues.every((issue) =>
+                ["success", "retest_passed"].includes(issue.status)
+            );
+
+            if (isCompleted) {
+                completedCount++;
+            } else {
+                ongoingCount++;
+            }
+        });
+
+        const issueCounts = await Issue.find({ projectId: projects.map((project) => project._id) }).countDocuments();
+        // const testCycleCounts = await TestCycle.find({ projectId: projects.map((project) => project._id) }).countDocuments();
 
         const projectCounts = countProjectResults(projects);
 
-        const { severityCounts, priorityCounts, statusCounts, issueTypeCounts } = countresults(issues);
+        const { severityCounts, statusCounts } = countresults(issues);
         return Response.json({
-            severity: severityCounts, priority: priorityCounts, status: statusCounts,
-            issueType: issueTypeCounts, project: projectCounts, totalTestCycle: testCycleCounts,
-            topDevices: topDevices
+            severity: severityCounts, status: statusCounts,
+            project: projectCounts, issue: issueCounts,
+            ProjectSequence: { completed: completedCount, ongoing: ongoingCount }
         });
     } catch (error: any) {
         return errorHandler(error);
@@ -61,17 +80,21 @@ function countProjectResults(projects: IProject[]) {
     return statusCounts;
 }
 
+function countIssuesStatus(issues: IIssue[]) {
+    const completedCount = issues.filter((issue) =>
+        ["success", "retest_passed"].includes(issue?.status as string)
+    ).length;
+
+    const ongoingCount = issues.length - completedCount;
+
+    return { completed: completedCount, ongoing: ongoingCount };
+}
+
 function countresults(issue: any[]) {
     const severityCounts = {
         minor: 0,
         major: 0,
         critical: 0,
-    };
-
-    const priorityCounts = {
-        low: 0,
-        normal: 0,
-        high: 0,
     };
 
     const statusCounts = {
@@ -84,25 +107,12 @@ function countresults(issue: any[]) {
         retest_passed: 0,
     };
 
-    const issueTypeCounts = {
-        functional: 0,
-        ui_ux: 0,
-        usability: 0,
-        performance: 0,
-        security: 0,
-        total: 0
-    };
 
     issue.forEach((result) => {
         // By severity
         if (result.severity === Severity.MINOR) severityCounts.minor++;
         if (result.severity === Severity.MAJOR) severityCounts.major++;
         if (result.severity === Severity.CRITICAL) severityCounts.critical++;
-
-        // By priority
-        if (result.priority === Priority.LOW) priorityCounts.low++;
-        if (result.priority === Priority.NORMAL) priorityCounts.normal++;
-        if (result.priority === Priority.HIGH) priorityCounts.high++;
 
         // By status
         if (result.status === IssueStatus.REPORTED) statusCounts.reported++;
@@ -112,59 +122,7 @@ function countresults(issue: any[]) {
         if (result.status === IssueStatus.DEFERRED) statusCounts.deferred++;
         if (result.status === IssueStatus.RETEST_FAILED) statusCounts.retest_failed++;
         if (result.status === IssueStatus.RETEST_PASSED) statusCounts.retest_passed++;
-
-        // By issue type
-        if (result.issueType === IssueType.FUNCTIONAL) issueTypeCounts.functional++;
-        if (result.issueType === IssueType.UI_UX) issueTypeCounts.ui_ux++;
-        if (result.issueType === IssueType.USABILITY) issueTypeCounts.usability++;
-        if (result.issueType === IssueType.PERFORMANCE) issueTypeCounts.performance++;
-        if (result.issueType === IssueType.SECURITY) issueTypeCounts.security++;
-        issueTypeCounts.total = Object.entries(issueTypeCounts)
-            .filter(([key]) => key !== "total")
-            .reduce((total, [, count]) => total + count, 0);
     });
 
-    return { severityCounts, priorityCounts, statusCounts, issueTypeCounts };
-}
-
-async function topDevicesData(projects: IProject[]) {
-    const topDevices = await Issue.aggregate([
-        {
-            $match: {
-                projectId: { $in: projects.map((project) => project?._id) }
-            }
-        },
-        {
-            $group: {
-                _id: "$device",
-                count: { $sum: 1 }
-            }
-        },
-        {
-            $lookup: {
-                from: "devices",
-                localField: "_id",
-                foreignField: "_id",
-                as: "deviceDetails"
-            }
-        },
-        {
-            $unwind: "$deviceDetails"
-        },
-        {
-            $project: {
-                _id: 1,
-                count: 1,
-                name: "$deviceDetails.name"
-            }
-        },
-        {
-            $sort: { count: -1 }
-        },
-        {
-            $limit: 10
-        }
-    ]);
-
-    return topDevices;
+    return { severityCounts, statusCounts };
 }

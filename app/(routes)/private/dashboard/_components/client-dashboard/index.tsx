@@ -1,10 +1,7 @@
-import { getDashboardClientService, getDashboardService } from "@/app/_services/dashboard.service";
+import { getDashboardClientService } from "@/app/_services/dashboard.service";
 import toasterService from "@/app/_services/toaster-service";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { Label } from "@/components/ui/label";
+import { ChartConfig } from "@/components/ui/chart";
 import React, { useEffect, useState } from "react";
-import { Bar, BarChart, CartesianGrid, Pie, XAxis } from "recharts";
 import HorizontalBarChart from "./_components/horizontal-bar-chart";
 import PieCharts from "./_components/pie-chart";
 
@@ -118,7 +115,9 @@ export default function ClientDashboard() {
         </CardFooter>
       </Card> */}
       </div>
+      <div className="grid gap-2 mt-1 sm:mt-2 grid-cols-1 sm:gap-4 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3">
 
+      </div>
     </div>
   );
 }

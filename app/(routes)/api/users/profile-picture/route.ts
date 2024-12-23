@@ -1,3 +1,4 @@
+import { AttachmentFolder } from "@/app/_constants/constant-server-side";
 import {
   DB_CONNECTION_ERROR_MESSAGE,
   GENERIC_ERROR_MESSAGE,
@@ -7,6 +8,7 @@ import {
 } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
+import AttachmentService from "@/app/_helpers/attachment.helper";
 import { verifySession } from "@/app/_lib/dal";
 import { ProfilePicture } from "@/app/_models/profile.picture";
 import { User } from "@/app/_models/user.model";
@@ -41,7 +43,9 @@ export async function POST(req: Request) {
       userId: userId,
     });
     if (checkImageAlreadyExists) {
-      await ProfilePicture.findOneAndDelete({ userId: userId });
+      const user = await ProfilePicture.findOneAndDelete({ userId: userId });
+      const attachmentService = new AttachmentService();
+      await attachmentService.deleteFileFromDrive(user?.cloudId);
     }
 
     const body = await req.formData();
@@ -61,11 +65,19 @@ export async function POST(req: Request) {
       );
     }
 
-    const { data, name, contentType } = await getFileMetaData(
+    const { name, contentType } = await getFileMetaData(
       response.data.profilePicture
     );
+
+    if (!profilePictureFile) {
+      throw new Error(GENERIC_ERROR_MESSAGE);
+    }
+
+    const attachmentService = new AttachmentService();
+    const cloudId = await attachmentService.uploadFileInGivenFolderInDrive(profilePictureFile, AttachmentFolder.PROFILE_PICTURES);
+
     const newAttachment = new ProfilePicture({
-      data: data,
+      cloudId: cloudId,
       name: name,
       contentType: contentType,
       userId: userId,
@@ -145,6 +157,12 @@ export async function DELETE(req: Request) {
     }
 
     const userId = session.user._id;
+
+    const user = await User.findByIdAndUpdate(userId, { profilePicture: undefined });
+    const profilePicture = await ProfilePicture.findById(user.profilePicture);
+    const attachmentService = new AttachmentService();
+    await attachmentService.deleteFileFromDrive(profilePicture?.cloudId);
+
     const response = await ProfilePicture.findOneAndDelete({
       userId,
     });
@@ -152,8 +170,6 @@ export async function DELETE(req: Request) {
     if (!response) {
       throw new Error(GENERIC_ERROR_MESSAGE);
     }
-
-    await User.findByIdAndUpdate(userId, { profilePicture: undefined });
 
     return Response.json({ message: "Profile picture removed successfully" });
   } catch (error: any) {
