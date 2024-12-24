@@ -1,6 +1,5 @@
 import { getDashboardClientService } from "@/app/_services/dashboard.service";
 import toasterService from "@/app/_services/toaster-service";
-import { ChartConfig } from "@/components/ui/chart";
 import React, { useEffect, useState } from "react";
 import HorizontalBarChart from "./_components/horizontal-bar-chart";
 import PieCharts from "./_components/pie-chart";

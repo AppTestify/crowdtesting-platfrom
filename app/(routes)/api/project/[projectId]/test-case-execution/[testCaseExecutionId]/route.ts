@@ -52,7 +52,7 @@ export async function PUT(
                 title: TestExecution.testCaseId?.title,
                 userId: session.user._id,
                 projectId: projectId,
-                status: IssueStatus.NEW
+                status: IssueStatus.REPORTED
             });
             await newIssue.save();
         }
