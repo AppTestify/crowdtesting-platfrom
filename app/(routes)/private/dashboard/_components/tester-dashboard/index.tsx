@@ -54,6 +54,35 @@ export default function TesterDashboard() {
 
   return (
     <div>
+      <div className="w-full mt-4 mb-2">
+        <Card>
+          <CardHeader className=" rounded-none flex flex-col space-y-0 p-0 sm:flex-row">
+            <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6 w-40">
+              <CardTitle>Total data</CardTitle>
+              <CardDescription>
+                Showing total data
+              </CardDescription>
+            </div>
+            <div className="flex">
+              <div className="relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l data-[active=true]:bg-muted/50 sm:border-l sm:border-t-0 sm:mx-6 sm:py-6"
+              >
+                <span className="text-xs text-muted-foreground">Test Cycles</span>
+                <span className="text-lg font-bold leading-none sm:text-3xl">
+                  {dashboard?.testCycle}
+                </span>
+              </div>
+
+              <div className="relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l data-[active=true]:bg-muted/50 sm:border-l sm:border-t-0 sm:px-8 sm:py-6"
+              >
+                <span className="text-xs text-muted-foreground">Issues</span>
+                <span className="text-lg font-bold leading-none sm:text-3xl">
+                  {dashboard?.issue}
+                </span>
+              </div>
+            </div>
+          </CardHeader>
+        </Card>
+      </div>
       <div className="grid gap-2 mt-1 sm:mt-2 grid-cols-1 sm:gap-4 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3">
         <HorizontalBarChart
           title="Severity Chart"

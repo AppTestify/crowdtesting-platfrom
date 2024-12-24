@@ -42,6 +42,18 @@ export async function GET(req: Request) {
       projectId: projects.map((project) => project._id),
     });
 
+    const testCycleMap = issues.reduce((acc, issue) => {
+      const testCycle = typeof issue.testCycle === "string"
+        ? issue.testCycle.trim().toLowerCase() 
+        : String(issue.testCycle || ""); 
+      if (testCycle) {
+        acc[testCycle] = (acc[testCycle] || 0) + 1;
+      }
+      return acc;
+    }, {});
+    
+    const uniqueTestCycleCount = Object.keys(testCycleMap).length;
+
     //
     let completedCount = 0;
     let ongoingCount = 0;
@@ -64,35 +76,18 @@ export async function GET(req: Request) {
     const issueCounts = await Issue.find({
       projectId: projects.map((project) => project._id),
     }).countDocuments();
-    // const testCycleCounts = await TestCycle.find({ projectId: projects.map((project) => project._id) }).countDocuments();
-
-    const projectCounts = countProjectResults(projects);
 
     const { severityCounts, statusCounts } = countresults(issues);
     return Response.json({
       severity: severityCounts,
       status: statusCounts,
-      project: projectCounts,
+      testCycle: uniqueTestCycleCount,
       issue: issueCounts,
       ProjectSequence: { completed: completedCount, ongoing: ongoingCount },
     });
   } catch (error: any) {
     return errorHandler(error);
   }
-}
-
-function countProjectResults(projects: IProject[]) {
-  const statusCounts = {
-    active: 0,
-    inActive: 0,
-  };
-
-  projects.forEach((project) => {
-    if (project?.isActive === true) statusCounts.active++;
-    else statusCounts.inActive++;
-  });
-
-  return statusCounts;
 }
 
 function countresults(issue: any[]) {

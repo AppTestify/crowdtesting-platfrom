@@ -33,7 +33,7 @@ export default function ClientDashboard() {
       <div className="w-full mt-4">
         <Card>
           <CardHeader className=" rounded-none flex flex-col space-y-0 p-0 sm:flex-row">
-            <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
+            <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6 w-40">
               <CardTitle>Total data</CardTitle>
               <CardDescription>
                 Showing total data
