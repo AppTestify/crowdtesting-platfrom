@@ -1,0 +1,217 @@
+"use client";
+
+import * as React from "react";
+import { Label, Pie, PieChart, Sector } from "recharts";
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
+import {
+    ChartConfig,
+    ChartContainer,
+    ChartStyle,
+    ChartTooltip,
+    ChartTooltipContent,
+} from "@/components/ui/chart";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { IssueType } from "@/app/_constants/issue";
+
+const chartConfig = {
+    [IssueType.FUNCTIONAL]: {
+        label: IssueType.FUNCTIONAL,
+        color: "hsl(var(--chart-3))",
+    },
+    [IssueType.UI_UX]: {
+        label: IssueType.UI_UX,
+        color: "hsl(var(--chart-4))",
+    },
+    [IssueType.USABILITY]: {
+        label: IssueType.USABILITY,
+        color: "hsl(var(--chart-5))",
+    },
+    [IssueType.PERFORMANCE]: {
+        label: IssueType.PERFORMANCE,
+        color: "hsl(var(--chart-1))",
+    },
+    [IssueType.SECURITY]: {
+        label: IssueType.SECURITY,
+        color: "hsl(var(--chart-2))",
+    },
+} satisfies ChartConfig;
+
+const getColorForPriority = (level: string) => {
+    switch (level) {
+        case IssueType.FUNCTIONAL:
+            return 'hsl(var(--chart-3))';
+        case IssueType.UI_UX:
+            return 'hsl(var(--chart-4))';
+        case IssueType.USABILITY:
+            return 'hsl(var(--chart-5))';
+        case IssueType.PERFORMANCE:
+            return 'hsl(var(--chart-1))';
+        case IssueType.SECURITY:
+            return 'hsl(var(--chart-2))';
+        default:
+            return 'hsl(var(--primary))';
+    }
+};
+
+export function DonutChart({
+    chartData,
+    dataKey,
+}: {
+    chartData: Record<string, number>;
+    dataKey: string;
+}) {
+
+    const formattedData = React.useMemo(() => {
+        return chartData
+            ? Object.entries(chartData)
+                .filter(([key]) => key.toLowerCase() !== "total")
+                .map(([key, value]) => ({
+                    level: key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, '/'),
+                    [dataKey]: value,
+                    fill: getColorForPriority(key),
+                }))
+            : [];
+    }, [chartData, dataKey]);
+
+    const [activeLevel, setActiveLevel] = React.useState(
+        formattedData[0]?.level
+    );
+
+    React.useEffect(() => {
+        if (formattedData.length > 0) {
+            setActiveLevel(formattedData[0]?.level);
+        }
+    }, [formattedData]);
+
+
+    const activeIndex = React.useMemo(() => {
+        return formattedData.findIndex((item) => item.level === activeLevel);
+    }, [activeLevel, formattedData]);
+
+    const levels = React.useMemo(
+        () => formattedData.map((item) => item.level),
+        [formattedData]
+    );
+
+    const formatKey = (key: string) => {
+        return key.replace('_', '/').toUpperCase();
+    };
+
+    return (
+        <Card className="mt-2 shadow-none flex flex-col">
+            <ChartStyle id="pie-interactive" config={chartConfig} />
+            <CardHeader className="flex-row items-start space-y-0 pb-0">
+                <div className="grid gap-1">
+                    <CardTitle>Issue by type</CardTitle>
+                    <CardDescription>Showing issue type levels</CardDescription>
+                </div>
+                <Select value={activeLevel} onValueChange={setActiveLevel}>
+                    <SelectTrigger
+                        className="ml-auto h-7 w-[130px] rounded-lg pl-2.5"
+                        aria-label="Select an issue type"
+                    >
+                        <SelectValue placeholder="Select issue type" />
+                    </SelectTrigger>
+                    <SelectContent align="end" className="rounded-xl">
+                        {levels.map((level) => {
+                            const formattedLevel = level === "Ui/ux" ? formatKey(level) : level;
+                            const config = chartConfig[formattedLevel as keyof typeof chartConfig];
+
+                            return config ? (
+                                <SelectItem
+                                    key={level}
+                                    value={level}
+                                    className="rounded-lg [&_span]:flex"
+                                >
+                                    <div className="flex items-center gap-2 text-xs">
+                                        <span
+                                            className="flex h-3 w-3 shrink-0 rounded-sm"
+                                            style={{
+                                                backgroundColor: config.color,
+                                            }}
+                                        />
+                                        {config.label}
+                                    </div>
+                                </SelectItem>
+                            ) : null;
+                        })}
+                    </SelectContent>
+                </Select>
+            </CardHeader>
+            <CardContent className="flex flex-1 justify-center pb-0">
+                <ChartContainer
+                    id="pie-interactive"
+                    config={chartConfig}
+                    className="mx-auto aspect-square w-full max-w-[280px]"
+                >
+                    <PieChart>
+                        <ChartTooltip
+                            cursor={false}
+                            content={<ChartTooltipContent hideLabel />}
+                        />
+                        <Pie
+                            data={formattedData}
+                            dataKey={dataKey}
+                            nameKey="level"
+                            innerRadius={60}
+                            strokeWidth={5}
+                            activeIndex={activeIndex}
+                            activeShape={(props: any) => (
+                                <g>
+                                    <Sector {...props} outerRadius={props.outerRadius + 10} />
+                                    <Sector
+                                        {...props}
+                                        outerRadius={props.outerRadius + 25}
+                                        innerRadius={props.outerRadius + 12}
+                                    />
+                                </g>
+                            )}
+                        >
+                            <Label
+                                content={({ viewBox }) => {
+                                    if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                                        return (
+                                            <text
+                                                x={viewBox.cx}
+                                                y={viewBox.cy}
+                                                textAnchor="middle"
+                                                dominantBaseline="middle"
+                                            >
+                                                <tspan
+                                                    x={viewBox.cx}
+                                                    y={viewBox.cy}
+                                                    className="fill-foreground text-3xl font-bold"
+                                                >
+                                                    {formattedData[activeIndex]?.issueType.toLocaleString()}
+                                                </tspan>
+                                                <tspan
+                                                    x={viewBox.cx}
+                                                    y={(viewBox.cy || 0) + 24}
+                                                    className="fill-muted-foreground"
+                                                >
+                                                    Issue Type
+                                                </tspan>
+                                            </text>
+                                        )
+                                    }
+                                }}
+                            />
+                        </Pie>
+                    </PieChart>
+                </ChartContainer>
+            </CardContent>
+        </Card>
+    );
+}

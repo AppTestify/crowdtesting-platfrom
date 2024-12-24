@@ -1,6 +1,7 @@
 import { DB_CONNECTION_ERROR_MESSAGE, GENERIC_ERROR_MESSAGE, INVALID_INPUT_ERROR_MESSAGE, USER_UNAUTHORIZED_SERVER_ERROR_MESSAGE } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
+import AttachmentService from "@/app/_helpers/attachment.helper";
 import { verifySession } from "@/app/_lib/dal";
 import { RequirementAttachment } from "@/app/_models/requirement-attachment.model";
 import { Requirement } from "@/app/_models/requirement.model";
@@ -33,9 +34,21 @@ export async function DELETE(
         const { requirementId } = params;
         const response = await Requirement.findByIdAndDelete(requirementId);
 
+        const issueAttachment = await RequirementAttachment.find({ requirementId: requirementId }).exec();
+        const issueAttachmentCloudIds = issueAttachment.map((attachment) => attachment.cloudId);
+
+        // delete attachments from drive
+        const attachmentService = new AttachmentService();
+        for (const cloudId of issueAttachmentCloudIds) {
+            if (cloudId) {
+                await attachmentService.deleteFileFromDrive(cloudId);
+            }
+        }
+
         if (!response) {
             throw new Error(GENERIC_ERROR_MESSAGE);
         }
+
         await RequirementAttachment.deleteMany({ requirementId: requirementId })
 
         return Response.json({ message: "Requirement deleted successfully" });

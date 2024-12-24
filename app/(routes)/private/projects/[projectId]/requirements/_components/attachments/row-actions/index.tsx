@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Row } from "@tanstack/react-table";
 import { Download, Trash } from "lucide-react";
 import { useState } from "react";
-import { downloadDocument } from "@/app/_utils/common";
+import { downloadDocument, downloadFileFromDrive } from "@/app/_utils/common";
 import { useParams } from "next/navigation";
 import { deleteRequirementAttachmentService } from "@/app/_services/requirement-attachment.service";
 import { IRequirementAttachmentDisplay } from "@/app/_interface/requirement";
@@ -25,11 +25,12 @@ export function RequirementAttachmentRowActions({
     const [isLoading, setIsLoading] = useState(false);
     const attachmentId = row.original.id as string;
     const { projectId } = useParams<{ projectId: string }>();
+    const fileId = row.original?.cloudId as string;
 
     const deleteAttachment = async () => {
         try {
             setIsLoading(true);
-            const response = await deleteRequirementAttachmentService(projectId, requirementId, attachmentId);
+            const response = await deleteRequirementAttachmentService(projectId, requirementId, fileId);
 
             if (response?.message) {
                 setIsLoading(false);
@@ -46,11 +47,8 @@ export function RequirementAttachmentRowActions({
 
     const getFile = async () => {
         try {
-            downloadDocument(
-                row.getValue("contentType"),
-                row.getValue("data"),
-                row.getValue("name")
-            );
+            const fileName = row.original.name;
+            await downloadFileFromDrive(fileId, fileName)
         } catch (error) {
             toasterService.error();
             console.log("Error > getFile", error);

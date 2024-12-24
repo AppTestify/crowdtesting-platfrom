@@ -50,7 +50,6 @@ export function AttachmentRowActions({
             const fileName = row.original.name;
             await downloadFileFromDrive(fileId, fileName)
         } catch (error) {
-            console.log(error)
             toasterService.error();
             console.log("Error > getFile", error);
         }

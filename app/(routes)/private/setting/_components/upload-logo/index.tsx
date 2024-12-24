@@ -100,7 +100,7 @@ export default function UploadLogo({
                     <DialogHeader>
                         <DialogTitle>Upload logo</DialogTitle>
                         <DialogDescription>
-                            Lorem ipsum dolor sit amet consectetur, adipisicing elit.
+                            Add a logo to your website.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="flex items-center space-x-2">
@@ -144,7 +144,7 @@ export default function UploadLogo({
             <DrawerContent>
                 <DrawerHeader className="text-left">
                     <DrawerTitle>Upload Logo</DrawerTitle>
-                    <DrawerDescription>Lorem ipsum dolor sit amet consectetur adipisicing elit.</DrawerDescription>
+                    <DrawerDescription>Add a logo to your website.</DrawerDescription>
                 </DrawerHeader>
 
                 <div className="flex items-center space-x-2 px-4">

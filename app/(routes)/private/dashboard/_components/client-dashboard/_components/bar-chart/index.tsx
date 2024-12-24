@@ -1,8 +1,15 @@
-import { IssueStatus } from '@/app/_constants/issue'
+import { IssueStatus } from '@/app/_constants/issue';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
 import React from 'react'
-import { LabelList, Pie, PieChart } from 'recharts'
+import { Bar, BarChart, XAxis, YAxis } from 'recharts'
+
+interface HorizontalBarChartProps {
+    title: string;
+    description: string;
+    dataKey: string;
+    chartData: Record<string, number>;
+}
 
 const chartConfig = {
     [IssueStatus.REPORTED]: {
@@ -80,14 +87,7 @@ const getColorForStatus = (status: string) => {
     }
 };
 
-interface HorizontalBarChartProps {
-    title: string;
-    description: string;
-    dataKey: string;
-    chartData: Record<string, number>;
-}
-
-export default function PieCharts({ title, description, chartData, dataKey }: HorizontalBarChartProps) {
+export default function StatusBarChart({ title, description, chartData, dataKey }: HorizontalBarChartProps) {
     const formattedData = chartData
         ? Object.entries(chartData).map(([key, value]) => ({
             level: key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' '),
@@ -96,38 +96,40 @@ export default function PieCharts({ title, description, chartData, dataKey }: Ho
         }))
         : [];
 
-    const filteredData = formattedData.filter((item) => Number(item[dataKey]) > 0);
-
     return (
-        <Card className="flex flex-col mt-2 shadow-none">
-            <CardHeader className=" pb-0">
+        <Card className='mt-2 shadow-none'>
+            <CardHeader>
                 <CardTitle>{title}</CardTitle>
                 <CardDescription>{description}</CardDescription>
             </CardHeader>
-            <CardContent className="flex-1 pb-0">
-                <ChartContainer
-                    config={chartConfig}
-                    className="mx-auto aspect-square max-h-[250px] [&_.recharts-text]:fill-background"
-                >
-                    <PieChart >
-                        <ChartTooltip
-                            content={<ChartTooltipContent nameKey="level" hideLabel />}
+            <CardContent>
+                <ChartContainer config={chartConfig}>
+                    <BarChart
+                        accessibilityLayer
+                        data={formattedData}
+                        layout="vertical"
+                        margin={{
+                            left: 0,
+                        }}
+                    >
+                        <YAxis
+                            dataKey="level"
+                            type="category"
+                            tickLine={false}
+                            axisLine={false}
+                            tickFormatter={(value) =>
+                                chartConfig[value as keyof typeof chartConfig]?.label
+                            }
                         />
-                        <Pie data={filteredData} dataKey={dataKey}
-                        >
-                            <LabelList
-                                dataKey="level"
-                                className="fill-background"
-                                stroke="none"
-                                fontSize={12}
-                                formatter={(value: keyof typeof chartConfig) =>
-                                    chartConfig[value]?.label || value.split('_').join(' ')
-                                }
-                            />
-                        </Pie>
-                    </PieChart>
+                        <XAxis dataKey="status" type="number" hide />
+                        <ChartTooltip
+                            cursor={false}
+                            content={<ChartTooltipContent hideLabel />}
+                        />
+                        <Bar dataKey="status" layout="vertical" radius={5} />
+                    </BarChart>
                 </ChartContainer>
             </CardContent>
         </Card>
-    );
+    )
 }

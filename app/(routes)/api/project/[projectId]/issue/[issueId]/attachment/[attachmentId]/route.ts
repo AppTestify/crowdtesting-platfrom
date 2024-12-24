@@ -17,7 +17,7 @@ export async function DELETE(
         if (!session) {
             return Response.json(
                 { message: USER_UNAUTHORIZED_ERROR_MESSAGE },
-                { status: HttpStatusCode.UNAUTHORIZED }
+                { status: HttpStatusCode.UNAUTHORIZED } 
             );
         }
 

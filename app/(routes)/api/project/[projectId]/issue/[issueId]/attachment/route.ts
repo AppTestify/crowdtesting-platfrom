@@ -50,7 +50,7 @@ export async function POST(
                             cloudId: cloudId,
                             name,
                             contentType,
-                            issueId: issueId,
+                            issueId: issueId, 
                         });
 
                         const savedAttachment = await newAttachment.save();

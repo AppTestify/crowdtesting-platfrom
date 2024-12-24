@@ -5,21 +5,11 @@ import React from 'react';
 import { Bar, BarChart, CartesianGrid, Cell, LabelList, XAxis } from 'recharts';
 
 const chartConfig = {
-    [Priority.LOW]: {
+    severity: {
+        label: "Severity",
         color: "hsl(var(--primary))",
     },
-    [Priority.NORMAL]: {
-        color: "#FACC15",
-    },
-    [Priority.HIGH]: {
-        color: "#F87171",
-    },
-    Severity: {
-        label: "Severity",
-        color: 'hsl(var(--primary))'
-    }
 } satisfies ChartConfig;
-type PriorityType = "Low" | "Normal" | "High" | "Severity";
 
 const getColorForPriority = (level: string) => {
     switch (level) {
@@ -41,12 +31,12 @@ interface HorizontalBarChartProps {
     chartData: Record<string, number>;
 }
 
-export default function HorizontalBarChart({ title, description, dataKey, chartData }: HorizontalBarChartProps) {
+export default function DeviceChart({ title, description, dataKey, chartData }: HorizontalBarChartProps) {
     const formattedData = chartData
-        ? Object.entries(chartData).map(([key, value]) => ({
-            level: key.charAt(0).toUpperCase() + key.slice(1),
-            [dataKey]: value,
-            color: getColorForPriority(key),
+        ? Object.values(chartData).map((item: any) => ({
+            level: item?.name.charAt(0).toUpperCase() + item?.name.slice(1),
+            [dataKey]: item?.count,
+            color: getColorForPriority(item?.name),
         }))
         : [];
 
@@ -59,8 +49,7 @@ export default function HorizontalBarChart({ title, description, dataKey, chartD
             <CardContent>
                 <ChartContainer config={chartConfig}>
                     <BarChart accessibilityLayer data={formattedData}
-                        margin={{ top: 20, bottom: 0 }}
-                        barSize={50}
+                        margin={{ top: 20 }}
                     >
                         <CartesianGrid vertical={false} />
                         <XAxis
@@ -68,14 +57,15 @@ export default function HorizontalBarChart({ title, description, dataKey, chartD
                             tickLine={false}
                             tickMargin={10}
                             axisLine={false}
+                            tickFormatter={(value) => value.slice(0, 10)}
                         />
                         <ChartTooltip
                             cursor={false}
-                            content={<ChartTooltipContent hideLabel />}
+                            content={<ChartTooltipContent nameKey="level" />}
                         />
                         <Bar
                             dataKey={dataKey}
-                            fill={chartConfig[dataKey as PriorityType]?.color || 'hsl(var(--primary))'}
+                            fill="var(--color-severity)"
                             radius={8}
                         >
                             <LabelList

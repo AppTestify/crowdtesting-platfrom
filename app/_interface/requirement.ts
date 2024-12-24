@@ -26,6 +26,7 @@ export interface IRequirementAttachmentDisplay {
   name: string;
   requirementId?: string;
   contentType: string;
+  cloudId: string;
 }
 
 export interface RequirementAttachmentsProps {

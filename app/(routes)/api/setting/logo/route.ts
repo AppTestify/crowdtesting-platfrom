@@ -56,7 +56,7 @@ export async function POST(req: Request) {
         }
 
         const attachmentService = new AttachmentService();
-        const cloudId = await attachmentService.uploadFileInGivenFolderInDrive(logo, AttachmentFolder.USERS);
+        const cloudId = await attachmentService.uploadFileInGivenFolderInDrive(logo, AttachmentFolder.SYSTEM);
 
         if (checkImageAlreadyExists) {
             await Website.findOneAndUpdate({ userId: userId }, {
@@ -103,7 +103,9 @@ export async function DELETE(req: Request) {
             );
         }
 
-        await Website.findOneAndUpdate({ userId: session.user._id }, { $unset: { logo: "" } }, { new: true });
+        const website = await Website.findOneAndUpdate({ userId: session.user._id }, { $unset: { logo: "" } }, { new: true });
+        const attachmentService = new AttachmentService();
+        await attachmentService.deleteFileFromDrive(website?.logo?.cloudId);
 
         return Response.json({ "message": "logo deleted successfully" });
     } catch (error: any) {

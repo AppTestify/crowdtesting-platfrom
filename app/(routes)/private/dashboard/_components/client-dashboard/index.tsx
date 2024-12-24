@@ -4,32 +4,10 @@ import { ChartConfig } from "@/components/ui/chart";
 import React, { useEffect, useState } from "react";
 import HorizontalBarChart from "./_components/horizontal-bar-chart";
 import PieCharts from "./_components/pie-chart";
-
-const chartConfig = {
-  visitors: {
-    label: "Visitors",
-  },
-  functional: {
-    label: "Functional",
-    color: "hsl(var(--chart-1))",
-  },
-  ui_ux: {
-    label: "UI/UX",
-    color: "hsl(var(--chart-2))",
-  },
-  usability: {
-    label: "Usability",
-    color: "hsl(var(--chart-3))",
-  },
-  performance: {
-    label: "Performance",
-    color: "hsl(var(--chart-4))",
-  },
-  security: {
-    label: "Security",
-    color: "hsl(var(--chart-5))",
-  },
-} satisfies ChartConfig;
+import DeviceChart from "./_components/devices-chart";
+import { DonutChart } from "./_components/donut-chart";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import StatusBarChart from "./_components/bar-chart";
 
 export default function ClientDashboard() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -51,72 +29,83 @@ export default function ClientDashboard() {
     getClientDashboard();
   }, []);
 
-  const chartData = dashboard?.issueType
-    ? Object.entries(dashboard.issueType)
-      .filter(([key]) => key !== "total")
-      .map(([key, value]) => ({
-        issueType: key,
-        visitors: value,
-        fill: `var(--color-${key})`,
-      }))
-    : [];
-
-
   return (
-    <div>
-      <div className="grid gap-2 mt-1 sm:mt-2 grid-cols-1 sm:gap-4 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid">
+      <div className="w-full mt-4">
+        <Card>
+          <CardHeader className=" rounded-none flex flex-col space-y-0 p-0 sm:flex-row">
+            <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
+              <CardTitle>Total data</CardTitle>
+              <CardDescription>
+                Showing total data
+              </CardDescription>
+            </div>
+            <div className="flex">
+              <div className="relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l data-[active=true]:bg-muted/50 sm:border-l sm:border-t-0 sm:mx-6 sm:py-6"
+              >
+                <span className="text-xs text-muted-foreground">Test Cycles</span>
+                <span className="text-lg font-bold leading-none sm:text-3xl">
+                  {dashboard?.totalTestCycle}
+                </span>
+              </div>
+
+              <div className="relative z-30 flex flex-1 border border-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l data-[active=true]:bg-muted/50 sm:border-l sm:border-t-0 sm:px-8 sm:py-6"
+              >
+                <span className="text-xs text-muted-foreground">Projects</span>
+                <span className="text-lg font-bold leading-none sm:text-3xl">
+                  {dashboard?.totalProjects}
+                </span>
+              </div>
+
+              <div className="relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l data-[active=true]:bg-muted/50 sm:border-l sm:border-t-0 sm:px-8 sm:py-6"
+              >
+                <span className="text-xs text-muted-foreground">Issues</span>
+                <span className="text-lg font-bold leading-none sm:text-3xl">
+                  {dashboard?.totalIssues}
+                </span>
+              </div>
+            </div>
+          </CardHeader>
+        </Card>
+      </div>
+      <div className="mt-1 sm:mt-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
         <HorizontalBarChart
-          title="Severity Chart"
+          title="Issues by severity"
           description="Showing issue severity levels"
           dataKey="severity"
           chartData={dashboard?.severity || {}}
         />
         <HorizontalBarChart
-          title="Priority Chart"
+          title="Issues by priority"
           description="Showing issue priority levels"
           dataKey="priority"
           chartData={dashboard?.priority || {}}
         />
         <PieCharts
-          title="Status Chart"
+          title="Project status"
+          description="Showing project status"
+          chartData={dashboard?.project || {}}
+          dataKey="status"
+        />
+      </div>
+      <div className="grid gap-2 mt-1 sm:mt-2 grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
+        <DonutChart chartData={dashboard?.issueType} dataKey={"issueType"} />
+        <StatusBarChart
+          title="Issues by status"
           description="Showing status priority levels"
           chartData={dashboard?.status || {}}
           dataKey="status"
         />
-        {/* <Card className="w-[30%] mt-2">
-        <CardHeader className="items-center pb-0">
-          <CardTitle>Issue Type</CardTitle>
-        </CardHeader>
-        <CardContent className="flex-1 pb-0">
-          <ChartContainer
-            config={chartConfig}
-            className="mx-auto aspect-square max-h-[250px]"
-          >
-            <PieChart>
-              <ChartTooltip
-                cursor={false}
-                content={<ChartTooltipContent hideLabel />}
-              />
-              <Pie
-                data={chartData}
-                dataKey="visitors"
-                nameKey="issueType"
-                innerRadius={60}
-                strokeWidth={5}
-              >
-              </Pie>
-            </PieChart>
-          </ChartContainer>
-        </CardContent>
-        <CardFooter className="flex-col gap-2 text-sm">
-          <div className="leading-none text-muted-foreground">
-            Showing total issue type
-          </div>
-        </CardFooter>
-      </Card> */}
-      </div>
-      <div className="grid gap-2 mt-1 sm:mt-2 grid-cols-1 sm:gap-4 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3">
 
+      </div>
+
+      <div className="w-full sm:w-[60%] flex justify-center mt-1 mb-2">
+        <DeviceChart
+          title="Issues by device"
+          description="Showing top 10 most devices"
+          dataKey="device"
+          chartData={dashboard?.topDevices || {}}
+        />
       </div>
     </div>
   );
