@@ -85,7 +85,7 @@ export default function TestPlan() {
                     accessorKey: "createdBy",
                     header: "Created By",
                     cell: ({ row }: { row: any }) => (
-                        <div className="">{`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}</div>
+                        <div className="">{`${row.original?.userId?.firstName || ""} ${row.original?.userId?.lastName || ""}`}</div>
                     ),
                 }] : []
         ),

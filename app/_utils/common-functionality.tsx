@@ -93,12 +93,13 @@ export const showTestCaseResultStatusBadge = (role: string) => {
     }
 }
 
-export const ExportExcelFile = (excel: () => void) => {
+export const ExportExcelFile = (excel: () => void, hasData: Boolean) => {
     return (
         <Button
             type={"button"}
             variant={"outline"}
             // size="icon"
+            disabled={!hasData}
             onClick={excel}
         >
             <FileSpreadsheet /> Export

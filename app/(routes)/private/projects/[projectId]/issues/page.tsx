@@ -269,7 +269,9 @@ export default function Issues() {
   };
 
   const generateExcel = () => {
-    const header = ["ID", "Title", "Severity", "Priority", "issueType", "testCycle", "Device Name", "Created By", "Status"];
+    const header = userData.role === UserRoles.ADMIN ?
+      ["ID", "Title", "Severity", "Priority", "issueType", "testCycle", "Device Name", "Created By", "Status"] :
+      ["ID", "Title", "Severity", "Priority", "issueType", "testCycle", "Device Name", "Status"];
     const data = table.getRowModel().rows?.map((row) => [
       row.original.customId,
       row.original.title,
@@ -278,11 +280,17 @@ export default function Issues() {
       row.original.issueType,
       row.original.testCycle?.title || "",
       row.original.device?.[0]?.name || "",
-      `${row.original.userId?.firstName} ${row.original.userId?.lastName}` || "",
-      row.original.status,
+      userData?.role === UserRoles.ADMIN
+        ? `${row.original.userId?.firstName} ${row.original.userId?.lastName}` || ""
+        : row.original.status,
+      userData?.role === UserRoles.ADMIN
+        ? row.original.status || "" :
+        ""
     ]);
     generateExcelFile(header, data, "Issues.xlsx");
   }
+  const hasData = table.getRowModel().rows?.length > 0;
+
 
   return (
     <main className="mx-4 mt-2">
@@ -307,16 +315,15 @@ export default function Issues() {
             }}
             className="max-w-sm"
           />
-          {userData?.role !== UserRoles.CLIENT &&
-            <div className="flex gap-2 ml-2">
-              <div>
-                {ExportExcelFile(generateExcel)}
-              </div>
-              {(project?.isActive === true || userData?.role === UserRoles.ADMIN) &&
-                <AddIssue refreshIssues={refreshIssues} />
-              }
+          <div className="flex gap-2 ml-2">
+            <div>
+              {ExportExcelFile(generateExcel, hasData)}
             </div>
-          }
+            {userData?.role !== UserRoles.CLIENT &&
+              (project?.isActive === true || userData?.role === UserRoles.ADMIN) &&
+              <AddIssue refreshIssues={refreshIssues} />
+            }
+          </div>
         </div>
         <div className="rounded-md border">
           <Table>

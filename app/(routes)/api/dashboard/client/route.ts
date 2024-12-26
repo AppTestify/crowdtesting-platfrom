@@ -37,7 +37,10 @@ export async function GET(req: Request) {
       );
     }
 
-    const projects = await Project.find({ userId: session.user._id });
+    const projects = await Project.find({
+      userId: session.user._id,
+      deletedAt: { $exists: false },
+    });
     const issues = await Issue.find({
       projectId: projects.map((project) => project._id),
     });
