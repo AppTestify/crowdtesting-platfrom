@@ -155,7 +155,7 @@ export default function Projects() {
       );
     },
   };
-  columns = hasUserId
+  columns = hasUserId && userData?.role === UserRoles.ADMIN
     ? [...columns, createdByColumn, statusColumn, actionsColumn] :
     userData?.role === UserRoles.TESTER ? [...columns, statusColumn]
       : [...columns, statusColumn, actionsColumn];

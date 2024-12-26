@@ -31,16 +31,13 @@ export default function Payment({ userId }: { userId: string }) {
                 );
             },
         },
-        // ...(
-        //     notes.some((item) => item?.userId?._id) ?
-        //         [{
-        //             accessorKey: "createdBy",
-        //             header: "Created By",
-        //             cell: ({ row }: { row: any }) => (
-        //                 <div className="">{`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}</div>
-        //             ),
-        //         }] : []
-        // ),
+        // {
+        //     accessorKey: "createdBy",
+        //     header: "Created By",
+        //     cell: ({ row }: { row: any }) => (
+        //         <div className="">{`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}</div>
+        //     ),
+        // },
         // {
         //     accessorKey: "createdAt",
         //     header: "Created On",
@@ -59,7 +56,9 @@ export default function Payment({ userId }: { userId: string }) {
         // },
     ];
 
+    
     const [payments, setPayments] = useState<IPayment[]>([]);
+    console.log("payments",payments);
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
     const [rowSelection, setRowSelection] = useState({});
