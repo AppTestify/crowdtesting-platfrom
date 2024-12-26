@@ -149,10 +149,10 @@ export default function GeneralSettings() {
 
             <div className="flex flex-col mb-3 gap-1 mt-2">
                 <span className="text-lg">General settings</span>
-                <span className="text-gray-500 text-xs">
+                {/* <span className="text-gray-500 text-xs">
                     Lorem ipsum dolor sit amet consectetur adipisicing elit.
                     Pariatur error magni cumque in nostrum atque, tempora optio neque est numquam.
-                </span>
+                </span> */}
             </div>
             <div className="mt-3">
                 <Form {...form}>

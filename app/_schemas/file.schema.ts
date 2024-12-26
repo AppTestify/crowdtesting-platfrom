@@ -9,5 +9,5 @@ export const fileSchema = z.object({
 });
 
 export const filesSchema = z.object({
-  fileIds: z.array(z.string()).min(1, 'Atleast one file id is required'),
+  fileIds: z.array(z.string()).min(1, "Atleast one file id is required"),
 });

@@ -79,7 +79,9 @@ export const getFileService = async (fileId: string): Promise<any> => {
   }
 };
 
-export const getFilesByUserIdToAdminService = async (userId: string): Promise<any> => {
+export const getFilesByUserIdToAdminService = async (
+  userId: string
+): Promise<any> => {
   try {
     const response = await genericGet(`${FILES_ENDPOINT}/user/${userId}`);
 
@@ -90,9 +92,13 @@ export const getFilesByUserIdToAdminService = async (userId: string): Promise<an
   }
 };
 
-export const getApprovalFilesService = async (verify: boolean): Promise<any> => {
+export const getApprovalFilesService = async (
+  verify: boolean
+): Promise<any> => {
   try {
-    const response = await genericGet(`${FILES_ENDPOINT}/approval?verify=${verify}`);
+    const response = await genericGet(
+      `${FILES_ENDPOINT}/approval?verify=${verify}`
+    );
 
     return response || {};
   } catch (error) {
@@ -112,9 +118,11 @@ export const verifyFileService = async (fileId: string): Promise<any> => {
   }
 };
 
-export const verifyFilesService = async (fileIds: string): Promise<any> => {
+export const verifyFilesService = async (fileIds: string[]): Promise<any> => {
   try {
-    const response = await genericPut(`${FILES_ENDPOINT}/multiple-verify`, fileIds);
+    const response = await genericPut(`${FILES_ENDPOINT}/multiple-verify`, {
+      fileIds,
+    });
 
     return response || {};
   } catch (error) {

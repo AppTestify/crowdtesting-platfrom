@@ -14,6 +14,8 @@ import VerifiedRowActions from '../verified-row-actions';
 import { useSearchParams } from 'next/navigation';
 import ViewTesterIssue from '../../../users/_components/view-user';
 import { IUserByAdmin } from '@/app/_interface/user';
+import { UserRoles } from '@/app/_constants/user-roles';
+import { DocumentBulkVeified } from '../bulk-verify';
 
 export default function VerifiedDocuments() {
     const [documents, setDocuments] = useState<IDocument[]>([]);
@@ -21,14 +23,6 @@ export default function VerifiedDocuments() {
     const searchParams = useSearchParams();
     const [isViewOpen, setIsViewOpen] = useState(false);
     const user = searchParams.get('user');
-
-    // const verifyMultipleDocuments = async () => {
-    //     try {
-    //         // const response = await verifyFilesService();
-    //     } catch (error) {
-    //         toasterService.error();
-    //     }
-    // }
 
     const columns: ColumnDef<IDocument>[] = [
         {
@@ -138,6 +132,11 @@ export default function VerifiedDocuments() {
         }
     }
 
+    const getSelectedRows = () => {
+        return table.getFilteredSelectedRowModel().rows.map((row) => row.original?.id)
+            .filter((id): id is string => id !== undefined);
+    };
+
     const refreshDocuments = () => {
         verifyDocument();
     }
@@ -168,17 +167,16 @@ export default function VerifiedDocuments() {
                     }}
                     className="max-w-sm"
                 />
-                {/* {userData?.role != UserRoles.CLIENT &&
+                {userData?.role != UserRoles.CLIENT &&
                     <div className="flex gap-2 ml-2">
                         {getSelectedRows().length ? (
-                            <BulkDelete
+                            <DocumentBulkVeified
                                 ids={getSelectedRows()}
-                                refreshDevices={refreshDevices}
+                                refreshDocuments={refreshDocuments}
                             />
                         ) : null}
-                        <AddDevice browsers={browsers} refreshDevices={refreshDevices} />
                     </div>
-                } */}
+                }
             </div>
             <div className="rounded-md border w-full">
                 <Table className=''>
