@@ -52,8 +52,8 @@ export default function VerifiedRowActions({ row, refreshDocuments }:
             <ConfirmationDialog
                 isOpen={isVerifyOpen}
                 setIsOpen={setIsVerifyOpen}
-                title="Verified document"
-                description="Are you sure you want verified this document?"
+                title="Verify document"
+                description="Are you sure you want verify this document?"
                 isLoading={isLoading}
                 successAction={verifyDocument}
                 successLabel="Verify"
@@ -75,7 +75,7 @@ export default function VerifiedRowActions({ row, refreshDocuments }:
                             </Button>
                         </TooltipTrigger>
                         <TooltipContent>
-                            <p>Verified</p>
+                            <p>Verify</p>
                         </TooltipContent>
                     </Tooltip>
                 </TooltipProvider>

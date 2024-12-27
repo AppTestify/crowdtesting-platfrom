@@ -49,7 +49,6 @@ export async function POST(req: Request) {
     const newProject = new Payment({
       ...response.data,
       senderId: session.user._id,
-      status: PaymentStatus.COMPLETED,
     });
     const saveProject = await newProject.save();
 

@@ -102,7 +102,10 @@ export default function Users() {
             accessorKey: "email",
             header: "Email",
             cell: ({ row }) => (
-                <div className="">{row.getValue("email")}</div>
+                <div className="hover:text-primary hover:cursor-pointer"
+                    onClick={() => getUser(row.original as IUserByAdmin)}
+                >
+                    {row.getValue("email")}</div>
             ),
         },
         ...(UserRoles.TESTER === selectedRole

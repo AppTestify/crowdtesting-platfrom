@@ -1,4 +1,4 @@
-import { PaymentStatusList } from '@/app/_constants/payment';
+import { PaymentStatus, PaymentStatusList } from '@/app/_constants/payment';
 import { IProject } from '@/app/_interface/project';
 import { addPaymentsService } from '@/app/_services/payment.service';
 import { getProjectsWithoutPaginationService } from '@/app/_services/project.service';
@@ -41,6 +41,7 @@ export default function AddPayment({ isOpen, closeDialog, userId, refreshPayment
         resolver: zodResolver(paymentSchema),
         defaultValues: {
             receiverId: userId || "",
+            status: PaymentStatus.COMPLETED
         },
     });
 
@@ -87,9 +88,6 @@ export default function AddPayment({ isOpen, closeDialog, userId, refreshPayment
                 <DialogContent className="sm:max-w-[500px]">
                     <DialogHeader>
                         <DialogTitle>Add payment</DialogTitle>
-                        <DialogDescription>
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Delectus, obcaecati.
-                        </DialogDescription>
                     </DialogHeader>
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} method="post">
