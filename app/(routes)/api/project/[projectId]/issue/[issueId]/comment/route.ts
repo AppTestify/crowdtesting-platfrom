@@ -5,14 +5,16 @@ import {
   USER_UNAUTHORIZED_SERVER_ERROR_MESSAGE,
 } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
-import { PaymentStatus } from "@/app/_constants/payment";
 import { connectDatabase } from "@/app/_db";
 import { verifySession } from "@/app/_lib/dal";
-import { Payment } from "@/app/_models/payment.model";
-import { paymentSchema } from "@/app/_schemas/payment.schema";
+import { Comment } from "@/app/_models/comment.model";
+import { CommentSchema } from "@/app/_schemas/comment.schema";
 import { errorHandler } from "@/app/_utils/error-handler";
 
-export async function POST(req: Request) {
+export async function POST(
+  req: Request,
+  { params }: { params: { projectId: string } }
+) {
   try {
     const session = await verifySession();
 
@@ -34,7 +36,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const response = paymentSchema.safeParse(body);
+    const response = CommentSchema.safeParse(body);
 
     if (!response.success) {
       return Response.json(
@@ -46,17 +48,47 @@ export async function POST(req: Request) {
       );
     }
 
-    const newProject = new Payment({
+    const newNote = new Comment({
       ...response.data,
-      senderId: session.user._id,
-      status: PaymentStatus.COMPLETED,
+      commentedBy: session.user._id,
     });
-    const saveProject = await newProject.save();
+    const saveNote = await newNote.save();
 
     return Response.json({
-      message: "Payment added successfully",
-      id: saveProject._id,
+      message: "Comment added successfully",
+      id: saveNote?._id,
     });
+  } catch (error: any) {
+    return errorHandler(error);
+  }
+}
+
+export async function GET(
+  req: Request,
+  { params }: { params: { projectId: string } }
+) {
+  try {
+    const session = await verifySession();
+    if (!session || !session.isAuth) {
+      return Response.json(
+        { message: USER_UNAUTHORIZED_SERVER_ERROR_MESSAGE },
+        { status: HttpStatusCode.UNAUTHORIZED }
+      );
+    }
+
+    const isDBConnected = await connectDatabase();
+    if (!isDBConnected) {
+      return Response.json(
+        {
+          message: DB_CONNECTION_ERROR_MESSAGE,
+        },
+        { status: HttpStatusCode.INTERNAL_SERVER_ERROR }
+      );
+    }
+
+    const response = await Comment.find({ isDelete: false });
+
+    return Response.json(response);
   } catch (error: any) {
     return errorHandler(error);
   }

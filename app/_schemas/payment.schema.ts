@@ -13,5 +13,6 @@ export const paymentSchema = z.object({
         ),
     projectId: z.string().optional(),
     description: z.string().optional(),
-    status: z.string().optional()
+    status: z.string().optional(),
+    senderId: z.string().optional()
 });

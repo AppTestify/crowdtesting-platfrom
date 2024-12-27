@@ -2,11 +2,13 @@ import { IPayment } from '@/app/_interface/payment';
 import { getPaymentsByUserService } from '@/app/_services/payment.service';
 import toasterService from '@/app/_services/toaster-service'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ColumnDef, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, SortingState, useReactTable, VisibilityState } from '@tanstack/react-table';
+import { ColumnDef, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, Row, SortingState, useReactTable, VisibilityState } from '@tanstack/react-table';
 import React, { useEffect, useState } from 'react'
 import AddPayment from './_components/add-payment';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
+import { PaymentRowActions } from './_components/row-actions';
+import { paymentStatusBadge } from '@/app/_utils/common-functionality';
 
 export default function Payment({ userId }: { userId: string }) {
 
@@ -31,34 +33,33 @@ export default function Payment({ userId }: { userId: string }) {
                 );
             },
         },
-        // {
-        //     accessorKey: "createdBy",
-        //     header: "Created By",
-        //     cell: ({ row }: { row: any }) => (
-        //         <div className="">{`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}</div>
-        //     ),
-        // },
-        // {
-        //     accessorKey: "createdAt",
-        //     header: "Created On",
-        //     cell: ({ row }) => (
-        //         <div className="capitalize">
-        //             {formatDate(row.getValue("createdAt"))}
-        //         </div>
-        //     ),
-        // },
-        // {
-        //     id: "actions",
-        //     enableHiding: false,
-        //     cell: ({ row }) => (
-        //         <NoteRowActions row={row as Row<INote>} refreshNotes={refreshNotes} />
-        //     ),
-        // },
+        {
+            accessorKey: "createdBy",
+            header: "Created By",
+            cell: ({ row }: { row: any }) => (
+                <div className="">{`${row.original?.senderId?.firstName} ${row.original?.senderId?.lastName}`}</div>
+            ),
+        },
+        {
+            accessorKey: "status",
+            header: "Status",
+            cell: ({ row }: { row: any }) => (
+                <div className="">
+                    {paymentStatusBadge(row.original?.status)}
+                </div>
+            ),
+        },
+        {
+            id: "actions",
+            enableHiding: false,
+            cell: ({ row }) => (
+                <PaymentRowActions row={row as Row<IPayment>} refreshPayment={refreshPayment} />
+            ),
+        },
     ];
 
-    
+
     const [payments, setPayments] = useState<IPayment[]>([]);
-    console.log("payments",payments);
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
     const [rowSelection, setRowSelection] = useState({});

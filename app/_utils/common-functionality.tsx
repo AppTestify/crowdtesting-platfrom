@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { UserRoles } from "../_constants/user-roles";
 import { ProjectUserRoles } from "../_constants/project-user-roles";
 import { TestCaseExecutionResult } from "../_constants/test-case";
+import { PaymentStatus } from "../_constants/payment";
 
 export const displayIcon = (priority: string) => {
     switch (priority) {
@@ -91,3 +92,24 @@ export const showTestCaseResultStatusBadge = (role: string) => {
             return null;
     }
 }
+
+export const paymentStatusBadge = (status: string | undefined) => {
+    switch (status) {
+        case PaymentStatus.COMPLETED:
+            return <Badge className="bg-primary hover:bg-primary font-medium">{PaymentStatus?.COMPLETED}</Badge>;
+        case PaymentStatus.FAILED:
+            return <Badge className="bg-red-700 hover:bg-red-700 font-medium">{PaymentStatus?.FAILED}</Badge>;
+        case PaymentStatus.CANCELLED:
+            return <Badge className="bg-yellow-400 hover:bg-yellow-400 font-medium">{PaymentStatus?.CANCELLED}</Badge>;
+        case PaymentStatus.REFUNDED:
+            return <Badge className="bg-blue-400 hover:bg-blue-400 font-medium">{PaymentStatus?.REFUNDED}</Badge>;
+        case PaymentStatus.PROCESSING:
+            return <Badge className="bg-gray-400 hover:bg-gray-400 font-medium">{PaymentStatus?.PROCESSING}</Badge>;
+        case PaymentStatus.DECLINED:
+            return <Badge className="bg-red-400 hover:bg-red-400 font-medium text-center">{PaymentStatus?.DECLINED}</Badge>;
+        case PaymentStatus.PENDING:
+            return <Badge className="bg-orange-400 hover:bg-orange-400 font-medium text-center">{PaymentStatus?.PENDING}</Badge>;
+        default:
+            return null;
+    }
+} 

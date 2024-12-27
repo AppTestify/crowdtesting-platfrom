@@ -10,66 +10,60 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Row } from "@tanstack/react-table";
-import { Edit, Eye, MoreHorizontal, Send, Trash } from "lucide-react";
+import { Edit, MoreHorizontal, Trash } from "lucide-react";
 import { useState } from "react";
-import { IUserByAdmin } from "@/app/_interface/user";
-import { deleteUserService, sendUserCredentialsService } from "@/app/_services/user.service";
-// import EditUser from "../edit-user";
-// import ViewTesterIssue from "../view-user";
+import { IPayment } from "@/app/_interface/payment";
+import { deletePaymentService } from "@/app/_services/payment.service";
+import EditPayment from "../edit-payment";
 
-export function DocumentRowActions({
+export function PaymentRowActions({
     row,
-    refreshUsers,
+    refreshPayment,
 }: {
-    row: Row<IUserByAdmin>;
-    refreshUsers: () => void;
+    row: Row<IPayment>;
+    refreshPayment: () => void;
 }) {
-    const [isEditOpen, setIsEditOpen] = useState(false);
-    const [isViewOpen, setIsViewOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const userId = row.original.id as string;
+    const [isEditOpen, setIsEditOpen] = useState(false);
+    const paymentId = row.original._id as string;
 
-    const deleteDevice = async () => {
+    const deletePayment = async () => {
         try {
             setIsLoading(true);
-            const response = await deleteUserService(userId);
+            const response = await deletePaymentService(paymentId);
 
             if (response?.message) {
                 setIsLoading(false);
-                refreshUsers();
+                refreshPayment();
                 setIsDeleteOpen(false);
                 toasterService.success(response.message);
             }
         } catch (error) {
             toasterService.error();
             setIsDeleteOpen(false);
-            console.log("Error > deleteDevice");
+            console.log("Error > deletePayment");
         }
     };
 
+    const closeDialog = () => setIsEditOpen(false);
+
     return (
         <>
-            {/* <EditUser
-                user={row.original}
-                sheetOpen={isEditOpen}
-                setSheetOpen={setIsEditOpen}
-                refreshUsers={refreshUsers}
+            <EditPayment
+                payment={row.original}
+                isDialogOpen={isEditOpen}
+                dialogClose={closeDialog}
+                refreshPayment={refreshPayment}
             />
-
-            <ViewTesterIssue
-                user={row.original as IUserByAdmin}
-                sheetOpen={isViewOpen}
-                setSheetOpen={setIsViewOpen}
-            /> */}
 
             <ConfirmationDialog
                 isOpen={isDeleteOpen}
                 setIsOpen={setIsDeleteOpen}
-                title="Delete user"
-                description="Are you sure you want delete this user?"
+                title="Delete payment"
+                description="Are you sure you want delete this payment?"
                 isLoading={isLoading}
-                successAction={deleteDevice}
+                successAction={deletePayment}
                 successLabel="Delete"
                 successLoadingLabel="Deleting"
                 successVariant={"destructive"}

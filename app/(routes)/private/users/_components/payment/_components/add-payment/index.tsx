@@ -1,3 +1,4 @@
+import { PaymentStatusList } from '@/app/_constants/payment';
 import { IProject } from '@/app/_interface/project';
 import { addPaymentsService } from '@/app/_services/payment.service';
 import { getProjectsWithoutPaginationService } from '@/app/_services/project.service';
@@ -39,7 +40,7 @@ export default function AddPayment({ isOpen, closeDialog, userId, refreshPayment
     const form = useForm<z.infer<typeof paymentSchema>>({
         resolver: zodResolver(paymentSchema),
         defaultValues: {
-            receiverId: userId || ""
+            receiverId: userId || "",
         },
     });
 
@@ -158,9 +159,39 @@ export default function AddPayment({ isOpen, closeDialog, userId, refreshPayment
                                         </FormItem>
                                     )}
                                 />
+
+                                <FormField
+                                    control={form.control}
+                                    name="status"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-col">
+                                            <FormLabel>status</FormLabel>
+                                            <Select
+                                                onValueChange={field.onChange}
+                                                value={field.value}
+                                            >
+                                                <SelectTrigger className="w-full">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectGroup>
+                                                        {PaymentStatusList.map((status) => (
+                                                            <SelectItem value={status}>
+                                                                <div className="flex items-center">
+                                                                    {status}
+                                                                </div>
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectGroup>
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
                             </div>
                             <DialogFooter className="mt-4">
-                                <Button type="submit">
+                                <Button type="submit" disabled={isLoading}>
                                     {isLoading ? (
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                     ) : null}

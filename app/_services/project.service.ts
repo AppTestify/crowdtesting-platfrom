@@ -32,8 +32,6 @@ export const deleteProjectService = async (id: string): Promise<any> => {
   }
 };
 
-
-
 export const projectsBulkDeleteService = async (
   body: IProjectBulkDeletePayload
 ): Promise<any> => {
