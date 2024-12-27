@@ -78,7 +78,7 @@ const ViewIssue = () => {
     try {
       const response = await addCommentService(projectId, issueId, values);
       if (response) {
-        getComments();
+        // getComments();
         reset();
       }
     } catch (error) {
@@ -86,14 +86,14 @@ const ViewIssue = () => {
     }
   }
 
-  const getComments = async () => {
-    try {
-      const response = await getCommentsService(projectId, issueId);
-      setComments(response);
-    } catch (error) {
-      toasterService.error();
-    }
-  }
+  // const getComments = async () => {
+  //   try {
+  //     const response = await getCommentsService(projectId, issueId);
+  //     setComments(response);
+  //   } catch (error) {
+  //     toasterService.error();
+  //   }
+  // }
 
   const reset = () => {
     form.reset();
@@ -101,7 +101,7 @@ const ViewIssue = () => {
 
   useEffect(() => {
     getAttachments();
-    getComments();
+    // getComments();
   }, [projectId, issueId]);
 
   return (
@@ -244,9 +244,9 @@ const ViewIssue = () => {
                 </form>
               </Form>
             </div>
-          </div> */}
+          </div>
 
-          {/* <div className="mt-3">
+          <div className="mt-3">
             {comments.map((comment, index) => (
               <div
                 key={index}
