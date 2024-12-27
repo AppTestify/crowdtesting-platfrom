@@ -2,8 +2,6 @@ import { PAGINATION_QUERY_ENDPOINT, PROJECT_USER_ENPOINT, PROJECTS_BULK_DELETE_E
 import { IProject, IProjectBulkDeletePayload, IProjectPayload, IProjectUser } from "../_interface/project";
 import { genericDelete, genericGet, genericPost, genericPut } from "./generic-api-methods";
 
-
-
 export const getProjectsService = async (index: Number, pageSize: Number): Promise<any> => {
   try {
     const response = await genericGet(`${PROJECTS_ENDPOINT}${PAGINATION_QUERY_ENDPOINT(index, pageSize)}`);
@@ -33,8 +31,6 @@ export const deleteProjectService = async (id: string): Promise<any> => {
     throw error;
   }
 };
-
-
 
 export const projectsBulkDeleteService = async (
   body: IProjectBulkDeletePayload
@@ -120,6 +116,16 @@ export const editProjectUserService = async (projectId: string, body: IProjectUs
     return response || {};
   } catch (error) {
     console.error(`Error > editProjectUserService:`, error);
+    throw error;
+  }
+};
+
+export const getProjectsWithoutPaginationService = async (): Promise<any> => {
+  try {
+    const response = await genericGet(`${PROJECTS_ENDPOINT}/without-pagination`);
+    return response || [];
+  } catch (error) {
+    console.error(`Error > getProjectUsersService:`, error);
     throw error;
   }
 };

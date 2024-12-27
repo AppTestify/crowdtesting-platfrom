@@ -72,7 +72,7 @@ export default function Users() {
             accessorKey: "customId",
             header: "ID",
             cell: ({ row }) => (
-                <div className="hover:text-primary cursor-pointer"
+                <div className="hover:text-primary hover:cursor-pointer"
                     onClick={() => getUser(row.original as IUserByAdmin)}
                 >{row.getValue("customId")}</div>
             ),

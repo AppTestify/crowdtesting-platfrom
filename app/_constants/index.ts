@@ -7,10 +7,12 @@ export enum DBModels {
   PROJECT = "Project",
   REQUIREMENT = "Requirement",
   ISSUE = "Issue",
+  PAYMENT = "Payment",
   ISSUE_ATTACHMENT = "IssueAttachment",
   TEST_SUITE = "TestSuite",
   WEBSITE = "Website",
   TEST_PLAN = "TestPlan",
+  COMMENT = "Comment",
   TEST_CASE = "TestCase",
   TEST_CASE_RESULT = "TestCaseResult",
   TEST_CASE_STEP = "TestCaseStep",
@@ -21,7 +23,7 @@ export enum DBModels {
   ID_FORMAT = "IdFormat",
   COUNTER = "Counter",
   NOTE = "Note",
-  SUPPORT_EMAIL = "SupportEmail"
+  SUPPORT_EMAIL = "SupportEmail",
 }
 
 export const JWT_TOKEN_EXPIRE_LIMIT = "8h";
