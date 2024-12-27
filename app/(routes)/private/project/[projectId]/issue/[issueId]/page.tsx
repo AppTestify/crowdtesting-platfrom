@@ -200,7 +200,7 @@ const ViewIssue = () => {
             </Accordion>
           </div>
 
-          <div className="mt-3">
+          {/* <div className="mt-3">
             <div className="text-sm ">Comments</div>
             <div className="w-full mb-3 mt-2">
               <Form {...form}>
@@ -244,22 +244,18 @@ const ViewIssue = () => {
                 </form>
               </Form>
             </div>
-          </div>
+          </div> */}
 
-          {/* display comment */}
           {/* <div className="mt-3">
             {comments.map((comment, index) => (
               <div
                 key={index}
                 className="bg-gray-50 p-3 rounded-lg mb-3 shadow-sm"
               >
-                {/* Comment Content */}
-                {/* <div className="text-gray-800">{comment?.content}</div>
+                <div className="text-gray-800">{comment?.content}</div>
 
-                {/* Footer */}
-                {/* <div className="flex justify-between items-center mt-2">
-                  {/* Avatar and Name */}
-                  {/* <div className="flex items-center space-x-3">
+                <div className="flex justify-between items-center mt-2">
+                  <div className="flex items-center space-x-3">
                     <Avatar className="h-8 w-8 bg-gray-400">
                       <AvatarImage
                         src={getFormattedBase64ForSrc(comment?.commentedBy?.profilePicture)}
@@ -277,10 +273,8 @@ const ViewIssue = () => {
                     </span>
                   </div>
 
-                  {/* Timestamp */}
-                  {/* <div className="text-xs text-gray-500">
-                    {/* {formatDate()} */}
-                    {/* {formatDistanceToNow(new Date(comment?.createdAt || new Date()), { addSuffix: true })}
+                  <div className="text-xs text-gray-500">
+                    {formatDistanceToNow(new Date(comment?.createdAt || new Date()), { addSuffix: true })}
                   </div>
                 </div>
               </div>
