@@ -4,12 +4,8 @@ import {
   SIGN_UP_GOOGLE_ENDPOINT,
 } from "@/app/_constants/api-endpoints";
 import { CookieKey } from "@/app/_constants/cookie-keys";
-import { GENERIC_ERROR_MESSAGE } from "@/app/_constants/errors";
-import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { UserRoles } from "@/app/_constants/user-roles";
-import { INewUser } from "@/app/_interface/user";
 import { createSession } from "@/app/_lib/session";
-import { SupportEmail } from "@/app/_models/support-email.model";
 import { Website } from "@/app/_models/website.model";
 import { signInService, signUpService } from "@/app/_services/auth-service";
 import { genericPost } from "@/app/_services/generic-api-methods";
@@ -173,7 +169,7 @@ const handleAuthorization = async (credentials: any) => {
       role: role,
     });
     if (response?.user) {
-      const adminUsers = await SupportEmail.findOne();
+      const adminUsers = await Website.findOne();
       sendSignUpEmailToAdmin(response?.user as any, adminUsers?.emails);
 
       return response.user;

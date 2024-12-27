@@ -32,6 +32,7 @@ export const updateTesterProfile = async (
         postalCode: body.postalCode,
         country: body.country,
       },
+      languages: body.languages,
     };
     const response = await genericPost(TESTER_ENDPOINT, payload);
 

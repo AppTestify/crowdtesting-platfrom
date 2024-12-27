@@ -12,6 +12,11 @@ export const addressSchema = z.object({
   country: z.string().min(1, "Country is required"),
 });
 
+export const languageSchema = z.object({
+  name: z.string().min(1, "Language name is required"),
+  proficiency: z.string().optional(),
+});
+
 export const testerSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
@@ -19,4 +24,5 @@ export const testerSchema = z.object({
   bio: z.string().optional(),
   certifications: z.array(certificationSchema).min(1),
   address: addressSchema,
+  languages: z.array(languageSchema),
 });

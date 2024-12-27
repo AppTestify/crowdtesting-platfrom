@@ -2,7 +2,7 @@ import mongoose, { Document, Schema, Types, model } from "mongoose";
 import { DBModels } from "../_constants";
 
 export interface IComment extends Document {
-  entityId: string;
+  entityId: Types.ObjectId;
   entityType: string;
   content: string;
   commentedBy: Types.ObjectId;
@@ -13,8 +13,8 @@ export interface IComment extends Document {
 
 const commentSchema = new Schema<IComment>(
   {
-    entityId: { type: String, required: true },
-    entityType: { type: String, required: true },
+    entityType: { type: String, default: "Issue" },
+    entityId: { type: Schema.Types.ObjectId, ref: DBModels.ISSUE },
     content: { type: String, required: true },
     commentedBy: { type: Schema.Types.ObjectId, ref: DBModels.USER },
     updatedBy: { type: Schema.Types.ObjectId, ref: DBModels.USER },

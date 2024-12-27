@@ -9,9 +9,10 @@ import {
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
 import AttachmentService from "@/app/_helpers/attachment.helper";
+import { IWebsite } from "@/app/_interface/website";
 import { verifySession } from "@/app/_lib/dal";
 import { File } from "@/app/_models/file.model";
-import { ISupportEmail, SupportEmail } from "@/app/_models/support-email.model";
+import { Website } from "@/app/_models/website.model";
 import { fileSchema } from "@/app/_schemas/file.schema";
 import { getFileMetaData } from "@/app/_utils/common-server-side";
 import { normaliseIds } from "@/app/_utils/data-formatters";
@@ -56,16 +57,17 @@ export async function POST(req: Request) {
       );
     }
 
-    const { name, contentType } = await getFileMetaData(
-      response.data.file
-    );
+    const { name, contentType } = await getFileMetaData(response.data.file);
 
     if (!file) {
       throw new Error(GENERIC_ERROR_MESSAGE);
     }
 
     const attachmentService = new AttachmentService();
-    const cloudId = await attachmentService.uploadFileInGivenFolderInDrive(file, AttachmentFolder.USERS);
+    const cloudId = await attachmentService.uploadFileInGivenFolderInDrive(
+      file,
+      AttachmentFolder.USERS
+    );
 
     const newFile = new File({
       name: name,
@@ -73,23 +75,26 @@ export async function POST(req: Request) {
       userId: userId,
       isVerify: false,
       cloudId: cloudId,
-      contentType: contentType
+      contentType: contentType,
     });
 
     const saveFile = await newFile.save();
 
     if (saveFile) {
-      const adminMails = await SupportEmail.find({});
-      const emails = adminMails.map(mail => mail.emails).flat();
-      const documentLink = process.env.NEXTAUTH_URL + `/private/documents?user=${session.user?._id}`
+      const adminMails = (await Website.find({})) as IWebsite[];
+      const emails = adminMails?.map((mail) => mail.emails).flat();
+
+      const documentLink =
+        process.env.NEXTAUTH_URL +
+        `/private/documents?user=${session.user?._id}`;
       const emailData = {
         emails: emails,
         documentName: saveFile?.name,
         documentType: saveFile?.fileType,
         firstName: session.user?.firstName,
         lastName: session.user?.lastName,
-        link: documentLink
-      }
+        link: documentLink,
+      };
       await sendDocumentApprovalMail(emailData);
     }
 

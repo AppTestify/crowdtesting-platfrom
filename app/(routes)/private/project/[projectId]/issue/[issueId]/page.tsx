@@ -16,13 +16,28 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { ChevronRight, Slash } from "lucide-react";
+import { SendHorizontal, Slash } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import IssueAttachments from "@/app/(routes)/private/projects/[projectId]/issues/_components/attachments/issue-attachment";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getAvatarFallbackText, getFormattedBase64ForSrc } from "@/app/_utils/string-formatters";
 import { useSession } from "next-auth/react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { addCommentService, getCommentsService } from "@/app/_services/comment.service";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { IComment } from "@/app/_interface/comment";
+import { formatDistanceToNow } from "date-fns";
+
+const commentSchema = z.object({
+  entityId: z.string().min(1, "Required"),
+  content: z.string().min(1, 'Required'),
+});
+
 
 const ViewIssue = () => {
   const [isViewLoading, setIsViewLoading] = useState<boolean>(false);
@@ -31,6 +46,15 @@ const ViewIssue = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const { data } = useSession();
   const [user, setUser] = useState<any | null>();
+  const [comments, setComments] = useState<IComment[]>([]);
+
+  const form = useForm<z.infer<typeof commentSchema>>({
+    resolver: zodResolver(commentSchema),
+    defaultValues: {
+      entityId: issueId,
+      content: "",
+    },
+  });
 
   useEffect(() => {
     if (data && data?.user) {
@@ -50,9 +74,36 @@ const ViewIssue = () => {
     }
   };
 
+  async function onSubmit(values: z.infer<typeof commentSchema>) {
+    try {
+      const response = await addCommentService(projectId, issueId, values);
+      if (response) {
+        getComments();
+        reset();
+      }
+    } catch (error) {
+      toasterService.error();
+    }
+  }
+
+  const getComments = async () => {
+    try {
+      const response = await getCommentsService(projectId, issueId);
+      setComments(response);
+    } catch (error) {
+      toasterService.error();
+    }
+  }
+
+  const reset = () => {
+    form.reset();
+  }
+
   useEffect(() => {
     getAttachments();
+    getComments();
   }, [projectId, issueId]);
+
   return (
     <div className="pb-0 mt-2">
       {!isViewLoading ? (
@@ -149,28 +200,101 @@ const ViewIssue = () => {
             </Accordion>
           </div>
 
-          {/* <div className="mt-4">
-            <Avatar className="h-12 w-12">
-              <AvatarImage
-                src={getFormattedBase64ForSrc(issueData?.userId?.profilePicture)}
-                alt="@profilePicture"
-              />
-              <AvatarFallback>
-                {getAvatarFallbackText({
-                  ...user,
-                  name: `${issueData?.userId?.firstName || ""} ${issueData?.userId?.lastName || ""
-                    }`,
-                })}
-              </AvatarFallback>
-            </Avatar>
+          <div className="mt-3">
+            <div className="text-sm ">Comments</div>
+            <div className="w-full mb-3 mt-2">
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} method="post">
+                  <FormField
+                    control={form.control}
+                    name="content"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <div className="flex items-center">
+                            <Avatar className="h-10 w-10">
+                              <AvatarImage
+                                src={getFormattedBase64ForSrc(user?.profilePicture)}
+                                alt="@profilePicture"
+                              />
+                              <AvatarFallback>
+                                {getAvatarFallbackText({
+                                  ...user,
+                                  name: `${user?.firstName || ""} ${user?.lastName || ""
+                                    }`,
+                                })}
+                              </AvatarFallback>
+                            </Avatar>
+                            <Input
+                              type="text"
+                              className="ml-3 rounded-sm border border-gray-300 "
+                              placeholder="Add a comment"
+                              {...field}
+                            />
+                            <Button className="ml-2">
+                              <SendHorizontal />
+                            </Button>
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                </form>
+              </Form>
+            </div>
+          </div>
+
+          {/* display comment */}
+          {/* <div className="mt-3">
+            {comments.map((comment, index) => (
+              <div
+                key={index}
+                className="bg-gray-50 p-3 rounded-lg mb-3 shadow-sm"
+              >
+                {/* Comment Content */}
+                {/* <div className="text-gray-800">{comment?.content}</div>
+
+                {/* Footer */}
+                {/* <div className="flex justify-between items-center mt-2">
+                  {/* Avatar and Name */}
+                  {/* <div className="flex items-center space-x-3">
+                    <Avatar className="h-8 w-8 bg-gray-400">
+                      <AvatarImage
+                        src={getFormattedBase64ForSrc(comment?.commentedBy?.profilePicture)}
+                        alt="@profilePicture"
+                      />
+                      <AvatarFallback>
+                        {getAvatarFallbackText({
+                          ...user,
+                          name: `${comment?.commentedBy?.firstName || ""} ${comment?.commentedBy?.lastName || ""}`,
+                        })}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="text-sm text-gray-600">
+                      {`${comment?.commentedBy?.firstName} ${comment?.commentedBy?.lastName}`}
+                    </span>
+                  </div>
+
+                  {/* Timestamp */}
+                  {/* <div className="text-xs text-gray-500">
+                    {/* {formatDate()} */}
+                    {/* {formatDistanceToNow(new Date(comment?.createdAt || new Date()), { addSuffix: true })}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div> */}
+
         </main>
       ) : (
         <div>
           <Skeleton className="h-12 w-[300px] bg-gray-200 ml-4" />
           <Skeleton className="h-64 w-[95%] mt-3 bg-gray-200 ml-4" />
         </div>
-      )}
+      )
+      }
     </div>
   );
 };

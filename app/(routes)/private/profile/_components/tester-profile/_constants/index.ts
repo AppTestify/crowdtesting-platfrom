@@ -10,6 +10,13 @@ export const CERTIFICATES: string[] = [
   "Certified Selenium Tester",
 ];
 
+export const LANGUAGES: string[] = [
+  "Beginner",
+  "Intermediate",
+  "Fluent",
+  "Native",
+];
+
 export const SKILLS: string[] = [
   "Manual Testing",
   "Automated Testing",
@@ -33,7 +40,7 @@ export const SKILLS: string[] = [
   "Security Testing",
   "Java",
   "Python",
-  "Typescript"
+  "Typescript",
 ];
 
 export const enum TesterProfileTabs {
@@ -42,6 +49,5 @@ export const enum TesterProfileTabs {
   PAYMENT = "PAYMENT",
   SETTINGS = "SETTINGS",
 }
-
 
 export const MAX_DOCUMENTS_LIMIT = 5;

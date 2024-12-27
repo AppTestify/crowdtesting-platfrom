@@ -31,7 +31,9 @@ export async function GET(req: Request) {
 
     let response = null;
 
-    response = await Tester.findOne({ user: session.user._id }).lean();
+    response = await Tester.findOne({ user: session.user._id })
+      .sort({ _id: -1 })
+      .lean();
 
     return Response.json(response);
   } catch (error: any) {

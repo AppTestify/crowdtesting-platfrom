@@ -65,7 +65,7 @@ export async function POST(
 
 export async function GET(
   req: Request,
-  { params }: { params: { projectId: string } }
+  { params }: { params: { issueId: string } }
 ) {
   try {
     const session = await verifySession();
@@ -86,7 +86,16 @@ export async function GET(
       );
     }
 
-    const response = await Comment.find({ isDelete: false });
+    const { issueId } = params;
+    const response = await Comment.find({
+      isDelete: false,
+      entityId: issueId,
+    }).populate({
+      path: "commentedBy",
+      populate: {
+        path: "profilePicture",
+      },
+    });
 
     return Response.json(response);
   } catch (error: any) {

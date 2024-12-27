@@ -7,6 +7,11 @@ const CertificationSchema = new Schema({
   issuedBy: { type: String, required: false },
 });
 
+const LanguageSchema = new Schema({
+  name: { type: String, required: true },
+  proficiency: { type: String, required: false },
+});
+
 const AddressSchema = new Schema({
   street: { type: String, required: true },
   city: { type: String, required: true },
@@ -18,6 +23,7 @@ const TesterSchema = new Schema({
   skills: [{ type: String, required: true }],
   bio: { type: String },
   certifications: [CertificationSchema],
+  languages: [LanguageSchema],
   address: { type: AddressSchema, required: true },
   user: {
     type: Schema.Types.ObjectId,

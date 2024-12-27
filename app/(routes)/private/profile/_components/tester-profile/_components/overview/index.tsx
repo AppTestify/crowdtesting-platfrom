@@ -35,10 +35,16 @@ import toasterService from "@/app/_services/toaster-service";
 import { useSession } from "next-auth/react";
 import Certifications, { ICertification } from "../certifications";
 import Skills, { ISkill } from "../skills";
+import Languages, { ILanguage } from "../languages";
 
 export const certificationSchema = z.object({
   name: z.string().min(1, "Required"),
   issuedBy: z.string().optional(),
+});
+
+export const languageSchema = z.object({
+  name: z.string().min(1, "Required"),
+  proficiency: z.string().optional(),
 });
 
 const formSchema = z.object({
@@ -69,6 +75,7 @@ const formSchema = z.object({
       })
     )
     .min(1),
+  languages: z.array(languageSchema).min(1),
 });
 
 export type ITesterPayload = z.infer<typeof formSchema>;
@@ -89,6 +96,7 @@ export default function ProfileOverview({ user }: { user: any }) {
       postalCode: user?.address?.postalCode || "",
       certifications: user?.certifications || [{ name: "", issuedBy: "" }],
       skills: user?.skills || [""],
+      languages: user?.languages || [{ name: "", proficiency: "" }],
     },
   });
 
@@ -123,6 +131,9 @@ export default function ProfileOverview({ user }: { user: any }) {
         { name: "", issuedBy: "" },
       ],
       skills: testerProfile?.skills || [""],
+      languages: testerProfile?.languages || [
+        { name: "", proficiency: "" },
+      ],
     });
   };
 
@@ -298,6 +309,17 @@ export default function ProfileOverview({ user }: { user: any }) {
             form={form}
             skills={form.watch("skills")}
             onChange={(skills: ISkill[]) => form.setValue("skills", skills)}
+          />
+        </div>
+
+        <Separator className="my-5" />
+        <div>
+          <Languages
+            form={form}
+            languages={form.watch("languages")}
+            onChange={(languages: ILanguage[]) =>
+              form.setValue("languages", languages)
+            }
           />
         </div>
 

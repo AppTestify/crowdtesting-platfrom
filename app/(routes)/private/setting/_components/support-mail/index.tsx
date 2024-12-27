@@ -10,12 +10,12 @@ import React, { useEffect, useState } from 'react'
 
 export default function SupportMail() {
     const [adminEmails, setAdminEmails] = useState<IAdminEmail[]>([]);
-    const [selectedEmails, setSelectedEmails] = useState<ISelectedAdminEmail | null>(null);
+    const [selectedEmails, setSelectedEmails] = useState<string[]>([]);
     const [supportEmails, setSupportEmails] = useState<string[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [isUpdateloading, setIsUpdateLoading] = useState<boolean>(false);
     const [isInvalidEmails, setIsInvalidEmails] = useState<boolean>(false);
-
+    
     const validateEmails = () => {
         if (supportEmails.length === 0) {
             setIsInvalidEmails(true);
@@ -80,8 +80,8 @@ export default function SupportMail() {
     }, []);
 
     useEffect(() => {
-        if (selectedEmails?.emails) {
-            setSupportEmails(selectedEmails.emails);
+        if (selectedEmails) {
+            setSupportEmails(selectedEmails);
         }
     }, [selectedEmails]);
 
