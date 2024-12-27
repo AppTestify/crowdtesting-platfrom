@@ -44,7 +44,7 @@ export const getSidebarItems = (user: any) => {
         item.disabled = true;
       }
     });
-    return navMain;
+    return clientNavbar;
   }
 }
 
