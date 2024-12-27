@@ -128,7 +128,7 @@ export default function IssueAttachments({ issueId, isUpdate, isView, setAttachm
   };
 
   return (
-    <div className="mt-3 mb-2">
+    <div className={` ${isView ? '' : 'mt-3 mb-2'}`}>
       <div className="flex w-full items-center gap-2">
         {!isView ?
           <>
@@ -149,13 +149,11 @@ export default function IssueAttachments({ issueId, isUpdate, isView, setAttachm
               </label>
             </div>
           </>
-          :
-          <div className="w-full">
-            <Label >Attachments</Label>
-          </div>
+          : null
+
         }
       </div>
-      <div className="mt-6 ">
+      <div className={` ${isView ? 'mt-3' : 'mt-6'} `}>
         {table.getRowModel().rows?.length ? (
           <div className="rounded-md border">
             <Table>

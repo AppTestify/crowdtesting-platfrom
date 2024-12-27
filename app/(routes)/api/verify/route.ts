@@ -76,18 +76,22 @@ export async function POST(req: Request) {
     const data = existingUser.save();
 
     if (data) {
+      const name =
+        existingUser?.firstName && existingUser?.lastName
+          ? `${existingUser.firstName} ${existingUser.lastName}`
+          : "Sir";
       if (existingUser?.role === UserRoles.CLIENT) {
         welcomeClientMail({
           email: existingUser.email,
-          name: `${existingUser.firstName} ${existingUser.lastName}`,
+          name: `${name}`,
           link: `${process.env.URL}/auth/sign-in`,
-        })
+        });
       } else if (existingUser?.role === UserRoles.TESTER) {
         welcomeTesterMail({
           email: existingUser.email,
-          name: `${existingUser.firstName} ${existingUser.lastName}`,
+          name: `${name}`,
           link: `${process.env.URL}/auth/sign-in`,
-        })
+        });
       }
     }
 

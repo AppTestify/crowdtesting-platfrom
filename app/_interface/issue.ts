@@ -16,6 +16,7 @@ export interface IIssue {
   customId?: string;
   issueType?: string;
   testCycle: ITestCycle;
+  attachments?:IIssueAttachment;
 }
 
 export interface IIssueView {

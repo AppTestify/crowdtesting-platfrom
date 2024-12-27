@@ -15,7 +15,10 @@ import { IdFormat } from "@/app/_models/id-format.model";
 import { IssueAttachment } from "@/app/_models/issue-attachment.model";
 import { Issue } from "@/app/_models/issue.model";
 import { issueSchema } from "@/app/_schemas/issue.schema";
-import { getFileMetaData, serverSidePagination } from "@/app/_utils/common-server-side";
+import {
+  getFileMetaData,
+  serverSidePagination,
+} from "@/app/_utils/common-server-side";
 import { addCustomIds, normaliseIds } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 
@@ -54,14 +57,13 @@ export async function POST(
       status: body.get("status"),
       device: body.getAll("device[]"),
       issueType: body.get("issueType"),
-      testCycle: body.get("testCycle")
+      testCycle: body.get("testCycle"),
     };
     const response = issueSchema.safeParse(formData);
 
     if (!attachments) {
       throw new Error(GENERIC_ERROR_MESSAGE);
     }
-
 
     if (!response.success) {
       return Response.json(
@@ -81,25 +83,28 @@ export async function POST(
     const savedIssue = await newIssue.save();
 
     const attachmentService = new AttachmentService();
-    const attachmentIds =
-      await Promise.all(
-        attachments.map(async (file) => {
-          if (file) {
-            const { name, contentType } = await getFileMetaData(file);
-            const cloudId = await attachmentService.uploadFileInGivenFolderInDrive(file, AttachmentFolder.ISSUES);
-            const newAttachment = new IssueAttachment({
-              cloudId: cloudId,
-              name,
-              contentType,
-              issueId: savedIssue._id,
-            });
+    const attachmentIds = await Promise.all(
+      attachments.map(async (file) => {
+        if (file) {
+          const { name, contentType } = await getFileMetaData(file);
+          const cloudId =
+            await attachmentService.uploadFileInGivenFolderInDrive(
+              file,
+              AttachmentFolder.ISSUES
+            );
+          const newAttachment = new IssueAttachment({
+            cloudId: cloudId,
+            name,
+            contentType,
+            issueId: savedIssue._id,
+          });
 
-            const savedAttachment = await newAttachment.save();
-            return savedAttachment._id;
-          }
-          return null;
-        })
-      );
+          const savedAttachment = await newAttachment.save();
+          return savedAttachment._id;
+        }
+        return null;
+      })
+    );
 
     const validAttachmentIds = attachmentIds.filter((id) => id !== null);
 
@@ -147,7 +152,7 @@ export async function GET(
     const userIdFormat = await IdFormat.findOne({ entity: DBModels.ISSUE });
     const { skip, limit } = serverSidePagination(req);
     const totalIssues = await Issue.find({
-      projectId: projectId
+      projectId: projectId,
     }).countDocuments();
 
     if (!(await isAdmin(session.user))) {
@@ -156,14 +161,16 @@ export async function GET(
           .sort({ createdAt: -1 })
           .skip(skip)
           .limit(Number(limit))
-          .populate("device testCycle")
+          .populate("device")
+          .populate({ path: "testCycle", strictPopulate: false })
           .lean(),
         userIdFormat.idFormat
       );
     } else {
       response = addCustomIds(
         await Issue.find({ projectId: projectId })
-          .populate("userId testCycle")
+          .populate("userId")
+          .populate({ path: "testCycle", strictPopulate: false })
           .sort({ createdAt: -1 })
           .skip(skip)
           .limit(Number(limit))
@@ -173,7 +180,7 @@ export async function GET(
       );
     }
 
-    return Response.json({ "issues": response, "total": totalIssues });
+    return Response.json({ issues: response, total: totalIssues });
   } catch (error: any) {
     return errorHandler(error);
   }

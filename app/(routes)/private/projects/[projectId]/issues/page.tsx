@@ -61,10 +61,10 @@ export default function Issues() {
         );
       },
       cell: ({ row }) => (
-        <Link href={`/private/projects/${projectId}/issues/${row.original?.id}`}
+        <Link href={`/private/project/${projectId}/issue/${row.original?.id}`}
           onClick={(e) => {
             e.preventDefault();
-            window.open(`/private/projects/${projectId}/issues/${row.original?.id}`, "_blank");
+            window.open(`/private/project/${projectId}/issue/${row.original?.id}`, "_blank");
           }}
         >
           <div className="hover:text-primary text-primary cursor-pointer ml-4"
@@ -82,10 +82,10 @@ export default function Issues() {
         const title = row.getValue("title");
         if (typeof title === "string") {
           return (
-            <Link href={`/private/projects/${projectId}/issues/${row.original?.id}`}
+            <Link href={`/private/project/${projectId}/issue/${row.original?.id}`}
               onClick={(e) => {
                 e.preventDefault();
-                window.open(`/private/projects/${projectId}/issues/${row.original?.id}`, "_blank");
+                window.open(`/private/project/${projectId}/issue/${row.original?.id}`, "_blank");
               }}
             >
               <div className="capitalize hover:text-primary cursor-pointer" >

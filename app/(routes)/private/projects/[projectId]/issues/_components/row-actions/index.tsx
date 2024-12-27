@@ -105,17 +105,14 @@ export function IssueRowActions({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <Link href={`/private/projects/${projectId}/issues/${row.original?.id}`}
+          <Link href={`/private/project/${projectId}/issue/${row.original?.id}`}
             onClick={(e) => {
               e.preventDefault();
-              window.open(`/private/projects/${projectId}/issues/${row.original?.id}`, "_blank");
+              window.open(`/private/project/${projectId}/issue/${row.original?.id}`, "_blank");
             }}
           >
             <DropdownMenuItem
               className="mb-1"
-            // onClick={() => {
-            //   setIsViewOpen(true);
-            // }}
             >
               <Eye className="h-2 w-2" /> View
             </DropdownMenuItem>
