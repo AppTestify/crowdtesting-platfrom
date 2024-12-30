@@ -10,7 +10,6 @@ import { FILE_UPLOAD_ERROR_MESSAGE } from "../_constants/errors";
 class AttachmentService {
   private auth: any;
   private drive: any;
-  private USERS_FOLDER_ID = "1e6MWJ323MJnwqBWGzkUiTOSfau5M6Ifm";
 
   constructor() {
     const serviceAccountCredentials = {
@@ -181,6 +180,47 @@ class AttachmentService {
       return response.id;
     } catch (error) {
       console.error("Error deleting file from Google Drive:", error);
+      throw error;
+    }
+  }
+
+  public async fetchFileAsBlob(fileId: string): Promise<Blob> {
+    try {
+      const response = await this.drive.files.get(
+        {
+          fileId,
+          alt: "media",
+        },
+        { responseType: "arraybuffer" }
+      );
+
+      return new Blob([response.data]);
+    } catch (error) {
+      console.error("Error fetching file as blob from Google Drive:", error);
+      throw error;
+    }
+  }
+
+  public async fetchFilesAsBase64(attachments: any[]): Promise<{ attachment: any; base64: string }[]> {
+    try {
+      const base64Files = await Promise.all(
+        attachments.map(async (attachment) => {
+          const response = await this.drive.files.get(
+            {
+              fileId: attachment.cloudId,
+              alt: "media",
+            },
+            { responseType: "arraybuffer" }
+          );
+  
+          const base64 = Buffer.from(response.data as ArrayBuffer).toString("base64");
+          return { attachment, base64 };
+        })
+      );
+  
+      return base64Files;
+    } catch (error) {
+      console.error("Error fetching files as base64 from Google Drive:", error);
       throw error;
     }
   }

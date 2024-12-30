@@ -61,12 +61,7 @@ export default function Issues() {
         );
       },
       cell: ({ row }) => (
-        <Link href={`/private/project/${projectId}/issue/${row.original?.id}`}
-          onClick={(e) => {
-            e.preventDefault();
-            window.open(`/private/project/${projectId}/issue/${row.original?.id}`, "_blank");
-          }}
-        >
+        <Link href={`/private/project/${projectId}/issue/${row.original?.id}`}>
           <div className="hover:text-primary text-primary cursor-pointer ml-4"
           >
             {row.getValue("customId")}
@@ -82,12 +77,7 @@ export default function Issues() {
         const title = row.getValue("title");
         if (typeof title === "string") {
           return (
-            <Link href={`/private/project/${projectId}/issue/${row.original?.id}`}
-              onClick={(e) => {
-                e.preventDefault();
-                window.open(`/private/project/${projectId}/issue/${row.original?.id}`, "_blank");
-              }}
-            >
+            <Link href={`/private/project/${projectId}/issue/${row.original?.id}`}>
               <div className="capitalize hover:text-primary cursor-pointer" >
                 {title.length > 30 ? `${title.substring(0, 30)}...` : title}
               </div>

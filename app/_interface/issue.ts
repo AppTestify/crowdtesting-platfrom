@@ -16,7 +16,7 @@ export interface IIssue {
   customId?: string;
   issueType?: string;
   testCycle: ITestCycle;
-  attachments?:IIssueAttachment;
+  attachments?:IIssueAttachment[];
 }
 
 export interface IIssueView {
@@ -57,7 +57,8 @@ export interface IIssueStatusPayload {
 }
 
 export interface IIssueAttachment {
-  attachments: File[];
+  attachment: any;
+  base64: string;
 }
 
 export interface IssueAttachmentsProps {

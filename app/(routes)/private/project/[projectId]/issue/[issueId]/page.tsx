@@ -16,28 +16,45 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { SendHorizontal, Slash } from "lucide-react";
+import { ChevronRight, SendHorizontal, Slash } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import IssueAttachments from "@/app/(routes)/private/projects/[projectId]/issues/_components/attachments/issue-attachment";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getAvatarFallbackText, getFormattedBase64ForSrc } from "@/app/_utils/string-formatters";
+import {
+  getAvatarFallbackText,
+  getFormattedBase64ForSrc,
+} from "@/app/_utils/string-formatters";
 import { useSession } from "next-auth/react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { addCommentService, getCommentsService } from "@/app/_services/comment.service";
+import {
+  addCommentService,
+  getCommentsService,
+} from "@/app/_services/comment.service";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
 import { IComment } from "@/app/_interface/comment";
 import { formatDistanceToNow } from "date-fns";
+import MediaRenderer from "@/app/_components/media-renderer";
 
 const commentSchema = z.object({
   entityId: z.string().min(1, "Required"),
-  content: z.string().min(1, 'Required'),
+  content: z.string().min(1, "Required"),
 });
-
 
 const ViewIssue = () => {
   const [isViewLoading, setIsViewLoading] = useState<boolean>(false);
@@ -62,10 +79,11 @@ const ViewIssue = () => {
     }
   }, [data]);
 
-  const getAttachments = async () => {
+  const getIssueById = async () => {
     try {
       setIsViewLoading(true);
       const response = await getIssueService(projectId, issueId);
+      console.log(response);
       setIssueData(response);
     } catch (error) {
       toasterService.error();
@@ -97,110 +115,58 @@ const ViewIssue = () => {
 
   const reset = () => {
     form.reset();
-  }
+  };
 
   useEffect(() => {
-    getAttachments();
+    getIssueById();
     // getComments();
   }, [projectId, issueId]);
 
   return (
-    <div className="pb-0 mt-2">
+    <div className="pb-0 mt-2 w-full">
       {!isViewLoading ? (
         <main className="mx-4">
-          <div className="">
-            <div className="mb-2">
-              <Breadcrumb>
-                <BreadcrumbList>
-                  <BreadcrumbItem>
-                    <BreadcrumbLink
-                      className="text-sm"
-                      href={`/private/projects/${projectId}/issues`}
-                    >
-                      Issue
-                    </BreadcrumbLink>
-                  </BreadcrumbItem>
-                  <BreadcrumbSeparator>
-                    <Slash className="h-1 w-1" />
-                  </BreadcrumbSeparator>
-                  <BreadcrumbItem>
-                    <BreadcrumbPage className="text-sm">
-                      {issueData?.customId}
-                    </BreadcrumbPage>
-                  </BreadcrumbItem>
-                </BreadcrumbList>
-              </Breadcrumb>
-            </div>
-            <div className="">
-              <span className="text-mute text-sm mt-1">
-                {issueData?.userId?.firstName ? (
-                  <span>
-                    Created by {issueData?.userId?.firstName}{" "}
-                    {issueData?.userId?.lastName}
-                    {", "}
-                  </span>
-                ) : null}
-                Created on {formatDate(issueData?.createdAt || "")}
-              </span>
-            </div>
-            <DropdownMenuSeparator className="border-b" />
-            <div className="mt-2">
-              <div className="mb-2 text-sm ">
-                {/* Title */}
-                <div className=" text-2xl">{issueData?.title}</div>
-
-                {/* Severity */}
-                <div className="mt-3">
-                  <span className="font-semibold">Severity:</span>
-                  <span className="ml-2">{issueData?.severity}</span>
-                </div>
-                {/* Priority */}
-                <div className="mt-3 flex items-center">
-                  <span className="font-semibold">Priority:</span>
-                  <span className="ml-2 flex items-center">
-                    {displayIcon(issueData?.priority as string)}
-                    <span className="ml-1 font-medium">
-                      {issueData?.priority}
-                    </span>
-                  </span>
-                </div>
-
-                {/* Status */}
-                <div className="mt-3">
-                  <span className=" font-semibold">Status:</span>
-                  <span className="ml-2">{statusBadge(issueData?.status)}</span>
-                </div>
-
-                {/* Device */}
-                <div className="mt-3">
-                  <span className=" font-semibold">Device:</span>
-                  <span className="ml-2">{issueData?.device?.[0]?.name}</span>
-                </div>
-              </div>
-
-              <div>
-                <span className="font-semibold text-sm">Description</span>
+          <div className="mb-2">
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink
+                    className="text-[12px]"
+                    href={`/private/projects/${projectId}/issues`}
+                  >
+                    Issue
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator>
+                  <ChevronRight className="h-3" />
+                </BreadcrumbSeparator>
+                <BreadcrumbItem>
+                  <BreadcrumbPage className="text-[12px] text-primary">
+                    {issueData?.customId}
+                  </BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-[2fr_1fr] gap-4">
+            <div className="my-4">
+              <div className=" text-[24px]">{issueData?.title}</div>
+              <div className="mt-2">
+                <span className="font-semibold">Description</span>
                 <div
-                  className=" text-sm leading-relaxed text-gray-700 rich-description"
+                  className="mt-2 text-sm leading-relaxed text-gray-700 rich-description"
                   dangerouslySetInnerHTML={{
                     __html: issueData?.description || "",
                   }}
                 />
               </div>
-            </div>
 
-            {/* Accordion */}
-            <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="item-3">
-                <AccordionTrigger>Attachments ({issueData?.attachments as any})</AccordionTrigger>
-                <AccordionContent>
-                  <IssueAttachments issueId={issueId} isUpdate={true} isView={true} />
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          </div>
+              <MediaRenderer
+                attachments={issueData?.attachments || []}
+                title={"Attachments"}
+              />
 
-          {/* <div className="mt-3">
+              {/* <div className="mt-3">
             <div className="text-sm ">Comments</div>
             <div className="w-full mb-3 mt-2">
               <Form {...form}>
@@ -280,15 +246,61 @@ const ViewIssue = () => {
               </div>
             ))}
           </div> */}
+            </div>
+            <div className="border rounded-md p-4 h-fit">
+                {/* Severity */}
+                <div>
+                  <span className="font-semibold">Severity:</span>
+                  <span className="ml-2">{issueData?.severity}</span>
+                </div>
+                {/* Priority */}
+                <div className="mt-3 flex items-center">
+                  <span className="font-semibold">Priority:</span>
+                  <span className="ml-2 flex items-center">
+                    {displayIcon(issueData?.priority as string)}
+                    <span className="ml-1 font-medium">
+                      {issueData?.priority}
+                    </span>
+                  </span>
+                </div>
 
+                {/* Status */}
+                <div className="mt-3">
+                  <span className=" font-semibold">Status:</span>
+                  <span className="ml-2">{statusBadge(issueData?.status)}</span>
+                </div>
+
+                {/* Device */}
+                <div className="mt-3">
+                  <span className=" font-semibold">Device:</span>
+                  <span className="ml-2">{issueData?.device?.[0]?.name}</span>
+                </div>
+            </div>
+          </div>
         </main>
       ) : (
         <div>
           <Skeleton className="h-12 w-[300px] bg-gray-200 ml-4" />
-          <Skeleton className="h-64 w-[95%] mt-3 bg-gray-200 ml-4" />
+          <div className="grid grid-cols-1 sm:grid-cols-[2fr_1fr] gap-4">
+            <div>
+              <Skeleton className="h-64 mt-3 bg-gray-200 ml-4" />
+              <div className="flex gap-2 mt-4">
+                <Skeleton className="h-[120px] w-[155px] bg-gray-200 ml-4" />
+                <Skeleton className="h-[120px] w-[155px] bg-gray-200 ml-4" />
+                <Skeleton className="h-[120px] w-[155px] bg-gray-200 ml-4" />
+                <Skeleton className="h-[120px] w-[155px] bg-gray-200 ml-4" />
+              </div>
+            </div>
+            <div className="flex flex-col gap-4">
+              <Skeleton className="h-12 w-[300px] bg-gray-200 ml-4" />
+              <Skeleton className="h-24 w-[300px] bg-gray-200 ml-4" />
+              <Skeleton className="h-24 w-[300px] bg-gray-200 ml-4" />
+              <Skeleton className="h-12 w-[300px] bg-gray-200 ml-4" />
+              <Skeleton className="h-12 w-[300px] bg-gray-200 ml-4" />
+            </div>
+          </div>
         </div>
-      )
-      }
+      )}
     </div>
   );
 };

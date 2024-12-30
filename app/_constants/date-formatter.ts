@@ -26,3 +26,9 @@ export function formatSimpleDate(dateString: string | Date): string {
 
   return date.format("MM/D/YY");
 }
+
+export function formatAttachmentDate(dateString: string): string {
+  const date = moment(dateString);
+
+  return date.format("DD MMM YYYY, hh:mm A");
+}

@@ -20,6 +20,7 @@ export const DOCUMENT_TYPES = [
 export const enum ContentType {
   // Image types
   JPEG = "image/jpeg",
+  JPG = "image/jpg",
   PNG = "image/png",
   GIF = "image/gif",
   SVG = "image/svg+xml",

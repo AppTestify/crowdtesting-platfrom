@@ -14,6 +14,7 @@ import { IdFormat } from "@/app/_models/id-format.model";
 import { IssueAttachment } from "@/app/_models/issue-attachment.model";
 import { Issue } from "@/app/_models/issue.model";
 import { issueSchema } from "@/app/_schemas/issue.schema";
+import { getAllAttachments } from "@/app/_utils/common-server-side";
 import { replaceCustomId } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 
@@ -161,9 +162,7 @@ export async function GET(
       customId: issue?.customId
         ? replaceCustomId(userIdFormat.idFormat, issue?.customId)
         : null,
-      attachments: Array.isArray(issue?.attachments)
-        ? issue?.attachments?.length
-        : 0,
+      attachments: await getAllAttachments(issue),
     };
 
     return Response.json(response);

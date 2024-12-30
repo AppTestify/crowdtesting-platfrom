@@ -2,6 +2,8 @@ import "server-only";
 import { Delimeters } from "../_constants/delimeter";
 import moment from "moment";
 import { promisify } from "util";
+import { IIssue } from "../_models/issue.model";
+import AttachmentService from "../_helpers/attachment.helper";
 
 export const encodeToBase64 = (text: any) => {
   const buffer = Buffer.from(text, "utf8");
@@ -77,4 +79,18 @@ export const serverSidePagination = (req: Request) => {
     limit
   }
   return data;
+}
+
+export const getAllAttachments = async (issue: any) => {
+  try {
+    if (!issue || !Array.isArray(issue.attachments) || !issue.attachments.length) {
+      return [];
+    }
+    const attachmentService = new AttachmentService();
+    const blobs = await attachmentService.fetchFilesAsBase64(issue.attachments);
+    return blobs;
+  } catch (error) {
+    console.error("Error occurred while interacting with Google Drive:", error);
+    throw new Error("Failed to get or create folder");
+  }
 }
