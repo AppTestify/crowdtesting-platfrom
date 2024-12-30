@@ -17,24 +17,24 @@ export default function IssueAttachments({ issueId, isUpdate, isView, setAttachm
     {
       accessorKey: "id",
       header: "ID",
-      cell: ({ row }) => <div>{row.getValue("id")}</div>,
+      cell: ({ row }) => <div>{row.original.attachment._id}</div>,
     },
     {
       accessorKey: "data",
       header: "File data",
-      cell: ({ row }) => <div>{row.getValue("data")}</div>,
+      cell: ({ row }) => <div>{row.original.attachment.data}</div>,
     },
     {
       accessorKey: "contentType",
       header: "contentType",
-      cell: ({ row }) => <div>{row.getValue("contentType")}</div>,
+      cell: ({ row }) => <div>{row.original.attachment.contentType}</div>,
     },
     {
       accessorKey: "name",
       header: "Name",
       cell: ({ row }) => (
         <div>
-          <DocumentName document={row} />
+          <DocumentName document={row.original.attachment} />
         </div>
       ),
     },

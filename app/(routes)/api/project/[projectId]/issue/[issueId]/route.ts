@@ -15,7 +15,7 @@ import { IssueAttachment } from "@/app/_models/issue-attachment.model";
 import { Issue } from "@/app/_models/issue.model";
 import { issueSchema } from "@/app/_schemas/issue.schema";
 import { getAllAttachments } from "@/app/_utils/common-server-side";
-import { replaceCustomId } from "@/app/_utils/data-formatters";
+import { normaliseIds, replaceCustomId } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function PUT(
@@ -154,15 +154,16 @@ export async function GET(
     const userIdFormat = await IdFormat.findOne({ entity: DBModels.ISSUE });
     const issue = (await Issue.findById(issueId)
       .populate("device", "_id name")
-      .populate("attachments userId")
+      .populate("userId testCycle")
       .lean()) as IIssue | null;
 
     const response = {
       ...issue,
+      id: issue?._id,
+      _id: undefined,
       customId: issue?.customId
         ? replaceCustomId(userIdFormat.idFormat, issue?.customId)
         : null,
-      attachments: await getAllAttachments(issue),
     };
 
     return Response.json(response);

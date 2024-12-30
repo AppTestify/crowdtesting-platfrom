@@ -26,7 +26,7 @@ const ViewIssue = ({
   const [issueData, setIssueData] = useState<IIssue>();
   const issueId = issue?.id;
   const { projectId } = useParams<{ projectId: string }>();
-
+  
   const getAttachments = async () => {
     try {
       setIsViewLoading(true);

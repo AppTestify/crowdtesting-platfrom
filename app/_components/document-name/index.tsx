@@ -5,6 +5,7 @@ import {
   FileJson,
   FileSpreadsheet,
   FileText,
+  FileVideo,
 } from "lucide-react";
 import { ContentType } from "@/app/(routes)/private/profile/_components/tester-profile/_components/documents/_constants";
 
@@ -31,6 +32,8 @@ export function DocumentName({ document }: { document: any }) {
         return <FileSpreadsheet className="text-green-600" />;
       case ContentType.XLSX:
         return <FileSpreadsheet className="text-green-600" />;
+      case ContentType.MP4:
+        return <FileVideo className="text-purple-600" />;
       default:
         return <File className="text-gray-500" />;
     }
@@ -38,7 +41,7 @@ export function DocumentName({ document }: { document: any }) {
 
   return (
     <div className="flex gap-2 items-center">
-      {getIconByContentType(contentType)} {document.getValue("name") ? document.getValue("name") : document?.name}
+      {getIconByContentType(contentType)} {document?.original ? document.getValue("name") : document?.name}
     </div>
   );
 }

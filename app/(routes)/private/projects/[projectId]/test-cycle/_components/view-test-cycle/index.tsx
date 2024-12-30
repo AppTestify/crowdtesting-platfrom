@@ -1,7 +1,10 @@
-import { formatDate } from '@/app/_constants/date-formatter';
+import { formatDate, formatDateWithoutTime } from '@/app/_constants/date-formatter';
 import { ITestCycle } from '@/app/_interface/test-cycle';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetHeader } from '@/components/ui/sheet';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import React from 'react'
 
 export default function TestCycleView({ sheetOpen, setSheetOpen, testCycle }:
@@ -32,15 +35,34 @@ export default function TestCycleView({ sheetOpen, setSheetOpen, testCycle }:
                     </span>
                 </SheetHeader>
                 <DropdownMenuSeparator className="border-b" />
-                <div className="mt-2">
-                    <span className="font-semibold text-xl">Title</span>
-                    <div className="ml-1">
-                        {testCycle?.title}
+                <div className='flex justify-between'>
+                    <div className="mt-2">
+                        <span className="text-[20px]">Title</span>
+                        <div className="text-sm">
+                            {testCycle?.title}
+                        </div>
+                    </div>
+                    <div className='mt-2'>
+                        <TooltipProvider>
+                            <Tooltip delayDuration={50}>
+                                <TooltipTrigger asChild>
+                                    <div>
+                                        <Badge variant={'outline'} className='font-medium'>
+                                            {formatDateWithoutTime(testCycle?.startDate)} - {formatDateWithoutTime(testCycle?.endDate)}
+                                        </Badge>
+                                    </div>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>Start date - End date</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+
                     </div>
                 </div>
-                <div className="mt-2">
-                    <span className="font-semibold text-xl">Description</span>
-                    <div className="ml-1">
+                <div className="mt-3">
+                    <span className="text-[20px]">Description</span>
+                    <div className="text-sm">
                         {testCycle?.description}
                     </div>
                 </div>

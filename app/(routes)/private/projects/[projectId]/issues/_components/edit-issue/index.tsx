@@ -23,7 +23,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { IIssue } from "@/app/_interface/issue";
+import { IIssue, IIssueAttachment } from "@/app/_interface/issue";
 import {
   Select,
   SelectContent,
@@ -82,7 +82,7 @@ const EditIssue = ({
   const issueId = issue?.id as string;
   const { status, projectId, device } = issue;
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [attachments, setAttachments] = useState<any[]>([]);
+  const [attachments, setAttachments] = useState<any>();
   const [devices, setDevices] = useState<IDevice[]>([]);
   const [userData, setUserData] = useState<any>();
   const [previousDeviceId, setPreviousDeviceId] = useState<string>("");
@@ -110,7 +110,8 @@ const EditIssue = ({
 
   useEffect(() => {
     if (issue && !hasReset.current) {
-      setPreviousDeviceId(issue?.device[0]?._id as string)
+      const deviceId = issue.device?.length > 0 ? issue.device[0]._id : null;
+      setPreviousDeviceId(deviceId as string)
       form.reset({
         title: issue.title || "",
         severity: issue.severity || "",
@@ -134,8 +135,8 @@ const EditIssue = ({
         ...values,
         device: isSameDevice ? [previousDeviceId] : values?.device || [],
       });
-      await uploadAttachment();
       if (response) {
+        await uploadAttachment();
         refreshIssues();
         toasterService.success(response?.message);
       }
@@ -195,6 +196,7 @@ const EditIssue = ({
     if (sheetOpen) {
       getDevices();
       getTestCycle();
+      setAttachments([]);
       if (data) {
         const { user } = data;
         setUserData(user);

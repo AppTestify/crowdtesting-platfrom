@@ -1,6 +1,6 @@
 "use client";
 
-import { IIssue } from "@/app/_interface/issue";
+import { IIssue, IIssueAttachment } from "@/app/_interface/issue";
 import { getIssueService } from "@/app/_services/issue.service";
 import toasterService from "@/app/_services/toaster-service";
 import { useParams } from "next/navigation";
@@ -16,7 +16,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { ChevronRight, SendHorizontal, Slash } from "lucide-react";
+import { ChevronRight, Edit, SendHorizontal, Slash } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import IssueAttachments from "@/app/(routes)/private/projects/[projectId]/issues/_components/attachments/issue-attachment";
 import {
@@ -50,6 +50,8 @@ import {
 import { IComment } from "@/app/_interface/comment";
 import { formatDistanceToNow } from "date-fns";
 import MediaRenderer from "@/app/_components/media-renderer";
+import { getIssueAttachmentsService } from "@/app/_services/issue-attachment.service";
+import EditIssue from "@/app/(routes)/private/projects/[projectId]/issues/_components/edit-issue";
 
 const commentSchema = z.object({
   entityId: z.string().min(1, "Required"),
@@ -58,12 +60,15 @@ const commentSchema = z.object({
 
 const ViewIssue = () => {
   const [isViewLoading, setIsViewLoading] = useState<boolean>(false);
+  const [isAttachmentLoading, setIsAttachmentLoading] = useState<boolean>(false);
   const [issueData, setIssueData] = useState<IIssue>();
   const { issueId } = useParams<{ issueId: string }>();
   const { projectId } = useParams<{ projectId: string }>();
   const { data } = useSession();
   const [user, setUser] = useState<any | null>();
   const [comments, setComments] = useState<IComment[]>([]);
+  const [issueAttachments, setIssueAttachments] = useState<IIssueAttachment[]>([]);
+  const [isEditStatusOpen, setIsEditStatusOpen] = useState(false);
 
   const form = useForm<z.infer<typeof commentSchema>>({
     resolver: zodResolver(commentSchema),
@@ -83,7 +88,6 @@ const ViewIssue = () => {
     try {
       setIsViewLoading(true);
       const response = await getIssueService(projectId, issueId);
-      console.log(response);
       setIssueData(response);
     } catch (error) {
       toasterService.error();
@@ -91,6 +95,27 @@ const ViewIssue = () => {
       setIsViewLoading(false);
     }
   };
+
+  const getIssueAttachments = async () => {
+    setIsAttachmentLoading(true);
+    try {
+      const response = await getIssueAttachmentsService(projectId, issueId);
+      setIssueAttachments(response);
+    } catch (error) {
+      toasterService.error();
+    } finally {
+      setIsAttachmentLoading(false);
+    }
+  };
+
+  const refreshAttachments = async () => {
+    await getIssueAttachments();
+  }
+
+  const refreshIssues = async () => {
+    await getIssueById();
+    await getIssueAttachments();
+  }
 
   async function onSubmit(values: z.infer<typeof commentSchema>) {
     try {
@@ -119,34 +144,50 @@ const ViewIssue = () => {
 
   useEffect(() => {
     getIssueById();
+    getIssueAttachments();
     // getComments();
   }, [projectId, issueId]);
 
   return (
     <div className="pb-0 mt-2 w-full">
+      {issueData &&
+        <EditIssue
+          issue={issueData as IIssue}
+          sheetOpen={isEditStatusOpen}
+          setSheetOpen={setIsEditStatusOpen}
+          refreshIssues={refreshIssues}
+        />
+      }
       {!isViewLoading ? (
         <main className="mx-4">
-          <div className="mb-2">
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem>
-                  <BreadcrumbLink
-                    className="text-[12px]"
-                    href={`/private/projects/${projectId}/issues`}
-                  >
-                    Issue
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator>
-                  <ChevronRight className="h-3" />
-                </BreadcrumbSeparator>
-                <BreadcrumbItem>
-                  <BreadcrumbPage className="text-[12px] text-primary">
-                    {issueData?.customId}
-                  </BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
+          <div className="flex justify-between mb-2">
+            <div className="mb-2">
+              <Breadcrumb>
+                <BreadcrumbList>
+                  <BreadcrumbItem>
+                    <BreadcrumbLink
+                      className="text-[12px]"
+                      href={`/private/projects/${projectId}/issues`}
+                    >
+                      Issue
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator>
+                    <ChevronRight className="h-3" />
+                  </BreadcrumbSeparator>
+                  <BreadcrumbItem>
+                    <BreadcrumbPage className="text-[12px] text-primary">
+                      {issueData?.customId}
+                    </BreadcrumbPage>
+                  </BreadcrumbItem>
+                </BreadcrumbList>
+              </Breadcrumb>
+            </div>
+            <div>
+              <Button size={'sm'} onClick={() => setIsEditStatusOpen(true)}>
+                <Edit className="h-2 w-2" /> Edit
+              </Button>
+            </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-[2fr_1fr] gap-4">
             <div className="my-4">
@@ -161,10 +202,20 @@ const ViewIssue = () => {
                 />
               </div>
 
-              <MediaRenderer
-                attachments={issueData?.attachments || []}
-                title={"Attachments"}
-              />
+              {!isAttachmentLoading ?
+                <MediaRenderer
+                  attachments={issueAttachments || []}
+                  title={"Attachments"}
+                  refreshAttachments={refreshAttachments}
+                />
+                :
+                <div className="flex gap-2 mt-4">
+                  <Skeleton className="h-[120px] w-[155px] bg-gray-200" />
+                  <Skeleton className="h-[120px] w-[155px] bg-gray-200" />
+                  <Skeleton className="h-[120px] w-[155px] bg-gray-200" />
+                  <Skeleton className="h-[120px] w-[155px] bg-gray-200" />
+                </div>
+              }
 
               {/* <div className="mt-3">
             <div className="text-sm ">Comments</div>
@@ -248,33 +299,33 @@ const ViewIssue = () => {
           </div> */}
             </div>
             <div className="border rounded-md p-4 h-fit">
-                {/* Severity */}
-                <div>
-                  <span className="font-semibold">Severity:</span>
-                  <span className="ml-2">{issueData?.severity}</span>
-                </div>
-                {/* Priority */}
-                <div className="mt-3 flex items-center">
-                  <span className="font-semibold">Priority:</span>
-                  <span className="ml-2 flex items-center">
-                    {displayIcon(issueData?.priority as string)}
-                    <span className="ml-1 font-medium">
-                      {issueData?.priority}
-                    </span>
+              {/* Severity */}
+              <div>
+                <span className="font-semibold">Severity:</span>
+                <span className="ml-2">{issueData?.severity}</span>
+              </div>
+              {/* Priority */}
+              <div className="mt-3 flex items-center">
+                <span className="font-semibold">Priority:</span>
+                <span className="ml-2 flex items-center">
+                  {displayIcon(issueData?.priority as string)}
+                  <span className="ml-1 font-medium">
+                    {issueData?.priority}
                   </span>
-                </div>
+                </span>
+              </div>
 
-                {/* Status */}
-                <div className="mt-3">
-                  <span className=" font-semibold">Status:</span>
-                  <span className="ml-2">{statusBadge(issueData?.status)}</span>
-                </div>
+              {/* Status */}
+              <div className="mt-3">
+                <span className=" font-semibold">Status:</span>
+                <span className="ml-2">{statusBadge(issueData?.status)}</span>
+              </div>
 
-                {/* Device */}
-                <div className="mt-3">
-                  <span className=" font-semibold">Device:</span>
-                  <span className="ml-2">{issueData?.device?.[0]?.name}</span>
-                </div>
+              {/* Device */}
+              <div className="mt-3">
+                <span className=" font-semibold">Device:</span>
+                <span className="ml-2">{issueData?.device?.[0]?.name}</span>
+              </div>
             </div>
           </div>
         </main>
@@ -284,12 +335,7 @@ const ViewIssue = () => {
           <div className="grid grid-cols-1 sm:grid-cols-[2fr_1fr] gap-4">
             <div>
               <Skeleton className="h-64 mt-3 bg-gray-200 ml-4" />
-              <div className="flex gap-2 mt-4">
-                <Skeleton className="h-[120px] w-[155px] bg-gray-200 ml-4" />
-                <Skeleton className="h-[120px] w-[155px] bg-gray-200 ml-4" />
-                <Skeleton className="h-[120px] w-[155px] bg-gray-200 ml-4" />
-                <Skeleton className="h-[120px] w-[155px] bg-gray-200 ml-4" />
-              </div>
+
             </div>
             <div className="flex flex-col gap-4">
               <Skeleton className="h-12 w-[300px] bg-gray-200 ml-4" />

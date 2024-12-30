@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { AddProject } from "./_components/add-project";
 import {
   ColumnDef,
-  Row,
   SortingState,
   VisibilityState,
   flexRender,
@@ -40,10 +39,12 @@ import { IUserByAdmin } from "@/app/_interface/user";
 import ViewTesterIssue from "../users/_components/view-user";
 
 export default function Projects() {
+  const [userData, setUserData] = useState<any>();
+
   let columns: ColumnDef<IProjectPayload>[] = [
-    {
+    ...(userData?.role != UserRoles?.TESTER ? [{
       id: "select",
-      header: ({ table }) => (
+      header: ({ table }: { table: any }) => (
         <Checkbox
           checked={
             table.getIsAllPageRowsSelected() ||
@@ -53,7 +54,7 @@ export default function Projects() {
           aria-label="Select all"
         />
       ),
-      cell: ({ row }) => (
+      cell: ({ row }: { row: any }) => (
         <Checkbox
           checked={row.getIsSelected()}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
@@ -62,7 +63,7 @@ export default function Projects() {
       ),
       enableSorting: false,
       enableHiding: false,
-    },
+    }] : []),
     {
       accessorKey: "customId",
       header: ({ column }) => {
@@ -78,9 +79,7 @@ export default function Projects() {
         );
       },
       cell: ({ row }) => {
-        const { id, isActive } = row.original;
-        // const isAdmin = userData?.role === UserRoles.ADMIN;
-
+        const { id } = row.original;
         return (
           <Link href={`/private/projects/${id}/overview`}>
             <div className="ml-4 text-primary hover:text-primary">
@@ -88,9 +87,6 @@ export default function Projects() {
             </div>
           </Link>
         );
-        //  : (
-        //   <div className="ml-4 text-primary">{row.getValue("customId")}</div>
-        // );
       },
 
       sortingFn: "alphanumeric",
@@ -99,10 +95,7 @@ export default function Projects() {
       accessorKey: "title",
       header: "Title",
       cell: ({ row }) => {
-        const { id, isActive } = row.original;
-        // const isAdmin = userData?.role === UserRoles.ADMIN;
-
-        // return isAdmin || isActive ? (
+        const { id } = row.original;
         return (
           <Link href={`/private/projects/${id}/overview`}>
             <div className="ml-4 hover:text-primary">
@@ -110,9 +103,6 @@ export default function Projects() {
             </div>
           </Link>
         );
-        // ) : (
-        //   <div className="ml-4 ">{row.getValue("title")}</div>
-        // );
       },
     },
     {
@@ -140,7 +130,6 @@ export default function Projects() {
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
   const [totalPageCount, setTotalPageCount] = useState(0);
-  const [userData, setUserData] = useState<any>();
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [user, setUser] = useState<IUserByAdmin>();
   const { data } = useSession();

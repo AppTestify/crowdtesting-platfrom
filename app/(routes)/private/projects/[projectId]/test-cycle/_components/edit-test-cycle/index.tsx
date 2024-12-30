@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { CalendarIcon, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -26,11 +26,18 @@ import { updateTestPlanService } from "@/app/_services/test-plan.service";
 import { Textarea } from "@/components/ui/text-area";
 import { ITestCycle } from "@/app/_interface/test-cycle";
 import { updateTestCycleService } from "@/app/_services/test-cycle.service";
+import { formatDateReverse, formatSimpleDate } from "@/app/_constants/date-formatter";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import { Calendar } from "@/components/ui/calendar";
 
 const testCycleSchema = z.object({
     title: z.string().min(1, "Required"),
     projectId: z.string().optional(),
-    description: z.string().min(1, 'Required')
+    description: z.string().min(1, 'Required'),
+    startDate: z.date(),
+    endDate: z.date(),
 });
 
 export function EditTestCycle({
@@ -45,14 +52,16 @@ export function EditTestCycle({
     refreshTestCycle: () => void;
 }) {
     const testCycleId = testCycle.id;
-    const { title, projectId, description } = testCycle;
+    const { title, projectId, description, startDate, endDate } = testCycle;
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const form = useForm<z.infer<typeof testCycleSchema>>({
         resolver: zodResolver(testCycleSchema),
         defaultValues: {
             title: title || "",
             projectId: projectId,
-            description: description || ""
+            description: description || "",
+            startDate: parseDate(formatDateReverse(startDate) || new Date()),
+            endDate: parseDate(formatDateReverse(endDate) || new Date()),
         },
     });
 
@@ -84,6 +93,16 @@ export function EditTestCycle({
         }
     }, [sheetOpen]);
 
+    function parseDate(date: string | Date): Date {
+        if (typeof date === "string") {
+            const parsedDate = new Date(date);
+            if (!isNaN(parsedDate.getTime())) {
+                return parsedDate;
+            }
+        }
+        return new Date();
+    }
+
     return (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
             <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto">
@@ -107,6 +126,91 @@ export function EditTestCycle({
                                             <FormControl>
                                                 <Input {...field} />
                                             </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-2 mt-3">
+                                <FormField
+                                    control={form.control}
+                                    name="startDate"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-col">
+                                            <FormLabel>Start date</FormLabel>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <FormControl>
+                                                        <Button
+                                                            variant={"outline"}
+                                                            className={cn(
+                                                                "w-[260px] pl-3 text-left font-normal",
+                                                                !field.value && "text-muted-foreground"
+                                                            )}
+                                                        >
+                                                            {field?.value ? (
+                                                                format(formatSimpleDate(field.value), "PPP")
+                                                            ) : (
+                                                                <span>Start date</span>
+                                                            )}
+                                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                        </Button>
+                                                    </FormControl>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-auto p-0" align="start">
+                                                    <Calendar
+                                                        mode="single"
+                                                        selected={field.value}
+                                                        onSelect={field.onChange}
+                                                        disabled={(date) => date < new Date("1900-01-01")}
+                                                        initialFocus
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <FormField
+                                    control={form.control}
+                                    name="endDate"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-col">
+                                            <FormLabel>End date</FormLabel>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <FormControl>
+                                                        <Button
+                                                            variant={"outline"}
+                                                            className={cn(
+                                                                "w-[260px] pl-3 text-left font-normal",
+                                                                !field.value && "text-muted-foreground"
+                                                            )}
+                                                        >
+                                                            {field?.value ? (
+                                                                format(formatSimpleDate(field.value), "PPP")
+                                                            ) : (
+                                                                <span>End date</span>
+                                                            )}
+                                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                        </Button>
+                                                    </FormControl>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-auto p-0" align="start">
+                                                    <Calendar
+                                                        mode="single"
+                                                        selected={field.value}
+                                                        onSelect={field.onChange}
+                                                        disabled={(date) =>
+                                                            date < form.watch("startDate") ||
+                                                            date < new Date("1900-01-01")
+                                                        }
+                                                        initialFocus
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
                                             <FormMessage />
                                         </FormItem>
                                     )}

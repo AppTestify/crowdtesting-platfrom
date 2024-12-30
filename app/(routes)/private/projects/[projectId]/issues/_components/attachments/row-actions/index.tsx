@@ -23,9 +23,9 @@ export function AttachmentRowActions({
 }) {
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const attachmentId = row.original.id as string;
+
     const { projectId } = useParams<{ projectId: string }>();
-    const fileId = row.original.cloudId as string;
+    const fileId = row.original.attachment.cloudId as string;
 
     const deleteAttachment = async () => {
         try {
@@ -47,8 +47,10 @@ export function AttachmentRowActions({
 
     const getFile = async () => {
         try {
-            const fileName = row.original.name;
-            await downloadFileFromDrive(fileId, fileName)
+            const fileName = row.original.attachment?.name;
+            const contentType = row.original.attachment?.contentType;
+            const base64 = row.original?.base64;
+            downloadDocument(contentType, base64, fileName)
         } catch (error) {
             toasterService.error();
             console.log("Error > getFile", error);

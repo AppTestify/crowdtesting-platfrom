@@ -16,6 +16,8 @@ import { IUserByAdmin } from "@/app/_interface/user";
 import { deleteUserService, sendUserCredentialsService } from "@/app/_services/user.service";
 import EditUser from "../edit-user";
 import ViewTesterIssue from "../view-user";
+import { UserRoles } from "@/app/_constants/user-roles";
+import ViewClientUser from "../client/view-user";
 
 export function UserRowActions({
     row,
@@ -26,6 +28,7 @@ export function UserRowActions({
 }) {
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [isViewOpen, setIsViewOpen] = useState(false);
+    const [isClientViewOpen, setIsClientViewOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const userId = row.original.id as string;
@@ -60,6 +63,16 @@ export function UserRowActions({
         }
     }
 
+    const displayView = (row: any) => {
+        if (row.original.role == UserRoles.TESTER) {
+            setIsViewOpen(true);
+        } else if (row.original.role == UserRoles.CLIENT) {
+            setIsClientViewOpen(true);
+        } else {
+            null;
+        }
+    }
+
     return (
         <>
             <EditUser
@@ -69,10 +82,18 @@ export function UserRowActions({
                 refreshUsers={refreshUsers}
             />
 
+            {/* view user */}
             <ViewTesterIssue
                 user={row.original as IUserByAdmin}
                 sheetOpen={isViewOpen}
                 setSheetOpen={setIsViewOpen}
+            />
+
+            {/* view client */}
+            <ViewClientUser
+                user={row.original as IUserByAdmin}
+                sheetOpen={isClientViewOpen}
+                setSheetOpen={setIsClientViewOpen}
             />
 
             <ConfirmationDialog
@@ -97,11 +118,7 @@ export function UserRowActions({
                 <DropdownMenuContent align="end">
                     <DropdownMenuItem
                         className="mb-1"
-                        onClick={() => {
-                            row.original.role == "TESTER" ?
-                                setIsViewOpen(true)
-                                : null
-                        }}
+                        onClick={() => displayView(row)}
                     >
                         <Eye className="h-2 w-2" /> View
                     </DropdownMenuItem>

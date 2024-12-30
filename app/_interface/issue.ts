@@ -3,6 +3,7 @@ import { ITestCycle } from "./test-cycle";
 import { IUserByAdmin } from "./user";
 
 export interface IIssue {
+  _id?: string;
   id: string;
   title: string;
   severity: string;
@@ -16,7 +17,7 @@ export interface IIssue {
   customId?: string;
   issueType?: string;
   testCycle: ITestCycle;
-  attachments?:IIssueAttachment[];
+  attachments?: IIssueAttachment[];
 }
 
 export interface IIssueView {
@@ -69,9 +70,13 @@ export interface IssueAttachmentsProps {
 }
 
 export interface IIssueAttachmentDisplay {
-  id: string;
-  data: string;
-  name: string;
-  contentType?: string;
-  cloudId: string;
+  attachment: {
+    _id: string;
+    id: string;
+    data: string;
+    name: string;
+    contentType?: string;
+    cloudId: string;
+  };
+  base64: any;
 }

@@ -40,6 +40,7 @@ import { PAGINATION_LIMIT } from "@/app/_utils/common";
 import { showUsersRoleInBadges } from "@/app/_utils/common-functionality";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ViewTesterIssue from "./_components/view-user";
+import ViewClientUser from "./_components/client/view-user";
 
 export default function Users() {
     const [selectedRole, setSelectedRole] = useState<string>(UserRoles.TESTER);
@@ -177,6 +178,7 @@ export default function Users() {
     const [totalPageCount, setTotalPageCount] = useState(0);
     const [filteredUsers, setFilteredUsers] = useState<IUserByAdmin[]>([]);
     const [selectedStatus, setSelectedStatus] = useState<UserStatusList | any>("");
+    const [isClientViewOpen, setIsClientViewOpen] = useState(false);
     const [user, setUser] = useState<IUserByAdmin>();
 
     useEffect(() => {
@@ -255,7 +257,14 @@ export default function Users() {
 
     const getUser = async (data: IUserByAdmin) => {
         setUser(data as IUserByAdmin);
-        setIsViewOpen(true);
+        if (data.role == UserRoles.TESTER) {
+            setIsViewOpen(true);
+        } else if (data.role == UserRoles.CLIENT) {
+            setIsClientViewOpen(true);
+        } else {
+            null;
+        }
+
     };
 
     return (
@@ -265,6 +274,14 @@ export default function Users() {
                 sheetOpen={isViewOpen}
                 setSheetOpen={setIsViewOpen}
             />
+
+            {/* view client */}
+            <ViewClientUser
+                user={user as IUserByAdmin}
+                sheetOpen={isClientViewOpen}
+                setSheetOpen={setIsClientViewOpen}
+            />
+
             <div className="">
                 <h2 className="font-medium text-xl text-primary">Users</h2>
             </div>

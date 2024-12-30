@@ -29,17 +29,17 @@ import { getTestCycleService } from "@/app/_services/test-cycle.service";
 import { ITestCycle, ITestCyclePayload } from "@/app/_interface/test-cycle";
 import { AddTestCycle } from "./_components/add-test-cycle";
 import { TestCycleRowActions } from "./_components/row-actions";
-import { formatDate } from "@/app/_constants/date-formatter";
+import { formatDate, formatDateWithoutTime } from "@/app/_constants/date-formatter";
 import { ArrowUpDown } from "lucide-react";
 import TestCycleView from "./_components/view-test-cycle";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
 
 export default function TestPlan() {
-    const [testCycle, setTestCycle] = useState<ITestCyclePayload[]>([]);
+    const [testCycle, setTestCycle] = useState<ITestCycle[]>([]);
     const [userData, setUserData] = useState<any>();
 
-    const columns: ColumnDef<ITestCyclePayload>[] = [
+    const columns: ColumnDef<ITestCycle>[] = [
         {
             accessorKey: "customId",
             header: ({ column }) => {
@@ -79,6 +79,16 @@ export default function TestPlan() {
                 </div>
             ),
         },
+        {
+            accessorKey: "estimation",
+            header: "Start Date - End Date",
+            cell: ({ row }) => (
+                <div
+                    className="capitalize">
+                    {formatDateWithoutTime(row.original?.startDate)} - {formatDateWithoutTime(row.original?.endDate)}
+                </div>
+            ),
+        },
         ...(
             testCycle.some((item) => item?.userId?._id) ?
                 [{
@@ -89,15 +99,15 @@ export default function TestPlan() {
                     ),
                 }] : []
         ),
-        {
-            accessorKey: "createdAt",
-            header: "Created On",
-            cell: ({ row }) => (
-                <div className="capitalize">
-                    {formatDate(row.getValue("createdAt"))}
-                </div>
-            ),
-        },
+        // {
+        //     accessorKey: "createdAt",
+        //     header: "Created On",
+        //     cell: ({ row }) => (
+        //         <div className="capitalize">
+        //             {formatDate(row.getValue("createdAt"))}
+        //         </div>
+        //     ),
+        // },
         ...(
             userData?.role != UserRoles.TESTER ?
                 [{

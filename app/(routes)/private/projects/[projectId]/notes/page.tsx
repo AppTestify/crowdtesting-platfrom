@@ -88,7 +88,8 @@ export default function TestPlan() {
             ),
         },
         ...(
-            (project?.isActive === true || userData?.role === UserRoles.ADMIN) ?
+            (project?.isActive === true ||
+                (userData?.role === UserRoles.ADMIN)) && userData?.role !== UserRoles.TESTER ?
                 [{
                     id: "actions",
                     enableHiding: false,

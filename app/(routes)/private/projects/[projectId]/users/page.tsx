@@ -73,13 +73,6 @@ export default function ProjectUsers() {
                 </div>
             ),
         },
-        {
-            accessorKey: "createdAt",
-            header: "Created on",
-            cell: ({ row }) => (
-                <div className="capitalize">{formatDate(row.original?.createdAt)}</div>
-            ),
-        },
         ...(
             userData?.role === UserRoles.ADMIN ?
                 [{

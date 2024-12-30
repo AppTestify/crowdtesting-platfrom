@@ -9,7 +9,7 @@ export function formatDate(dateString: string): string {
 export function formatDateWithoutTime(dateString: string): string {
   const date = moment(dateString);
 
-  return date.format("MMMM Do YYYY ");
+  return date.format("MMM Do YYYY ");
 }
 
 export function formatDateReverse(dateString: string | Date): string {
