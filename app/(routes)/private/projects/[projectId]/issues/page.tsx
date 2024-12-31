@@ -160,13 +160,12 @@ export default function Issues() {
       enableHiding: false,
       cell: ({ row }: { row: any }) => {
         if (
-          (project?.isActive === true &&
-            row.original?.userId?.toString() === userData?._id?.toString()) ||
-          userData?.role === UserRoles.ADMIN || userData?.role === UserRoles.CLIENT
+          // (project?.isActive === true &&
+          //   row.original?.userId?.toString() === userData?._id?.toString()) ||
+          userData?.role === UserRoles.ADMIN
         ) {
           return <IssueRowActions row={row} refreshIssues={refreshIssues} />;
         }
-
         return null;
       },
     },
@@ -309,8 +308,9 @@ export default function Issues() {
             <div>
               {ExportExcelFile(generateExcel, hasData)}
             </div>
-            {userData?.role !== UserRoles.CLIENT &&
-              (project?.isActive === true || userData?.role === UserRoles.ADMIN) &&
+            {
+              (userData?.role !== UserRoles.CLIENT &&
+                (project?.isActive === true || userData?.role === UserRoles.ADMIN || userData?.role === UserRoles.TESTER)) &&
               <AddIssue refreshIssues={refreshIssues} />
             }
           </div>

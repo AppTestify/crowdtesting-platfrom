@@ -59,13 +59,14 @@ export interface INewUser {
 }
 
 export interface IClientWelcomePayload {
-  name: string,
-  email: string,
-  link: string
+  name: string;
+  email: string;
+  link: string;
+  greeting?: string;
 }
 
 export interface ITesterWelcomePayload {
-  name: string,
-  email: string,
-  link: string
+  name: string;
+  email: string;
+  link: string;
 }

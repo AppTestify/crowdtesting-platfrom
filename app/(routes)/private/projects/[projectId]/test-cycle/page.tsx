@@ -26,10 +26,10 @@ import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
 import { PAGINATION_LIMIT } from "@/app/_utils/common";
 import { getTestCycleService } from "@/app/_services/test-cycle.service";
-import { ITestCycle, ITestCyclePayload } from "@/app/_interface/test-cycle";
+import { ITestCycle } from "@/app/_interface/test-cycle";
 import { AddTestCycle } from "./_components/add-test-cycle";
 import { TestCycleRowActions } from "./_components/row-actions";
-import { formatDate, formatDateWithoutTime } from "@/app/_constants/date-formatter";
+import { formatDateWithoutTime } from "@/app/_constants/date-formatter";
 import { ArrowUpDown } from "lucide-react";
 import TestCycleView from "./_components/view-test-cycle";
 import { useSession } from "next-auth/react";
@@ -99,15 +99,6 @@ export default function TestPlan() {
                     ),
                 }] : []
         ),
-        // {
-        //     accessorKey: "createdAt",
-        //     header: "Created On",
-        //     cell: ({ row }) => (
-        //         <div className="capitalize">
-        //             {formatDate(row.getValue("createdAt"))}
-        //         </div>
-        //     ),
-        // },
         ...(
             userData?.role != UserRoles.TESTER ?
                 [{

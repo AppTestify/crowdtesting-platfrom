@@ -5,8 +5,8 @@ import React from 'react'
 import { LabelList, Pie, PieChart } from 'recharts'
 
 const chartConfig = {
-    [IssueStatus.REPORTED]: {
-        label: IssueStatus.REPORTED,
+    [IssueStatus.NEW]: {
+        label: IssueStatus.NEW,
         color: "#9CA3AF",
     },
     [IssueStatus.FIXED]: {
@@ -17,21 +17,13 @@ const chartConfig = {
         label: IssueStatus.DUPLICATE,
         color: "#60A5FA",
     },
-    [IssueStatus.INVALID]: {
-        label: IssueStatus.INVALID,
+    [IssueStatus.CLOSED]: {
+        label: IssueStatus.CLOSED,
         color: "#F87171",
     },
     [IssueStatus.DEFERRED]: {
         label: IssueStatus.DEFERRED,
         color: "#FACC15",
-    },
-    [IssueStatus.RETEST_FAILED]: {
-        label: IssueStatus.RETEST_FAILED,
-        color: "#FB923C",
-    },
-    [IssueStatus.RETEST_PASSED]: {
-        label: IssueStatus.RETEST_PASSED,
-        color: "#15803D",
     },
     Completed: {
         label: "Completed",
@@ -53,20 +45,16 @@ const chartConfig = {
 
 const getColorForStatus = (status: string) => {
     switch (status) {
-        case IssueStatus.REPORTED:
+        case IssueStatus.NEW:
             return '#9CA3AF';
         case IssueStatus.FIXED:
             return 'hsl(var(--primary))';
         case IssueStatus.DUPLICATE:
             return '#60A5FA';
-        case IssueStatus.INVALID:
+        case IssueStatus.CLOSED:
             return '#F87171';
         case IssueStatus.DEFERRED:
             return '#FACC15';
-        case IssueStatus.RETEST_FAILED:
-            return '#FB923C';
-        case IssueStatus.RETEST_PASSED:
-            return '#15803D';
         case "completed":
             return 'hsl(var(--primary))';
         case "ongoing":

@@ -16,6 +16,7 @@ import { IDocumentApprovalPayload } from "../_interface/document";
 import { WELCOME_CLIENT_MESSAGE_TEMPLATE } from "@/email-templates/welcome-client.template";
 import { WELCOME_TESTER_MESSAGE_TEMPLATE } from "@/email-templates/welcome-tester.template";
 import { PARENT_EMAIL_TEMPLATE } from "@/email-templates/parent.template";
+import { TESTER_INFORMATION_TEMPLATE } from "@/email-templates/tester-information.template";
 
 interface IReplaceTemplateTags {
   tagValuesObject: any;
@@ -156,6 +157,20 @@ export const welcomeTesterMail = async (
     subject: EmailSubjects.TESTER_SIGN_UP,
     body: replaceEmailTemplateTagsInternalService({
       emailBody: prepareEmailTemplate(WELCOME_TESTER_MESSAGE_TEMPLATE),
+      tagValuesObject: templateTags,
+    }),
+  });
+};
+
+export const testerInformationMail = async (
+  templateTags: IClientWelcomePayload
+) => {
+  const emailService = new EmailService();
+  await emailService.sendEmail({
+    to: templateTags?.email,
+    subject: EmailSubjects.TESTER_INFORMATION,
+    body: replaceEmailTemplateTagsInternalService({
+      emailBody: prepareEmailTemplate(TESTER_INFORMATION_TEMPLATE),
       tagValuesObject: templateTags,
     }),
   });

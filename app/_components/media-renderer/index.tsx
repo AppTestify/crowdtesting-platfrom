@@ -8,25 +8,24 @@ import {
 } from "@/components/ui/card";
 import React, { useState } from "react";
 import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
   Download,
-  Ellipsis,
+  Eye,
   File,
   FileImage,
   FileJson,
   FileSpreadsheet,
   FileText,
-  Plus,
+  FileVideo,
   Trash,
   XIcon,
 } from "lucide-react";
-import { IIssueAttachment } from "@/app/_interface/issue";
+import { IIssue, IIssueAttachment } from "@/app/_interface/issue";
 import { downloadDocument } from "@/app/_utils/common";
 import toasterService from "@/app/_services/toaster-service";
 import { ConfirmationDialog } from "../confirmation-dialog";
 import { deleteIssueAttachmentService } from "@/app/_services/issue-attachment.service";
 import { useParams } from "next/navigation";
+import { UserRoles } from "@/app/_constants/user-roles";
 
 const getIconByContentType = (type: any) => {
   switch (type) {
@@ -42,6 +41,8 @@ const getIconByContentType = (type: any) => {
       return <FileSpreadsheet className="text-green-600" />;
     case ContentType.XLSX:
       return <FileSpreadsheet className="text-green-600" />;
+    case ContentType.MP4:
+      return <FileVideo className="text-purple-600" />;
     default:
       return <File className="text-gray-500" />;
   }
@@ -50,11 +51,15 @@ const getIconByContentType = (type: any) => {
 const MediaRenderer = ({
   attachments,
   title,
-  refreshAttachments
+  refreshAttachments,
+  userData,
+  issueData,
 }: {
   attachments: any[];
   title: string;
   refreshAttachments: () => void;
+  userData: any;
+  issueData: IIssue;
 }) => {
   if (!attachments?.length) return null;
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -98,37 +103,12 @@ const MediaRenderer = ({
     }
   };
 
+  const [openAttachmentId, setOpenAttachmentId] = useState<string | null>(null);
+
   const renderMedia = (file: any, index: number) => {
     const { contentType, name, createdAt } = file.attachment;
     const base64Src = `data:${contentType};base64,${file.base64}`;
-
-    const [isOpen, setIsOpen] = useState<boolean>(false);
-    const [isVideoOpen, setIsVideoOpen] = useState<boolean>(false);
-
-    // for image
-    const openModal = () => setIsOpen(true);
-    const closeModal = () => setIsOpen(false);
-
-    // for video
-    const openVideoModal = () => {
-      setIsVideoOpen(true);
-    };
-
-    const closeVideoModal = () => {
-      setIsVideoOpen(false);
-    };
-
-    const handleImageOutsideClick = (e: any) => {
-      if (e.target.id === "image-modal-overlay") {
-        closeModal();
-      }
-    };
-
-    const handleVideoOutsideClick = (e: any) => {
-      if (e.target.id === "video-modal-overlay") {
-        closeVideoModal();
-      }
-    };
+    const closeModal = () => setOpenAttachmentId(null);
 
     if (
       [ContentType.PNG, ContentType.JPEG, ContentType.JPG].includes(contentType)
@@ -140,28 +120,36 @@ const MediaRenderer = ({
               key={index}
               src={base64Src}
               alt={name}
-              onClick={openModal}
               className="rounded-t-md max-h-[92px] w-full object-cover cursor-pointer"
             />
-            {isOpen && (
+            {openAttachmentId === file.attachment.cloudId && (
               <div
                 id="image-modal-overlay"
-                className="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
-                onClick={handleImageOutsideClick}
+                className="fixed inset-0 z-50 flex  bg-black/80"
               >
+                <div className="flex flex-col my-2 w-full">
+                  <div className="w-full flex items-center px-5 py-3  text-white">
+                    <button
+                      onClick={closeModal}
+                      className="text-gray-300 hover:text-gray-400 focus:outline-none focus:ring-2 focus:ring-white"
+                    >
+                      <XIcon className="w-6 h-6" />
+                    </button>
+                    <h2 className="flex justify-center ml-8 truncate">
+                      {getIconByContentType(file.attachment.contentType)}
+                      <span className="ml-2">
+                        {name.length > 40 ? `${name.substring(0, 40)}...` : name}
+                      </span>
+                    </h2>
+                  </div>
 
-                <div className="flex justify-center items-center overflow-hidden">
-                  <button
-                    onClick={closeModal}
-                    className="absolute top-4 right-4 text-gray-500 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-white z-10"
-                  >
-                    <XIcon className="w-6 h-6" />
-                  </button>
-                  <img
-                    src={base64Src}
-                    alt="Gallery Image"
-                    className="w-full max-h-[90vh] object-contain"
-                  />
+                  <div className="flex justify-center items-center overflow-hidden">
+                    <img
+                      src={base64Src}
+                      alt="Gallery Image"
+                      className="w-full max-h-[90vh] object-contain"
+                    />
+                  </div>
                 </div>
               </div>
             )}
@@ -182,30 +170,37 @@ const MediaRenderer = ({
     ) {
       return (
         <Card className="h-fit shadow-none rounded-md" key={index}>
-          <CardContent className="p-0">
-            <div className="h-[92px] w-[155px] relative bg-gray-100" onClick={openVideoModal}>
+          <CardContent className="p-0 group relative">
+            <div className="h-[92px] w-[155px] relative bg-gray-100" >
               <video
                 width={155}
                 controls
                 className="rounded-t-md cursor-pointer"
-
               >
                 <source src={base64Src} type={contentType} />
                 Your browser does not support the video tag.
               </video>
             </div>
-
-            {isVideoOpen && (
-              <div id="video-modal-overlay"
-                className="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
-                onClick={handleVideoOutsideClick}>
-                <div className="relative w-full max-w-5xl bg-white rounded-lg overflow-hidden">
-                  <button
-                    onClick={closeVideoModal}
-                    className="absolute top-4 right-4 z-10 text-gray-500 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-white"
-                  >
-                    <XIcon className="w-6 h-6" />
-                  </button>
+            {openAttachmentId === file.attachment.cloudId && (
+              <div
+                id="image-modal-overlay"
+                className="fixed inset-0 z-50 flex  bg-black/80"
+              >
+                <div className="flex flex-col w-full">
+                  <div className="w-full flex items-center px-5 py-3 my-2 text-white">
+                    <button
+                      onClick={closeModal}
+                      className="text-gray-300 hover:text-gray-400 focus:outline-none focus:ring-2 focus:ring-white"
+                    >
+                      <XIcon className="w-6 h-6" />
+                    </button>
+                    <h2 className="flex justify-center ml-8 truncate">
+                      {getIconByContentType(contentType)}
+                      <span className="ml-2">
+                        {name.length > 40 ? `${name.substring(0, 40)}...` : name}
+                      </span>
+                    </h2>
+                  </div>
 
                   <div className="flex justify-center items-center overflow-hidden">
                     <video
@@ -276,14 +271,30 @@ const MediaRenderer = ({
             >
               {renderMedia(attachment, index)}
               <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                {[ContentType.PNG, ContentType.JPEG, ContentType.JPG, ContentType.MP4, ContentType.OGG, ContentType.WEBM].includes(attachment.attachment.contentType) &&
+                  <Button size={'icon'} className="bg-white hover:bg-gray-50 h-7 w-7"
+                    onClick={() => setOpenAttachmentId(attachment.attachment.cloudId)}
+                  >
+                    <Eye className="h-2 w-2 text-gray-600" />
+                  </Button>
+                }
                 <Button size={'icon'} className="bg-white hover:bg-gray-50 h-7 w-7"
                   onClick={() => getFile(attachment)}>
                   <Download className="h-2 w-2 text-gray-600" />
                 </Button>
-                <Button size={'icon'} className="bg-white hover:bg-gray-50 h-7 w-7"
-                  onClick={() => deleteFile(attachment)}>
-                  <Trash className="h-2 w-2  text-gray-600" />
-                </Button>
+                {
+                  (issueData?.userId?._id?.toString() === userData?._id?.toString()) ||
+                    userData?.role === UserRoles.ADMIN ?
+                    (
+                      <>
+                        <Button size={'icon'} className="bg-white hover:bg-gray-50 h-7 w-7"
+                          onClick={() => deleteFile(attachment)}>
+                          <Trash className="h-2 w-2  text-gray-600" />
+                        </Button>
+                      </>
+                    )
+                    : null
+                }
               </div>
             </div>
           </div>

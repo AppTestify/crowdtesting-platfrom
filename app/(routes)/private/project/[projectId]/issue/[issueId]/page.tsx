@@ -52,6 +52,9 @@ import { formatDistanceToNow } from "date-fns";
 import MediaRenderer from "@/app/_components/media-renderer";
 import { getIssueAttachmentsService } from "@/app/_services/issue-attachment.service";
 import EditIssue from "@/app/(routes)/private/projects/[projectId]/issues/_components/edit-issue";
+import { getProjectService } from "@/app/_services/project.service";
+import { IProject } from "@/app/_interface/project";
+import { UserRoles } from "@/app/_constants/user-roles";
 
 const commentSchema = z.object({
   entityId: z.string().min(1, "Required"),
@@ -69,6 +72,8 @@ const ViewIssue = () => {
   const [comments, setComments] = useState<IComment[]>([]);
   const [issueAttachments, setIssueAttachments] = useState<IIssueAttachment[]>([]);
   const [isEditStatusOpen, setIsEditStatusOpen] = useState(false);
+  const [project, setProject] = useState<IProject>();
+  const [userData, setUserData] = useState<any>();
 
   const form = useForm<z.infer<typeof commentSchema>>({
     resolver: zodResolver(commentSchema),
@@ -142,11 +147,31 @@ const ViewIssue = () => {
     form.reset();
   };
 
+  const getProject = async () => {
+    setIsViewLoading(true);
+    try {
+      const response = await getProjectService(projectId);
+      setProject(response);
+    } catch (error) {
+      toasterService.error();
+    } finally {
+      setIsViewLoading(false);
+    }
+  }
+
   useEffect(() => {
     getIssueById();
     getIssueAttachments();
+    getProject();
     // getComments();
   }, [projectId, issueId]);
+
+  useEffect(() => {
+    if (data) {
+      const { user } = data;
+      setUserData(user);
+    }
+  }, [data]);
 
   return (
     <div className="pb-0 mt-2 w-full">
@@ -184,9 +209,19 @@ const ViewIssue = () => {
               </Breadcrumb>
             </div>
             <div>
-              <Button size={'sm'} onClick={() => setIsEditStatusOpen(true)}>
-                <Edit className="h-2 w-2" /> Edit
-              </Button>
+              {
+                (project?.isActive === true &&
+                  issueData?.userId?._id?.toString() === userData?._id?.toString()) ||
+                  userData?.role === UserRoles.ADMIN ?
+                  (
+                    <>
+                      <Button size={'sm'} onClick={() => setIsEditStatusOpen(true)}>
+                        <Edit className="h-2 w-2" /> Edit
+                      </Button>
+                    </>
+                  )
+                  : null
+              }
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-[2fr_1fr] gap-4">
@@ -207,6 +242,8 @@ const ViewIssue = () => {
                   attachments={issueAttachments || []}
                   title={"Attachments"}
                   refreshAttachments={refreshAttachments}
+                  userData={userData}
+                  issueData={issueData as IIssue}
                 />
                 :
                 <div className="flex gap-2 mt-4">
@@ -341,8 +378,8 @@ const ViewIssue = () => {
               <Skeleton className="h-12 w-[300px] bg-gray-200 ml-4" />
               <Skeleton className="h-24 w-[300px] bg-gray-200 ml-4" />
               <Skeleton className="h-24 w-[300px] bg-gray-200 ml-4" />
-              <Skeleton className="h-12 w-[300px] bg-gray-200 ml-4" />
-              <Skeleton className="h-12 w-[300px] bg-gray-200 ml-4" />
+              {/* <Skeleton className="h-12 w-[300px] bg-gray-200 ml-4" />
+              <Skeleton className="h-12 w-[300px] bg-gray-200 ml-4" /> */}
             </div>
           </div>
         </div>

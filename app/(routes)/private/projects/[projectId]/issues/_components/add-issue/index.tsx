@@ -102,7 +102,7 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
       severity: "",
       priority: "",
       description: "",
-      status: IssueStatus.REPORTED,
+      status: IssueStatus.NEW,
       projectId: projectId,
       issueType: "",
       attachments: [],

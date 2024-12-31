@@ -22,24 +22,42 @@ export const displayIcon = (priority: string) => {
 
 export const statusBadge = (status: string | undefined) => {
     switch (status) {
-        case IssueStatus.REPORTED:
-            return <Badge className="bg-gray-400 hover:bg-gray-400 font-medium">{IssueStatus?.REPORTED}</Badge>;
+        case IssueStatus.NEW:
+            return <Badge className="bg-gray-400 hover:bg-gray-400 font-medium">{IssueStatus.NEW}</Badge>;
+        case IssueStatus.OPEN:
+            return <Badge className="bg-blue-500 hover:bg-blue-500 font-medium">{IssueStatus.OPEN}</Badge>;
+        case IssueStatus.ASSIGNED:
+            return <Badge className="bg-indigo-500 hover:bg-indigo-500 font-medium">{IssueStatus.ASSIGNED}</Badge>;
+        case IssueStatus.IN_PROGRESS:
+            return <Badge className="bg-yellow-500 hover:bg-yellow-500 font-medium">{IssueStatus.IN_PROGRESS}</Badge>;
         case IssueStatus.FIXED:
-            return <Badge className="bg-primary hover:bg-primary font-medium">{IssueStatus?.FIXED}</Badge>;
-        case IssueStatus.DUPLICATE:
-            return <Badge className="bg-blue-400 hover:bg-blue-400 font-medium">{IssueStatus?.DUPLICATE}</Badge>;
-        case IssueStatus.INVALID:
-            return <Badge className="bg-red-400 hover:bg-red-400 font-medium">{IssueStatus?.INVALID}</Badge>;
+            return <Badge className="bg-green-500 hover:bg-green-500 font-medium">{IssueStatus.FIXED}</Badge>;
+        case IssueStatus.READY_FOR_RETEST:
+            return <Badge className="bg-teal-400 hover:bg-teal-400 font-medium">{IssueStatus.READY_FOR_RETEST}</Badge>;
+        case IssueStatus.RETESTING:
+            return <Badge className="bg-orange-400 hover:bg-orange-400 font-medium">{IssueStatus.RETESTING}</Badge>;
+        case IssueStatus.VERIFIED:
+            return <Badge className="bg-green-700 hover:bg-green-700 font-medium">{IssueStatus.VERIFIED}</Badge>;
+        case IssueStatus.CLOSED:
+            return <Badge className="bg-purple-500 hover:bg-purple-500 font-medium">{IssueStatus.CLOSED}</Badge>;
+        case IssueStatus.REOPENED:
+            return <Badge className="bg-pink-500 hover:bg-pink-500 font-medium">{IssueStatus.REOPENED}</Badge>;
         case IssueStatus.DEFERRED:
-            return <Badge className="bg-yellow-400 hover:bg-yellow-400 font-medium">{IssueStatus?.DEFERRED}</Badge>;
-        case IssueStatus.RETEST_FAILED:
-            return <Badge className="bg-orange-400 hover:bg-orange-400 font-medium text-center">{IssueStatus?.RETEST_FAILED}</Badge>;
-        case IssueStatus.RETEST_PASSED:
-            return <Badge className="bg-green-700 hover:bg-green-700 font-medium text-center">{IssueStatus?.RETEST_PASSED}</Badge>;
+            return <Badge className="bg-yellow-400 hover:bg-yellow-400 font-medium">{IssueStatus.DEFERRED}</Badge>;
+        case IssueStatus.DUPLICATE:
+            return <Badge className="bg-blue-400 hover:bg-blue-400 font-medium">{IssueStatus.DUPLICATE}</Badge>;
+        case IssueStatus.REJECTED:
+            return <Badge className="bg-red-400 hover:bg-red-400 font-medium">{IssueStatus.REJECTED}</Badge>;
+        case IssueStatus.CANNOT_REPRODUCE:
+            return <Badge className="bg-gray-600 hover:bg-gray-600 font-medium">{IssueStatus.CANNOT_REPRODUCE}</Badge>;
+        case IssueStatus.NOT_A_BUG:
+            return <Badge className="bg-gray-500 hover:bg-gray-500 font-medium">{IssueStatus.NOT_A_BUG}</Badge>;
+        case IssueStatus.BLOCKED:
+            return <Badge className="bg-red-700 hover:bg-red-700 font-medium">{IssueStatus.BLOCKED}</Badge>;
         default:
             return null;
     }
-}
+};
 
 export const showUsersRoleInBadges = (role: UserRoles) => {
     switch (role) {

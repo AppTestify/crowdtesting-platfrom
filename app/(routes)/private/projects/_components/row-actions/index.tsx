@@ -76,7 +76,7 @@ export function RowActions({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <Link href={`/private/projects/${row.original.id}/overview`}>
+          <Link href={`/private/projects/${row.original.id}/test-instructions`}>
             <DropdownMenuItem
               className="mb-1"
             >

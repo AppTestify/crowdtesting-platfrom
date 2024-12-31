@@ -69,7 +69,7 @@ export const WELCOME_TESTER_MESSAGE_TEMPLATE = `
 </head> 
 <body> 
     <div> 
-        <h1>Hi <span class="highlight">{name}</span>,</h1> 
+        <h1>{greeting} <span class="highlight">{name}</span>,</h1> 
         <p>🎉 You've just taken the first step toward a rewarding testing journey - welcome to AppTestify!</p> 
 
         <p>Here's what's in store for you:</p> 

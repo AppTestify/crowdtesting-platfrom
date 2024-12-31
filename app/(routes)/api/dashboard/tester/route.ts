@@ -37,24 +37,33 @@ export async function GET(req: Request) {
       );
     }
 
-    const projects = await Project.find({ "users.userId": session.user._id });
+    const url = new URL(req.url);
+    const project = url.searchParams.get("project");
+    let projects;
+
+    if (project && project !== "undefined") {
+      projects = await Project.find({ _id: project });
+    } else {
+      projects = await Project.find({ "users.userId": session.user._id });
+    }
+
     const issues = await Issue.find({
       projectId: projects.map((project) => project._id),
     });
 
     const testCycleMap = issues.reduce((acc, issue) => {
-      const testCycle = typeof issue.testCycle === "string"
-        ? issue.testCycle.trim().toLowerCase() 
-        : String(issue.testCycle || ""); 
+      const testCycle =
+        typeof issue.testCycle === "string"
+          ? issue.testCycle.trim().toLowerCase()
+          : String(issue.testCycle || "");
       if (testCycle) {
         acc[testCycle] = (acc[testCycle] || 0) + 1;
       }
       return acc;
     }, {});
-    
+
     const uniqueTestCycleCount = Object.keys(testCycleMap).length;
 
-    //
     let completedCount = 0;
     let ongoingCount = 0;
 
@@ -97,13 +106,22 @@ function countresults(issue: any[]) {
   severityCounts[Severity.CRITICAL] = 0;
 
   const statusCounts: any = {};
-  statusCounts[IssueStatus.REPORTED] = 0;
+  statusCounts[IssueStatus.NEW] = 0;
+  statusCounts[IssueStatus.OPEN] = 0;
+  statusCounts[IssueStatus.ASSIGNED] = 0;
+  statusCounts[IssueStatus.IN_PROGRESS] = 0;
   statusCounts[IssueStatus.FIXED] = 0;
-  statusCounts[IssueStatus.DUPLICATE] = 0;
-  statusCounts[IssueStatus.INVALID] = 0;
+  statusCounts[IssueStatus.READY_FOR_RETEST] = 0;
+  statusCounts[IssueStatus.RETESTING] = 0;
+  statusCounts[IssueStatus.VERIFIED] = 0;
+  statusCounts[IssueStatus.CLOSED] = 0;
+  statusCounts[IssueStatus.REOPENED] = 0;
   statusCounts[IssueStatus.DEFERRED] = 0;
-  statusCounts[IssueStatus.RETEST_FAILED] = 0;
-  statusCounts[IssueStatus.RETEST_PASSED] = 0;
+  statusCounts[IssueStatus.DUPLICATE] = 0;
+  statusCounts[IssueStatus.REJECTED] = 0;
+  statusCounts[IssueStatus.CANNOT_REPRODUCE] = 0;
+  statusCounts[IssueStatus.NOT_A_BUG] = 0;
+  statusCounts[IssueStatus.BLOCKED] = 0;
 
   issue.forEach((result) => {
     // By severity

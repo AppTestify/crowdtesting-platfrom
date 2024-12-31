@@ -10,31 +10,58 @@ export const enum Priority {
   HIGH = "High",
 }
 
-export const enum IssueStatus {
-  REPORTED = "Reported",
-  // NEW = "New",
-  FIXED = "Fixed",
-  DUPLICATE = "Duplicate",
-  INVALID = "Invalid",
-  DEFERRED = "Deferred",
-  RETEST_FAILED = "Retest failed",
-  RETEST_PASSED = "Retest passed"
-}
-
 export const enum IssueType {
   FUNCTIONAL = "Functional",
   UI_UX = "UI/UX",
   USABILITY = "Usability",
   PERFORMANCE = "Performance",
-  SECURITY = "Security"
+  SECURITY = "Security",
 }
+
+export const enum IssueStatus {
+  NEW = "New",
+  OPEN = "Open",
+  ASSIGNED = "Assigned",
+  IN_PROGRESS = "In progress",
+  FIXED = "Fixed",
+  READY_FOR_RETEST = "Ready for retest",
+  RETESTING = "Retesting",
+  VERIFIED = "Verified",
+  CLOSED = "Closed",
+  REOPENED = "Reopened",
+  DEFERRED = "Deferred",
+  DUPLICATE = "Duplicate",
+  REJECTED = "Rejected",
+  CANNOT_REPRODUCE = "Cannot reproduce",
+  NOT_A_BUG = "Not a bug",
+  BLOCKED = "Blocked",
+}
+
+export const ISSUE_STATUS_LIST = [
+  IssueStatus.NEW,
+  IssueStatus.OPEN,
+  IssueStatus.ASSIGNED,
+  IssueStatus.IN_PROGRESS,
+  IssueStatus.FIXED,
+  IssueStatus.READY_FOR_RETEST,
+  IssueStatus.RETESTING,
+  IssueStatus.VERIFIED,
+  IssueStatus.CLOSED,
+  IssueStatus.REOPENED,
+  IssueStatus.DEFERRED,
+  IssueStatus.DUPLICATE,
+  IssueStatus.REJECTED,
+  IssueStatus.CANNOT_REPRODUCE,
+  IssueStatus.NOT_A_BUG,
+  IssueStatus.BLOCKED,
+];
 
 export const ISSUE_TYPE_LIST = [
   IssueType.FUNCTIONAL,
   IssueType.UI_UX,
   IssueType.USABILITY,
   IssueType.PERFORMANCE,
-  IssueType.SECURITY
+  IssueType.SECURITY,
 ];
 
 export const SEVERITY_LIST = [
@@ -45,18 +72,8 @@ export const SEVERITY_LIST = [
 
 export const PRIORITY_LIST = [Priority.LOW, Priority.NORMAL, Priority.HIGH];
 
-export const ISSUE_STATUS_LIST = [
-  IssueStatus.REPORTED,
-  // IssueStatus.NEW,
-  IssueStatus.FIXED,
-  IssueStatus.DUPLICATE,
-  IssueStatus.INVALID,
-  IssueStatus.DEFERRED,
-  IssueStatus.RETEST_FAILED,
-  IssueStatus.RETEST_PASSED
-];
-
 export const ISSUE_TESTER_STATUS_LIST = [
-  IssueStatus.RETEST_FAILED,
-  IssueStatus.RETEST_PASSED
+  IssueStatus.RETESTING,
+  IssueStatus.VERIFIED,
+  IssueStatus.OPEN,
 ];

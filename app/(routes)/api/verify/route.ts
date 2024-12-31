@@ -15,7 +15,11 @@ import {
   checkExpired,
   extractDataFromVerificationToken,
 } from "@/app/_utils/common-server-side";
-import { welcomeClientMail, welcomeTesterMail } from "@/app/_utils/email";
+import {
+  testerInformationMail,
+  welcomeClientMail,
+  welcomeTesterMail,
+} from "@/app/_utils/email";
 
 export async function POST(req: Request) {
   try {
@@ -79,18 +83,30 @@ export async function POST(req: Request) {
       const name =
         existingUser?.firstName && existingUser?.lastName
           ? `${existingUser.firstName} ${existingUser.lastName}`
-          : "Sir";
+          : "Hello";
+      const dear =
+        existingUser?.firstName && existingUser?.lastName ? "Hi" : "";
       if (existingUser?.role === UserRoles.CLIENT) {
         welcomeClientMail({
           email: existingUser.email,
           name: `${name}`,
           link: `${process.env.URL}/auth/sign-in`,
+          greeting: dear,
         });
       } else if (existingUser?.role === UserRoles.TESTER) {
         welcomeTesterMail({
           email: existingUser.email,
           name: `${name}`,
           link: `${process.env.URL}/auth/sign-in`,
+          greeting: dear,
+        });
+
+        // second mail
+        testerInformationMail({
+          email: existingUser.email,
+          name: `${name}`,
+          link: `${process.env.URL}/auth/sign-in`,
+          greeting: existingUser?.firstName && existingUser?.lastName ? "Dear" : "",
         });
       }
     }

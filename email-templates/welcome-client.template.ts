@@ -69,7 +69,7 @@ export const WELCOME_CLIENT_MESSAGE_TEMPLATE = `
     </head> 
     <body>
     <div> 
-        <h1>Hi <span class="highlight">{name}</span>,</h1> 
+        <h1>{greeting} <span class="highlight">{name}</span>,</h1> 
         <p>Congratulations on joining AppTestify - the ultimate platform to elevate your software quality! We're thrilled to have you on board and can't wait to help you bring your vision to life.</p> 
 
         <p>Here's what awaits you:</p> 

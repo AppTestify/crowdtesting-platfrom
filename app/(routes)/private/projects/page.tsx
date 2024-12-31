@@ -81,7 +81,7 @@ export default function Projects() {
       cell: ({ row }) => {
         const { id } = row.original;
         return (
-          <Link href={`/private/projects/${id}/overview`}>
+          <Link href={`/private/projects/${id}/test-instructions`}>
             <div className="ml-4 text-primary hover:text-primary">
               {row.getValue("customId")}
             </div>
@@ -97,7 +97,7 @@ export default function Projects() {
       cell: ({ row }) => {
         const { id } = row.original;
         return (
-          <Link href={`/private/projects/${id}/overview`}>
+          <Link href={`/private/projects/${id}/test-instructions`}>
             <div className="ml-4 hover:text-primary">
               {row.getValue("title")}
             </div>

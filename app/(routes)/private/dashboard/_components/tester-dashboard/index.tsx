@@ -19,6 +19,7 @@ import React, { useEffect, useState } from "react";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import HorizontalBarChart from "../client-dashboard/_components/horizontal-bar-chart";
 import PieCharts from "../client-dashboard/_components/pie-chart";
+import StatusBarChart from "../client-dashboard/_components/bar-chart";
 
 const chartConfig = {
   project: {
@@ -91,7 +92,7 @@ export default function TesterDashboard() {
           dataKey="severity"
           chartData={dashboard?.severity || {}}
         />
-        <PieCharts
+        <StatusBarChart
           title="Status Chart"
           description="Showing status priority levels"
           chartData={dashboard?.status || {}}

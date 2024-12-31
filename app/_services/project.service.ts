@@ -70,9 +70,9 @@ export const updateProjectStausService = async (
   }
 };
 
-export const getProjectService = async (userId: string): Promise<any> => {
+export const getProjectService = async (projectId: string): Promise<any> => {
   try {
-    const response = await genericGet(`${PROJECTS_ENDPOINT}/${userId}`);
+    const response = await genericGet(`${PROJECTS_ENDPOINT}/${projectId}`);
     return response || [];
   } catch (error) {
     console.error(`Error > getProjectService:`, error);

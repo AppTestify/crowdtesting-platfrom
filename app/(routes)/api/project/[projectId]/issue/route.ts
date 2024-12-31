@@ -8,9 +8,10 @@ import {
   USER_UNAUTHORIZED_SERVER_ERROR_MESSAGE,
 } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
+import { IssueStatus } from "@/app/_constants/issue";
 import { connectDatabase } from "@/app/_db";
 import AttachmentService from "@/app/_helpers/attachment.helper";
-import { isAdmin, verifySession } from "@/app/_lib/dal";
+import { isAdmin, isClient, verifySession } from "@/app/_lib/dal";
 import { IdFormat } from "@/app/_models/id-format.model";
 import { IssueAttachment } from "@/app/_models/issue-attachment.model";
 import { Issue } from "@/app/_models/issue.model";
@@ -78,6 +79,7 @@ export async function POST(
     const newIssue = new Issue({
       ...response.data,
       userId: session.user._id,
+      status: IssueStatus.NEW,
     });
 
     const savedIssue = await newIssue.save();
@@ -155,9 +157,24 @@ export async function GET(
       projectId: projectId,
     }).countDocuments();
 
-    if (!(await isAdmin(session.user))) {
+    if (await isAdmin(session.user)) {
       response = addCustomIds(
         await Issue.find({ projectId: projectId })
+          .populate("userId")
+          .populate({ path: "testCycle", strictPopulate: false })
+          .sort({ createdAt: -1 })
+          .skip(skip)
+          .limit(Number(limit))
+          .populate("device")
+          .lean(),
+        userIdFormat.idFormat
+      );
+    } else if (await isClient(session.user)) {
+      response = addCustomIds(
+        await Issue.find({
+          projectId: projectId,
+          status: { $nin: IssueStatus.NEW },
+        })
           .sort({ createdAt: -1 })
           .skip(skip)
           .limit(Number(limit))
@@ -169,12 +186,11 @@ export async function GET(
     } else {
       response = addCustomIds(
         await Issue.find({ projectId: projectId })
-          .populate("userId")
-          .populate({ path: "testCycle", strictPopulate: false })
           .sort({ createdAt: -1 })
           .skip(skip)
           .limit(Number(limit))
           .populate("device")
+          .populate({ path: "testCycle", strictPopulate: false })
           .lean(),
         userIdFormat.idFormat
       );

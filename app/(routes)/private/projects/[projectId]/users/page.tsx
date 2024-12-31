@@ -27,7 +27,6 @@ import { getProjectUsersService } from "@/app/_services/project.service";
 import { AddProjectUser } from "./add-user";
 import { ProjectUserRowActions } from "./row-actions";
 import { IProjectUserDisplay } from "@/app/_interface/project";
-import { formatDate } from "@/app/_constants/date-formatter";
 import { statusBadgeProjectUserRole } from "@/app/_utils/common-functionality";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";

@@ -40,7 +40,7 @@ import {
   ISSUE_TYPE_LIST,
   IssueStatus,
 } from "@/app/_constants/issue";
-import { updateIssueService } from "@/app/_services/issue.service";
+import { getIssueService, updateIssueService } from "@/app/_services/issue.service";
 import IssueAttachments from "../attachments/issue-attachment";
 import { displayIcon } from "@/app/_utils/common-functionality";
 import TextEditor from "@/app/(routes)/private/projects/_components/text-editor";
@@ -50,7 +50,7 @@ import { IDevice } from "@/app/_interface/device";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
 import { ITestCycle } from "@/app/_interface/test-cycle";
-import { getTestCycleWithoutPaginationService } from "@/app/_services/test-cycle.service";
+import { getSingleCycleService, getTestCycleWithoutPaginationService } from "@/app/_services/test-cycle.service";
 
 const issueSchema = z.object({
   title: z.string().min(1, "Required"),
@@ -90,6 +90,7 @@ const EditIssue = ({
   const deviceName = device?.map(d => d.name) || [];
   const [testCycles, setTestCycles] = useState<ITestCycle[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [testCycle, setTestCycle] = useState<ITestCycle | null>(null);
 
   const form = useForm<z.infer<typeof issueSchema>>({
     resolver: zodResolver(issueSchema),
@@ -194,6 +195,7 @@ const EditIssue = ({
 
   useEffect(() => {
     if (sheetOpen) {
+      getSingleTestCycle();
       getDevices();
       getTestCycle();
       setAttachments([]);
@@ -204,6 +206,29 @@ const EditIssue = ({
     }
   }, [sheetOpen]);
 
+  const handleSheetClose = () => {
+    refreshIssues();
+  };
+
+  const handleOpenChange = (open: boolean) => {
+    if (sheetOpen !== open) {
+      setSheetOpen(open);
+
+      if (!open) {
+        handleSheetClose();
+      }
+    }
+  };
+
+  const getSingleTestCycle = async () => {
+    try {
+      const response = await getSingleCycleService(projectId, form.watch('testCycle'));
+      setTestCycle(response);
+    } catch (error) {
+      toasterService.error();
+    }
+  }
+
   useEffect(() => {
     if (data) {
       const { user } = data;
@@ -212,7 +237,7 @@ const EditIssue = ({
   }, [data]);
 
   return (
-    <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+    <Sheet open={sheetOpen} onOpenChange={handleOpenChange}>
       <SheetContent
         className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto"
       >
@@ -318,11 +343,7 @@ const EditIssue = ({
                         <SelectContent>
                           {userData?.role === UserRoles.TESTER ?
                             <SelectGroup>
-                              {ISSUE_TESTER_STATUS_LIST.filter((status) =>
-                                form.watch("status") === IssueStatus.RETEST_PASSED ?
-                                  status === IssueStatus.RETEST_PASSED :
-                                  true
-                              ).map((status) => (
+                              {ISSUE_TESTER_STATUS_LIST.map((status) => (
                                 <SelectItem value={status} key={status}>
                                   {status}
                                 </SelectItem>
@@ -428,7 +449,12 @@ const EditIssue = ({
                         value={field.value || ""}
                       >
                         <SelectTrigger className="w-full">
-                          <SelectValue />
+                          <SelectValue>
+                            {
+                            testCycles.find((cycle) => cycle._id === field.value)
+                              ? testCycles.find((cycle) => cycle._id === field.value)?.title
+                              : testCycle?.title}
+                          </SelectValue>
                         </SelectTrigger>
                         <SelectContent>
                           <SelectGroup>

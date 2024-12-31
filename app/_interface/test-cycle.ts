@@ -1,4 +1,3 @@
-import { ITestCase } from "./test-case";
 import { ITestCaseResult } from "./test-case-result";
 import { IUserByAdmin } from "./user";
 
