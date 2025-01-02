@@ -120,7 +120,7 @@ const MediaRenderer = ({
               key={index}
               src={base64Src}
               alt={name}
-              className="rounded-t-md max-h-[92px] w-full object-cover cursor-pointer"
+              className="rounded-t-md max-h-[92px] w-full object-cover "
             />
             {openAttachmentId === file.attachment.cloudId && (
               <div
@@ -175,7 +175,7 @@ const MediaRenderer = ({
               <video
                 width={155}
                 controls
-                className="rounded-t-md cursor-pointer"
+                className="rounded-t-md"
               >
                 <source src={base64Src} type={contentType} />
                 Your browser does not support the video tag.
