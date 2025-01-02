@@ -174,6 +174,8 @@ export default function StatusBarChart({ title, description, chartData, dataKey 
                 typeof data[dataKey] === 'number' && data[dataKey] > 0
             ) : [];
 
+    const isEmpty = Object.values(chartData || {}).every((value) => value === 0);
+
     return (
         <Card className='mt-2 shadow-none'>
             <CardHeader>
@@ -181,57 +183,64 @@ export default function StatusBarChart({ title, description, chartData, dataKey 
                 <CardDescription>{description}</CardDescription>
             </CardHeader>
             <CardContent>
-                <ChartContainer config={chartConfig}>
-                    <BarChart
-                        accessibilityLayer
-                        data={formattedData}
-                        layout="vertical"
-                        margin={{
-                            left: 10,
-                            right: 10,
-                        }}
-                    >
-                        <YAxis
-                            dataKey="level"
-                            type="category"
-                            tickLine={false}
-                            axisLine={false}
-                            tickFormatter={(value) => {
-                                const label = chartConfig[value as keyof typeof chartConfig]?.label;
-                                return label && label.length > 8 ? label.substring(0, 8) + "..." : label;
+                {isEmpty ? (
+                    <div className='flex justify-center items-center h-40'>
+                        <div className="text-center text-xl text-gray-500">No data found</div>
+                    </div>
+                ) : (
+                    <ChartContainer config={chartConfig}>
+                        <BarChart
+                            accessibilityLayer
+                            data={formattedData}
+                            layout="vertical"
+                            margin={{
+                                left: 10,
+                                right: 10,
                             }}
-                            tick={<CustomYAxisTick />}
-                            interval={0}
-                        />
-                        <XAxis dataKey={dataKey} type="number" hide />
-                        <ChartTooltip
-                            cursor={false}
-                            content={
-                                <ChartTooltipContent
-                                    hideLabel
-                                    formatter={(value, name, props) => {
-                                        const { payload } = props;
-                                        if (!payload) return null;
+                            barSize={30}
+                        >
+                            <YAxis
+                                dataKey="level"
+                                type="category"
+                                tickLine={false}
+                                axisLine={false}
+                                tickFormatter={(value) => {
+                                    const label = chartConfig[value as keyof typeof chartConfig]?.label;
+                                    return label && label.length > 8 ? label.substring(0, 8) + "..." : label;
+                                }}
+                                tick={<CustomYAxisTick />}
+                                interval={0}
+                            />
+                            <XAxis dataKey={dataKey} type="number" hide />
+                            <ChartTooltip
+                                cursor={false}
+                                content={
+                                    <ChartTooltipContent
+                                        hideLabel
+                                        formatter={(value, name, props) => {
+                                            const { payload } = props;
+                                            if (!payload) return null;
 
-                                        return (
-                                            <div className="flex justify-between items-center w-full">
-                                                <div className="flex items-center">
-                                                    <div
-                                                        className="w-3 h-3 rounded-full mr-2"
-                                                        style={{ backgroundColor: payload.fill }}
-                                                    ></div>
-                                                    <span>{payload.level}</span>
+                                            return (
+                                                <div className="flex justify-between items-center w-full">
+                                                    <div className="flex items-center">
+                                                        <div
+                                                            className="w-3 h-3 rounded-full mr-2"
+                                                            style={{ backgroundColor: payload.fill }}
+                                                        ></div>
+                                                        <span>{payload.level}</span>
+                                                    </div>
+                                                    <div className="ml-auto">{value}</div>
                                                 </div>
-                                                <div className="ml-auto">{value}</div>
-                                            </div>
-                                        );
-                                    }}
-                                />
-                            }
-                        />
-                        <Bar dataKey="status" layout="vertical" radius={5} />
-                    </BarChart>
-                </ChartContainer>
+                                            );
+                                        }}
+                                    />
+                                }
+                            />
+                            <Bar dataKey="status" layout="vertical" radius={5} />
+                        </BarChart>
+                    </ChartContainer>
+                )}
             </CardContent>
         </Card>
     )

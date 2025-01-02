@@ -49,7 +49,7 @@ export default function Projects() {
   return (
     <div className="mt-2 mx-4">
       {!isLoading ? (
-        <div className="mb-10">
+        <div className="mb-5">
           {userData?.role === UserRoles.CLIENT ?
             <ProjectClientDashboard />
             :
@@ -58,17 +58,15 @@ export default function Projects() {
               : userData?.role === UserRoles.ADMIN ?
                 <ProjectAdminDashboard />
                 : null
-            // <div
-            //   className="text-sm leading-relaxed text-gray-700 space-y-2 rich-description"
-            //   dangerouslySetInnerHTML={{
-            //     __html: project?.description || "",
-            //   }}
-            // />
           }
         </div>
       ) : (
         <div className="flex flex-col space-y-3">
-          <Skeleton className="bg-gray-200 h-[225px] w-full rounded-xl" />
+          <Skeleton className="bg-gray-200 h-[90px] mt-4 w-full rounded-xl" />
+          <div className="flex justify-between">
+            <Skeleton className="bg-gray-200 h-full w-[50%] rounded-xl" />
+            <Skeleton className="bg-gray-200 h-full w-[50%] rounded-xl" />
+          </div>
         </div>
       )}
     </div>

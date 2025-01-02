@@ -24,7 +24,6 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
-import { PAGINATION_LIMIT } from "@/app/_utils/common";
 import { formatDate } from "@/app/_constants/date-formatter";
 import { AddNote } from "./_components/add-note";
 import toasterService from "@/app/_services/toaster-service";
@@ -36,6 +35,7 @@ import { getProjectService } from "@/app/_services/project.service";
 import { UserRoles } from "@/app/_constants/user-roles";
 import { useSession } from "next-auth/react";
 import ViewNote from "./_components/view-note";
+import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
 
 export default function TestPlan() {
     const [notes, setNotes] = useState<INotePayload[]>([]);

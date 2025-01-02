@@ -32,11 +32,11 @@ import { BrowsersList } from "@/app/_components/browsers-list";
 import { AddDevice } from "./_components/add-device";
 import { RowActions } from "./_components/row-actions";
 import { BulkDelete } from "./_components/bulk-delete";
-import { PAGINATION_LIMIT } from "@/app/_utils/common";
 import ViewTesterIssue from "../users/_components/view-user";
 import { IUserByAdmin } from "@/app/_interface/user";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
+import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
 
 export default function Devices() {
   const [devices, setDevices] = useState<IDevice[]>([]);

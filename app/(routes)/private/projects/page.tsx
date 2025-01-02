@@ -31,12 +31,12 @@ import { BulkDelete } from "./_components/bulk-delete";
 import ProjectStatus from "./_components/project-status";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { PAGINATION_LIMIT } from "@/app/_utils/common";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
 import { ArrowUpDown } from "lucide-react";
 import { IUserByAdmin } from "@/app/_interface/user";
 import ViewTesterIssue from "../users/_components/view-user";
+import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
 
 export default function Projects() {
   const [userData, setUserData] = useState<any>();
@@ -314,7 +314,7 @@ export default function Projects() {
                           cell.getContext()
                         )}
                       </TableCell>
-                    ))}
+                    ))} 
                   </TableRow>
                 ))
               ) : (

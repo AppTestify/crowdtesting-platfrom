@@ -25,7 +25,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
 import { getRequirementsService } from "@/app/_services/requirement.service";
-import { PAGINATION_LIMIT } from "@/app/_utils/common";
 import { formatDistanceToNow } from "date-fns";
 import { AddRequirement } from "./_components/add-requirement";
 import { RequirementRowActions } from "./_components/row-actions";
@@ -34,6 +33,7 @@ import ViewRequirement from "./_components/view-requirement";
 import { ArrowUpDown } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
+import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
 
 export default function Issues() {
   const [requirements, setRequirements] = useState<IRequirement[]>([]);

@@ -3,18 +3,32 @@ import {
   GET_ISSUES_ENPOINT,
   PAGINATION_QUERY_ENDPOINT,
 } from "../_constants/api-endpoints";
-import { IIssuePayload, IIssueStatusPayload } from "../_interface/issue";
+import {
+  IIssueAttachmentDownloadPayload,
+  IIssuePayload,
+  IIssueStatusPayload,
+} from "../_interface/issue";
 import {
   genericDelete,
   genericGet,
   genericPatch,
+  genericPost,
   genericPostFormData,
   genericPut,
 } from "./generic-api-methods";
 
-export const getIssuesService = async (projectId: string, index: Number, pageSize: Number): Promise<any> => {
+export const getIssuesService = async (
+  projectId: string,
+  index: Number,
+  pageSize: Number
+): Promise<any> => {
   try {
-    const response = await genericGet(`${GET_ISSUES_ENPOINT(projectId)}${PAGINATION_QUERY_ENDPOINT(index, pageSize)}`);
+    const response = await genericGet(
+      `${GET_ISSUES_ENPOINT(projectId)}${PAGINATION_QUERY_ENDPOINT(
+        index,
+        pageSize
+      )}`
+    );
     return response || [];
   } catch (error) {
     console.error(`Error > getIssues:`, error);
@@ -44,7 +58,10 @@ export const addIssueService = async (
     body?.attachments?.forEach((file) => {
       formData.append("attachments", file);
     });
-    const response = await genericPostFormData(GET_ISSUES_ENPOINT(projectId), formData);
+    const response = await genericPostFormData(
+      GET_ISSUES_ENPOINT(projectId),
+      formData
+    );
     return response || {};
   } catch (error) {
     console.error(`Error > addIssueService:`, error);
@@ -84,7 +101,10 @@ export const updateIssueService = async (
   }
 };
 
-export const getIssueService = async (projectId: string, issueId: string): Promise<any> => {
+export const getIssueService = async (
+  projectId: string,
+  issueId: string
+): Promise<any> => {
   try {
     const response = await genericGet(GET_ISSUE_ENPOINT(projectId, issueId));
     return response || [];
@@ -107,6 +127,23 @@ export const updateIssueStatusService = async (
     return response || {};
   } catch (error) {
     console.error(`Error > updateIssueStatusService:`, error);
+    throw error;
+  }
+};
+
+export const downloadIssueAttachments = async (
+  projectId: string,
+  issueId: string,
+  body: IIssueAttachmentDownloadPayload
+): Promise<any> => {
+  try {
+    const response = await genericPost(
+      `${GET_ISSUE_ENPOINT(projectId, issueId)}/download-attachments`,
+      body
+    );
+    return response || {};
+  } catch (error) {
+    console.error(`Error > downloadIssueAttachments:`, error);
     throw error;
   }
 };

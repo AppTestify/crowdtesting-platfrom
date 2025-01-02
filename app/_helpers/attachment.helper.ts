@@ -16,16 +16,13 @@ class AttachmentService {
       type: process.env.DRIVE_TYPE,
       project_id: process.env.DRIVE_PROJECT_ID,
       private_key_id: process.env.DRIVE_PRIVATE_KEY_ID,
-      private_key:
-        process.env.DRIVE_PRIVATE_KEY,
-      client_email:
-        process.env.DRIVE_CLIENT_EMAIL,
+      private_key: process.env.DRIVE_PRIVATE_KEY,
+      client_email: process.env.DRIVE_CLIENT_EMAIL,
       client_id: process.env.DRIVE_CLIENT_ID,
       auth_uri: process.env.DRIVE_AUTH_URI,
       token_uri: process.env.DRIVE_TOKEN_URI,
       auth_provider_x509_cert_url: process.env.DRIVE_AUTH_PROVIDER,
-      client_x509_cert_url:
-        process.env.DRIVE_CLIENT_CERT_URL,
+      client_x509_cert_url: process.env.DRIVE_CLIENT_CERT_URL,
       universe_domain: process.env.DRIVE_UNIVERSE_DOMAIN,
     };
 
@@ -106,7 +103,6 @@ class AttachmentService {
         fields: "id",
       });
 
-      console.log("File uploaded successfully. File ID:", response.data.id);
       return response.data;
     } catch (error) {
       console.error("Error uploading file to Google Drive:", error);
@@ -129,7 +125,6 @@ class AttachmentService {
         fields: "id",
       });
 
-      console.log("File updated successfully. File ID:", response.data.id);
       return response.data;
     } catch (error) {
       console.error("Error updating file in Google Drive:", error);
@@ -165,7 +160,10 @@ class AttachmentService {
     }
   }
 
-  public async uploadFileInGivenFolderInDrive(file: any, folderName: AttachmentFolder) {
+  public async uploadFileInGivenFolderInDrive(
+    file: any,
+    folderName: AttachmentFolder
+  ) {
     try {
       const folderId = await this.getOrCreateFolder(
         folderName,
@@ -201,7 +199,9 @@ class AttachmentService {
     }
   }
 
-  public async fetchFilesAsBase64(attachments: any[]): Promise<{ attachment: any; base64: string }[]> {
+  public async fetchFilesAsBase64(
+    attachments: any[]
+  ): Promise<{ attachment: any; base64: string }[]> {
     try {
       const base64Files = await Promise.all(
         attachments.map(async (attachment) => {
@@ -212,12 +212,14 @@ class AttachmentService {
             },
             { responseType: "arraybuffer" }
           );
-  
-          const base64 = Buffer.from(response.data as ArrayBuffer).toString("base64");
+
+          const base64 = Buffer.from(response.data as ArrayBuffer).toString(
+            "base64"
+          );
           return { attachment, base64 };
         })
       );
-  
+
       return base64Files;
     } catch (error) {
       console.error("Error fetching files as base64 from Google Drive:", error);

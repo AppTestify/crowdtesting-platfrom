@@ -24,7 +24,6 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
-import { PAGINATION_LIMIT } from "@/app/_utils/common";
 import { formatDate } from "@/app/_constants/date-formatter";
 import { getTestCaseService } from "@/app/_services/test-case.service";
 import { ITestCase } from "@/app/_interface/test-case";
@@ -41,6 +40,7 @@ import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getRequirementsWithoutPaginationService } from "@/app/_services/requirement.service";
+import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
 
 export default function TestPlan() {
     const [testCases, setTestCases] = useState<ITestCase[]>([]);

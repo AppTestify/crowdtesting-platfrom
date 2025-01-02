@@ -50,40 +50,47 @@ export const checkExpired = (date: string, expireLimit: number) => {
 };
 
 export const getFileMetaData = async (file: any) => {
-  const fileBuffer = await file.arrayBuffer().then((buffer: any) => Buffer.from(buffer));
+  const fileBuffer = await file
+    .arrayBuffer()
+    .then((buffer: any) => Buffer.from(buffer));
   const data = {
     data: fileBuffer,
     name: file.name,
     contentType: file.type,
-  }
+  };
   return data;
-}
+};
 
 export const generateCustomPassword = (length = 12) => {
-  const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_-+=<>?';
-  let password = '';
+  const charset =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_-+=<>?";
+  let password = "";
   for (let i = 0; i < length; i++) {
     const randomIndex = Math.floor(Math.random() * charset.length);
     password += charset[randomIndex];
   }
   return password;
-}
+};
 
 export const serverSidePagination = (req: Request) => {
   const url = new URL(req.url);
-  const page = parseInt(url.searchParams.get('page') || '1', 10);
-  const limit = parseInt(url.searchParams.get('limit') || '10', 10);
+  const page = parseInt(url.searchParams.get("page") || "1", 10);
+  const limit = parseInt(url.searchParams.get("limit") || "10", 10);
   const skip = (page == 0 ? 1 : page - 1) * limit;
   const data = {
     skip,
-    limit
-  }
+    limit,
+  };
   return data;
-}
+};
 
 export const getAllAttachments = async (issue: any) => {
   try {
-    if (!issue || !Array.isArray(issue.attachments) || !issue.attachments.length) {
+    if (
+      !issue ||
+      !Array.isArray(issue.attachments) ||
+      !issue.attachments.length
+    ) {
       return [];
     }
     const attachmentService = new AttachmentService();
@@ -93,4 +100,4 @@ export const getAllAttachments = async (issue: any) => {
     console.error("Error occurred while interacting with Google Drive:", error);
     throw new Error("Failed to get or create folder");
   }
-}
+};

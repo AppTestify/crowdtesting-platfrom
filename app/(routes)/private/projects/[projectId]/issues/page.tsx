@@ -29,7 +29,6 @@ import { IssueRowActions } from "./_components/row-actions";
 import { useParams } from "next/navigation";
 import { displayIcon, ExportExcelFile, statusBadge } from "@/app/_utils/common-functionality";
 import { ArrowUpDown, FileSpreadsheet, FileText } from "lucide-react";
-import { PAGINATION_LIMIT } from "@/app/_utils/common";
 import ViewIssue from "./_components/view-issue";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
@@ -38,6 +37,7 @@ import { getProjectService } from "@/app/_services/project.service";
 import { IProject } from "@/app/_interface/project";
 import Link from "next/link";
 import { generateExcelFile } from "@/app/_helpers/generate-excel.helper";
+import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
 
 export default function Issues() {
   const [issues, setIssues] = useState<IIssueView[]>([]);
@@ -145,30 +145,16 @@ export default function Issues() {
         <div className="capitalize max-w-[200px] truncate">{statusBadge(row.getValue("status"))}</div>
       ),
     },
-    // ...(
-    //   ((project?.isActive === true && row.original?. === userData?.id) || userData?.role === UserRoles.ADMIN) ?
-    //     [{
-    //       id: "actions",
-    //       enableHiding: false,
-    //       cell: ({ row }: { row: any }) => (
-    //         <IssueRowActions row={row} refreshIssues={refreshIssues} />
-    //       ),
-    //     }] : []
-    // ),
-    {
-      id: "actions",
-      enableHiding: false,
-      cell: ({ row }: { row: any }) => {
-        if (
-          // (project?.isActive === true &&
-          //   row.original?.userId?.toString() === userData?._id?.toString()) ||
-          userData?.role === UserRoles.ADMIN
-        ) {
-          return <IssueRowActions row={row} refreshIssues={refreshIssues} />;
-        }
-        return null;
-      },
-    },
+    ...(
+      (userData?.role === UserRoles.ADMIN) ?
+        [{
+          id: "actions",
+          enableHiding: false,
+          cell: ({ row }: { row: any }) => (
+            <IssueRowActions row={row} refreshIssues={refreshIssues} />
+          ),
+        }] : []
+    ),
   ];
 
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -209,10 +195,15 @@ export default function Issues() {
 
   const getIssues = async () => {
     setIsLoading(true);
-    const response = await getIssuesService(projectId, pageIndex, pageSize);
-    setIssues(response?.issues);
-    setTotalPageCount(response?.total);
-    setIsLoading(false);
+    try {
+      const response = await getIssuesService(projectId, pageIndex, pageSize);
+      setIssues(response?.issues);
+      setTotalPageCount(response?.total);
+    } catch (error) {
+      toasterService.error();
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const refreshIssues = () => {
@@ -246,11 +237,6 @@ export default function Issues() {
     }
   };
 
-  const getIssue = async (data: IIssue) => {
-    setIssue(data as IIssue);
-    setIsViewOpen(true);
-  };
-
   const handleNextPage = () => {
     if (pageIndex < Math.ceil(totalPageCount / pageSize)) {
       setPageIndex(pageIndex + 1);
@@ -259,8 +245,8 @@ export default function Issues() {
 
   const generateExcel = () => {
     const header = userData.role === UserRoles.ADMIN ?
-      ["ID", "Title", "Severity", "Priority", "issueType", "testCycle", "Device Name", "Created By", "Status"] :
-      ["ID", "Title", "Severity", "Priority", "issueType", "testCycle", "Device Name", "Status"];
+      ["ID", "Title", "Severity", "Priority", "issueType", "testCycle", "Device Name", "Created By", "Status", "Attachments"] :
+      ["ID", "Title", "Severity", "Priority", "issueType", "testCycle", "Device Name", "Status", "Attachments"];
     const data = table.getRowModel().rows?.map((row) => [
       row.original.customId,
       row.original.title,
@@ -274,12 +260,16 @@ export default function Issues() {
         : row.original.status,
       userData?.role === UserRoles.ADMIN
         ? row.original.status || "" :
-        ""
+        row.original.attachments && row.original?.attachments?.length > 0 ?
+          process.env.NEXT_PUBLIC_URL + `/download/${projectId}/issue?issue=` + row.original.id : "",
+      userData?.role === UserRoles.ADMIN
+        ? row.original.attachments && row.original?.attachments?.length > 0 ?
+          process.env.NEXT_PUBLIC_URL + `/download/${projectId}/issue?issue=` + row.original.id : ""
+        : "",
     ]);
-    generateExcelFile(header, data, "Issues.xlsx");
+    generateExcelFile(header, data, `Issues-${issues[0]?.projectId?.title}.xlsx`);
   }
   const hasData = table.getRowModel().rows?.length > 0;
-
 
   return (
     <main className="mx-4 mt-2">

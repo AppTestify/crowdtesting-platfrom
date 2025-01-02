@@ -24,7 +24,6 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
-import { PAGINATION_LIMIT } from "@/app/_utils/common";
 import { getTestSuiteService } from "@/app/_services/test-suite.service";
 import { AddTestSuite } from "./_components/add-test-suite";
 import { formatDate } from "@/app/_constants/date-formatter";
@@ -34,6 +33,7 @@ import ViewTestSuite from "./_components/view-test-suite";
 import { ArrowUpDown } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
+import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
 
 export default function TestSuite() {
     const [testSuite, setTestSuite] = useState<ITestSuite[]>([]);

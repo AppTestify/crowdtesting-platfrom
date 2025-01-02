@@ -24,7 +24,6 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
-import { PAGINATION_LIMIT } from "@/app/_utils/common";
 import { formatDate } from "@/app/_constants/date-formatter";
 import { ITestPlan, ITestPlanPayload } from "@/app/_interface/test-plan";
 import { getTestPlanService } from "@/app/_services/test-plan.service";
@@ -32,6 +31,7 @@ import { AddTestPlan } from "./_components/add-test-plan";
 import { TestPlansRowActions } from "./_components/row-actions";
 import ViewTestPlan from "./_components/view-test-plan";
 import { ArrowUpDown } from "lucide-react";
+import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
 
 export default function TestPlan() {
     const [testPlans, setTestPlans] = useState<ITestPlanPayload[]>([]);

@@ -403,7 +403,7 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
                                 </SelectItem>
                               ))
                             ) : (
-                              <div className="p-1 text-center text-gray-500">Test suite not found</div>
+                              <div className="p-1 text-center text-gray-500">Test cycle not found</div>
                             )}
                           </SelectGroup>
                         </SelectContent>

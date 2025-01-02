@@ -72,6 +72,23 @@ export const SEVERITY_LIST = [
 
 export const PRIORITY_LIST = [Priority.LOW, Priority.NORMAL, Priority.HIGH];
 
+export const PROJECT_ADMIN_ISSUE_STATUS_LIST = [
+  IssueStatus.OPEN,
+  IssueStatus.ASSIGNED,
+  IssueStatus.IN_PROGRESS,
+  IssueStatus.FIXED,
+  IssueStatus.READY_FOR_RETEST,
+  IssueStatus.RETESTING,
+  IssueStatus.VERIFIED,
+  IssueStatus.CLOSED,
+  IssueStatus.REOPENED,
+  IssueStatus.DEFERRED,
+  IssueStatus.DUPLICATE,
+  IssueStatus.REJECTED,
+  IssueStatus.CANNOT_REPRODUCE,
+  IssueStatus.NOT_A_BUG,
+];
+
 export const ISSUE_TESTER_STATUS_LIST = [
   IssueStatus.RETESTING,
   IssueStatus.VERIFIED,

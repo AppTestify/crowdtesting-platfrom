@@ -24,7 +24,6 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
-import { PAGINATION_LIMIT } from "@/app/_utils/common";
 import { getTestCycleService } from "@/app/_services/test-cycle.service";
 import { ITestCycle } from "@/app/_interface/test-cycle";
 import { AddTestCycle } from "./_components/add-test-cycle";
@@ -34,6 +33,7 @@ import { ArrowUpDown } from "lucide-react";
 import TestCycleView from "./_components/view-test-cycle";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
+import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
 
 export default function TestPlan() {
     const [testCycle, setTestCycle] = useState<ITestCycle[]>([]);

@@ -31,68 +31,71 @@ export default function ProjectAdminDashboard() {
 
     return (
         <div className="grid">
-            <div className="w-full mt-4">
-                <Card>
-                    <CardHeader className=" rounded-none flex flex-col space-y-0 p-0 sm:flex-row">
-                        <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6 w-40">
-                            <CardTitle>Total data</CardTitle>
-                            <CardDescription>
-                                Showing total data
-                            </CardDescription>
-                        </div>
-                        <div className="flex">
-                            <div className="relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l data-[active=true]:bg-muted/50 sm:border-l sm:border-t-0 sm:mx-6 sm:py-6"
-                            >
-                                <span className="text-xs text-muted-foreground whitespace-nowrap">Test Cycles</span>
-                                <span className="text-lg font-bold leading-none sm:text-3xl">
-                                    {dashboard?.totalTestCycle}
-                                </span>
-                            </div>
+            {!isLoading && (
+                <>
+                    <div className="w-full mt-4">
+                        <Card>
+                            <CardHeader className=" rounded-none flex flex-col space-y-0 p-0 sm:flex-row">
+                                <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6 w-40">
+                                    <CardTitle>Total data</CardTitle>
+                                    <CardDescription>
+                                        Showing total data
+                                    </CardDescription>
+                                </div>
+                                <div className="flex">
+                                    <div className="relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l data-[active=true]:bg-muted/50 sm:border-l sm:border-t-0 sm:mx-6 sm:py-6"
+                                    >
+                                        <span className="text-xs text-muted-foreground whitespace-nowrap">Test Cycles</span>
+                                        <span className="text-lg font-bold leading-none sm:text-3xl">
+                                            {dashboard?.totalTestCycle}
+                                        </span>
+                                    </div>
 
-                            <div className="relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l data-[active=true]:bg-muted/50 sm:border-l sm:border-t-0 sm:px-8 sm:py-6"
-                            >
-                                <span className="text-xs text-muted-foreground">Issues</span>
-                                <span className="text-lg font-bold leading-none sm:text-3xl">
-                                    {dashboard?.totalIssues}
-                                </span>
-                            </div>
-                        </div>
-                    </CardHeader>
-                </Card>
-            </div>
-            <div className="mt-1 sm:mt-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-2">
-                <HorizontalBarChart
-                    title="Issues by severity"
-                    description="Showing issue severity levels"
-                    dataKey="severity"
-                    chartData={dashboard?.severity || {}}
-                />
-                <HorizontalBarChart
-                    title="Issues by priority"
-                    description="Showing issue priority levels"
-                    dataKey="priority"
-                    chartData={dashboard?.priority || {}}
-                />
-            </div>
-            <div className="grid gap-2 mt-1 sm:mt-2 grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
-                <DonutChart chartData={dashboard?.issueType} dataKey={"issueType"} />
-                <StatusBarChart
-                    title="Issues by status"
-                    description="Showing status priority levels"
-                    chartData={dashboard?.status || {}}
-                    dataKey="status"
-                />
+                                    <div className="relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l data-[active=true]:bg-muted/50 sm:border-l sm:border-t-0 sm:px-8 sm:py-6"
+                                    >
+                                        <span className="text-xs text-muted-foreground">Issues</span>
+                                        <span className="text-lg font-bold leading-none sm:text-3xl">
+                                            {dashboard?.totalIssues}
+                                        </span>
+                                    </div>
+                                </div>
+                            </CardHeader>
+                        </Card>
+                    </div>
+                    <div className="mt-1 sm:mt-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-2">
+                        <HorizontalBarChart
+                            title="Issues by severity"
+                            description="Showing issue severity levels"
+                            dataKey="severity"
+                            chartData={dashboard?.severity || {}}
+                        />
+                        <HorizontalBarChart
+                            title="Issues by priority"
+                            description="Showing issue priority levels"
+                            dataKey="priority"
+                            chartData={dashboard?.priority || {}}
+                        />
+                    </div>
+                    <div className="grid gap-2 mt-1 sm:mt-2 grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
+                        <DonutChart chartData={dashboard?.issueType} dataKey={"issueType"} />
+                        <StatusBarChart
+                            title="Issues by status"
+                            description="Showing status priority levels"
+                            chartData={dashboard?.status || {}}
+                            dataKey="status"
+                        />
 
-            </div>
-
-            <div className="w-full sm:w-[60%] flex justify-center mt-1 mb-2">
-                <DeviceChart
-                    title="Issues by device"
-                    description="Showing top 10 most devices"
-                    dataKey="device"
-                    chartData={dashboard?.topDevices || {}}
-                />
-            </div>
+                    </div>
+                    <div className="w-full sm:w-[60%] flex justify-center mt-1 mb-2">
+                        <DeviceChart
+                            title="Issues by device"
+                            description="Showing top 10 most devices"
+                            dataKey="device"
+                            chartData={dashboard?.topDevices || {}}
+                        />
+                    </div>
+                </>
+            )}
         </div>
     )
 }

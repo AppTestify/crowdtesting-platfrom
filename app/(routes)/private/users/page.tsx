@@ -36,11 +36,11 @@ import { formatDistanceToNow } from "date-fns";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { STATUS_LIST, UserStatusList } from "@/app/_constants/user-status";
 import { X } from "lucide-react";
-import { PAGINATION_LIMIT } from "@/app/_utils/common";
 import { showUsersRoleInBadges } from "@/app/_utils/common-functionality";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ViewTesterIssue from "./_components/view-user";
 import ViewClientUser from "./_components/client/view-user";
+import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
 
 export default function Users() {
     const [selectedRole, setSelectedRole] = useState<string>(UserRoles.TESTER);

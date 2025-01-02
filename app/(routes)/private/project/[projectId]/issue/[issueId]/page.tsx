@@ -6,8 +6,6 @@ import toasterService from "@/app/_services/toaster-service";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { displayIcon, statusBadge } from "@/app/_utils/common-functionality";
-import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
-import { formatDate } from "@/app/_constants/date-formatter";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -18,43 +16,22 @@ import {
 } from "@/components/ui/breadcrumb";
 import { ChevronRight, Edit, SendHorizontal, Slash } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import IssueAttachments from "@/app/(routes)/private/projects/[projectId]/issues/_components/attachments/issue-attachment";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  getAvatarFallbackText,
-  getFormattedBase64ForSrc,
-} from "@/app/_utils/string-formatters";
 import { useSession } from "next-auth/react";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
   addCommentService,
-  getCommentsService,
 } from "@/app/_services/comment.service";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form";
 import { IComment } from "@/app/_interface/comment";
-import { formatDistanceToNow } from "date-fns";
 import MediaRenderer from "@/app/_components/media-renderer";
 import { getIssueAttachmentsService } from "@/app/_services/issue-attachment.service";
 import EditIssue from "@/app/(routes)/private/projects/[projectId]/issues/_components/edit-issue";
 import { getProjectService } from "@/app/_services/project.service";
 import { IProject } from "@/app/_interface/project";
 import { UserRoles } from "@/app/_constants/user-roles";
+import { checkProjectAdmin } from "@/app/_utils/common";
 
 const commentSchema = z.object({
   entityId: z.string().min(1, "Required"),
@@ -74,6 +51,7 @@ const ViewIssue = () => {
   const [isEditStatusOpen, setIsEditStatusOpen] = useState(false);
   const [project, setProject] = useState<IProject>();
   const [userData, setUserData] = useState<any>();
+  const checkProjectRole = checkProjectAdmin(project as IProject, userData);
 
   const form = useForm<z.infer<typeof commentSchema>>({
     resolver: zodResolver(commentSchema),
@@ -209,19 +187,19 @@ const ViewIssue = () => {
               </Breadcrumb>
             </div>
             <div>
-              {
-                (project?.isActive === true &&
+              {checkProjectRole
+                ? project?.isActive === true && (
+                  <Button size={'sm'} onClick={() => setIsEditStatusOpen(true)}>
+                    <Edit className="h-2 w-2" /> Edit
+                  </Button>
+                )
+                : (project?.isActive === true &&
                   issueData?.userId?._id?.toString() === userData?._id?.toString()) ||
-                  userData?.role === UserRoles.ADMIN ?
-                  (
-                    <>
-                      <Button size={'sm'} onClick={() => setIsEditStatusOpen(true)}>
-                        <Edit className="h-2 w-2" /> Edit
-                      </Button>
-                    </>
-                  )
-                  : null
-              }
+                  userData?.role === UserRoles.ADMIN ? (
+                  <Button size={'sm'} onClick={() => setIsEditStatusOpen(true)}>
+                    <Edit className="h-2 w-2" /> Edit
+                  </Button>
+                ) : null}
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-[2fr_1fr] gap-4">

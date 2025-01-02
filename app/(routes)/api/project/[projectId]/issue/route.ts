@@ -11,6 +11,7 @@ import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { IssueStatus } from "@/app/_constants/issue";
 import { connectDatabase } from "@/app/_db";
 import AttachmentService from "@/app/_helpers/attachment.helper";
+import { IIssueAttachment } from "@/app/_interface/issue";
 import { isAdmin, isClient, verifySession } from "@/app/_lib/dal";
 import { IdFormat } from "@/app/_models/id-format.model";
 import { IssueAttachment } from "@/app/_models/issue-attachment.model";
@@ -156,11 +157,10 @@ export async function GET(
     const totalIssues = await Issue.find({
       projectId: projectId,
     }).countDocuments();
-
     if (await isAdmin(session.user)) {
       response = addCustomIds(
         await Issue.find({ projectId: projectId })
-          .populate("userId")
+          .populate("userId attachments projectId")
           .populate({ path: "testCycle", strictPopulate: false })
           .sort({ createdAt: -1 })
           .skip(skip)
@@ -178,7 +178,7 @@ export async function GET(
           .sort({ createdAt: -1 })
           .skip(skip)
           .limit(Number(limit))
-          .populate("device")
+          .populate("device attachments projectId")
           .populate({ path: "testCycle", strictPopulate: false })
           .lean(),
         userIdFormat.idFormat
@@ -189,12 +189,19 @@ export async function GET(
           .sort({ createdAt: -1 })
           .skip(skip)
           .limit(Number(limit))
-          .populate("device")
+          .populate("device attachments projectId")
           .populate({ path: "testCycle", strictPopulate: false })
           .lean(),
         userIdFormat.idFormat
       );
     }
+
+    response.forEach((issue) => {
+      issue.attachments.forEach((attachment: any) => {
+        const link = `https://drive.google.com/file/d/${attachment.cloudId}/view?usp=sharing`;
+        attachment.link = link;
+      });
+    });
 
     return Response.json({ issues: response, total: totalIssues });
   } catch (error: any) {

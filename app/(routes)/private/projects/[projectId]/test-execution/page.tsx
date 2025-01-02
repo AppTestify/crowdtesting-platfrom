@@ -24,12 +24,12 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
-import { PAGINATION_LIMIT } from "@/app/_utils/common";
 import { getTestCycleService } from "@/app/_services/test-cycle.service";
 import { ITestCycle, ITestCyclePayload } from "@/app/_interface/test-cycle";
 import { ArrowUpDown, ChartNoAxesGantt } from "lucide-react";
 import Link from "next/link";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
 
 export default function TestExecution() {
     const [testCycle, setTestCycle] = useState<ITestCyclePayload[]>([]);

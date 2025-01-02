@@ -39,6 +39,7 @@ import {
   ISSUE_TESTER_STATUS_LIST,
   ISSUE_TYPE_LIST,
   IssueStatus,
+  PROJECT_ADMIN_ISSUE_STATUS_LIST,
 } from "@/app/_constants/issue";
 import { getIssueService, updateIssueService } from "@/app/_services/issue.service";
 import IssueAttachments from "../attachments/issue-attachment";
@@ -51,6 +52,9 @@ import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
 import { ITestCycle } from "@/app/_interface/test-cycle";
 import { getSingleCycleService, getTestCycleWithoutPaginationService } from "@/app/_services/test-cycle.service";
+import { IProject } from "@/app/_interface/project";
+import { getProjectService } from "@/app/_services/project.service";
+import { checkProjectAdmin } from "@/app/_utils/common";
 
 const issueSchema = z.object({
   title: z.string().min(1, "Required"),
@@ -91,6 +95,8 @@ const EditIssue = ({
   const [testCycles, setTestCycles] = useState<ITestCycle[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [testCycle, setTestCycle] = useState<ITestCycle | null>(null);
+  const [project, setProject] = useState<IProject>();
+  const checkProjectRole = checkProjectAdmin(project as IProject, userData);
 
   const form = useForm<z.infer<typeof issueSchema>>({
     resolver: zodResolver(issueSchema),
@@ -193,11 +199,25 @@ const EditIssue = ({
     }
   }
 
+  const getProject = async () => {
+    setLoading(true);
+    try {
+      const response = await getProjectService(projectId);
+      setProject(response);
+    } catch (error) {
+      toasterService.error();
+    } finally {
+      setLoading(false);
+    }
+  }
+
   useEffect(() => {
     if (sheetOpen) {
+      form.reset();
       getSingleTestCycle();
       getDevices();
       getTestCycle();
+      getProject();
       setAttachments([]);
       if (data) {
         const { user } = data;
@@ -335,13 +355,19 @@ const EditIssue = ({
                       <FormLabel>Status</FormLabel>
                       <Select
                         onValueChange={field.onChange}
+                        disabled={
+                          userData?.role === UserRoles.TESTER &&
+                          !checkProjectRole &&
+                          form.watch("status") !== IssueStatus.READY_FOR_RETEST &&
+                          !ISSUE_TESTER_STATUS_LIST.includes(field.value as any)
+                        }
                         value={field.value}
                       >
                         <SelectTrigger className="w-full">
                           <SelectValue>{field.value || ""}</SelectValue>
                         </SelectTrigger>
                         <SelectContent>
-                          {userData?.role === UserRoles.TESTER ?
+                          {userData?.role === UserRoles.TESTER && !checkProjectRole ?
                             <SelectGroup>
                               {ISSUE_TESTER_STATUS_LIST.map((status) => (
                                 <SelectItem value={status} key={status}>
@@ -349,13 +375,21 @@ const EditIssue = ({
                                 </SelectItem>
                               ))}
                             </SelectGroup>
-                            : <SelectGroup>
-                              {ISSUE_STATUS_LIST.map((status) => (
-                                <SelectItem value={status}>
-                                  {status}
-                                </SelectItem>
-                              ))}
-                            </SelectGroup>
+                            : userData?.role === UserRoles.TESTER && checkProjectRole ?
+                              <SelectGroup>
+                                {PROJECT_ADMIN_ISSUE_STATUS_LIST.map((status) => (
+                                  <SelectItem value={status} key={status}>
+                                    {status}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                              : <SelectGroup>
+                                {ISSUE_STATUS_LIST.map((status) => (
+                                  <SelectItem value={status}>
+                                    {status}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
                           }
                         </SelectContent>
                       </Select>
@@ -451,9 +485,9 @@ const EditIssue = ({
                         <SelectTrigger className="w-full">
                           <SelectValue>
                             {
-                            testCycles.find((cycle) => cycle._id === field.value)
-                              ? testCycles.find((cycle) => cycle._id === field.value)?.title
-                              : testCycle?.title}
+                              testCycles.find((cycle) => cycle._id === field.value)
+                                ? testCycles.find((cycle) => cycle._id === field.value)?.title
+                                : testCycle?.title}
                           </SelectValue>
                         </SelectTrigger>
                         <SelectContent>

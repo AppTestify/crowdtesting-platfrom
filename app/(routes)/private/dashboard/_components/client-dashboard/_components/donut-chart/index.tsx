@@ -108,6 +108,7 @@ export function DonutChart({
     const formatKey = (key: string) => {
         return key.replace('_', '/').toUpperCase();
     };
+    const isEmpty = Object.values(chartData || {}).every((value) => value === 0);
 
     return (
         <Card className="mt-2 shadow-none flex flex-col">
@@ -151,66 +152,72 @@ export function DonutChart({
                 </Select>
             </CardHeader>
             <CardContent className="flex flex-1 justify-center pb-0">
-                <ChartContainer
-                    id="pie-interactive"
-                    config={chartConfig}
-                    className="mx-auto aspect-square w-full max-w-[280px]"
-                >
-                    <PieChart>
-                        <ChartTooltip
-                            cursor={false}
-                            content={<ChartTooltipContent hideLabel />}
-                        />
-                        <Pie
-                            data={formattedData}
-                            dataKey={dataKey}
-                            nameKey="level"
-                            innerRadius={60}
-                            strokeWidth={5}
-                            activeIndex={activeIndex}
-                            activeShape={(props: any) => (
-                                <g>
-                                    <Sector {...props} outerRadius={props.outerRadius + 10} />
-                                    <Sector
-                                        {...props}
-                                        outerRadius={props.outerRadius + 25}
-                                        innerRadius={props.outerRadius + 12}
-                                    />
-                                </g>
-                            )}
-                        >
-                            <Label
-                                content={({ viewBox }) => {
-                                    if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                                        return (
-                                            <text
-                                                x={viewBox.cx}
-                                                y={viewBox.cy}
-                                                textAnchor="middle"
-                                                dominantBaseline="middle"
-                                            >
-                                                <tspan
+                {isEmpty ? (
+                    <div className='flex justify-center items-center h-full'>
+                        <div className="text-center text-xl text-gray-500">No data found</div>
+                    </div>
+                ) : (
+                    <ChartContainer
+                        id="pie-interactive"
+                        config={chartConfig}
+                        className="mx-auto aspect-square w-full max-w-[280px]"
+                    >
+                        <PieChart>
+                            <ChartTooltip
+                                cursor={false}
+                                content={<ChartTooltipContent hideLabel />}
+                            />
+                            <Pie
+                                data={formattedData}
+                                dataKey={dataKey}
+                                nameKey="level"
+                                innerRadius={60}
+                                strokeWidth={5}
+                                activeIndex={activeIndex}
+                                activeShape={(props: any) => (
+                                    <g>
+                                        <Sector {...props} outerRadius={props.outerRadius + 10} />
+                                        <Sector
+                                            {...props}
+                                            outerRadius={props.outerRadius + 25}
+                                            innerRadius={props.outerRadius + 12}
+                                        />
+                                    </g>
+                                )}
+                            >
+                                <Label
+                                    content={({ viewBox }) => {
+                                        if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                                            return (
+                                                <text
                                                     x={viewBox.cx}
                                                     y={viewBox.cy}
-                                                    className="fill-foreground text-3xl font-bold"
+                                                    textAnchor="middle"
+                                                    dominantBaseline="middle"
                                                 >
-                                                    {formattedData[activeIndex]?.issueType.toLocaleString()}
-                                                </tspan>
-                                                <tspan
-                                                    x={viewBox.cx}
-                                                    y={(viewBox.cy || 0) + 24}
-                                                    className="fill-muted-foreground"
-                                                >
-                                                    Issue Type
-                                                </tspan>
-                                            </text>
-                                        )
-                                    }
-                                }}
-                            />
-                        </Pie>
-                    </PieChart>
-                </ChartContainer>
+                                                    <tspan
+                                                        x={viewBox.cx}
+                                                        y={viewBox.cy}
+                                                        className="fill-foreground text-3xl font-bold"
+                                                    >
+                                                        {formattedData[activeIndex]?.issueType.toLocaleString()}
+                                                    </tspan>
+                                                    <tspan
+                                                        x={viewBox.cx}
+                                                        y={(viewBox.cy || 0) + 24}
+                                                        className="fill-muted-foreground"
+                                                    >
+                                                        Issue Type
+                                                    </tspan>
+                                                </text>
+                                            )
+                                        }
+                                    }}
+                                />
+                            </Pie>
+                        </PieChart>
+                    </ChartContainer>
+                )}
             </CardContent>
         </Card>
     );

@@ -39,6 +39,7 @@ export default function DeviceChart({ title, description, dataKey, chartData }: 
             color: getColorForPriority(item?.name),
         }))
         : [];
+    const isEmpty = Object.values(chartData || {}).every((value) => value === 0);
 
     return (
         <Card className="mt-2 w-full shadow-none">
@@ -47,40 +48,46 @@ export default function DeviceChart({ title, description, dataKey, chartData }: 
                 <CardDescription>{description}</CardDescription>
             </CardHeader>
             <CardContent>
-                <ChartContainer config={chartConfig}>
-                    <BarChart accessibilityLayer data={formattedData}
-                        margin={{ top: 20 }}
-                        barSize={50}
-                    >
-                        <CartesianGrid vertical={false} />
-                        <XAxis
-                            dataKey="level"
-                            tickLine={false}
-                            tickMargin={10}
-                            axisLine={false}
-                            tickFormatter={(value) => value.slice(0, 10)}
-                        />
-                        <ChartTooltip
-                            cursor={false}
-                            content={<ChartTooltipContent nameKey="level" />}
-                        />
-                        <Bar
-                            dataKey={dataKey}
-                            fill="var(--color-severity)"
-                            radius={8}
+                {isEmpty ? (
+                    <div className='flex justify-center items-center h-40'>
+                        <div className="text-center text-xl text-gray-500">No data found</div>
+                    </div>
+                ) : (
+                    <ChartContainer config={chartConfig}>
+                        <BarChart accessibilityLayer data={formattedData}
+                            margin={{ top: 20 }}
+                            barSize={50}
                         >
-                            <LabelList
-                                position="top"
-                                offset={10}
-                                className="fill-foreground"
-                                fontSize={12}
+                            <CartesianGrid vertical={false} />
+                            <XAxis
+                                dataKey="level"
+                                tickLine={false}
+                                tickMargin={10}
+                                axisLine={false}
+                                tickFormatter={(value) => value.slice(0, 10)}
                             />
-                            {formattedData.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={entry.color} />
-                            ))}
-                        </Bar>
-                    </BarChart>
-                </ChartContainer>
+                            <ChartTooltip
+                                cursor={false}
+                                content={<ChartTooltipContent nameKey="level" />}
+                            />
+                            <Bar
+                                dataKey={dataKey}
+                                fill="var(--color-severity)"
+                                radius={8}
+                            >
+                                <LabelList
+                                    position="top"
+                                    offset={10}
+                                    className="fill-foreground"
+                                    fontSize={12}
+                                />
+                                {formattedData.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={entry.color} />
+                                ))}
+                            </Bar>
+                        </BarChart>
+                    </ChartContainer>
+                )}
             </CardContent>
         </Card>
     );

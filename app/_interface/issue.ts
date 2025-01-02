@@ -1,4 +1,5 @@
 import { IDevice } from "./device";
+import { IProject } from "./project";
 import { ITestCycle } from "./test-cycle";
 import { IUserByAdmin } from "./user";
 
@@ -25,7 +26,7 @@ export interface IIssueView {
   title: string;
   severity: string;
   priority: string;
-  projectId: string;
+  projectId: IProject;
   description?: string;
   status?: string;
   userId?: IUserByAdmin;
@@ -34,6 +35,7 @@ export interface IIssueView {
   customId?: string;
   issueType?: string;
   testCycle: ITestCycle;
+  attachments?: IIssueAttachment[];
 }
 
 export interface IIssuePayload {
@@ -57,9 +59,14 @@ export interface IIssueStatusPayload {
   _id?: string;
 }
 
+export interface IIssueAttachmentDownloadPayload {
+  issueId: string;
+}
+
 export interface IIssueAttachment {
   attachment: any;
   base64: string;
+  link: string;
 }
 
 export interface IssueAttachmentsProps {
