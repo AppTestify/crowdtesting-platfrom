@@ -14,18 +14,10 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { ChevronRight, Edit, SendHorizontal } from "lucide-react";
+import { ChevronRight, Edit } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
-import {
-  addCommentService,
-  getCommentsService,
-} from "@/app/_services/comment.service";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { IComment } from "@/app/_interface/comment";
 import MediaRenderer from "@/app/_components/media-renderer";
 import { getIssueAttachmentsService } from "@/app/_services/issue-attachment.service";
 import EditIssue from "@/app/(routes)/private/projects/[projectId]/issues/_components/edit-issue";
@@ -33,16 +25,7 @@ import { getProjectService } from "@/app/_services/project.service";
 import { IProject } from "@/app/_interface/project";
 import { UserRoles } from "@/app/_constants/user-roles";
 import { checkProjectAdmin } from "@/app/_utils/common";
-import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getAvatarFallbackText, getFormattedBase64ForSrc } from "@/app/_utils/string-formatters";
-import { Input } from "@/components/ui/input";
-import { formatDistanceToNow } from "date-fns";
-
-const commentSchema = z.object({
-  entityId: z.string().min(1, "Required"),
-  content: z.string().min(1, "Required"),
-});
+import Comments from "@/app/(routes)/private/projects/[projectId]/issues/_components/comments";
 
 const ViewIssue = () => {
   const [isViewLoading, setIsViewLoading] = useState<boolean>(false);
@@ -51,27 +34,11 @@ const ViewIssue = () => {
   const { issueId } = useParams<{ issueId: string }>();
   const { projectId } = useParams<{ projectId: string }>();
   const { data } = useSession();
-  const [user, setUser] = useState<any | null>();
-  const [comments, setComments] = useState<IComment[]>([]);
   const [issueAttachments, setIssueAttachments] = useState<IIssueAttachment[]>([]);
   const [isEditStatusOpen, setIsEditStatusOpen] = useState(false);
   const [project, setProject] = useState<IProject>();
   const [userData, setUserData] = useState<any>();
   const checkProjectRole = checkProjectAdmin(project as IProject, userData);
-
-  const form = useForm<z.infer<typeof commentSchema>>({
-    resolver: zodResolver(commentSchema),
-    defaultValues: {
-      entityId: issueId,
-      content: "",
-    },
-  });
-
-  useEffect(() => {
-    if (data && data?.user) {
-      setUser(data.user);
-    }
-  }, [data]);
 
   const getIssueById = async () => {
     try {
@@ -106,31 +73,6 @@ const ViewIssue = () => {
     await getIssueAttachments();
   }
 
-  async function onSubmit(values: z.infer<typeof commentSchema>) {
-    try {
-      const response = await addCommentService(projectId, issueId, values);
-      if (response) {
-        // getComments();
-        reset();
-      }
-    } catch (error) {
-      toasterService.error();
-    }
-  }
-
-  // const getComments = async () => {
-  //   try {
-  //     const response = await getCommentsService(projectId, issueId);
-  //     setComments(response);
-  //   } catch (error) {
-  //     toasterService.error();
-  //   }
-  // }
-
-  const reset = () => {
-    form.reset();
-  };
-
   const getProject = async () => {
     setIsViewLoading(true);
     try {
@@ -147,7 +89,6 @@ const ViewIssue = () => {
     getIssueById();
     getIssueAttachments();
     getProject();
-    // getComments();
   }, [projectId, issueId]);
 
   useEffect(() => {
@@ -238,86 +179,10 @@ const ViewIssue = () => {
                 </div>
               }
 
-              {/* <div className="mt-3">
-                <div className="text-sm ">Comments</div>
-                <div className="w-full mb-3 mt-2">
-                  <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} method="post">
-                      <FormField
-                        control={form.control}
-                        name="content"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <div className="flex items-center">
-                                <Avatar className="h-10 w-10">
-                                  <AvatarImage
-                                    src={getFormattedBase64ForSrc(user?.profilePicture)}
-                                    alt="@profilePicture"
-                                  />
-                                  <AvatarFallback>
-                                    {getAvatarFallbackText({
-                                      ...user,
-                                      name: `${user?.firstName || ""} ${user?.lastName || ""
-                                        }`,
-                                    })}
-                                  </AvatarFallback>
-                                </Avatar>
-                                <Input
-                                  type="text"
-                                  className="ml-3 rounded-sm border border-gray-300 "
-                                  placeholder="Add a comment"
-                                  {...field}
-                                />
-                                <Button className="ml-2">
-                                  <SendHorizontal />
-                                </Button>
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+              <Comments />
 
-                    </form>
-                  </Form>
-                </div>
-              </div> */}
 
-              {/* <div className="mt-3">
-                {comments.map((comment, index) => (
-                  <div
-                    key={index}
-                    className="bg-gray-50 p-3 rounded-lg mb-3 shadow-sm"
-                  >
-                    <div className="text-gray-800">{comment?.content}</div>
 
-                    <div className="flex justify-between items-center mt-2">
-                      <div className="flex items-center space-x-3">
-                        <Avatar className="h-8 w-8 bg-gray-400">
-                          <AvatarImage
-                            src={getFormattedBase64ForSrc(comment?.commentedBy?.profilePicture)}
-                            alt="@profilePicture"
-                          />
-                          <AvatarFallback>
-                            {getAvatarFallbackText({
-                              ...user,
-                              name: `${comment?.commentedBy?.firstName || ""} ${comment?.commentedBy?.lastName || ""}`,
-                            })}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span className="text-sm text-gray-600">
-                          {`${comment?.commentedBy?.firstName} ${comment?.commentedBy?.lastName}`}
-                        </span>
-                      </div>
-
-                      <div className="text-xs text-gray-500">
-                        {formatDistanceToNow(new Date(comment?.createdAt || new Date()), { addSuffix: true })}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div> */}
             </div>
             <div className="border rounded-md p-4 h-fit">
               {/* Severity */}
@@ -367,8 +232,9 @@ const ViewIssue = () => {
             </div>
           </div>
         </div>
-      )}
-    </div>
+      )
+      }
+    </div >
   );
 };
 

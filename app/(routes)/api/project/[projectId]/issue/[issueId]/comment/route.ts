@@ -6,6 +6,7 @@ import {
 } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
+import AttachmentService from "@/app/_helpers/attachment.helper";
 import { verifySession } from "@/app/_lib/dal";
 import { Comment } from "@/app/_models/comment.model";
 import { CommentSchema } from "@/app/_schemas/comment.schema";
@@ -90,14 +91,38 @@ export async function GET(
     const response = await Comment.find({
       isDelete: false,
       entityId: issueId,
-    }).populate({
-      path: "commentedBy",
-      populate: {
-        path: "profilePicture",
-      },
-    });
+    })
+      .populate({
+        path: "commentedBy",
+        populate: {
+          path: "profilePicture",
+        },
+      })
+      .sort({ createdAt: -1 });
 
-    return Response.json(response);
+    const data = await Promise.all(
+      response.map(async (comment) => {
+        if (comment.commentedBy.profilePicture.cloudId) {
+          const attachmentService = new AttachmentService();
+          const fileResponse = await attachmentService.fetchFileAsBase64(
+            comment.commentedBy.profilePicture.cloudId
+          );
+          comment = {
+            ...comment.toObject(),
+            commentedBy: {
+              ...comment.commentedBy.toObject(),
+              profilePicture: {
+                ...comment.commentedBy.profilePicture.toObject(),
+                data: fileResponse,
+              },
+            },
+          };
+        }
+        return comment;
+      })
+    );
+
+    return Response.json(data);
   } catch (error: any) {
     return errorHandler(error);
   }
