@@ -127,7 +127,7 @@ const EditIssue = ({
         priority: issue.priority || "",
         description: issue.description || "",
         status: issue.status || "",
-        projectId: issue.projectId._id || "",
+        projectId: projectId || "",
         device: deviceName,
         issueType: issue.issueType || "",
         testCycle: issue.testCycle?._id as string || ""
