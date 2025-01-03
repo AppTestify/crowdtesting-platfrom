@@ -116,12 +116,14 @@ const MediaRenderer = ({
       return (
         <Card className="h-fit shadow-none rounded-md" key={index}>
           <CardContent className="p-0 group relative">
-            <img
-              key={index}
-              src={base64Src}
-              alt={name}
-              className="rounded-t-md max-h-[92px] w-full object-cover "
-            />
+            <div className="h-[92px] w-[155px] relative bg-gray-100" >
+              <img
+                key={index}
+                src={base64Src}
+                alt={name}
+                className="rounded-t-md max-h-[92px] w-full object-cover "
+              />
+            </div>
             {openAttachmentId === file.attachment.cloudId && (
               <div
                 id="image-modal-overlay"

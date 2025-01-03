@@ -26,7 +26,7 @@ export async function GET(
 
     const existingUser = await User.findOne({ email }).populate(
       "profilePicture",
-      "data contentType"
+      "data contentType cloudId"
     );
     
     if (!existingUser) {

@@ -8,6 +8,7 @@ import {
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { UserRoles } from "@/app/_constants/user-roles";
 import { connectDatabase } from "@/app/_db";
+import AttachmentService from "@/app/_helpers/attachment.helper";
 import SendCredentials from "@/app/_helpers/sendEmailCredentials.helper";
 import { isAdmin, verifySession } from "@/app/_lib/dal";
 import { IdFormat } from "@/app/_models/id-format.model";
@@ -72,6 +73,13 @@ export async function GET(req: Request) {
       userIdFormat.idFormat
     );
     for (let i = 0; i < users.length; i++) {
+      if (users[i].profilePicture?.cloudId) {
+        const attachmentService = new AttachmentService();
+        const fileResponse = await attachmentService.fetchFileAsBase64(
+          users[i].profilePicture.cloudId
+        );
+        users[i].profilePicture.data = fileResponse;
+      }
       if (users[i].role === UserRoles.TESTER) {
         const tester = await Tester.findOne({ user: users[i].id })
           .sort({ _id: -1 })

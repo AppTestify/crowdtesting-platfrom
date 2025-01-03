@@ -28,7 +28,7 @@ export function TeamSwitcher({
           className="pointer-events-none data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
         >
           <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-            {user?.website[0]?.logo?.data ? (
+            {user?.website?.logo?.data ? (
               <img
                 src={`data:${user?.website?.logo?.contentType};base64,${user?.website?.logo?.data}`}
                 alt={user?.website?.logo.name || "Website Logo"}

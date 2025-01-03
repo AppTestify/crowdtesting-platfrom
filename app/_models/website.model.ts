@@ -7,6 +7,8 @@ export interface IWebsite extends Document {
   userId: Types.ObjectId;
   logo: {
     cloudId: string;
+    name: String;
+    contentType: String;
   };
   emails: [string];
 }
@@ -18,6 +20,8 @@ const WebsiteSchema = new Schema<IWebsite>(
     userId: { type: Schema.Types.ObjectId, ref: DBModels.USER, required: true },
     logo: {
       cloudId: { type: String, unique: true },
+      name: { type: String },
+      contentType: { type: String },
     },
     emails: [{ type: String }],
   },

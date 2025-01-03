@@ -5,6 +5,7 @@ import {
 } from "@/app/_constants/api-endpoints";
 import { CookieKey } from "@/app/_constants/cookie-keys";
 import { UserRoles } from "@/app/_constants/user-roles";
+import AttachmentService from "@/app/_helpers/attachment.helper";
 import { createSession } from "@/app/_lib/session";
 import { Website } from "@/app/_models/website.model";
 import { signInService, signUpService } from "@/app/_services/auth-service";
@@ -68,7 +69,23 @@ const handler = NextAuth({
       if (!dbUser) {
         redirect("/auth/sign-in");
       }
-      const website = await Website.find({}).lean();
+
+      const attachmentService = new AttachmentService();
+      if (dbUser?.profilePicture?.cloudId) {
+        const fileResponse = await attachmentService.fetchFileAsBase64(
+          dbUser?.profilePicture?.cloudId
+        );
+        dbUser.profilePicture.data = fileResponse;
+      }
+      const website = await Website.findOne({}).lean();
+      const websiteData = Array.isArray(website) ? website[0] : website;
+      if (websiteData?.logo?.cloudId) {
+        const fileResponse = await attachmentService.fetchFileAsBase64(
+          websiteData.logo.cloudId
+        );
+        websiteData.logo.data = fileResponse;
+      }
+
       session.user = { ...dbUser, ...session.user };
       session.website = { ...website };
       return { ...session };

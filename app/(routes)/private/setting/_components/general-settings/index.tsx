@@ -30,7 +30,7 @@ export default function GeneralSettings() {
     const [isDeleteLoading, setIsDeleteLoading] = useState<boolean>(false);
     const [isUploadLogoOpen, setIsUploadLogoOpen] =
         useState(false);
-    const [websites, setWebsites] = useState<IWebsite | null>(null);
+    const [website, setWebsite] = useState<IWebsite | null>(null);
     const [isDeleteLogoOpen, setIsDeleteLogoOpen] = useState<boolean>(false);
     const [user, setUser] = useState<any | null>();
     const { data } = useSession();
@@ -45,15 +45,15 @@ export default function GeneralSettings() {
     const form = useForm<z.infer<typeof generalSettingSchema>>({
         resolver: zodResolver(generalSettingSchema),
         defaultValues: {
-            websiteName: websites?.websiteName || "",
-            timeZone: websites?.timeZone || "",
+            websiteName: website?.websiteName || "",
+            timeZone: website?.timeZone || "",
         },
     });
 
     const getWebsites = async () => {
         try {
             const response = await getWebsiteService();
-            setWebsites(response);
+            setWebsite(response);
         } catch (error) {
             toasterService.error();
         }
@@ -100,10 +100,10 @@ export default function GeneralSettings() {
     };
 
     const setFormDefaultValues = (website: any) => {
-        setWebsites(website);
+        setWebsite(website);
         form.reset({
-            websiteName: website[0]?.websiteName || "",
-            timeZone: website[0]?.timeZone || "",
+            websiteName: website?.websiteName || "",
+            timeZone: website?.timeZone || "",
         });
     };
 
@@ -206,7 +206,7 @@ export default function GeneralSettings() {
                                 <div className="flex gap-4 items-center">
                                     <Avatar className="h-16 w-16">
                                         <AvatarImage
-                                            src={getFormattedBase64ForSrc(websites?.logo)}
+                                            src={getFormattedBase64ForSrc(website?.logo)}
                                             alt="@logo"
                                         />
                                         <AvatarFallback>
@@ -235,7 +235,7 @@ export default function GeneralSettings() {
                                         variant={"secondary"}
                                         size={"sm"}
                                         type='button'
-                                        disabled={!websites?.logo}
+                                        disabled={!website?.logo?.data}
                                         onClick={() => setIsDeleteLogoOpen(true)}
                                     >
                                         Delete

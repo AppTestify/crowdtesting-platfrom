@@ -15,9 +15,6 @@ import {
 import { getSidebarItems, navMain, teams } from "@/app/_constants/sidebar";
 import { useSession } from "next-auth/react";
 import { toTitleCase } from "@/app/_utils/string-formatters";
-import { IWebsite } from "@/app/_interface/website";
-import { getWebsiteService } from "@/app/_services/setting.service";
-import toasterService from "@/app/_services/toaster-service";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data } = useSession();
@@ -38,24 +35,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     }
   }, [data]);
 
-  // const websiteData = () => {
-  //   try {
-  //     const response = getWebsiteService();
-  //     if (response) {
-  //       setWebsite(response);
-  //     }
-  //   } catch (error) {
-  //     toasterService.error();
-  //   }
-  // }
-
-  // React.useEffect(() => {
-  //   websiteData();
-  // },[]);
-
-
   const setUserIdentity = async (user: any) => {
     if (user?.firstName && user?.lastName) {
+
       setIdentity({
         name: toTitleCase(`${user.firstName} ${user.lastName}`),
         email: user.email,

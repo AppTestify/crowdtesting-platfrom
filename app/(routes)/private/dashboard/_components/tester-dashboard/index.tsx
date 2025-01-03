@@ -101,7 +101,7 @@ export default function TesterDashboard() {
               dataKey="status"
             />
             <PieCharts
-              title="Project Chart Sequence"
+              title="Project status Chart Sequence"
               description="Showing project sequence levels"
               chartData={dashboard?.ProjectSequence || {}}
               dataKey="project"

@@ -74,7 +74,10 @@ export async function POST(req: Request) {
     }
 
     const attachmentService = new AttachmentService();
-    const cloudId = await attachmentService.uploadFileInGivenFolderInDrive(profilePictureFile, AttachmentFolder.PROFILE_PICTURES);
+    const cloudId = await attachmentService.uploadFileInGivenFolderInDrive(
+      profilePictureFile,
+      AttachmentFolder.PROFILE_PICTURES
+    );
 
     const newAttachment = new ProfilePicture({
       cloudId: cloudId,
@@ -158,7 +161,9 @@ export async function DELETE(req: Request) {
 
     const userId = session.user._id;
 
-    const user = await User.findByIdAndUpdate(userId, { profilePicture: undefined });
+    const user = await User.findByIdAndUpdate(userId, {
+      profilePicture: undefined,
+    });
     const profilePicture = await ProfilePicture.findById(user.profilePicture);
     const attachmentService = new AttachmentService();
     await attachmentService.deleteFileFromDrive(profilePicture?.cloudId);

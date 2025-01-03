@@ -182,7 +182,7 @@ class AttachmentService {
     }
   }
 
-  public async fetchFileAsBlob(fileId: string): Promise<Blob> {
+  public async fetchFileAsBase64(fileId: string): Promise<string> {
     try {
       const response = await this.drive.files.get(
         {
@@ -192,7 +192,11 @@ class AttachmentService {
         { responseType: "arraybuffer" }
       );
 
-      return new Blob([response.data]);
+      const base64 = Buffer.from(response.data as ArrayBuffer).toString(
+        "base64"
+      );
+
+      return base64;
     } catch (error) {
       console.error("Error fetching file as blob from Google Drive:", error);
       throw error;
