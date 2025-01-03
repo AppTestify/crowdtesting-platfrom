@@ -14,12 +14,13 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { ChevronRight, Edit, SendHorizontal, Slash } from "lucide-react";
+import { ChevronRight, Edit, SendHorizontal } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import {
   addCommentService,
+  getCommentsService,
 } from "@/app/_services/comment.service";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -32,6 +33,11 @@ import { getProjectService } from "@/app/_services/project.service";
 import { IProject } from "@/app/_interface/project";
 import { UserRoles } from "@/app/_constants/user-roles";
 import { checkProjectAdmin } from "@/app/_utils/common";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getAvatarFallbackText, getFormattedBase64ForSrc } from "@/app/_utils/string-formatters";
+import { Input } from "@/components/ui/input";
+import { formatDistanceToNow } from "date-fns";
 
 const commentSchema = z.object({
   entityId: z.string().min(1, "Required"),
@@ -233,85 +239,85 @@ const ViewIssue = () => {
               }
 
               {/* <div className="mt-3">
-            <div className="text-sm ">Comments</div>
-            <div className="w-full mb-3 mt-2">
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} method="post">
-                  <FormField
-                    control={form.control}
-                    name="content"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <div className="flex items-center">
-                            <Avatar className="h-10 w-10">
-                              <AvatarImage
-                                src={getFormattedBase64ForSrc(user?.profilePicture)}
-                                alt="@profilePicture"
-                              />
-                              <AvatarFallback>
-                                {getAvatarFallbackText({
-                                  ...user,
-                                  name: `${user?.firstName || ""} ${user?.lastName || ""
-                                    }`,
-                                })}
-                              </AvatarFallback>
-                            </Avatar>
-                            <Input
-                              type="text"
-                              className="ml-3 rounded-sm border border-gray-300 "
-                              placeholder="Add a comment"
-                              {...field}
-                            />
-                            <Button className="ml-2">
-                              <SendHorizontal />
-                            </Button>
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                </form>
-              </Form>
-            </div>
-          </div>
-
-          <div className="mt-3">
-            {comments.map((comment, index) => (
-              <div
-                key={index}
-                className="bg-gray-50 p-3 rounded-lg mb-3 shadow-sm"
-              >
-                <div className="text-gray-800">{comment?.content}</div>
-
-                <div className="flex justify-between items-center mt-2">
-                  <div className="flex items-center space-x-3">
-                    <Avatar className="h-8 w-8 bg-gray-400">
-                      <AvatarImage
-                        src={getFormattedBase64ForSrc(comment?.commentedBy?.profilePicture)}
-                        alt="@profilePicture"
+                <div className="text-sm ">Comments</div>
+                <div className="w-full mb-3 mt-2">
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} method="post">
+                      <FormField
+                        control={form.control}
+                        name="content"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <div className="flex items-center">
+                                <Avatar className="h-10 w-10">
+                                  <AvatarImage
+                                    src={getFormattedBase64ForSrc(user?.profilePicture)}
+                                    alt="@profilePicture"
+                                  />
+                                  <AvatarFallback>
+                                    {getAvatarFallbackText({
+                                      ...user,
+                                      name: `${user?.firstName || ""} ${user?.lastName || ""
+                                        }`,
+                                    })}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <Input
+                                  type="text"
+                                  className="ml-3 rounded-sm border border-gray-300 "
+                                  placeholder="Add a comment"
+                                  {...field}
+                                />
+                                <Button className="ml-2">
+                                  <SendHorizontal />
+                                </Button>
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
-                      <AvatarFallback>
-                        {getAvatarFallbackText({
-                          ...user,
-                          name: `${comment?.commentedBy?.firstName || ""} ${comment?.commentedBy?.lastName || ""}`,
-                        })}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="text-sm text-gray-600">
-                      {`${comment?.commentedBy?.firstName} ${comment?.commentedBy?.lastName}`}
-                    </span>
-                  </div>
 
-                  <div className="text-xs text-gray-500">
-                    {formatDistanceToNow(new Date(comment?.createdAt || new Date()), { addSuffix: true })}
-                  </div>
+                    </form>
+                  </Form>
                 </div>
-              </div>
-            ))}
-          </div> */}
+              </div> */}
+
+              {/* <div className="mt-3">
+                {comments.map((comment, index) => (
+                  <div
+                    key={index}
+                    className="bg-gray-50 p-3 rounded-lg mb-3 shadow-sm"
+                  >
+                    <div className="text-gray-800">{comment?.content}</div>
+
+                    <div className="flex justify-between items-center mt-2">
+                      <div className="flex items-center space-x-3">
+                        <Avatar className="h-8 w-8 bg-gray-400">
+                          <AvatarImage
+                            src={getFormattedBase64ForSrc(comment?.commentedBy?.profilePicture)}
+                            alt="@profilePicture"
+                          />
+                          <AvatarFallback>
+                            {getAvatarFallbackText({
+                              ...user,
+                              name: `${comment?.commentedBy?.firstName || ""} ${comment?.commentedBy?.lastName || ""}`,
+                            })}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="text-sm text-gray-600">
+                          {`${comment?.commentedBy?.firstName} ${comment?.commentedBy?.lastName}`}
+                        </span>
+                      </div>
+
+                      <div className="text-xs text-gray-500">
+                        {formatDistanceToNow(new Date(comment?.createdAt || new Date()), { addSuffix: true })}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div> */}
             </div>
             <div className="border rounded-md p-4 h-fit">
               {/* Severity */}

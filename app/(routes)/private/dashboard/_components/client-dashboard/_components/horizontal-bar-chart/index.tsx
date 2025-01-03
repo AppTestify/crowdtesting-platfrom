@@ -1,4 +1,4 @@
-import { Priority } from '@/app/_constants/issue';
+import { Priority, Severity } from '@/app/_constants/issue';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import React from 'react';
@@ -12,6 +12,15 @@ const chartConfig = {
         color: "#FACC15",
     },
     [Priority.HIGH]: {
+        color: "#F87171",
+    },
+    [Severity.MINOR]: {
+        color: "#60A5FA",
+    },
+    [Severity.MAJOR]: {
+        color: "#FB923C",
+    },
+    [Severity.CRITICAL]: {
         color: "#F87171",
     },
     Severity: {
@@ -28,6 +37,12 @@ const getColorForPriority = (level: string) => {
         case Priority.NORMAL:
             return '#FACC15';
         case Priority.HIGH:
+            return '#F87171';
+        case Severity.MINOR:
+            return '#60A5FA';
+        case Severity.MAJOR:
+            return '#FB923C';
+        case Severity.CRITICAL:
             return '#F87171';
         default:
             return 'hsl(var(--primary))';
@@ -60,7 +75,7 @@ export default function HorizontalBarChart({ title, description, dataKey, chartD
                 <ChartContainer config={chartConfig}>
                     <BarChart accessibilityLayer data={formattedData}
                         margin={{ top: 20, bottom: 0 }}
-                        barSize={50}
+                        barSize={40}
                     >
                         <CartesianGrid vertical={false} />
                         <XAxis
@@ -71,7 +86,28 @@ export default function HorizontalBarChart({ title, description, dataKey, chartD
                         />
                         <ChartTooltip
                             cursor={false}
-                            content={<ChartTooltipContent hideLabel />}
+                            content={
+                                <ChartTooltipContent
+                                    hideLabel
+                                    formatter={(value, name, props) => {
+                                        const { payload } = props;
+                                        if (!payload) return null;
+
+                                        return (
+                                            <div className="flex justify-between items-center w-full">
+                                                <div className="flex items-center">
+                                                    <div
+                                                        className="w-3 h-3 rounded-full mr-2"
+                                                        style={{ backgroundColor: payload.color }}
+                                                    ></div>
+                                                    <span>{payload.level}</span>
+                                                </div>
+                                                <div className="ml-auto">{value}</div>
+                                            </div>
+                                        );
+                                    }}
+                                />
+                            }
                         />
                         <Bar
                             dataKey={dataKey}

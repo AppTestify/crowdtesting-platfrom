@@ -20,6 +20,7 @@ import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
 import EditIssueStatus from "../edit-issue-status";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 
 export function IssueRowActions({
   row,
@@ -35,7 +36,7 @@ export function IssueRowActions({
   const [isLoading, setIsLoading] = useState(false);
   const [userData, setUserData] = useState<any>();
   const { data } = useSession();
-  const projectId = row.original.projectId as string;
+  const { projectId } = useParams<{ projectId: string }>();
   const issueId = row.original.id as string;
 
   useEffect(() => {
@@ -105,7 +106,7 @@ export function IssueRowActions({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <Link href={`/private/project/${projectId}/issue/${row.original?.id}`}>
+          <Link href={`/private/browse/${projectId}/issue/${issueId}`}>
             <DropdownMenuItem
               className="mb-1"
             >

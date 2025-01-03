@@ -56,7 +56,7 @@ export default function DeviceChart({ title, description, dataKey, chartData }: 
                     <ChartContainer config={chartConfig}>
                         <BarChart accessibilityLayer data={formattedData}
                             margin={{ top: 20 }}
-                            barSize={50}
+                            barSize={40}
                         >
                             <CartesianGrid vertical={false} />
                             <XAxis

@@ -28,7 +28,7 @@ import { AddIssue } from "./_components/add-issue";
 import { IssueRowActions } from "./_components/row-actions";
 import { useParams } from "next/navigation";
 import { displayIcon, ExportExcelFile, statusBadge } from "@/app/_utils/common-functionality";
-import { ArrowUpDown, FileSpreadsheet, FileText } from "lucide-react";
+import { ArrowUpDown } from "lucide-react";
 import ViewIssue from "./_components/view-issue";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
@@ -61,7 +61,7 @@ export default function Issues() {
         );
       },
       cell: ({ row }) => (
-        <Link href={`/private/project/${projectId}/issue/${row.original?.id}`}>
+        <Link href={`/private/browse/${projectId}/issue/${row.original?.id}`}>
           <div className="hover:text-primary text-primary cursor-pointer ml-4"
           >
             {row.getValue("customId")}
@@ -77,7 +77,7 @@ export default function Issues() {
         const title = row.getValue("title");
         if (typeof title === "string") {
           return (
-            <Link href={`/private/project/${projectId}/issue/${row.original?.id}`}>
+            <Link href={`/private/browse/${projectId}/issue/${row.original?.id}`}>
               <div className="capitalize hover:text-primary cursor-pointer" >
                 {title.length > 30 ? `${title.substring(0, 30)}...` : title}
               </div>

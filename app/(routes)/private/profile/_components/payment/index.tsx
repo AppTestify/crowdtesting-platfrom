@@ -88,7 +88,7 @@ export default function Payment({ user }: { user: any }) {
               name="paypalId"
               render={({ field }) => (
                 <FormItem className={"w-full"}>
-                  <FormLabel>Paypal ID</FormLabel>
+                  <FormLabel>Paypal ID or UPI ID</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
@@ -106,7 +106,7 @@ export default function Payment({ user }: { user: any }) {
                       htmlFor="terms"
                       className="cursor-pointer text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                     >
-                      {showPaypalId ? "Hide" : "Show"} paypal ID
+                      {showPaypalId ? "Hide" : "Show"} paypal ID or UPI ID
                     </label>
                   </FormDescription>
                   <FormMessage />

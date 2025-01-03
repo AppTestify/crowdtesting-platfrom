@@ -9,7 +9,7 @@ export interface IIssue {
   title: string;
   severity: string;
   priority: string;
-  projectId: string;
+  projectId: IProject;
   description?: string;
   status?: string;
   userId?: IUserByAdmin;

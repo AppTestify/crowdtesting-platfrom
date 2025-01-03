@@ -55,6 +55,7 @@ import { getSingleCycleService, getTestCycleWithoutPaginationService } from "@/a
 import { IProject } from "@/app/_interface/project";
 import { getProjectService } from "@/app/_services/project.service";
 import { checkProjectAdmin } from "@/app/_utils/common";
+import { useParams } from "next/navigation";
 
 const issueSchema = z.object({
   title: z.string().min(1, "Required"),
@@ -84,7 +85,8 @@ const EditIssue = ({
   refreshIssues: () => void;
 }) => {
   const issueId = issue?.id as string;
-  const { status, projectId, device } = issue;
+  const { status, device } = issue;
+  const { projectId } = useParams<{ projectId: string }>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [attachments, setAttachments] = useState<any>();
   const [devices, setDevices] = useState<IDevice[]>([]);
@@ -125,7 +127,7 @@ const EditIssue = ({
         priority: issue.priority || "",
         description: issue.description || "",
         status: issue.status || "",
-        projectId: issue.projectId || "",
+        projectId: issue.projectId._id || "",
         device: deviceName,
         issueType: issue.issueType || "",
         testCycle: issue.testCycle?._id as string || ""
