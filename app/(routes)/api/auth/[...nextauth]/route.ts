@@ -71,19 +71,33 @@ const handler = NextAuth({
       }
 
       const attachmentService = new AttachmentService();
-      if (dbUser?.profilePicture?.cloudId) {
-        const fileResponse = await attachmentService.fetchFileAsBase64(
-          dbUser?.profilePicture?.cloudId
-        );
-        dbUser.profilePicture.data = fileResponse;
+
+      // profile image
+      if (dbUser?.profilePicture && dbUser?.profilePicture?.cloudId) {
+        try {
+          const fileResponse = await attachmentService.fetchFileAsBase64(
+            dbUser?.profilePicture?.cloudId
+          );
+          dbUser.profilePicture.data = fileResponse;
+        } catch (error) {
+          console.error("Error fetching file as base64:", error);
+          dbUser.profilePicture.data = null;
+        }
       }
       const website = await Website.findOne({}).lean();
       const websiteData = Array.isArray(website) ? website[0] : website;
+
+      // logo image
       if (websiteData?.logo?.cloudId) {
-        const fileResponse = await attachmentService.fetchFileAsBase64(
-          websiteData.logo.cloudId
-        );
-        websiteData.logo.data = fileResponse;
+        try {
+          const fileResponse = await attachmentService.fetchFileAsBase64(
+            websiteData.logo.cloudId
+          );
+          websiteData.logo.data = fileResponse;
+        } catch (error) {
+          console.error("Error fetching file as base64:", error);
+          websiteData.logo.data = null;
+        }
       }
 
       session.user = { ...dbUser, ...session.user };
