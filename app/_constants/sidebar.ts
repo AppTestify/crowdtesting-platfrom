@@ -12,7 +12,7 @@ import { UserRoles } from "./user-roles";
 
 export const teams = [
   {
-    name: "Crowd Testing",
+    name: "Test Management Platform",
     logo: Shield,
     plan: "AppTestify",
   },
