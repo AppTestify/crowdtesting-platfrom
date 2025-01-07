@@ -5,7 +5,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import React, { useState } from 'react';
 import { useMediaQuery } from 'react-responsive';
 
-export default function ExpandableTable({ row }: { row: IRequirement[] }) {
+export default function ExpandableTable({ row }: { row: any[] }) {
     const isMobile = useMediaQuery({ query: MOBILE_BREAKPOINT });
 
     const mobileVisibleCount = 1;
@@ -23,7 +23,7 @@ export default function ExpandableTable({ row }: { row: IRequirement[] }) {
             {displayedRows.map((rowItem, index) => (
                 <div key={index} className="truncate">
                     <Badge variant="outline" className="font-medium">
-                        {rowItem?.title}
+                        {rowItem?.name ? rowItem?.name : rowItem?.title}
                     </Badge>
                 </div>
             ))}
@@ -37,7 +37,7 @@ export default function ExpandableTable({ row }: { row: IRequirement[] }) {
                         {hiddenRows.map((hiddenItem, index) => (
                             <DropdownMenuItem key={index} className="pointer-events-none">
                                 <div>
-                                    {hiddenItem?.title}
+                                    {hiddenItem?.name ? hiddenItem?.name : hiddenItem?.title}
                                 </div>
                             </DropdownMenuItem>
                         ))}

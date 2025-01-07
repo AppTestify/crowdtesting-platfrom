@@ -20,12 +20,10 @@ import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import {
   addCommentService,
-  getCommentsService,
 } from "@/app/_services/comment.service";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { IComment } from "@/app/_interface/comment";
 import MediaRenderer from "@/app/_components/media-renderer";
 import { getIssueAttachmentsService } from "@/app/_services/issue-attachment.service";
 import EditIssue from "@/app/(routes)/private/projects/[projectId]/issues/_components/edit-issue";
@@ -33,11 +31,8 @@ import { getProjectService } from "@/app/_services/project.service";
 import { IProject } from "@/app/_interface/project";
 import { UserRoles } from "@/app/_constants/user-roles";
 import { checkProjectAdmin } from "@/app/_utils/common";
-import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getAvatarFallbackText, getFormattedBase64ForSrc } from "@/app/_utils/string-formatters";
-import { Input } from "@/components/ui/input";
-import { formatDistanceToNow } from "date-fns";
+import ViewDevice from "./_components/view-device";
+import { IDevice } from "@/app/_interface/device";
 
 const commentSchema = z.object({
   entityId: z.string().min(1, "Required"),
@@ -52,7 +47,6 @@ const ViewIssue = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const { data } = useSession();
   const [user, setUser] = useState<any | null>();
-  const [comments, setComments] = useState<IComment[]>([]);
   const [issueAttachments, setIssueAttachments] = useState<IIssueAttachment[]>([]);
   const [isEditStatusOpen, setIsEditStatusOpen] = useState(false);
   const [project, setProject] = useState<IProject>();
@@ -117,15 +111,6 @@ const ViewIssue = () => {
       toasterService.error();
     }
   }
-
-  // const getComments = async () => {
-  //   try {
-  //     const response = await getCommentsService(projectId, issueId);
-  //     setComments(response);
-  //   } catch (error) {
-  //     toasterService.error();
-  //   }
-  // }
 
   const reset = () => {
     form.reset();
@@ -194,14 +179,14 @@ const ViewIssue = () => {
             </div>
             <div>
               {checkProjectRole
-                ? project?.isActive === true && (
+                ? project?.isActive && (
                   <Button size={'sm'} onClick={() => setIsEditStatusOpen(true)}>
                     <Edit className="h-2 w-2" /> Edit
                   </Button>
                 )
-                : (project?.isActive === true &&
+                : (project?.isActive &&
                   issueData?.userId?._id?.toString() === userData?._id?.toString()) ||
-                  userData?.role === UserRoles.ADMIN ? (
+                  userData?.role !== UserRoles.TESTER ? (
                   <Button size={'sm'} onClick={() => setIsEditStatusOpen(true)}>
                     <Edit className="h-2 w-2" /> Edit
                   </Button>
@@ -238,114 +223,36 @@ const ViewIssue = () => {
                 </div>
               }
 
-              {/* <div className="mt-3">
-                <div className="text-sm ">Comments</div>
-                <div className="w-full mb-3 mt-2">
-                  <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} method="post">
-                      <FormField
-                        control={form.control}
-                        name="content"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <div className="flex items-center">
-                                <Avatar className="h-10 w-10">
-                                  <AvatarImage
-                                    src={getFormattedBase64ForSrc(user?.profilePicture)}
-                                    alt="@profilePicture"
-                                  />
-                                  <AvatarFallback>
-                                    {getAvatarFallbackText({
-                                      ...user,
-                                      name: `${user?.firstName || ""} ${user?.lastName || ""
-                                        }`,
-                                    })}
-                                  </AvatarFallback>
-                                </Avatar>
-                                <Input
-                                  type="text"
-                                  className="ml-3 rounded-sm border border-gray-300 "
-                                  placeholder="Add a comment"
-                                  {...field}
-                                />
-                                <Button className="ml-2">
-                                  <SendHorizontal />
-                                </Button>
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                    </form>
-                  </Form>
-                </div>
-              </div> */}
-
-              {/* <div className="mt-3">
-                {comments.map((comment, index) => (
-                  <div
-                    key={index}
-                    className="bg-gray-50 p-3 rounded-lg mb-3 shadow-sm"
-                  >
-                    <div className="text-gray-800">{comment?.content}</div>
-
-                    <div className="flex justify-between items-center mt-2">
-                      <div className="flex items-center space-x-3">
-                        <Avatar className="h-8 w-8 bg-gray-400">
-                          <AvatarImage
-                            src={getFormattedBase64ForSrc(comment?.commentedBy?.profilePicture)}
-                            alt="@profilePicture"
-                          />
-                          <AvatarFallback>
-                            {getAvatarFallbackText({
-                              ...user,
-                              name: `${comment?.commentedBy?.firstName || ""} ${comment?.commentedBy?.lastName || ""}`,
-                            })}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span className="text-sm text-gray-600">
-                          {`${comment?.commentedBy?.firstName} ${comment?.commentedBy?.lastName}`}
-                        </span>
-                      </div>
-
-                      <div className="text-xs text-gray-500">
-                        {formatDistanceToNow(new Date(comment?.createdAt || new Date()), { addSuffix: true })}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div> */}
             </div>
-            <div className="border rounded-md p-4 h-fit">
-              {/* Severity */}
-              <div>
-                <span className="font-semibold">Severity:</span>
-                <span className="ml-2">{issueData?.severity}</span>
-              </div>
-              {/* Priority */}
-              <div className="mt-3 flex items-center">
-                <span className="font-semibold">Priority:</span>
-                <span className="ml-2 flex items-center">
-                  {displayIcon(issueData?.priority as string)}
-                  <span className="ml-1 font-medium">
-                    {issueData?.priority}
+            <div>
+              <div className="border rounded-md p-4 h-fit">
+                {/* Severity */}
+                <div>
+                  <span className="font-semibold">Severity:</span>
+                  <span className="ml-2">{issueData?.severity}</span>
+                </div>
+                {/* Priority */}
+                <div className="mt-3 flex items-center">
+                  <span className="font-semibold">Priority:</span>
+                  <span className="ml-2 flex items-center">
+                    {displayIcon(issueData?.priority as string)}
+                    <span className="ml-1 font-medium">
+                      {issueData?.priority}
+                    </span>
                   </span>
-                </span>
-              </div>
+                </div>
 
-              {/* Status */}
-              <div className="mt-3">
-                <span className=" font-semibold">Status:</span>
-                <span className="ml-2">{statusBadge(issueData?.status)}</span>
-              </div>
+                {/* Status */}
+                <div className="mt-3">
+                  <span className=" font-semibold">Status:</span>
+                  <span className="ml-2">{statusBadge(issueData?.status)}</span>
+                </div>
 
-              {/* Device */}
-              <div className="mt-3">
-                <span className=" font-semibold">Device:</span>
-                <span className="ml-2">{issueData?.device?.[0]?.name}</span>
+              </div>
+              <div className="mt-2">
+                {issueData?.device &&
+                  <ViewDevice devices={issueData?.device as IDevice[]} />
+                }
               </div>
             </div>
           </div>

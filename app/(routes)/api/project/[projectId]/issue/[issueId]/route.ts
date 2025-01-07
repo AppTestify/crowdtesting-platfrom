@@ -153,7 +153,7 @@ export async function GET(
     const { issueId } = params;
     const userIdFormat = await IdFormat.findOne({ entity: DBModels.ISSUE });
     const issue = (await Issue.findById(issueId)
-      .populate("device", "_id name")
+      .populate("device", "_id name os network")
       .populate("userId testCycle")
       .lean()) as IIssue | null;
 

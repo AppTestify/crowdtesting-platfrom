@@ -38,12 +38,15 @@ import { IProject } from "@/app/_interface/project";
 import Link from "next/link";
 import { generateExcelFile } from "@/app/_helpers/generate-excel.helper";
 import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
+import ExpandableTable from "@/app/_components/expandable-table";
+import { checkProjectAdmin } from "@/app/_utils/common";
 
 export default function Issues() {
   const [issues, setIssues] = useState<IIssueView[]>([]);
   const [userData, setUserData] = useState<any>();
   const [project, setProject] = useState<IProject>();
   const { projectId } = useParams<{ projectId: string }>();
+  const checkProjectRole = checkProjectAdmin(project as IProject, userData);
 
   const columns: ColumnDef<IIssueView>[] = [
     {
@@ -121,7 +124,8 @@ export default function Issues() {
       header: "Device",
       cell: ({ row }) => (
         <div className="capitalize">
-          {row.original?.device && row.original.device.length > 0 ? row.original.device[0]?.name : ''}
+          {/* {row.original?.device && row.original.device.length > 0 ? row.original.device[0]?.name : ''} */}
+          <ExpandableTable row={row?.original?.device} />
         </div>
       ),
     },
@@ -146,15 +150,18 @@ export default function Issues() {
       ),
     },
     ...(
-      (userData?.role === UserRoles.ADMIN) ?
-        [{
-          id: "actions",
-          enableHiding: false,
-          cell: ({ row }: { row: any }) => (
-            <IssueRowActions row={row} refreshIssues={refreshIssues} />
-          ),
-        }] : []
-    ),
+      (checkProjectRole && project?.isActive) ||
+      (project?.isActive && issues.some((issue: IIssueView) => issue.userId?._id?.toString() === userData?._id?.toString())) ||
+      userData?.role !== UserRoles.TESTER
+    ) ? [
+      {
+        id: "actions",
+        enableHiding: false,
+        cell: ({ row }: { row: any }) => (
+          <IssueRowActions row={row} refreshIssues={refreshIssues} />
+        ),
+      },
+    ] : [],
   ];
 
   const [sorting, setSorting] = useState<SortingState>([]);

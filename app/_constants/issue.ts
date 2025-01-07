@@ -2,6 +2,7 @@ export const enum Severity {
   MINOR = "Minor",
   MAJOR = "Major",
   CRITICAL = "Critical",
+  LOW = "Low",
 }
 
 export const enum Priority {
@@ -65,6 +66,7 @@ export const ISSUE_TYPE_LIST = [
 ];
 
 export const SEVERITY_LIST = [
+  Severity.LOW,
   Severity.MINOR,
   Severity.MAJOR,
   Severity.CRITICAL,
