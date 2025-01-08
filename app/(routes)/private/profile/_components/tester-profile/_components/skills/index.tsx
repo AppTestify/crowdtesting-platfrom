@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/command";
 import { SKILLS } from "../../_constants";
 
-const skillSchema = z.string().min(1, "Required");
+const skillSchema = z.string().optional();
 
 export type ISkill = z.infer<typeof skillSchema>;
 
@@ -176,7 +176,6 @@ const Skills: React.FC<SkillsProps> = ({ form, skills = [], onChange }) => {
               variant="ghost"
               size="icon"
               className="mt-4"
-              disabled={skills.length === 1}
             >
               <Trash size={16} />
             </Button>

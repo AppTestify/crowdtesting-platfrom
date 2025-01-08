@@ -103,7 +103,6 @@ const Languages: React.FC<LanguagesProps> = ({
                             variant="ghost"
                             size="icon"
                             className="lg:mt-4"
-                            disabled={languages.length === 1}
                         >
                             <Trash size={16} />
                         </Button>

@@ -209,7 +209,6 @@ const Certifications: React.FC<CertificationsProps> = ({
               variant="ghost"
               size="icon"
               className="lg:mt-4"
-              disabled={certifications.length === 1}
             >
               <Trash size={16} />
             </Button>

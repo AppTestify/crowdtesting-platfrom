@@ -1,25 +1,24 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 
 export function TeamSwitcher({
-  teams, user
+  teams,
+  website,
 }: {
   teams: {
-    name: string
-    logo: React.ElementType
-    plan: string
-  }[],
-  user: any
+    name: string;
+    logo: React.ElementType;
+    plan: string;
+  }[];
+  website: any;
 }) {
   const [activeTeam, setActiveTeam] = React.useState(teams[0]);
-
-
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -28,10 +27,10 @@ export function TeamSwitcher({
           className="pointer-events-none data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
         >
           <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-            {user?.website?.logo?.data ? (
+            {website?.logo?.data ? (
               <img
-                src={`data:${user?.website?.logo?.contentType};base64,${user?.website?.logo?.data}`}
-                alt={user?.website?.logo.name || "Website Logo"}
+                src={`data:${website?.logo?.contentType};base64,${website?.logo?.data}`}
+                alt={website?.logo.name || "Website Logo"}
                 className=" size-9"
               />
             ) : (
@@ -40,12 +39,12 @@ export function TeamSwitcher({
           </div>
           <div className="grid flex-1 text-left text-sm leading-tight">
             <span className="truncate font-semibold">
-              {user?.website[0]?.websiteName ? user?.website[0]?.websiteName : activeTeam?.name}
+              {website?.websiteName ? website?.websiteName : activeTeam?.name}
             </span>
             <span className="truncate text-xs">{activeTeam.plan}</span>
           </div>
         </SidebarMenuButton>
       </SidebarMenuItem>
     </SidebarMenu>
-  )
+  );
 }

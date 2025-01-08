@@ -55,27 +55,17 @@ const formSchema = z.object({
     message: "Required",
   }),
   bio: z.string().optional(),
-  country: z.string().min(1, {
-    message: "Required",
-  }),
-  city: z.string().min(1, {
-    message: "Required",
-  }),
-  street: z.string().min(1, {
-    message: "Required",
-  }),
-  postalCode: z.string().min(1, {
-    message: "Required",
-  }),
-  certifications: z.array(certificationSchema).min(1),
+  country: z.string().optional(),
+  city: z.string().optional(),
+  street: z.string().optional(),
+  postalCode: z.string().optional(),
+  certifications: z.array(certificationSchema).optional(),
   skills: z
     .array(
-      z.string().min(1, {
-        message: "Required",
-      })
+      z.string().optional()
     )
-    .min(1),
-  languages: z.array(languageSchema).min(1),
+    .optional(),
+  languages: z.array(languageSchema).optional(),
 });
 
 export type ITesterPayload = z.infer<typeof formSchema>;
@@ -295,7 +285,7 @@ export default function ProfileOverview({ user }: { user: any }) {
         <div>
           <Certifications
             form={form}
-            certifications={form.watch("certifications")}
+            certifications={form.watch("certifications") || []}
             onChange={(certifications: ICertification[]) =>
               form.setValue("certifications", certifications)
             }
@@ -307,7 +297,7 @@ export default function ProfileOverview({ user }: { user: any }) {
         <div>
           <Skills
             form={form}
-            skills={form.watch("skills")}
+            skills={form.watch("skills") || []}
             onChange={(skills: ISkill[]) => form.setValue("skills", skills)}
           />
         </div>
@@ -316,7 +306,7 @@ export default function ProfileOverview({ user }: { user: any }) {
         <div>
           <Languages
             form={form}
-            languages={form.watch("languages")}
+            languages={form.watch("languages") || []}
             onChange={(languages: ILanguage[]) =>
               form.setValue("languages", languages)
             }

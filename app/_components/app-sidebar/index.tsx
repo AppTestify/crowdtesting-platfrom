@@ -24,12 +24,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     profilePicture?: any;
   } | null>(null);
   const [user, setUser] = React.useState<any>();
-  const [website, setWebsite] = React.useState<any>();
+  const [sessionData, setSessionData] = React.useState<any>();
 
   React.useEffect(() => {
     if (data) {
       const { user } = data;
-      setWebsite(data);
+      setSessionData(data);
       setUserIdentity(user);
       setUser(user);
     }
@@ -56,7 +56,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <>
       <Sidebar collapsible="icon" {...props}>
         <SidebarHeader>
-          <TeamSwitcher teams={teams} user={website} />
+          {sessionData && <TeamSwitcher teams={teams} website={sessionData.website} />}
         </SidebarHeader>
         <SidebarContent>
           <NavMain items={getSidebarItems(user)} />

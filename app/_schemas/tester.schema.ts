@@ -6,23 +6,23 @@ export const certificationSchema = z.object({
 });
 
 export const addressSchema = z.object({
-  street: z.string().min(1, "Street is required"),
-  city: z.string().min(1, "City is required"),
-  postalCode: z.string().min(1, "PostalCode is required"),
-  country: z.string().min(1, "Country is required"),
+  street: z.string().optional(),
+  city: z.string().optional(),
+  postalCode: z.string().optional(),
+  country: z.string().optional(),
 });
 
 export const languageSchema = z.object({
-  name: z.string().min(1, "Language name is required"),
+  name: z.string().optional(),
   proficiency: z.string().optional(),
 });
 
 export const testerSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
-  skills: z.array(z.string().min(1, "Skill is required")).min(1),
+  skills: z.array(z.string().optional()).optional(),
   bio: z.string().optional(),
-  certifications: z.array(certificationSchema).min(1),
-  address: addressSchema,
-  languages: z.array(languageSchema),
+  certifications: z.array(certificationSchema).optional(),
+  address: addressSchema.optional(),
+  languages: z.array(languageSchema).optional(),
 });
