@@ -57,6 +57,7 @@ import { getDevicesWithoutPaginationService } from "@/app/_services/device.servi
 import { IDevice } from "@/app/_interface/device";
 import { getTestCycleWithoutPaginationService } from "@/app/_services/test-cycle.service";
 import { ITestCycle } from "@/app/_interface/test-cycle";
+import { MultiSelect } from "@/components/ui/multi-select";
 
 const projectSchema = z.object({
   title: z.string().min(1, "Required"),
@@ -70,8 +71,8 @@ const projectSchema = z.object({
     .array(z.instanceof(File))
     .optional(),
   device: z
-    .array(z.string())
-    .min(1, "Required"),
+    .array(z.string()),
+  // .min(1, "Required"),
   testCycle: z.string().min(1, 'Required')
 });
 
@@ -94,6 +95,8 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
   const [devices, setDevices] = useState<IDevice[]>([]);
   const [isViewLoading, setIsViewLoading] = useState<boolean>(false);
   const [testCycles, setTestCycles] = useState<ITestCycle[]>([]);
+  const [selectedDevices, setSelectedDevices] = useState<string[]>([]);
+  const [isInvalidDevices, setIsInvalidDevices] = useState<boolean>(false);
 
   const form = useForm<z.infer<typeof projectSchema>>({
     resolver: zodResolver(projectSchema),
@@ -120,7 +123,7 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
   async function onSubmit(values: z.infer<typeof projectSchema>) {
     setIsLoading(true);
     try {
-      const response = await addIssueService(projectId, { ...values });
+      const response = await addIssueService(projectId, { ...values, device: selectedDevices });
       if (response) {
         setIssueId(response.id);
         refreshIssues();
@@ -135,14 +138,26 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
   }
 
   const validateIssue = () => {
-    if (form.formState.isValid) {
+    if (!selectedDevices.length) {
+      setIsInvalidDevices(true);
+    }
+
+    if (!isInvalidDevices && form.formState.isValid) {
       form.handleSubmit(onSubmit)();
     }
   };
 
   const resetForm = () => {
     form.reset();
+    setIsInvalidDevices(false);
+    setSelectedDevices([]);
   };
+
+  useEffect(() => {
+    if (selectedDevices.length) {
+      setIsInvalidDevices(false);
+    }
+  }, [selectedDevices]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -300,61 +315,39 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-2 mt-3">
-                <FormField
-                  control={form.control}
-                  name="device"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>Device</FormLabel>
-                      <Select
-                        onValueChange={(value) => {
-                          if (value) {
-                            field.onChange([value]);
-                          }
-                        }}
-                        value={field.value?.[0] || ""}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue>
-                            {field.value.length > 0
-                              ? devices.find((device) => device.id === field.value?.[0])?.name
-                              : " "}
-                          </SelectValue>
-                        </SelectTrigger>
-                        <SelectContent>
-                          {!isViewLoading ? (
-                            devices.length > 0 ? (
-                              <SelectGroup>
-                                {devices.map((device) => (
-                                  <SelectItem key={device.id} value={device.id}>
-                                    <div className="flex items-center">
-                                      {device?.name}
-                                    </div>
-                                  </SelectItem>
-                                ))}
-                              </SelectGroup>
-                            ) : (
-                              <div className="text-center">No device found</div>
-                            )
-                          ) : (
-                            <div className="flex justify-center items-center h-10">
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            </div>
-                          )}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+              <div className="grid grid-cols-1 gap-2 mt-4">
+                <Label className={isInvalidDevices ? "text-destructive" : ""}>
+                  Devices
+                </Label>
+                <MultiSelect
+                  options={devices?.map((device) => ({
+                    label: typeof device?.name === "string" ? `${device?.name} / ${device?.os} / ${device?.network}` : "",
+                    value: typeof device?.id === "string" ? device.id : "",
+                  }))}
+                  onValueChange={setSelectedDevices}
+                  defaultValue={selectedDevices}
+                  placeholder=""
+                  disabled={devices?.length === 0}
+                  variant="secondary"
+                  animation={2}
+                  maxCount={2}
+                  // isClear={clear}
+                  className="w-full"
                 />
+                {isInvalidDevices ? (
+                  <FormMessage className="mt-2">
+                    Please select at least one device
+                  </FormMessage>
+                ) : null}
+              </div>
 
+              <div className="grid grid-cols-2 gap-2 mt-3">
                 <FormField
                   control={form.control}
                   name="issueType"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel>Issue type</FormLabel>
+                      <FormLabel >Issue type</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         value={field.value}
@@ -362,7 +355,7 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
                         <SelectTrigger className="w-full">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent >
                           <SelectGroup>
                             {ISSUE_TYPE_LIST.map((issueType) => (
                               <SelectItem value={issueType}>
@@ -378,9 +371,7 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
                     </FormItem>
                   )}
                 />
-              </div>
 
-              <div className="grid grid-cols-1 gap-2 mt-4">
                 <FormField
                   control={form.control}
                   name="testCycle"
