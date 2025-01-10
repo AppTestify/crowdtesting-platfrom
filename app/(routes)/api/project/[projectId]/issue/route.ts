@@ -16,6 +16,7 @@ import { isAdmin, isClient, verifySession } from "@/app/_lib/dal";
 import { IdFormat } from "@/app/_models/id-format.model";
 import { IssueAttachment } from "@/app/_models/issue-attachment.model";
 import { Issue } from "@/app/_models/issue.model";
+import { filterIssuesForAdmin, filterIssuesForClient, filterIssuesForTester } from "@/app/_queries/search-issues";
 import { issueSchema } from "@/app/_schemas/issue.schema";
 import {
   getFileMetaData,
@@ -152,22 +153,61 @@ export async function GET(
     let response = null;
 
     const { projectId } = params;
-    const userIdFormat = await IdFormat.findOne({ entity: DBModels.ISSUE });
+    const url = new URL(req.url);
+    const searchString = url.searchParams.get("searchString");
+
+    const customIDFormat = await IdFormat.findOne({ entity: DBModels.ISSUE });
     const { skip, limit } = serverSidePagination(req);
+
+    if (searchString) {
+      if (await isAdmin(session.user)) {
+        const { issues, totalIssues } = await filterIssuesForAdmin(
+          searchString,
+          skip,
+          limit
+        );
+        return Response.json({
+          issues: addCustomIds(issues, customIDFormat?.idFormat),
+          total: totalIssues,
+        });
+      } else if (await isClient(session.user)) {
+        const { issues, totalIssues } = await filterIssuesForClient(
+          searchString,
+          skip,
+          limit
+        );
+        return Response.json({
+          issues: addCustomIds(issues, customIDFormat?.idFormat),
+          total: totalIssues,
+        });
+      } else {
+        const { issues, totalIssues } = await filterIssuesForTester(
+          searchString,
+          skip,
+          limit
+        );
+        return Response.json({
+          issues: addCustomIds(issues, customIDFormat?.idFormat),
+          total: totalIssues,
+        });
+      }
+    }
+
     const totalIssues = await Issue.find({
       projectId: projectId,
     }).countDocuments();
+
     if (await isAdmin(session.user)) {
       response = addCustomIds(
         await Issue.find({ projectId: projectId })
-          .populate("userId attachments projectId")
+          .populate("userId projectId")
           .populate({ path: "testCycle", strictPopulate: false })
           .sort({ createdAt: -1 })
           .skip(skip)
           .limit(Number(limit))
           .populate("device")
           .lean(),
-        userIdFormat.idFormat
+        customIDFormat.idFormat
       );
     } else if (await isClient(session.user)) {
       response = addCustomIds(
@@ -178,10 +218,10 @@ export async function GET(
           .sort({ createdAt: -1 })
           .skip(skip)
           .limit(Number(limit))
-          .populate("device attachments projectId")
+          .populate("device projectId")
           .populate({ path: "testCycle", strictPopulate: false })
           .lean(),
-        userIdFormat.idFormat
+        customIDFormat.idFormat
       );
     } else {
       response = addCustomIds(
@@ -189,19 +229,12 @@ export async function GET(
           .sort({ createdAt: -1 })
           .skip(skip)
           .limit(Number(limit))
-          .populate("device attachments projectId")
+          .populate("device projectId")
           .populate({ path: "testCycle", strictPopulate: false })
           .lean(),
-        userIdFormat.idFormat
+        customIDFormat.idFormat
       );
     }
-
-    response.forEach((issue) => {
-      issue.attachments.forEach((attachment: any) => {
-        const link = `https://drive.google.com/file/d/${attachment.cloudId}/view?usp=sharing`;
-        attachment.link = link;
-      });
-    });
 
     return Response.json({ issues: response, total: totalIssues });
   } catch (error: any) {
