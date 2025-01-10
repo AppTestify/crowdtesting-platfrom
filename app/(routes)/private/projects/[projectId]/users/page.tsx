@@ -45,6 +45,15 @@ export default function ProjectUsers() {
             ),
         },
         {
+            accessorKey: "name",
+            header: "Name",
+            cell: ({ row }) => (
+                <div>
+                    {`${row.original?.userId?.firstName || ""} ${row.original?.userId?.lastName || ""}`}
+                </div>
+            ),
+        },
+        {
             accessorFn: (row) => row.role || "",
             accessorKey: "projectUserRole",
             header: "Project user role",

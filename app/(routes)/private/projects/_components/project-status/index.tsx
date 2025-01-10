@@ -28,13 +28,17 @@ export function SwitchProject({
     }
   }, [data]);
 
+  useEffect(() => {
+    setStatus(isActive);
+  }, [isActive]);
+
   const toggleStatus = async () => {
     try {
       const newStatus = !status;
       setStatus(newStatus);
       const response = await updateProjectStausService(projectId, newStatus);
       if (response) {
-        // refreshProjects();
+        refreshProjects();
       }
     } catch (error) {
       toasterService.error();
@@ -48,7 +52,7 @@ export function SwitchProject({
         checked={status}
         onCheckedChange={toggleStatus}
       />
-      <Label htmlFor="project-mode">{status ? "Active" : "In active"}</Label>
+      <Label htmlFor="project-mode">{status ? "Active" : "Inactive"}</Label>
     </div>
   );
 }

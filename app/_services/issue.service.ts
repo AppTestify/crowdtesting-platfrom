@@ -36,6 +36,20 @@ export const getIssuesService = async (
   }
 };
 
+export const getIssuesWithoutPaginationService = async (
+  projectId: string
+): Promise<any> => {
+  try {
+    const response = await genericGet(
+      `${GET_ISSUES_ENPOINT(projectId)}/without-pagination`
+    );
+    return response || [];
+  } catch (error) {
+    console.error(`Error > getIssuesWithoutPaginationService:`, error);
+    throw error;
+  }
+};
+
 export const addIssueService = async (
   projectId: string,
   body: IIssuePayload

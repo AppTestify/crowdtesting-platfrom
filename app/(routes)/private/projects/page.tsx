@@ -164,7 +164,6 @@ export default function Projects() {
       return (
         <div
           className=""
-        // onClick={() => getUser(row.original?.userId as IUserByAdmin)}
         >
           {`${firstName} ${lastName}`.trim()}
         </div>
@@ -314,7 +313,7 @@ export default function Projects() {
                           cell.getContext()
                         )}
                       </TableCell>
-                    ))} 
+                    ))}
                   </TableRow>
                 ))
               ) : (

@@ -31,7 +31,7 @@ export function SwitchUser({
                 checked={status}
                 onCheckedChange={toggleStatus}
             />
-            <Label htmlFor="user-mode">{status ? "Active" : "In active"}</Label>
+            <Label htmlFor="user-mode">{status ? "Active" : "Inactive"}</Label>
         </div>
     );
 }

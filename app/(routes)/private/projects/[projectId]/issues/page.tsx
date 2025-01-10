@@ -22,7 +22,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { getIssuesService } from "@/app/_services/issue.service";
+import { getIssuesService, getIssuesWithoutPaginationService } from "@/app/_services/issue.service";
 import { IIssue, IIssueView } from "@/app/_interface/issue";
 import { AddIssue } from "./_components/add-issue";
 import { IssueRowActions } from "./_components/row-actions";
@@ -174,6 +174,7 @@ export default function Issues() {
   const [totalPageCount, setTotalPageCount] = useState(0);
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
+  const [isExcelLoading, setIsExcelLoading] = useState<boolean>(false);
   const { data } = useSession();
 
   useEffect(() => {
@@ -250,31 +251,34 @@ export default function Issues() {
     }
   };
 
-  const generateExcel = () => {
+  const generateExcel = async () => {
+    setIsExcelLoading(true);
+    const issues = await getIssuesWithoutPaginationService(projectId);
     const header = userData.role === UserRoles.ADMIN ?
       ["ID", "Title", "Severity", "Priority", "issueType", "testCycle", "Device Name", "Created By", "Status", "Attachments"] :
       ["ID", "Title", "Severity", "Priority", "issueType", "testCycle", "Device Name", "Status", "Attachments"];
-    const data = table.getRowModel().rows?.map((row) => [
-      row.original.customId,
-      row.original.title,
-      row.original.severity,
-      row.original.priority,
-      row.original.issueType,
-      row.original.testCycle?.title || "",
-      row.original.device?.[0]?.name || "",
+    const data = issues?.map((row: IIssue) => [
+      row.customId,
+      row.title,
+      row.severity,
+      row.priority,
+      row.issueType,
+      row.testCycle?.title || "",
+      row.device?.[0]?.name || "",
       userData?.role === UserRoles.ADMIN
-        ? `${row.original.userId?.firstName} ${row.original.userId?.lastName}` || ""
-        : row.original.status,
+        ? `${row.userId?.firstName} ${row.userId?.lastName}` || ""
+        : row.status,
       userData?.role === UserRoles.ADMIN
-        ? row.original.status || "" :
-        row.original.attachments && row.original?.attachments?.length > 0 ?
-          process.env.NEXT_PUBLIC_URL + `/download/${projectId}/issue?issue=` + row.original.id : "",
+        ? row.status || "" :
+        row.attachments && row?.attachments?.length > 0 ?
+          process.env.NEXT_PUBLIC_URL + `/download/${projectId}/issue?issue=` + row.id : "",
       userData?.role === UserRoles.ADMIN
-        ? row.original.attachments && row.original?.attachments?.length > 0 ?
-          process.env.NEXT_PUBLIC_URL + `/download/${projectId}/issue?issue=` + row.original.id : ""
+        ? row.attachments && row?.attachments?.length > 0 ?
+          process.env.NEXT_PUBLIC_URL + `/download/${projectId}/issue?issue=` + row.id : ""
         : "",
     ]);
     generateExcelFile(header, data, `Issues-${issues[0]?.projectId?.title}.xlsx`);
+    setIsExcelLoading(false);
   }
   const hasData = table.getRowModel().rows?.length > 0;
 
@@ -303,7 +307,7 @@ export default function Issues() {
           />
           <div className="flex gap-2 ml-2">
             <div>
-              {ExportExcelFile(generateExcel, hasData)}
+              {ExportExcelFile(generateExcel, hasData, isExcelLoading)}
             </div>
             {
               (userData?.role !== UserRoles.CLIENT &&
