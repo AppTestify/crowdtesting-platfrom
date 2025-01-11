@@ -47,7 +47,7 @@ IssueSchema.pre('save', async function (next) {
     if (issue.isNew) {
         try {
             const counter = await Counter.findOneAndUpdate(
-                { entity: DBModels.ISSUE },
+                { entity: DBModels.ISSUE, projectId: issue.projectId },
                 { $inc: { sequence: 1 } },
                 { new: true, upsert: true }
             );

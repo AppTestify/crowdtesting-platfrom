@@ -19,3 +19,4 @@ export const TOKEN_EXPIRED_MESSAGE = "Your link has expired. Please request a ne
 export const FILE_UPLOAD_ERROR_MESSAGE = "Something went wrong while uploading file";
 export const FILE_DELETE_ERROR_MESSAGE = "Something went wrong while deleting file";
 export const FILE_DOWNLOAD_ERROR_MESSAGE = "Something went wrong while downloading file";
+export const NAME_NOT_SPECIFIED_ERROR_MESSAGE = "Name not specified yet";

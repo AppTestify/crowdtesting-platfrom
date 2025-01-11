@@ -39,6 +39,7 @@ import { getUsersWithoutPaginationService } from "@/app/_services/user.service";
 import { IUserByAdmin } from "@/app/_interface/user";
 import { PROJECT_USER_ROLE_LIST } from "@/app/_constants/project-user-roles";
 import { addProjectUserService } from "@/app/_services/project.service";
+import { NAME_NOT_SPECIFIED_ERROR_MESSAGE } from "@/app/_constants/errors";
 
 const projectSchema = z.object({
     userId: z.string().min(1, "User is required"),
@@ -102,6 +103,12 @@ export function AddProjectUser({ refreshProjectUsers }: { refreshProjectUsers: (
         }
     }
 
+    const getSelectedUser = (field: any) => {
+        const selectedUser = users?.find(user => user?.id === field.value)
+        return `${selectedUser?.customId} - ${selectedUser?.firstName || NAME_NOT_SPECIFIED_ERROR_MESSAGE } ${selectedUser?.lastName || ""}`
+    }
+    
+
     useEffect(() => {
         if (projectId && sheetOpen) {
             getUsers();
@@ -129,13 +136,13 @@ export function AddProjectUser({ refreshProjectUsers }: { refreshProjectUsers: (
                                     name="userId"
                                     render={({ field }) => (
                                         <FormItem className="flex flex-col">
-                                            <FormLabel>Select tester</FormLabel>
+                                            <FormLabel>Select user</FormLabel>
                                             <Select
                                                 onValueChange={field.onChange}
                                                 value={field.value}
                                             >
                                                 <SelectTrigger className="w-full">
-                                                    <SelectValue>{users?.find(user => user?.id === field.value)?.customId}</SelectValue>
+                                                    <SelectValue>{getSelectedUser(field)}</SelectValue>
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     {!isViewLoading ? (
@@ -147,7 +154,7 @@ export function AddProjectUser({ refreshProjectUsers }: { refreshProjectUsers: (
                                                                     .filter(user => user.customId)
                                                                     .map(user => (
                                                                         <SelectItem key={user.id} value={user.id as string}>
-                                                                            {user?.customId}
+                                                                            {user?.customId} - {user?.firstName || NAME_NOT_SPECIFIED_ERROR_MESSAGE} {user?.lastName || ""}
                                                                         </SelectItem>
                                                                     ))
                                                             ) : (

@@ -33,7 +33,7 @@ RequirementSchema.pre('save', async function (next) {
     if (requirement.isNew) {
         try {
             const counter = await Counter.findOneAndUpdate(
-                { entity: DBModels.REQUIREMENT },
+                { entity: DBModels.REQUIREMENT, projectId: requirement.projectId  },
                 { $inc: { sequence: 1 } },
                 { new: true, upsert: true }
             );
