@@ -14,13 +14,11 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { ChevronRight, Edit, SendHorizontal } from "lucide-react";
+import { ChevronRight, Edit, SendHorizontal, UserCircle, UserCircle2Icon, UserIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
-import {
-  addCommentService,
-} from "@/app/_services/comment.service";
+import { addCommentService } from "@/app/_services/comment.service";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -33,6 +31,7 @@ import { UserRoles } from "@/app/_constants/user-roles";
 import { checkProjectAdmin } from "@/app/_utils/common";
 import ViewDevice from "./_components/view-device";
 import { IDevice } from "@/app/_interface/device";
+import { NAME_NOT_SPECIFIED_ERROR_MESSAGE } from "@/app/_constants/errors";
 
 const commentSchema = z.object({
   entityId: z.string().min(1, "Required"),
@@ -41,13 +40,16 @@ const commentSchema = z.object({
 
 const ViewIssue = () => {
   const [isViewLoading, setIsViewLoading] = useState<boolean>(false);
-  const [isAttachmentLoading, setIsAttachmentLoading] = useState<boolean>(false);
-  const [issueData, setIssueData] = useState<IIssue>();
+  const [isAttachmentLoading, setIsAttachmentLoading] =
+    useState<boolean>(false);
+  const [issueData, setIssueData] = useState<IIssue | null>();
   const { issueId } = useParams<{ issueId: string }>();
   const { projectId } = useParams<{ projectId: string }>();
   const { data } = useSession();
   const [user, setUser] = useState<any | null>();
-  const [issueAttachments, setIssueAttachments] = useState<IIssueAttachment[]>([]);
+  const [issueAttachments, setIssueAttachments] = useState<IIssueAttachment[]>(
+    []
+  );
   const [isEditStatusOpen, setIsEditStatusOpen] = useState(false);
   const [project, setProject] = useState<IProject>();
   const [userData, setUserData] = useState<any>();
@@ -93,12 +95,13 @@ const ViewIssue = () => {
 
   const refreshAttachments = async () => {
     await getIssueAttachments();
-  }
+  };
 
   const refreshIssues = async () => {
+    setIssueData(null)
     await getIssueById();
     await getIssueAttachments();
-  }
+  };
 
   async function onSubmit(values: z.infer<typeof commentSchema>) {
     try {
@@ -126,7 +129,7 @@ const ViewIssue = () => {
     } finally {
       setIsViewLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
     getIssueById();
@@ -144,14 +147,14 @@ const ViewIssue = () => {
 
   return (
     <div className="pb-0 mt-2 w-full">
-      {issueData &&
+      {issueData && (
         <EditIssue
           issue={issueData as IIssue}
           sheetOpen={isEditStatusOpen}
           setSheetOpen={setIsEditStatusOpen}
           refreshIssues={refreshIssues}
         />
-      }
+      )}
       {!isViewLoading ? (
         <main className="mx-4">
           <div className="flex justify-between mb-2">
@@ -163,7 +166,7 @@ const ViewIssue = () => {
                       className="text-[12px]"
                       href={`/private/projects/${projectId}/issues`}
                     >
-                      Issue
+                      Issues
                     </BreadcrumbLink>
                   </BreadcrumbItem>
                   <BreadcrumbSeparator>
@@ -178,19 +181,20 @@ const ViewIssue = () => {
               </Breadcrumb>
             </div>
             <div>
-              {checkProjectRole
-                ? project?.isActive && (
-                  <Button size={'sm'} onClick={() => setIsEditStatusOpen(true)}>
+              {checkProjectRole ? (
+                project?.isActive && (
+                  <Button size={"sm"} onClick={() => setIsEditStatusOpen(true)}>
                     <Edit className="h-2 w-2" /> Edit
                   </Button>
                 )
-                : (project?.isActive &&
-                  issueData?.userId?._id?.toString() === userData?._id?.toString()) ||
-                  userData?.role !== UserRoles.TESTER ? (
-                  <Button size={'sm'} onClick={() => setIsEditStatusOpen(true)}>
-                    <Edit className="h-2 w-2" /> Edit
-                  </Button>
-                ) : null}
+              ) : (project?.isActive &&
+                  issueData?.userId?._id?.toString() ===
+                    userData?._id?.toString()) ||
+                userData?.role !== UserRoles.TESTER ? (
+                <Button size={"sm"} onClick={() => setIsEditStatusOpen(true)}>
+                  <Edit className="h-2 w-2" /> Edit
+                </Button>
+              ) : null}
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-[2fr_1fr] gap-4">
@@ -206,7 +210,7 @@ const ViewIssue = () => {
                 />
               </div>
 
-              {!isAttachmentLoading ?
+              {!isAttachmentLoading ? (
                 <MediaRenderer
                   attachments={issueAttachments || []}
                   title={"Attachments"}
@@ -214,27 +218,25 @@ const ViewIssue = () => {
                   userData={userData}
                   issueData={issueData as IIssue}
                 />
-                :
+              ) : (
                 <div className="flex gap-2 mt-4">
                   <Skeleton className="h-[120px] w-[155px] bg-gray-200" />
                   <Skeleton className="h-[120px] w-[155px] bg-gray-200" />
                   <Skeleton className="h-[120px] w-[155px] bg-gray-200" />
                   <Skeleton className="h-[120px] w-[155px] bg-gray-200" />
                 </div>
-              }
-
+              )}
             </div>
             <div>
-              <div className="border rounded-md p-4 h-fit">
-                {/* Severity */}
-                <div>
-                  <span className="font-semibold">Severity:</span>
-                  <span className="ml-2">{issueData?.severity}</span>
+              <div className="border rounded-md p-4 h-fit flex flex-col gap-3">
+                <div className="flex items-center gap-[20px]">
+                  <span className="text-gray-500 min-w-[70px] text-sm">Severity</span>
+                  <span className="text-sm">{issueData?.severity}</span>
                 </div>
-                {/* Priority */}
-                <div className="mt-3 flex items-center">
-                  <span className="font-semibold">Priority:</span>
-                  <span className="ml-2 flex items-center">
+                
+                <div className="flex items-center gap-[20px]">
+                  <span className="text-gray-500 min-w-[70px] text-sm">Priority</span>
+                  <span className="text-sm flex items-center">
                     {displayIcon(issueData?.priority as string)}
                     <span className="ml-1 font-medium">
                       {issueData?.priority}
@@ -242,17 +244,39 @@ const ViewIssue = () => {
                   </span>
                 </div>
 
-                {/* Status */}
-                <div className="mt-3">
-                  <span className=" font-semibold">Status:</span>
-                  <span className="ml-2">{statusBadge(issueData?.status)}</span>
+                <div className="flex items-center gap-[20px]">
+                  <span className="text-gray-500 min-w-[70px] text-sm">Status</span>
+                  <span className="text-sm">{statusBadge(issueData?.status)}</span>
                 </div>
 
+                <div className="flex items-center gap-[20px]">
+                  <span className="text-gray-500 min-w-[70px] text-sm">Assignee</span>
+                  <span className="text-sm flex items-center">
+                    <UserCircle2Icon className="text-gray-600 h-4 w-4 mr-1"/>
+                    {issueData?.assignedTo?._id ? (
+                      `${
+                        issueData?.assignedTo?.firstName ||
+                        NAME_NOT_SPECIFIED_ERROR_MESSAGE
+                      } ${issueData?.assignedTo?.lastName || ""}`
+                    ) : (
+                      <span className="text-gray-400">Unassigned</span>
+                    )}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-[20px]">
+                  <span className="text-gray-500 min-w-[70px] text-sm">Reporter</span>
+                  <span className="text-sm flex items-center">
+                    <UserCircle2Icon className="text-gray-600 h-4 w-4 mr-1"/>
+                    {`${issueData?.userId?.firstName} ${issueData?.userId?.lastName}`}
+                  </span>
+                </div>
               </div>
-              <div className="mt-2">
-                {issueData?.device &&
+
+              <div className="mt-3">
+                {issueData?.device && (
                   <ViewDevice devices={issueData?.device as IDevice[]} />
-                }
+                )}
               </div>
             </div>
           </div>
@@ -263,7 +287,6 @@ const ViewIssue = () => {
           <div className="grid grid-cols-1 sm:grid-cols-[2fr_1fr] gap-4">
             <div>
               <Skeleton className="h-64 mt-3 bg-gray-200 ml-4" />
-
             </div>
             <div className="flex flex-col gap-4">
               <Skeleton className="h-12 w-[300px] bg-gray-200 ml-4" />

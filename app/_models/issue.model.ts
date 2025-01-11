@@ -15,6 +15,7 @@ export interface IIssue extends Document {
     device: Types.ObjectId[];
     issueType: string;
     testCycle: Types.ObjectId;
+    assignedTo?: Types.ObjectId;
 }
 
 const IssueSchema = new Schema<IIssue>(
@@ -35,6 +36,7 @@ const IssueSchema = new Schema<IIssue>(
         ],
         issueType: { type: String, required: true },
         testCycle: { type: Schema.Types.ObjectId, ref: DBModels.TEST_CYCLE, required: true },
+        assignedTo: { type: Schema.Types.ObjectId, ref: DBModels.USER, default: null },
     },
     {
         timestamps: true

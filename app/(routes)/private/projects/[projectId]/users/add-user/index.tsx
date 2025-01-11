@@ -39,7 +39,7 @@ import { getUsersWithoutPaginationService } from "@/app/_services/user.service";
 import { IUserByAdmin } from "@/app/_interface/user";
 import { PROJECT_USER_ROLE_LIST } from "@/app/_constants/project-user-roles";
 import { addProjectUserService } from "@/app/_services/project.service";
-import { NAME_NOT_SPECIFIED_ERROR_MESSAGE } from "@/app/_constants/errors";
+import { getUsernameWithUserId } from "@/app/_utils/common";
 
 const projectSchema = z.object({
     userId: z.string().min(1, "User is required"),
@@ -104,8 +104,8 @@ export function AddProjectUser({ refreshProjectUsers }: { refreshProjectUsers: (
     }
 
     const getSelectedUser = (field: any) => {
-        const selectedUser = users?.find(user => user?.id === field.value)
-        return `${selectedUser?.customId} - ${selectedUser?.firstName || NAME_NOT_SPECIFIED_ERROR_MESSAGE } ${selectedUser?.lastName || ""}`
+        const selectedUser = users?.find(user => user?.id === field.value);
+        return getUsernameWithUserId(selectedUser)
     }
     
 
@@ -154,7 +154,7 @@ export function AddProjectUser({ refreshProjectUsers }: { refreshProjectUsers: (
                                                                     .filter(user => user.customId)
                                                                     .map(user => (
                                                                         <SelectItem key={user.id} value={user.id as string}>
-                                                                            {user?.customId} - {user?.firstName || NAME_NOT_SPECIFIED_ERROR_MESSAGE} {user?.lastName || ""}
+                                                                            {getUsernameWithUserId(user)}
                                                                         </SelectItem>
                                                                     ))
                                                             ) : (

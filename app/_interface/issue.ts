@@ -19,6 +19,7 @@ export interface IIssue {
   issueType?: string;
   testCycle: ITestCycle;
   attachments?: IIssueAttachment[];
+  assignedTo?: any;
 }
 
 export interface IIssueView {
@@ -36,10 +37,12 @@ export interface IIssueView {
   issueType?: string;
   testCycle: ITestCycle;
   attachments?: IIssueAttachment[];
+  assignedTo?: any;
 }
 
 export interface IIssuePayload {
   testCycle: string;
+  assignedTo?: string;
   title: string;
   severity: string;
   priority: string;

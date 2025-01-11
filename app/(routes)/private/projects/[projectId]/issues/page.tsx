@@ -27,7 +27,11 @@ import { IIssue, IIssueView } from "@/app/_interface/issue";
 import { AddIssue } from "./_components/add-issue";
 import { IssueRowActions } from "./_components/row-actions";
 import { useParams } from "next/navigation";
-import { displayIcon, ExportExcelFile, statusBadge } from "@/app/_utils/common-functionality";
+import {
+  displayIcon,
+  ExportExcelFile,
+  statusBadge,
+} from "@/app/_utils/common-functionality";
 import { ArrowUpDown } from "lucide-react";
 import ViewIssue from "./_components/view-issue";
 import { useSession } from "next-auth/react";
@@ -40,6 +44,7 @@ import { generateExcelFile } from "@/app/_helpers/generate-excel.helper";
 import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
 import ExpandableTable from "@/app/_components/expandable-table";
 import { checkProjectAdmin } from "@/app/_utils/common";
+import { NAME_NOT_SPECIFIED_ERROR_MESSAGE } from "@/app/_constants/errors";
 
 export default function Issues() {
   const [issues, setIssues] = useState<IIssueView[]>([]);
@@ -47,6 +52,15 @@ export default function Issues() {
   const [project, setProject] = useState<IProject>();
   const { projectId } = useParams<{ projectId: string }>();
   const checkProjectRole = checkProjectAdmin(project as IProject, userData);
+
+  const showIssueRowActions = (issue: IIssue) => {
+    return (
+      (checkProjectRole && project?.isActive) ||
+      (project?.isActive &&
+        issue.userId?._id?.toString() === userData?._id?.toString()) ||
+      userData?.role !== UserRoles.TESTER
+    );
+  };
 
   const columns: ColumnDef<IIssueView>[] = [
     {
@@ -65,13 +79,12 @@ export default function Issues() {
       },
       cell: ({ row }) => (
         <Link href={`/private/browse/${projectId}/issue/${row.original?.id}`}>
-          <div className="hover:text-primary text-primary cursor-pointer ml-4"
-          >
+          <div className="hover:text-primary text-primary cursor-pointer ml-4">
             {row.getValue("customId")}
-          </ div>
+          </div>
         </Link>
       ),
-      sortingFn: "alphanumeric"
+      sortingFn: "alphanumeric",
     },
     {
       accessorKey: "title",
@@ -80,12 +93,14 @@ export default function Issues() {
         const title = row.getValue("title");
         if (typeof title === "string") {
           return (
-            <Link href={`/private/browse/${projectId}/issue/${row.original?.id}`}>
-              <div className="capitalize hover:text-primary cursor-pointer" >
+            <Link
+              href={`/private/browse/${projectId}/issue/${row.original?.id}`}
+            >
+              <div className="capitalize hover:text-primary cursor-pointer">
                 {title.length > 30 ? `${title.substring(0, 30)}...` : title}
               </div>
             </Link>
-          )
+          );
         }
       },
     },
@@ -107,13 +122,11 @@ export default function Issues() {
             Priority
             <ArrowUpDown />
           </Button>
-        )
+        );
       },
       cell: ({ row }) => (
         <div className="capitalize flex items-center">
-          <span className="mr-1">
-            {displayIcon(row.getValue("priority"))}
-          </span>
+          <span className="mr-1">{displayIcon(row.getValue("priority"))}</span>
           {row.getValue("priority")}
         </div>
       ),
@@ -129,39 +142,59 @@ export default function Issues() {
         </div>
       ),
     },
-    ...(
-      issues.some((item) => item.userId?._id) ?
-        [{
-          accessorKey: "createdBy",
-          header: "created By",
-          cell: ({ row }: { row: any }) => (
-            <div className="" >
-              {`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}</div>
-          ),
-        }] : []
-    ),
+    ...(issues.some((item) => item.userId?._id)
+      ? [
+          {
+            accessorKey: "createdBy",
+            header: "Reporter",
+            cell: ({ row }: { row: any }) => (
+              <div className="">
+                {`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}
+              </div>
+            ),
+          },
+        ]
+      : []),
+    ...(issues.some((item) => item.assignedTo?._id)
+      ? [
+          {
+            accessorKey: "assignedTo",
+            header: "Assignee",
+            cell: ({ row }: { row: any }) => (
+              <div>
+                {row.original?.assignedTo?._id ? (
+                  `${
+                    row.original?.assignedTo?.firstName ||
+                    NAME_NOT_SPECIFIED_ERROR_MESSAGE
+                  } ${row.original?.assignedTo?.lastName || ""}`
+                ) : (
+                  <span className="text-gray-400">Unassigned</span>
+                )}
+              </div>
+            ),
+          },
+        ]
+      : []),
     {
       accessorKey: "status",
-      header: ({ column }) => (
-        <div className="ml-1">Status</div>
-      ),
+      header: ({ column }) => <div className="ml-1">Status</div>,
       cell: ({ row }) => (
-        <div className="capitalize max-w-[200px] truncate">{statusBadge(row.getValue("status"))}</div>
+        <div className="capitalize max-w-[200px] truncate">
+          {statusBadge(row.getValue("status"))}
+        </div>
       ),
     },
-    ...(
-      (checkProjectRole && project?.isActive) ||
-      (project?.isActive && issues.some((issue: IIssueView) => issue.userId?._id?.toString() === userData?._id?.toString())) ||
-      userData?.role !== UserRoles.TESTER
-    ) ? [
-      {
-        id: "actions",
-        enableHiding: false,
-        cell: ({ row }: { row: any }) => (
-          <IssueRowActions row={row} refreshIssues={refreshIssues} />
-        ),
-      },
-    ] : [],
+    {
+      id: "actions",
+      enableHiding: false,
+      cell: ({ row }: { row: any }) => (
+        <>
+          {showIssueRowActions(row.original) ? (
+            <IssueRowActions row={row} refreshIssues={refreshIssues} />
+          ) : null}
+        </>
+      ),
+    },
   ];
 
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -193,7 +226,7 @@ export default function Issues() {
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
     getIssues();
@@ -251,31 +284,66 @@ export default function Issues() {
   };
 
   const generateExcel = () => {
-    const header = userData.role === UserRoles.ADMIN ?
-      ["ID", "Title", "Severity", "Priority", "issueType", "testCycle", "Device Name", "Created By", "Status", "Attachments"] :
-      ["ID", "Title", "Severity", "Priority", "issueType", "testCycle", "Device Name", "Status", "Attachments"];
-    const data = table.getRowModel().rows?.map((row) => [
-      row.original.customId,
-      row.original.title,
-      row.original.severity,
-      row.original.priority,
-      row.original.issueType,
-      row.original.testCycle?.title || "",
-      row.original.device?.[0]?.name || "",
-      userData?.role === UserRoles.ADMIN
-        ? `${row.original.userId?.firstName} ${row.original.userId?.lastName}` || ""
-        : row.original.status,
-      userData?.role === UserRoles.ADMIN
-        ? row.original.status || "" :
-        row.original.attachments && row.original?.attachments?.length > 0 ?
-          process.env.NEXT_PUBLIC_URL + `/download/${projectId}/issue?issue=` + row.original.id : "",
-      userData?.role === UserRoles.ADMIN
-        ? row.original.attachments && row.original?.attachments?.length > 0 ?
-          process.env.NEXT_PUBLIC_URL + `/download/${projectId}/issue?issue=` + row.original.id : ""
-        : "",
-    ]);
-    generateExcelFile(header, data, `Issues-${issues[0]?.projectId?.title}.xlsx`);
-  }
+    const header =
+      userData.role === UserRoles.ADMIN
+        ? [
+            "ID",
+            "Title",
+            "Severity",
+            "Priority",
+            "issueType",
+            "testCycle",
+            "Device Name",
+            "Created By",
+            "Status",
+            "Attachments",
+          ]
+        : [
+            "ID",
+            "Title",
+            "Severity",
+            "Priority",
+            "issueType",
+            "testCycle",
+            "Device Name",
+            "Status",
+            "Attachments",
+          ];
+    const data = table
+      .getRowModel()
+      .rows?.map((row) => [
+        row.original.customId,
+        row.original.title,
+        row.original.severity,
+        row.original.priority,
+        row.original.issueType,
+        row.original.testCycle?.title || "",
+        row.original.device?.[0]?.name || "",
+        userData?.role === UserRoles.ADMIN
+          ? `${row.original.userId?.firstName} ${row.original.userId?.lastName}` ||
+            ""
+          : row.original.status,
+        userData?.role === UserRoles.ADMIN
+          ? row.original.status || ""
+          : row.original.attachments && row.original?.attachments?.length > 0
+          ? process.env.NEXT_PUBLIC_URL +
+            `/download/${projectId}/issue?issue=` +
+            row.original.id
+          : "",
+        userData?.role === UserRoles.ADMIN
+          ? row.original.attachments && row.original?.attachments?.length > 0
+            ? process.env.NEXT_PUBLIC_URL +
+              `/download/${projectId}/issue?issue=` +
+              row.original.id
+            : ""
+          : "",
+      ]);
+    generateExcelFile(
+      header,
+      data,
+      `Issues-${issues[0]?.projectId?.title}.xlsx`
+    );
+  };
   const hasData = table.getRowModel().rows?.length > 0;
 
   return (
@@ -288,7 +356,8 @@ export default function Issues() {
       <div className="">
         <h2 className="text-medium">Issues</h2>
         <span className="text-xs text-gray-600">
-          Problems or defects discovered during testing that need resolution before the product is finalized.
+          Problems or defects discovered during testing that need resolution
+          before the product is finalized.
         </span>
       </div>
       <div className="w-full">
@@ -302,14 +371,13 @@ export default function Issues() {
             className="max-w-sm"
           />
           <div className="flex gap-2 ml-2">
-            <div>
-              {ExportExcelFile(generateExcel, hasData)}
-            </div>
-            {
-              (userData?.role !== UserRoles.CLIENT &&
-                (project?.isActive === true || userData?.role === UserRoles.ADMIN || userData?.role === UserRoles.TESTER)) &&
-              <AddIssue refreshIssues={refreshIssues} />
-            }
+            <div>{ExportExcelFile(generateExcel, hasData)}</div>
+            {userData?.role !== UserRoles.CLIENT &&
+              (project?.isActive === true ||
+                userData?.role === UserRoles.ADMIN ||
+                userData?.role === UserRoles.TESTER) && (
+                <AddIssue refreshIssues={refreshIssues} />
+              )}
           </div>
         </div>
         <div className="rounded-md border">
@@ -323,9 +391,9 @@ export default function Issues() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}

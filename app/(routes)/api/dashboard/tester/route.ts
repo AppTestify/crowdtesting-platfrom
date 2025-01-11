@@ -5,13 +5,9 @@ import {
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import {
   IssueStatus,
-  IssueType,
-  Priority,
   Severity,
 } from "@/app/_constants/issue";
 import { connectDatabase } from "@/app/_db";
-import { IIssue } from "@/app/_interface/issue";
-import { IProject } from "@/app/_interface/project";
 import { verifySession } from "@/app/_lib/dal";
 import { Issue } from "@/app/_models/issue.model";
 import { Project } from "@/app/_models/project.model";

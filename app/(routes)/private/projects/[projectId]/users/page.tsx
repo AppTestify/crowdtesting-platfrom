@@ -30,27 +30,18 @@ import { IProjectUserDisplay } from "@/app/_interface/project";
 import { statusBadgeProjectUserRole } from "@/app/_utils/common-functionality";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
-import { NAME_NOT_SPECIFIED_ERROR_MESSAGE } from "@/app/_constants/errors";
+import { getUsernameWithUserId } from "@/app/_utils/common";
 
 export default function ProjectUsers() {
     const [userData, setUserData] = useState<any>();
 
     const columns: ColumnDef<IProjectUserDisplay>[] = [
         {
-            accessorKey: "customId",
-            header: "ID",
-            cell: ({ row }) => (
-                <div className="capitalize">
-                    {`${row.original?.customId}`}
-                </div>
-            ),
-        },
-        {
             accessorKey: "userName",
             header: "Name",
             cell: ({ row }) => (
                 <div className="capitalize">
-                    {`${row.original?.userId?.firstName || NAME_NOT_SPECIFIED_ERROR_MESSAGE} ${row.original?.userId?.lastName || ""}`}
+                    {getUsernameWithUserId(row.original)}
                 </div>
             ),
         },

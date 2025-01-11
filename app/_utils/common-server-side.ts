@@ -1,8 +1,6 @@
 import "server-only";
 import { Delimeters } from "../_constants/delimeter";
 import moment from "moment";
-import { promisify } from "util";
-import { IIssue } from "../_models/issue.model";
 import AttachmentService from "../_helpers/attachment.helper";
 import { Tester } from "../_models/tester.model";
 import { replaceCustomId } from "./data-formatters";
