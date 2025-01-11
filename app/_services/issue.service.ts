@@ -50,6 +50,7 @@ export const addIssueService = async (
     formData.append("description", body?.description || "");
     formData.append("status", body?.status || "");
     formData.append("projectId", body?.projectId || "");
+    formData.append("assignedTo", body?.assignedTo || "");
     if (body?.device && Array.isArray(body.device)) {
       body.device.forEach((device) => {
         formData.append("device[]", device);
