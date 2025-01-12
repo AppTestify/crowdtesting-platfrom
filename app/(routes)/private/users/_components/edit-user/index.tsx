@@ -74,6 +74,7 @@ const EditUser = ({
             const response = await updateUserService(userId, {
                 ...values,
                 email: email || "",
+                isVerified: false
             });
             if (response) {
                 refreshUsers();
