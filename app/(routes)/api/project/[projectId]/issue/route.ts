@@ -11,7 +11,6 @@ import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { IssueStatus } from "@/app/_constants/issue";
 import { connectDatabase } from "@/app/_db";
 import AttachmentService from "@/app/_helpers/attachment.helper";
-import { IIssueAttachment } from "@/app/_interface/issue";
 import { isAdmin, isClient, verifySession } from "@/app/_lib/dal";
 import { IdFormat } from "@/app/_models/id-format.model";
 import { IssueAttachment } from "@/app/_models/issue-attachment.model";
@@ -61,6 +60,7 @@ export async function POST(
       device: body.getAll("device[]"),
       issueType: body.get("issueType"),
       testCycle: body.get("testCycle"),
+      assignedTo: body.get("assignedTo") || null,
     };
     const response = issueSchema.safeParse(formData);
 
@@ -197,40 +197,50 @@ export async function GET(
       projectId: projectId,
     }).countDocuments();
 
+    let query = Issue.find({ projectId })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(Number(limit));
+
     if (await isAdmin(session.user)) {
       response = addCustomIds(
-        await Issue.find({ projectId: projectId })
-          .populate("userId projectId")
+        await query
+          .populate("userId attachments projectId")
+          .populate({ path: "assignedTo", strictPopulate: false })
           .populate({ path: "testCycle", strictPopulate: false })
-          .sort({ createdAt: -1 })
-          .skip(skip)
-          .limit(Number(limit))
           .populate("device")
           .lean(),
         customIDFormat.idFormat
       );
     } else if (await isClient(session.user)) {
       response = addCustomIds(
-        await Issue.find({
-          projectId: projectId,
-          status: { $nin: IssueStatus.NEW },
-        })
-          .sort({ createdAt: -1 })
-          .skip(skip)
-          .limit(Number(limit))
-          .populate("device projectId")
+        await query
+          .find({ status: { $nin: IssueStatus.NEW } })
+          .populate({
+            path: "userId",
+            select: "firstName lastName _id",
+          })
+          .populate({
+            path: "assignedTo",
+            select: "firstName lastName _id",
+            strictPopulate: false
+          })
+          .populate("device attachments projectId")
           .populate({ path: "testCycle", strictPopulate: false })
           .lean(),
         customIDFormat.idFormat
       );
     } else {
       response = addCustomIds(
-        await Issue.find({ projectId: projectId })
-          .sort({ createdAt: -1 })
-          .skip(skip)
-          .limit(Number(limit))
-          .populate("device projectId")
+        await query
+          .populate("userId attachments projectId")
+          .populate({
+            path: "assignedTo",
+            select: "firstName lastName _id",
+            strictPopulate: false
+          })
           .populate({ path: "testCycle", strictPopulate: false })
+          .populate("device")
           .lean(),
         customIDFormat.idFormat
       );

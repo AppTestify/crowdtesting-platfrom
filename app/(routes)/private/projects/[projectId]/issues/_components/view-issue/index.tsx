@@ -76,22 +76,22 @@ const ViewIssue = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8 mb-4 text-sm ">
                 {/* Severity */}
                 <div className="flex items-center">
-                  <span className=" font-medium">Severity:</span>
+                  <span className="">Severity:</span>
                   <span className="ml-2">{issue?.severity}</span>
                 </div>
 
                 {/* Priority */}
                 <div className="flex items-center">
-                  <span className=" font-medium">Priority:</span>
+                  <span className="">Priority:</span>
                   <span className="ml-2 flex items-center">
                     {displayIcon(issue?.priority)}
-                    <span className="ml-1 font-medium">{issue?.priority}</span>
+                    <span className="ml-1">{issue?.priority}</span>
                   </span>
                 </div>
 
                 {/* Status */}
                 <div className="flex items-center">
-                  <span className=" font-medium">Status:</span>
+                  <span className="">Status:</span>
                   <span className="ml-2">{statusBadge(issue?.status)}</span>
                 </div>
 

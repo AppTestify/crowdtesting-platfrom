@@ -18,11 +18,8 @@ export const LINKED_EXPIRED_ACCOUNT_VERIFICATION_ERROR_MESSAGE =
 export const USER_INACTIVE_ERROR_MESSAGE =
   "Your account has been not activated";
 export const EMAIL_NOT_FOUND_ERROR = "Email not found";
-export const TOKEN_EXPIRED_MESSAGE =
-  "Your link has expired. Please request a new one.";
-export const FILE_UPLOAD_ERROR_MESSAGE =
-  "Something went wrong while uploading file";
-export const FILE_DELETE_ERROR_MESSAGE =
-  "Something went wrong while deleting file";
-export const FILE_DOWNLOAD_ERROR_MESSAGE =
-  "Something went wrong while downloading file";
+export const TOKEN_EXPIRED_MESSAGE = "Your link has expired. Please request a new one.";
+export const FILE_UPLOAD_ERROR_MESSAGE = "Something went wrong while uploading file";
+export const FILE_DELETE_ERROR_MESSAGE = "Something went wrong while deleting file";
+export const FILE_DOWNLOAD_ERROR_MESSAGE = "Something went wrong while downloading file";
+export const NAME_NOT_SPECIFIED_ERROR_MESSAGE = "Name not specified yet";
