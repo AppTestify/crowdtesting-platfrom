@@ -41,36 +41,51 @@ import {
   IssueStatus,
   PROJECT_ADMIN_ISSUE_STATUS_LIST,
 } from "@/app/_constants/issue";
-import { getIssueService, updateIssueService } from "@/app/_services/issue.service";
+import {
+  getIssueService,
+  updateIssueService,
+} from "@/app/_services/issue.service";
 import IssueAttachments from "../attachments/issue-attachment";
 import { displayIcon } from "@/app/_utils/common-functionality";
 import TextEditor from "@/app/(routes)/private/projects/_components/text-editor";
 import { addIssueAttachmentsService } from "@/app/_services/issue-attachment.service";
-import { getDevicesWithoutPaginationService } from "@/app/_services/device.service";
+import {
+  getDevicesWithoutPaginationByIdsService,
+  getDevicesWithoutPaginationService,
+} from "@/app/_services/device.service";
 import { IDevice } from "@/app/_interface/device";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
 import { ITestCycle } from "@/app/_interface/test-cycle";
-import { getSingleCycleService, getTestCycleWithoutPaginationService } from "@/app/_services/test-cycle.service";
-import { IProject } from "@/app/_interface/project";
-import { getProjectService } from "@/app/_services/project.service";
-import { checkProjectAdmin } from "@/app/_utils/common";
+import {
+  getSingleCycleService,
+  getTestCycleWithoutPaginationService,
+} from "@/app/_services/test-cycle.service";
+import { IProject, IProjectUserDisplay } from "@/app/_interface/project";
+import {
+  getProjectService,
+  getProjectUsersService,
+} from "@/app/_services/project.service";
+import { checkProjectAdmin, getUsernameWithUserId } from "@/app/_utils/common";
 import { useParams } from "next/navigation";
+import { Label } from "@/components/ui/label";
+import { MultiSelect } from "@/components/ui/multi-select";
+import { ProjectUserRoles } from "@/app/_constants/project-user-roles";
 
 const issueSchema = z.object({
   title: z.string().min(1, "Required"),
   severity: z.string().min(1, "Required"),
   priority: z.string().min(1, "Required"),
-  description: z.string()
+  description: z
+    .string()
     .min(10, "The description must be at least 10 characters long.")
     .nonempty("Required."),
   status: z.string().optional(),
   projectId: z.string().optional(),
-  device: z
-    .array(z.string())
-    .min(1, "Required"),
-  issueType: z.string().min(1, 'Required'),
-  testCycle: z.string().min(1, "Required")
+  device: z.array(z.string()),
+  issueType: z.string().min(1, "Required"),
+  testCycle: z.string().min(1, "Required"),
+  assignedTo: z.string().optional(),
 });
 
 const EditIssue = ({
@@ -85,20 +100,49 @@ const EditIssue = ({
   refreshIssues: () => void;
 }) => {
   const issueId = issue?.id as string;
-  const { status, device } = issue;
+  const { device } = issue;
   const { projectId } = useParams<{ projectId: string }>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [attachments, setAttachments] = useState<any>();
   const [devices, setDevices] = useState<IDevice[]>([]);
   const [userData, setUserData] = useState<any>();
-  const [previousDeviceId, setPreviousDeviceId] = useState<string>("");
   const { data } = useSession();
-  const deviceName = device?.map(d => d.name) || [];
+  const deviceName = device?.map((d) => d._id) || [];
   const [testCycles, setTestCycles] = useState<ITestCycle[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [testCycle, setTestCycle] = useState<ITestCycle | null>(null);
   const [project, setProject] = useState<IProject>();
   const checkProjectRole = checkProjectAdmin(project as IProject, userData);
+  const [selectedDevices, setSelectedDevices] = useState<string[]>([]);
+  const [isInvalidDevices, setIsInvalidDevices] = useState<boolean>(false);
+  const [users, setUsers] = useState<IProjectUserDisplay[]>([]);
+  const [userProjectRole, setUserProjectRole] =
+    useState<ProjectUserRoles | null>(null);
+
+  useEffect(() => {
+    if (data && users?.length) {
+      const { user } = data;
+      const userObj: any = { ...user };
+      if (userObj.role === UserRoles.ADMIN) {
+        setUserProjectRole(ProjectUserRoles.ADMIN);
+      } else if (userObj.role === UserRoles.CLIENT) {
+        setUserProjectRole(ProjectUserRoles.CLIENT);
+      } else {
+        setUserProjectRole(
+          (users.find((userEl) => userEl.userId?._id === userObj._id)
+            ?.role as ProjectUserRoles) || ProjectUserRoles.TESTER
+        );
+      }
+    }
+  }, [data, users]);
+
+  useEffect(() => {
+    const initialSelectedDevices = device.map((deviceItem: any) =>
+      deviceItem._id ? deviceItem._id : deviceItem?.name
+    );
+
+    setSelectedDevices(initialSelectedDevices);
+  }, [device]);
 
   const form = useForm<z.infer<typeof issueSchema>>({
     resolver: zodResolver(issueSchema),
@@ -110,8 +154,9 @@ const EditIssue = ({
       status: "",
       projectId: "",
       device: [],
-      issueType: '',
-      testCycle: ''
+      issueType: "",
+      testCycle: "",
+      assignedTo: "",
     },
   });
 
@@ -119,8 +164,6 @@ const EditIssue = ({
 
   useEffect(() => {
     if (issue && !hasReset.current) {
-      const deviceId = issue.device?.length > 0 ? issue.device[0]._id : null;
-      setPreviousDeviceId(deviceId as string)
       form.reset({
         title: issue.title || "",
         severity: issue.severity || "",
@@ -130,7 +173,8 @@ const EditIssue = ({
         projectId: projectId || "",
         device: deviceName,
         issueType: issue.issueType || "",
-        testCycle: issue.testCycle?._id as string || ""
+        testCycle: (issue.testCycle?._id as string) || "",
+        assignedTo: (issue.assignedTo?._id as string) || "",
       });
       hasReset.current = true;
     }
@@ -139,14 +183,14 @@ const EditIssue = ({
   async function onSubmit(values: z.infer<typeof issueSchema>) {
     setIsLoading(true);
     try {
-      const isSameDevice = values.device?.[0] === deviceName?.[0];
       const response = await updateIssueService(projectId as string, issueId, {
         ...values,
-        device: isSameDevice ? [previousDeviceId] : values?.device || [],
+        device: selectedDevices,
       });
       if (response) {
         await uploadAttachment();
         refreshIssues();
+        resetForm();
         toasterService.success(response?.message);
       }
     } catch (error) {
@@ -160,7 +204,9 @@ const EditIssue = ({
   const uploadAttachment = async () => {
     setIsLoading(true);
     try {
-      await addIssueAttachmentsService(projectId as string, issueId, { attachments });
+      await addIssueAttachmentsService(projectId as string, issueId, {
+        attachments,
+      });
     } catch (error) {
       toasterService.error();
     } finally {
@@ -169,10 +215,13 @@ const EditIssue = ({
   };
 
   const validateIssue = async () => {
-    if (form.formState.isValid) {
+    if (!selectedDevices.length) {
+      setIsInvalidDevices(true);
+    }
+
+    if (!isInvalidDevices && form.formState.isValid) {
       form.handleSubmit(onSubmit)();
       const values = form.getValues();
-      // await uploadAttachment();
       await onSubmit(values);
     }
   };
@@ -182,8 +231,9 @@ const EditIssue = ({
   };
 
   const getDevices = async () => {
-
-    const devices = await getDevicesWithoutPaginationService();
+    const devices = await getDevicesWithoutPaginationByIdsService({
+      ids: device?.map((d) => d._id) as string[],
+    });
     setDevices(devices);
   };
 
@@ -199,7 +249,7 @@ const EditIssue = ({
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   const getProject = async () => {
     setLoading(true);
@@ -211,7 +261,24 @@ const EditIssue = ({
     } finally {
       setLoading(false);
     }
-  }
+  };
+
+  const resetForm = () => {
+    form.reset();
+    setIsInvalidDevices(false);
+    setSelectedDevices([]);
+  };
+
+  const getProjectUsers = async () => {
+    try {
+      const projectUsers = await getProjectUsersService(projectId);
+      if (projectUsers?.users?.length) {
+        setUsers(projectUsers.users);
+      }
+    } catch (error) {
+      toasterService.error();
+    }
+  };
 
   useEffect(() => {
     if (sheetOpen) {
@@ -221,12 +288,19 @@ const EditIssue = ({
       getTestCycle();
       getProject();
       setAttachments([]);
+      getProjectUsers();
       if (data) {
         const { user } = data;
         setUserData(user);
       }
     }
   }, [sheetOpen]);
+
+  useEffect(() => {
+    if (selectedDevices.length) {
+      setIsInvalidDevices(false);
+    }
+  }, [selectedDevices]);
 
   const handleSheetClose = () => {
     refreshIssues();
@@ -244,12 +318,15 @@ const EditIssue = ({
 
   const getSingleTestCycle = async () => {
     try {
-      const response = await getSingleCycleService(projectId, form.watch('testCycle'));
+      const response = await getSingleCycleService(
+        projectId,
+        form.watch("testCycle")
+      );
       setTestCycle(response);
     } catch (error) {
       toasterService.error();
     }
-  }
+  };
 
   useEffect(() => {
     if (data) {
@@ -258,15 +335,21 @@ const EditIssue = ({
     }
   }, [data]);
 
+  const getSelectedUser = (field: any) => {
+    const selectedUser = users?.find(
+      (user) => user?.userId?._id === field.value
+    );
+    return getUsernameWithUserId(selectedUser);
+  };
+
   return (
     <Sheet open={sheetOpen} onOpenChange={handleOpenChange}>
-      <SheetContent
-        className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto"
-      >
+      <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto">
         <SheetHeader>
           <SheetTitle className="text-left">Edit Issue</SheetTitle>
           <SheetDescription className="text-left">
-            Problems or defects discovered during testing that need resolution before the product is finalized.
+            Problems or defects discovered during testing that need resolution
+            before the product is finalized.
           </SheetDescription>
         </SheetHeader>
 
@@ -335,7 +418,9 @@ const EditIssue = ({
                             {PRIORITY_LIST.map((priority) => (
                               <SelectItem value={priority}>
                                 <div className="flex items-center">
-                                  <span className="mr-1">{displayIcon(priority)}</span>
+                                  <span className="mr-1">
+                                    {displayIcon(priority)}
+                                  </span>
                                   {priority}
                                 </div>
                               </SelectItem>
@@ -348,7 +433,7 @@ const EditIssue = ({
                   )}
                 />
               </div>
-              <div className="w-full grid grid-cols-2 gap-2 mt-3">
+              <div className="w-full grid grid-cols-1 gap-2 mt-3">
                 <FormField
                   control={form.control}
                   name="status"
@@ -360,7 +445,8 @@ const EditIssue = ({
                         disabled={
                           userData?.role === UserRoles.TESTER &&
                           !checkProjectRole &&
-                          form.watch("status") !== IssueStatus.READY_FOR_RETEST &&
+                          form.watch("status") !==
+                            IssueStatus.READY_FOR_RETEST &&
                           !ISSUE_TESTER_STATUS_LIST.includes(field.value as any)
                         }
                         value={field.value}
@@ -369,7 +455,8 @@ const EditIssue = ({
                           <SelectValue>{field.value || ""}</SelectValue>
                         </SelectTrigger>
                         <SelectContent>
-                          {userData?.role === UserRoles.TESTER && !checkProjectRole ?
+                          {userData?.role === UserRoles.TESTER &&
+                          !checkProjectRole ? (
                             <SelectGroup>
                               {ISSUE_TESTER_STATUS_LIST.map((status) => (
                                 <SelectItem value={status} key={status}>
@@ -377,70 +464,66 @@ const EditIssue = ({
                                 </SelectItem>
                               ))}
                             </SelectGroup>
-                            : userData?.role === UserRoles.TESTER && checkProjectRole ?
-                              <SelectGroup>
-                                {PROJECT_ADMIN_ISSUE_STATUS_LIST.map((status) => (
-                                  <SelectItem value={status} key={status}>
-                                    {status}
-                                  </SelectItem>
-                                ))}
-                              </SelectGroup>
-                              : <SelectGroup>
-                                {ISSUE_STATUS_LIST.map((status) => (
-                                  <SelectItem value={status}>
-                                    {status}
-                                  </SelectItem>
-                                ))}
-                              </SelectGroup>
-                          }
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="device"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>Device</FormLabel>
-                      <Select
-                        onValueChange={(value) => {
-                          if (value) {
-                            field.onChange([value]);
-                          }
-                        }}
-                        value={field.value?.[0] || (devices.length > 0 ? devices[0]._id : "")}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue>
-                            {
-                              field.value && field.value.length > 0
-                                ? devices.find((device) => device.id === field.value[0])?.name || field.value
-                                : (status || " ")
-                            }
-                          </SelectValue>
-                        </SelectTrigger>
-                        <SelectContent>
-                          {devices.length > 0 ?
+                          ) : userData?.role === UserRoles.TESTER &&
+                            checkProjectRole ? (
                             <SelectGroup>
-                              {devices.map((device) => (
-                                <SelectItem key={device.id} value={device.id}>
-                                  <div className="flex items-center">
-                                    {device?.name}
-                                  </div>
+                              {PROJECT_ADMIN_ISSUE_STATUS_LIST.map((status) => (
+                                <SelectItem value={status} key={status}>
+                                  {status}
                                 </SelectItem>
                               ))}
                             </SelectGroup>
-                            : <div className="text-center">Loading</div>}
+                          ) : userData?.role === UserRoles.CLIENT ? (
+                            <SelectGroup>
+                              {ISSUE_STATUS_LIST.filter(
+                                (status) => status !== IssueStatus.NEW
+                              ).map((status) => (
+                                <SelectItem value={status} key={status}>
+                                  {status}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          ) : (
+                            <SelectGroup>
+                              {ISSUE_STATUS_LIST.map((status) => (
+                                <SelectItem value={status}>{status}</SelectItem>
+                              ))}
+                            </SelectGroup>
+                          )}
                         </SelectContent>
                       </Select>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+              </div>
+
+              <div className="w-full grid grid-cols-1 gap-2 mt-3">
+                <Label className={isInvalidDevices ? "text-destructive" : ""}>
+                  Devices
+                </Label>
+                <MultiSelect
+                  options={devices?.map((device) => ({
+                    label:
+                      typeof device?.name === "string"
+                        ? `${device?.name} / ${device?.os} / ${device?.network}`
+                        : "",
+                    value: typeof device?.id === "string" ? device.id : "",
+                  }))}
+                  onValueChange={setSelectedDevices}
+                  defaultValue={selectedDevices}
+                  placeholder=""
+                  disabled={devices?.length === 0}
+                  variant="secondary"
+                  animation={2}
+                  maxCount={2}
+                  className="mt-2"
+                />
+                {isInvalidDevices ? (
+                  <FormMessage className="mt-2">
+                    Please select at least one devices
+                  </FormMessage>
+                ) : null}
               </div>
 
               <div className="w-full grid grid-cols-2 gap-2 mt-3">
@@ -486,10 +569,13 @@ const EditIssue = ({
                       >
                         <SelectTrigger className="w-full">
                           <SelectValue>
-                            {
-                              testCycles.find((cycle) => cycle._id === field.value)
-                                ? testCycles.find((cycle) => cycle._id === field.value)?.title
-                                : testCycle?.title}
+                            {testCycles.find(
+                              (cycle) => cycle._id === field.value
+                            )
+                              ? testCycles.find(
+                                  (cycle) => cycle._id === field.value
+                                )?.title
+                              : testCycle?.title}
                           </SelectValue>
                         </SelectTrigger>
                         <SelectContent>
@@ -499,10 +585,15 @@ const EditIssue = ({
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                               </div>
                             ) : testCycles.length === 0 ? (
-                              <div className="text-center text-gray-500">No test cycles found</div>
+                              <div className="text-center text-gray-500">
+                                No test cycles found
+                              </div>
                             ) : (
                               testCycles.map((testCycle) => (
-                                <SelectItem key={testCycle._id} value={testCycle._id as string}>
+                                <SelectItem
+                                  key={testCycle._id}
+                                  value={testCycle._id as string}
+                                >
                                   {testCycle.title}
                                 </SelectItem>
                               ))
@@ -515,6 +606,48 @@ const EditIssue = ({
                   )}
                 />
               </div>
+
+              {userProjectRole === ProjectUserRoles.ADMIN ||
+              userProjectRole === ProjectUserRoles.CLIENT ? (
+                <div className="grid grid-cols-1 gap-2 mt-4">
+                  <FormField
+                    control={form.control}
+                    name="assignedTo"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Assignee</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue>{getSelectedUser(field)}</SelectValue>
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              {users.length > 0 ? (
+                                users.map((user) => (
+                                  <SelectItem
+                                    key={user._id}
+                                    value={user?.userId?._id as string}
+                                  >
+                                    {getUsernameWithUserId(user)}
+                                  </SelectItem>
+                                ))
+                              ) : (
+                                <div className="p-1 text-center text-gray-500">
+                                  Users not found
+                                </div>
+                              )}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              ) : null}
 
               <div className="grid grid-cols-1 gap-2 mt-4">
                 <FormField
@@ -537,8 +670,12 @@ const EditIssue = ({
                   )}
                 />
               </div>
-              <IssueAttachments issueId={issueId} isUpdate={true} isView={false}
-                setAttachmentsData={setAttachments} />
+              <IssueAttachments
+                issueId={issueId}
+                isUpdate={true}
+                isView={false}
+                setAttachmentsData={setAttachments}
+              />
 
               <div className="mt-6 w-full flex justify-end gap-2">
                 <SheetClose asChild>
@@ -569,7 +706,7 @@ const EditIssue = ({
           </Form>
         </div>
       </SheetContent>
-    </Sheet >
+    </Sheet>
   );
 };
 

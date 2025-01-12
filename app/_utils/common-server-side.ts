@@ -1,9 +1,9 @@
 import "server-only";
 import { Delimeters } from "../_constants/delimeter";
 import moment from "moment";
-import { promisify } from "util";
-import { IIssue } from "../_models/issue.model";
 import AttachmentService from "../_helpers/attachment.helper";
+import { Tester } from "../_models/tester.model";
+import { replaceCustomId } from "./data-formatters";
 
 export const encodeToBase64 = (text: any) => {
   const buffer = Buffer.from(text, "utf8");
@@ -101,3 +101,23 @@ export const getAllAttachments = async (issue: any) => {
     throw new Error("Failed to get or create folder");
   }
 };
+
+
+export const usersWithCustomIds = async (response: any, userIdFormat: any) => {
+  if (!response?.users?.length) return [];
+
+  const userIds = response.users.map((user: any) => user.userId?._id.toString()).filter(Boolean);
+  const testers = await Tester.find({ user: { $in: userIds } }).lean();
+  const testersMap = new Map(testers.map((tester) => [tester.user.toString(), tester]));
+
+  return response.users.map((user: any) => {
+    const customIdTransformed = replaceCustomId(userIdFormat.idFormat, user.customId || 0);
+    const tester = testersMap.get(user.userId?._id?.toString() || "");
+    return {
+      ...user,
+      customId: customIdTransformed,
+      tester: tester || null,
+    };
+  });
+};
+

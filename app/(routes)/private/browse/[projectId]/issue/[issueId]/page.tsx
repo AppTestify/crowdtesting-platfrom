@@ -14,18 +14,14 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { ChevronRight, Edit, SendHorizontal } from "lucide-react";
+import { ChevronRight, Edit, SendHorizontal, UserCircle, UserCircle2Icon, UserIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
-import {
-  addCommentService,
-  getCommentsService,
-} from "@/app/_services/comment.service";
+import { addCommentService } from "@/app/_services/comment.service";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { IComment } from "@/app/_interface/comment";
 import MediaRenderer from "@/app/_components/media-renderer";
 import { getIssueAttachmentsService } from "@/app/_services/issue-attachment.service";
 import EditIssue from "@/app/(routes)/private/projects/[projectId]/issues/_components/edit-issue";
@@ -33,11 +29,9 @@ import { getProjectService } from "@/app/_services/project.service";
 import { IProject } from "@/app/_interface/project";
 import { UserRoles } from "@/app/_constants/user-roles";
 import { checkProjectAdmin } from "@/app/_utils/common";
-import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getAvatarFallbackText, getFormattedBase64ForSrc } from "@/app/_utils/string-formatters";
-import { Input } from "@/components/ui/input";
-import { formatDistanceToNow } from "date-fns";
+import ViewDevice from "./_components/view-device";
+import { IDevice } from "@/app/_interface/device";
+import { NAME_NOT_SPECIFIED_ERROR_MESSAGE } from "@/app/_constants/errors";
 
 const commentSchema = z.object({
   entityId: z.string().min(1, "Required"),
@@ -46,14 +40,16 @@ const commentSchema = z.object({
 
 const ViewIssue = () => {
   const [isViewLoading, setIsViewLoading] = useState<boolean>(false);
-  const [isAttachmentLoading, setIsAttachmentLoading] = useState<boolean>(false);
-  const [issueData, setIssueData] = useState<IIssue>();
+  const [isAttachmentLoading, setIsAttachmentLoading] =
+    useState<boolean>(false);
+  const [issueData, setIssueData] = useState<IIssue | null>();
   const { issueId } = useParams<{ issueId: string }>();
   const { projectId } = useParams<{ projectId: string }>();
   const { data } = useSession();
   const [user, setUser] = useState<any | null>();
-  const [comments, setComments] = useState<IComment[]>([]);
-  const [issueAttachments, setIssueAttachments] = useState<IIssueAttachment[]>([]);
+  const [issueAttachments, setIssueAttachments] = useState<IIssueAttachment[]>(
+    []
+  );
   const [isEditStatusOpen, setIsEditStatusOpen] = useState(false);
   const [project, setProject] = useState<IProject>();
   const [userData, setUserData] = useState<any>();
@@ -99,12 +95,13 @@ const ViewIssue = () => {
 
   const refreshAttachments = async () => {
     await getIssueAttachments();
-  }
+  };
 
   const refreshIssues = async () => {
+    setIssueData(null)
     await getIssueById();
     await getIssueAttachments();
-  }
+  };
 
   async function onSubmit(values: z.infer<typeof commentSchema>) {
     try {
@@ -117,15 +114,6 @@ const ViewIssue = () => {
       toasterService.error();
     }
   }
-
-  // const getComments = async () => {
-  //   try {
-  //     const response = await getCommentsService(projectId, issueId);
-  //     setComments(response);
-  //   } catch (error) {
-  //     toasterService.error();
-  //   }
-  // }
 
   const reset = () => {
     form.reset();
@@ -141,7 +129,7 @@ const ViewIssue = () => {
     } finally {
       setIsViewLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
     getIssueById();
@@ -159,14 +147,14 @@ const ViewIssue = () => {
 
   return (
     <div className="pb-0 mt-2 w-full">
-      {issueData &&
+      {issueData && (
         <EditIssue
           issue={issueData as IIssue}
           sheetOpen={isEditStatusOpen}
           setSheetOpen={setIsEditStatusOpen}
           refreshIssues={refreshIssues}
         />
-      }
+      )}
       {!isViewLoading ? (
         <main className="mx-4">
           <div className="flex justify-between mb-2">
@@ -178,7 +166,7 @@ const ViewIssue = () => {
                       className="text-[12px]"
                       href={`/private/projects/${projectId}/issues`}
                     >
-                      Issue
+                      Issues
                     </BreadcrumbLink>
                   </BreadcrumbItem>
                   <BreadcrumbSeparator>
@@ -193,19 +181,20 @@ const ViewIssue = () => {
               </Breadcrumb>
             </div>
             <div>
-              {checkProjectRole
-                ? project?.isActive === true && (
-                  <Button size={'sm'} onClick={() => setIsEditStatusOpen(true)}>
+              {checkProjectRole ? (
+                project?.isActive && (
+                  <Button size={"sm"} onClick={() => setIsEditStatusOpen(true)}>
                     <Edit className="h-2 w-2" /> Edit
                   </Button>
                 )
-                : (project?.isActive === true &&
-                  issueData?.userId?._id?.toString() === userData?._id?.toString()) ||
-                  userData?.role === UserRoles.ADMIN ? (
-                  <Button size={'sm'} onClick={() => setIsEditStatusOpen(true)}>
-                    <Edit className="h-2 w-2" /> Edit
-                  </Button>
-                ) : null}
+              ) : (project?.isActive &&
+                  issueData?.userId?._id?.toString() ===
+                    userData?._id?.toString()) ||
+                userData?.role !== UserRoles.TESTER ? (
+                <Button size={"sm"} onClick={() => setIsEditStatusOpen(true)}>
+                  <Edit className="h-2 w-2" /> Edit
+                </Button>
+              ) : null}
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-[2fr_1fr] gap-4">
@@ -221,7 +210,7 @@ const ViewIssue = () => {
                 />
               </div>
 
-              {!isAttachmentLoading ?
+              {!isAttachmentLoading ? (
                 <MediaRenderer
                   attachments={issueAttachments || []}
                   title={"Attachments"}
@@ -229,123 +218,65 @@ const ViewIssue = () => {
                   userData={userData}
                   issueData={issueData as IIssue}
                 />
-                :
+              ) : (
                 <div className="flex gap-2 mt-4">
                   <Skeleton className="h-[120px] w-[155px] bg-gray-200" />
                   <Skeleton className="h-[120px] w-[155px] bg-gray-200" />
                   <Skeleton className="h-[120px] w-[155px] bg-gray-200" />
                   <Skeleton className="h-[120px] w-[155px] bg-gray-200" />
                 </div>
-              }
-
-              {/* <div className="mt-3">
-                <div className="text-sm ">Comments</div>
-                <div className="w-full mb-3 mt-2">
-                  <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} method="post">
-                      <FormField
-                        control={form.control}
-                        name="content"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <div className="flex items-center">
-                                <Avatar className="h-10 w-10">
-                                  <AvatarImage
-                                    src={getFormattedBase64ForSrc(user?.profilePicture)}
-                                    alt="@profilePicture"
-                                  />
-                                  <AvatarFallback>
-                                    {getAvatarFallbackText({
-                                      ...user,
-                                      name: `${user?.firstName || ""} ${user?.lastName || ""
-                                        }`,
-                                    })}
-                                  </AvatarFallback>
-                                </Avatar>
-                                <Input
-                                  type="text"
-                                  className="ml-3 rounded-sm border border-gray-300 "
-                                  placeholder="Add a comment"
-                                  {...field}
-                                />
-                                <Button className="ml-2">
-                                  <SendHorizontal />
-                                </Button>
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                    </form>
-                  </Form>
-                </div>
-              </div> */}
-
-              {/* <div className="mt-3">
-                {comments.map((comment, index) => (
-                  <div
-                    key={index}
-                    className="bg-gray-50 p-3 rounded-lg mb-3 shadow-sm"
-                  >
-                    <div className="text-gray-800">{comment?.content}</div>
-
-                    <div className="flex justify-between items-center mt-2">
-                      <div className="flex items-center space-x-3">
-                        <Avatar className="h-8 w-8 bg-gray-400">
-                          <AvatarImage
-                            src={getFormattedBase64ForSrc(comment?.commentedBy?.profilePicture)}
-                            alt="@profilePicture"
-                          />
-                          <AvatarFallback>
-                            {getAvatarFallbackText({
-                              ...user,
-                              name: `${comment?.commentedBy?.firstName || ""} ${comment?.commentedBy?.lastName || ""}`,
-                            })}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span className="text-sm text-gray-600">
-                          {`${comment?.commentedBy?.firstName} ${comment?.commentedBy?.lastName}`}
-                        </span>
-                      </div>
-
-                      <div className="text-xs text-gray-500">
-                        {formatDistanceToNow(new Date(comment?.createdAt || new Date()), { addSuffix: true })}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div> */}
+              )}
             </div>
-            <div className="border rounded-md p-4 h-fit">
-              {/* Severity */}
-              <div>
-                <span className="font-semibold">Severity:</span>
-                <span className="ml-2">{issueData?.severity}</span>
-              </div>
-              {/* Priority */}
-              <div className="mt-3 flex items-center">
-                <span className="font-semibold">Priority:</span>
-                <span className="ml-2 flex items-center">
-                  {displayIcon(issueData?.priority as string)}
-                  <span className="ml-1 font-medium">
-                    {issueData?.priority}
+            <div>
+              <div className="border rounded-md p-4 h-fit flex flex-col gap-3">
+                <div className="flex items-center gap-[20px]">
+                  <span className="text-gray-500 min-w-[70px] text-sm">Severity</span>
+                  <span className="text-sm">{issueData?.severity}</span>
+                </div>
+                
+                <div className="flex items-center gap-[20px]">
+                  <span className="text-gray-500 min-w-[70px] text-sm">Priority</span>
+                  <span className="text-sm flex items-center">
+                    {displayIcon(issueData?.priority as string)}
+                    <span className="ml-1 font-medium">
+                      {issueData?.priority}
+                    </span>
                   </span>
-                </span>
+                </div>
+
+                <div className="flex items-center gap-[20px]">
+                  <span className="text-gray-500 min-w-[70px] text-sm">Status</span>
+                  <span className="text-sm">{statusBadge(issueData?.status)}</span>
+                </div>
+
+                <div className="flex items-center gap-[20px]">
+                  <span className="text-gray-500 min-w-[70px] text-sm">Assignee</span>
+                  <span className="text-sm flex items-center">
+                    <UserCircle2Icon className="text-gray-600 h-4 w-4 mr-1"/>
+                    {issueData?.assignedTo?._id ? (
+                      `${
+                        issueData?.assignedTo?.firstName ||
+                        NAME_NOT_SPECIFIED_ERROR_MESSAGE
+                      } ${issueData?.assignedTo?.lastName || ""}`
+                    ) : (
+                      <span className="text-gray-400">Unassigned</span>
+                    )}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-[20px]">
+                  <span className="text-gray-500 min-w-[70px] text-sm">Reporter</span>
+                  <span className="text-sm flex items-center">
+                    <UserCircle2Icon className="text-gray-600 h-4 w-4 mr-1"/>
+                    {`${issueData?.userId?.firstName} ${issueData?.userId?.lastName}`}
+                  </span>
+                </div>
               </div>
 
-              {/* Status */}
               <div className="mt-3">
-                <span className=" font-semibold">Status:</span>
-                <span className="ml-2">{statusBadge(issueData?.status)}</span>
-              </div>
-
-              {/* Device */}
-              <div className="mt-3">
-                <span className=" font-semibold">Device:</span>
-                <span className="ml-2">{issueData?.device?.[0]?.name}</span>
+                {issueData?.device && (
+                  <ViewDevice devices={issueData?.device as IDevice[]} />
+                )}
               </div>
             </div>
           </div>
@@ -356,7 +287,6 @@ const ViewIssue = () => {
           <div className="grid grid-cols-1 sm:grid-cols-[2fr_1fr] gap-4">
             <div>
               <Skeleton className="h-64 mt-3 bg-gray-200 ml-4" />
-
             </div>
             <div className="flex flex-col gap-4">
               <Skeleton className="h-12 w-[300px] bg-gray-200 ml-4" />

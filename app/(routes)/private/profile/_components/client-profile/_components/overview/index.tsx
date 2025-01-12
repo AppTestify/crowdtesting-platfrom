@@ -90,7 +90,7 @@ export default function ClientProfileOverview({ user }: { user: any }) {
                             name="lastName"
                             render={({ field }) => (
                                 <FormItem className={"w-full"}>
-                                    <FormLabel>First name</FormLabel>
+                                    <FormLabel>Last name</FormLabel>
                                     <FormControl>
                                         <Input {...field} />
                                     </FormControl>

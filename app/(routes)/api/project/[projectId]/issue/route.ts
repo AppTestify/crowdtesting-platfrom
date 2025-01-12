@@ -11,11 +11,11 @@ import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { IssueStatus } from "@/app/_constants/issue";
 import { connectDatabase } from "@/app/_db";
 import AttachmentService from "@/app/_helpers/attachment.helper";
-import { IIssueAttachment } from "@/app/_interface/issue";
 import { isAdmin, isClient, verifySession } from "@/app/_lib/dal";
 import { IdFormat } from "@/app/_models/id-format.model";
 import { IssueAttachment } from "@/app/_models/issue-attachment.model";
 import { Issue } from "@/app/_models/issue.model";
+import { filterIssuesForAdmin, filterIssuesForClient, filterIssuesForTester } from "@/app/_queries/search-issues";
 import { issueSchema } from "@/app/_schemas/issue.schema";
 import {
   getFileMetaData,
@@ -60,6 +60,7 @@ export async function POST(
       device: body.getAll("device[]"),
       issueType: body.get("issueType"),
       testCycle: body.get("testCycle"),
+      assignedTo: body.get("assignedTo") || null,
     };
     const response = issueSchema.safeParse(formData);
 
@@ -152,56 +153,98 @@ export async function GET(
     let response = null;
 
     const { projectId } = params;
-    const userIdFormat = await IdFormat.findOne({ entity: DBModels.ISSUE });
+    const url = new URL(req.url);
+    const searchString = url.searchParams.get("searchString");
+
+    const customIDFormat = await IdFormat.findOne({ entity: DBModels.ISSUE });
     const { skip, limit } = serverSidePagination(req);
+
+    if (searchString) {
+      if (await isAdmin(session.user)) {
+        const { issues, totalIssues } = await filterIssuesForAdmin(
+          searchString,
+          skip,
+          limit
+        );
+        return Response.json({
+          issues: addCustomIds(issues, customIDFormat?.idFormat),
+          total: totalIssues,
+        });
+      } else if (await isClient(session.user)) {
+        const { issues, totalIssues } = await filterIssuesForClient(
+          searchString,
+          skip,
+          limit
+        );
+        return Response.json({
+          issues: addCustomIds(issues, customIDFormat?.idFormat),
+          total: totalIssues,
+        });
+      } else {
+        const { issues, totalIssues } = await filterIssuesForTester(
+          searchString,
+          skip,
+          limit
+        );
+        return Response.json({
+          issues: addCustomIds(issues, customIDFormat?.idFormat),
+          total: totalIssues,
+        });
+      }
+    }
+
     const totalIssues = await Issue.find({
       projectId: projectId,
     }).countDocuments();
+
+    let query = Issue.find({ projectId })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(Number(limit));
+
     if (await isAdmin(session.user)) {
       response = addCustomIds(
-        await Issue.find({ projectId: projectId })
+        await query
           .populate("userId attachments projectId")
+          .populate({ path: "assignedTo", strictPopulate: false })
           .populate({ path: "testCycle", strictPopulate: false })
-          .sort({ createdAt: -1 })
-          .skip(skip)
-          .limit(Number(limit))
           .populate("device")
           .lean(),
-        userIdFormat.idFormat
+        customIDFormat.idFormat
       );
     } else if (await isClient(session.user)) {
       response = addCustomIds(
-        await Issue.find({
-          projectId: projectId,
-          status: { $nin: IssueStatus.NEW },
-        })
-          .sort({ createdAt: -1 })
-          .skip(skip)
-          .limit(Number(limit))
+        await query
+          .find({ status: { $nin: IssueStatus.NEW } })
+          .populate({
+            path: "userId",
+            select: "firstName lastName _id",
+          })
+          .populate({
+            path: "assignedTo",
+            select: "firstName lastName _id",
+            strictPopulate: false
+          })
           .populate("device attachments projectId")
           .populate({ path: "testCycle", strictPopulate: false })
           .lean(),
-        userIdFormat.idFormat
+        customIDFormat.idFormat
       );
     } else {
       response = addCustomIds(
-        await Issue.find({ projectId: projectId })
-          .sort({ createdAt: -1 })
-          .skip(skip)
-          .limit(Number(limit))
-          .populate("device attachments projectId")
+        await query
+          .populate("userId attachments projectId")
+          .populate({
+            path: "assignedTo",
+            select: "firstName lastName _id",
+            strictPopulate: false
+          })
           .populate({ path: "testCycle", strictPopulate: false })
+          .populate("device")
           .lean(),
-        userIdFormat.idFormat
+        customIDFormat.idFormat
       );
     }
-
-    response.forEach((issue) => {
-      issue.attachments.forEach((attachment: any) => {
-        const link = `https://drive.google.com/file/d/${attachment.cloudId}/view?usp=sharing`;
-        attachment.link = link;
-      });
-    });
 
     return Response.json({ issues: response, total: totalIssues });
   } catch (error: any) {

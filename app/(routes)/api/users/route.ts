@@ -65,7 +65,6 @@ export async function GET(req: Request) {
 
     const users = addCustomIds(
       await User.find(filter)
-        .populate("profilePicture")
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(Number(limit))
@@ -73,13 +72,6 @@ export async function GET(req: Request) {
       userIdFormat.idFormat
     );
     for (let i = 0; i < users.length; i++) {
-      if (users[i].profilePicture?.cloudId) {
-        const attachmentService = new AttachmentService();
-        const fileResponse = await attachmentService.fetchFileAsBase64(
-          users[i].profilePicture.cloudId
-        );
-        users[i].profilePicture.data = fileResponse;
-      }
       if (users[i].role === UserRoles.TESTER) {
         const tester = await Tester.findOne({ user: users[i].id })
           .sort({ _id: -1 })

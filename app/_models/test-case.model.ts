@@ -33,7 +33,7 @@ TestCaseSchema.pre('save', async function (next) {
     if (testCase.isNew) {
         try {
             const counter = await Counter.findOneAndUpdate(
-                { entity: DBModels.TEST_CASE },
+                { entity: DBModels.TEST_CASE, projectId: testCase.projectId },
                 { $inc: { sequence: 1 } },
                 { new: true, upsert: true }
             );

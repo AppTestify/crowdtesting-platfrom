@@ -2,11 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Loader2,
-  Plus,
-  Trash,
-} from "lucide-react";
+import { Loader2, Plus, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import toasterService from "@/app/_services/toaster-service";
@@ -57,6 +53,13 @@ import { getDevicesWithoutPaginationService } from "@/app/_services/device.servi
 import { IDevice } from "@/app/_interface/device";
 import { getTestCycleWithoutPaginationService } from "@/app/_services/test-cycle.service";
 import { ITestCycle } from "@/app/_interface/test-cycle";
+import { MultiSelect } from "@/components/ui/multi-select";
+import { IProjectUserDisplay } from "@/app/_interface/project";
+import { getProjectUsersService } from "@/app/_services/project.service";
+import { getUsernameWithUserId } from "@/app/_utils/common";
+import { ProjectUserRoles } from "@/app/_constants/project-user-roles";
+import { useSession } from "next-auth/react";
+import { UserRoles } from "@/app/_constants/user-roles";
 
 const projectSchema = z.object({
   title: z.string().min(1, "Required"),
@@ -65,27 +68,27 @@ const projectSchema = z.object({
   description: z.string().min(1, "Required"),
   status: z.string().optional(),
   projectId: z.string().optional(),
-  issueType: z.string().min(1, 'Required'),
-  attachments: z
-    .array(z.instanceof(File))
-    .optional(),
-  device: z
-    .array(z.string())
-    .min(1, "Required"),
-  testCycle: z.string().min(1, 'Required')
+  issueType: z.string().min(1, "Required"),
+  attachments: z.array(z.instanceof(File)).optional(),
+  device: z.array(z.string()),
+  // .min(1, "Required"),
+  testCycle: z.string().min(1, "Required"),
+  assignedTo: z.string().optional(),
 });
 
 export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
   const columns: ColumnDef<IIssueAttachmentDisplay[]>[] = [
     {
       accessorKey: "name",
-      cell: ({ row }) =>
+      cell: ({ row }) => (
         <div>
           <DocumentName document={row.getValue("name")} />
-        </div>,
-    }
+        </div>
+      ),
+    },
   ];
 
+  const { data } = useSession();
   const [sheetOpen, setSheetOpen] = useState(false);
   const [issueId, setIssueId] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -94,6 +97,28 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
   const [devices, setDevices] = useState<IDevice[]>([]);
   const [isViewLoading, setIsViewLoading] = useState<boolean>(false);
   const [testCycles, setTestCycles] = useState<ITestCycle[]>([]);
+  const [users, setUsers] = useState<IProjectUserDisplay[]>([]);
+  const [selectedDevices, setSelectedDevices] = useState<string[]>([]);
+  const [isInvalidDevices, setIsInvalidDevices] = useState<boolean>(false);
+  const [userProjectRole, setUserProjectRole] =
+    useState<ProjectUserRoles | null>(null);
+
+  useEffect(() => {
+    if (data && users?.length) {
+      const { user } = data;
+      const userObj: any = { ...user };
+      if (userObj.role === UserRoles.ADMIN) {
+        setUserProjectRole(ProjectUserRoles.ADMIN);
+      } else if (userObj.role === UserRoles.CLIENT) {
+        setUserProjectRole(ProjectUserRoles.CLIENT);
+      } else {
+        setUserProjectRole(
+          (users.find((userEl) => userEl.userId?._id === userObj._id)
+            ?.role as ProjectUserRoles) || ProjectUserRoles.TESTER
+        );
+      }
+    }
+  }, [data, users]);
 
   const form = useForm<z.infer<typeof projectSchema>>({
     resolver: zodResolver(projectSchema),
@@ -107,7 +132,8 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
       issueType: "",
       attachments: [],
       device: [],
-      testCycle: ""
+      testCycle: "",
+      assignedTo: "",
     },
   });
 
@@ -120,7 +146,10 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
   async function onSubmit(values: z.infer<typeof projectSchema>) {
     setIsLoading(true);
     try {
-      const response = await addIssueService(projectId, { ...values });
+      const response = await addIssueService(projectId, {
+        ...values,
+        device: selectedDevices,
+      });
       if (response) {
         setIssueId(response.id);
         refreshIssues();
@@ -135,14 +164,26 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
   }
 
   const validateIssue = () => {
-    if (form.formState.isValid) {
+    if (!selectedDevices.length) {
+      setIsInvalidDevices(true);
+    }
+
+    if (!isInvalidDevices && form.formState.isValid) {
       form.handleSubmit(onSubmit)();
     }
   };
 
   const resetForm = () => {
     form.reset();
+    setIsInvalidDevices(false);
+    setSelectedDevices([]);
   };
+
+  useEffect(() => {
+    if (selectedDevices.length) {
+      setIsInvalidDevices(false);
+    }
+  }, [selectedDevices]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -151,7 +192,8 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
         name: file.name,
         contentType: file.type,
         size: file.size,
-        getValue: (key: string) => (key === "contentType" ? file.type : undefined),
+        getValue: (key: string) =>
+          key === "contentType" ? file.type : undefined,
       }));
       const fileArray = Array.from(e.target.files);
       setAttachments(files);
@@ -160,8 +202,13 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
   };
 
   const handleRemoveFile = (index: number) => {
-    setAttachments((prevAttachments) => prevAttachments?.filter((_, i) => i !== index));
-    form.setValue("attachments", attachments?.filter((_, i) => i !== index));
+    setAttachments((prevAttachments) =>
+      prevAttachments?.filter((_, i) => i !== index)
+    );
+    form.setValue(
+      "attachments",
+      attachments?.filter((_, i) => i !== index)
+    );
   };
 
   const getDevices = async () => {
@@ -188,7 +235,21 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
     } finally {
       setIsViewLoading(false);
     }
-  }
+  };
+
+  const getProjectUsers = async () => {
+    setIsViewLoading(true);
+    try {
+      const projectUsers = await getProjectUsersService(projectId);
+      if (projectUsers?.users?.length) {
+        setUsers(projectUsers.users);
+      }
+    } catch (error) {
+      toasterService.error();
+    } finally {
+      setIsViewLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (!sheetOpen) {
@@ -200,9 +261,17 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
   useEffect(() => {
     if (sheetOpen) {
       getTestCycle();
+      getProjectUsers();
       getDevices();
     }
   }, [sheetOpen]);
+
+  const getSelectedUser = (field: any) => {
+    const selectedUser = users?.find(
+      (user) => user?.userId?._id === field.value
+    );
+    return getUsernameWithUserId(selectedUser);
+  };
 
   return (
     <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
@@ -211,13 +280,12 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
           <Plus /> Add issue
         </Button>
       </SheetTrigger>
-      <SheetContent
-        className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto"
-      >
+      <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto">
         <SheetHeader>
           <SheetTitle className="text-left">Add new issue</SheetTitle>
           <SheetDescription className="text-left">
-            Problems or defects discovered during testing that need resolution before the product is finalized.
+            Problems or defects discovered during testing that need resolution
+            before the product is finalized.
           </SheetDescription>
         </SheetHeader>
 
@@ -286,7 +354,9 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
                             {PRIORITY_LIST.map((priority) => (
                               <SelectItem value={priority}>
                                 <div className="flex items-center">
-                                  <span className="mr-1">{displayIcon(priority)}</span>
+                                  <span className="mr-1">
+                                    {displayIcon(priority)}
+                                  </span>
                                   {priority}
                                 </div>
                               </SelectItem>
@@ -300,55 +370,36 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-2 mt-3">
-                <FormField
-                  control={form.control}
-                  name="device"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>Device</FormLabel>
-                      <Select
-                        onValueChange={(value) => {
-                          if (value) {
-                            field.onChange([value]);
-                          }
-                        }}
-                        value={field.value?.[0] || ""}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue>
-                            {field.value.length > 0
-                              ? devices.find((device) => device.id === field.value?.[0])?.name
-                              : " "}
-                          </SelectValue>
-                        </SelectTrigger>
-                        <SelectContent>
-                          {!isViewLoading ? (
-                            devices.length > 0 ? (
-                              <SelectGroup>
-                                {devices.map((device) => (
-                                  <SelectItem key={device.id} value={device.id}>
-                                    <div className="flex items-center">
-                                      {device?.name}
-                                    </div>
-                                  </SelectItem>
-                                ))}
-                              </SelectGroup>
-                            ) : (
-                              <div className="text-center">No device found</div>
-                            )
-                          ) : (
-                            <div className="flex justify-center items-center h-10">
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            </div>
-                          )}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+              <div className="grid grid-cols-1 gap-2 mt-4">
+                <Label className={isInvalidDevices ? "text-destructive" : ""}>
+                  Devices
+                </Label>
+                <MultiSelect
+                  options={devices?.map((device) => ({
+                    label:
+                      typeof device?.name === "string"
+                        ? `${device?.name} / ${device?.os} / ${device?.network}`
+                        : "",
+                    value: typeof device?.id === "string" ? device.id : "",
+                  }))}
+                  onValueChange={setSelectedDevices}
+                  defaultValue={selectedDevices}
+                  placeholder=""
+                  disabled={devices?.length === 0}
+                  variant="secondary"
+                  animation={2}
+                  maxCount={2}
+                  // isClear={clear}
+                  className="w-full"
                 />
+                {isInvalidDevices ? (
+                  <FormMessage className="mt-2">
+                    Please select at least one device
+                  </FormMessage>
+                ) : null}
+              </div>
 
+              <div className="grid grid-cols-2 gap-2 mt-3">
                 <FormField
                   control={form.control}
                   name="issueType"
@@ -378,9 +429,7 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
                     </FormItem>
                   )}
                 />
-              </div>
 
-              <div className="grid grid-cols-1 gap-2 mt-4">
                 <FormField
                   control={form.control}
                   name="testCycle"
@@ -398,12 +447,17 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
                           <SelectGroup>
                             {testCycles.length > 0 ? (
                               testCycles.map((testCycle) => (
-                                <SelectItem key={testCycle._id} value={testCycle._id as string}>
+                                <SelectItem
+                                  key={testCycle._id}
+                                  value={testCycle._id as string}
+                                >
                                   {testCycle.title}
                                 </SelectItem>
                               ))
                             ) : (
-                              <div className="p-1 text-center text-gray-500">Test cycle not found</div>
+                              <div className="p-1 text-center text-gray-500">
+                                Test cycle not found
+                              </div>
                             )}
                           </SelectGroup>
                         </SelectContent>
@@ -413,6 +467,48 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
                   )}
                 />
               </div>
+
+              {userProjectRole === ProjectUserRoles.ADMIN ||
+              userProjectRole === ProjectUserRoles.CLIENT ? (
+                <div className="grid grid-cols-1 gap-2 mt-4">
+                  <FormField
+                    control={form.control}
+                    name="assignedTo"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Assignee</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue>{getSelectedUser(field)}</SelectValue>
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              {users.length > 0 ? (
+                                users.map((user) => (
+                                  <SelectItem
+                                    key={user._id}
+                                    value={user?.userId?._id as string}
+                                  >
+                                    {getUsernameWithUserId(user)}
+                                  </SelectItem>
+                                ))
+                              ) : (
+                                <div className="p-1 text-center text-gray-500">
+                                  Users not found
+                                </div>
+                              )}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              ) : null}
 
               <div className="grid grid-cols-1 gap-2 mt-4">
                 <FormField
@@ -451,7 +547,7 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
                   >
                     Choose Files
                   </label>
-                  {attachments?.length > 0 &&
+                  {attachments?.length > 0 && (
                     <div className="mt-2">
                       New attachments
                       <div className="mt-4 rounded-md border">
@@ -460,11 +556,16 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
                             {attachments?.length ? (
                               attachments.map((attachment, index) => (
                                 <TableRow key={index}>
-                                  <TableCell><DocumentName document={attachment} /></TableCell>
+                                  <TableCell>
+                                    <DocumentName document={attachment} />
+                                  </TableCell>
                                   <TableCell className="flex justify-end items-end mr-6">
-                                    <Button type="button" onClick={() => handleRemoveFile(index)}
+                                    <Button
+                                      type="button"
+                                      onClick={() => handleRemoveFile(index)}
                                       variant="ghost"
-                                      size="icon">
+                                      size="icon"
+                                    >
                                       <Trash className="h-4 w-4 text-destructive" />
                                     </Button>
                                   </TableCell>
@@ -472,7 +573,10 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
                               ))
                             ) : (
                               <TableRow>
-                                <TableCell colSpan={columns.length} className="h-24 text-center">
+                                <TableCell
+                                  colSpan={columns.length}
+                                  className="h-24 text-center"
+                                >
                                   No attachments found
                                 </TableCell>
                               </TableRow>
@@ -481,7 +585,7 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
                         </Table>
                       </div>
                     </div>
-                  }
+                  )}
                 </div>
               </div>
               <div className="mt-6 w-full flex justify-end gap-2">
@@ -512,8 +616,7 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
             </form>
           </Form>
         </div>
-
       </SheetContent>
-    </Sheet >
+    </Sheet>
   );
 }

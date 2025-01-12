@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronUp, Equal, FileSpreadsheet } from "lucide-react";
+import { ChevronDown, ChevronUp, Equal, FileSpreadsheet, Loader2 } from "lucide-react";
 import { IssueStatus, Priority } from "../_constants/issue";
 import { Badge } from "@/components/ui/badge";
 import { UserRoles } from "../_constants/user-roles";
@@ -72,6 +72,17 @@ export const showUsersRoleInBadges = (role: UserRoles) => {
     }
 }
 
+export const showUsersVerifiedInBadges = (role: boolean) => {
+    switch (role) {
+        case true:
+            return <Badge className="bg-primary hover:bg-primary font-medium">Verified</Badge>;
+        case false:
+            return <Badge className="bg-yellow-500 hover:bg-yellow-500 font-medium">Unverified</Badge>;
+        default:
+            return null;
+    }
+}
+
 export const statusBadgeProjectUserRole = (role: string) => {
     switch (role) {
         case ProjectUserRoles.ADMIN:
@@ -112,16 +123,16 @@ export const showTestCaseResultStatusBadge = (role: string) => {
     }
 }
 
-export const ExportExcelFile = (excel: () => void, hasData: Boolean) => {
+export const ExportExcelFile = (excel: () => void, hasData: Boolean, isLoading: Boolean) => {
     return (
         <Button
             type={"button"}
             variant={"outline"}
-            // size="icon"
             disabled={!hasData}
             onClick={excel}
         >
-            <FileSpreadsheet /> Export
+            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileSpreadsheet />}
+            Export
         </Button>
     )
 }

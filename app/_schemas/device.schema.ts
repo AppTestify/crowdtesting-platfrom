@@ -13,3 +13,7 @@ export const deviceSchema = z.object({
 export const devicesBulkDeleteSchema = z.object({
   ids: z.array(z.string()).nonempty("At least one device is required"),
 });
+
+export const devicesIdsSchema = z.object({
+  ids: z.array(z.string()),
+});

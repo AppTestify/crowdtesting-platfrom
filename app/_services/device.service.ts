@@ -14,9 +14,14 @@ import {
   genericPut,
 } from "./generic-api-methods";
 
-export const getDevicesService = async (index: Number, pageSize: Number): Promise<any> => {
+export const getDevicesService = async (
+  index: Number,
+  pageSize: Number
+): Promise<any> => {
   try {
-    const response = await genericGet(`${DEVICES_ENDPOINT}${PAGINATION_QUERY_ENDPOINT(index, pageSize)}`);
+    const response = await genericGet(
+      `${DEVICES_ENDPOINT}${PAGINATION_QUERY_ENDPOINT(index, pageSize)}`
+    );
     return response || [];
   } catch (error) {
     console.error(`Error > getDevices:`, error);
@@ -72,6 +77,21 @@ export const devicesBulkDeleteService = async (
 export const getDevicesWithoutPaginationService = async (): Promise<any> => {
   try {
     const response = await genericGet(`${DEVICES_ENDPOINT}/without-pagination`);
+    return response || [];
+  } catch (error) {
+    console.error(`Error > getDevicesWithoutPaginationService:`, error);
+    throw error;
+  }
+};
+
+export const getDevicesWithoutPaginationByIdsService = async (
+  body: IDevicesBulkDeletePayload
+): Promise<any> => {
+  try {
+    const response = await genericPost(
+      `${DEVICES_ENDPOINT}/without-pagination`,
+      body
+    );
     return response || [];
   } catch (error) {
     console.error(`Error > getDevicesWithoutPaginationService:`, error);

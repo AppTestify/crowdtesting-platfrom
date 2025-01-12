@@ -114,7 +114,7 @@ export function IssueRowActions({
             </DropdownMenuItem>
           </Link>
           <DropdownMenuSeparator className="border-b" />
-          {userData?.role === UserRoles.CLIENT ?
+          {/* {userData?.role === UserRoles.CLIENT ?
             <DropdownMenuItem
               className="mb-1"
               onClick={() => {
@@ -123,7 +123,7 @@ export function IssueRowActions({
             >
               <Edit className="h-2 w-2" /> Edit Issue
             </DropdownMenuItem>
-            :
+            : */}
             <DropdownMenuItem
               className="mb-1"
               onClick={() => {
@@ -132,7 +132,7 @@ export function IssueRowActions({
             >
               <Edit className="h-2 w-2" /> Edit
             </DropdownMenuItem>
-          }
+          {/* } */}
           {userData?.role != UserRoles.TESTER &&
             <>
               <DropdownMenuSeparator className="border-b" />

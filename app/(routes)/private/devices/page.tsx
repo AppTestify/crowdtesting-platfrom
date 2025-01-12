@@ -76,7 +76,9 @@ export default function Devices() {
             <div className="hover:text-primary cursor-pointer"
               onClick={() => getUser(row.original?.userId as IUserByAdmin)}
             >
-              {`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}
+              {row.original?.userId?.firstName || row.original?.userId?.lastName
+                ? `${row.original?.userId?.firstName || ''} ${row.original?.userId?.lastName || ''}`.trim()
+                : row.original?.userId?.email}
             </div>,
         }] : []
     ),

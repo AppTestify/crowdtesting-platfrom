@@ -14,8 +14,7 @@ import { IdFormat } from "@/app/_models/id-format.model";
 import { IssueAttachment } from "@/app/_models/issue-attachment.model";
 import { Issue } from "@/app/_models/issue.model";
 import { issueSchema } from "@/app/_schemas/issue.schema";
-import { getAllAttachments } from "@/app/_utils/common-server-side";
-import { normaliseIds, replaceCustomId } from "@/app/_utils/data-formatters";
+import { replaceCustomId } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function PUT(
@@ -153,8 +152,17 @@ export async function GET(
     const { issueId } = params;
     const userIdFormat = await IdFormat.findOne({ entity: DBModels.ISSUE });
     const issue = (await Issue.findById(issueId)
-      .populate("device", "_id name")
-      .populate("userId testCycle")
+      .populate("device", "_id name os network")
+      .populate({
+        path: "userId",
+        select: "firstName lastName _id",
+      })
+      .populate({
+        path: "assignedTo",
+        select: "firstName lastName _id",
+        strictPopulate: false
+      })
+      .populate({ path: "testCycle", strictPopulate: false })
       .lean()) as IIssue | null;
 
     const response = {
