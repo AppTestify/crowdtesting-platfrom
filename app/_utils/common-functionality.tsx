@@ -77,7 +77,7 @@ export const showUsersVerifiedInBadges = (role: boolean) => {
         case true:
             return <Badge className="bg-primary hover:bg-primary font-medium">Verified</Badge>;
         case false:
-            return <Badge className="bg-red-400 hover:bg-red-400 font-medium">Unverified</Badge>;
+            return <Badge className="bg-yellow-500 hover:bg-yellow-500 font-medium">Unverified</Badge>;
         default:
             return null;
     }

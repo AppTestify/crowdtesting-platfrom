@@ -41,6 +41,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ViewTesterIssue from "./_components/view-user";
 import ViewClientUser from "./_components/client/view-user";
 import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
+import { NAME_NOT_SPECIFIED_ERROR_MESSAGE } from "@/app/_constants/errors";
 
 export default function Users() {
     const [selectedRole, setSelectedRole] = useState<string>(UserRoles.TESTER);
@@ -78,27 +79,6 @@ export default function Users() {
                 >{row.getValue("customId")}</div>
             ),
         },
-        // {
-        //     accessorKey: "profilePicture",
-        //     header: "Profile Picture",
-        //     cell: ({ row }) => (
-        //         <div className="flex">
-        //             <Avatar className="h-10 w-10">
-        //                 <AvatarImage
-        //                     src={getFormattedBase64ForSrc(row.original?.profilePicture)}
-        //                     alt="@profilePicture"
-        //                 />
-        //                 <AvatarFallback>
-        //                     {getAvatarFallbackText({
-        //                         ...row.original,
-        //                         name: `${row.original?.firstName || ""} ${row.original?.lastName || ""
-        //                             }`,
-        //                     })}
-        //                 </AvatarFallback>
-        //             </Avatar>
-        //         </div>
-        //     ),
-        // },
         {
             accessorKey: "email",
             header: "Email",
@@ -114,7 +94,7 @@ export default function Users() {
             header: "Name",
             cell: ({ row }) => (
                 <div>
-                    {`${row.original.firstName || ""} ${row.original?.lastName || ""}`}
+                    {`${row.original.firstName || NAME_NOT_SPECIFIED_ERROR_MESSAGE} ${row.original?.lastName || ""}`}
                 </div>
             ),
         },
@@ -147,13 +127,20 @@ export default function Users() {
         },
         {
             accessorKey: "since",
-            header: "Since",
+            header: "Joined at",
             cell: ({ row }) => (
                 <div className="capitalize">
                     {row.original?.createdAt
                         ? formatDistanceToNow(new Date(row.original.createdAt), { addSuffix: true })
                         : "Date not available"}
                 </div>
+            ),
+        },
+        {
+            accessorKey: "verified",
+            header: "Verification",
+            cell: ({ row }) => (
+                <div>{showUsersVerifiedInBadges(row.original.isVerified)}</div>
             ),
         },
         {
@@ -165,13 +152,6 @@ export default function Users() {
                     userId={row.original?.id as string}
                     refreshUsers={refreshUsers}
                 />
-            ),
-        },
-        {
-            accessorKey: "verified",
-            header: "Verification",
-            cell: ({ row }) => (
-                <div>{showUsersVerifiedInBadges(row.original.isVerified)}</div>
             ),
         },
         {
