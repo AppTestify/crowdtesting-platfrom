@@ -1,4 +1,5 @@
 import { DOWNLOAD_FILE_ENDPOINT } from "../_constants/api-endpoints";
+import { NAME_NOT_SPECIFIED_ERROR_MESSAGE } from "../_constants/errors";
 import { ProjectUserRoles } from "../_constants/project-user-roles";
 import { IProject } from "../_interface/project";
 
@@ -47,3 +48,12 @@ export function checkProjectAdmin(project: IProject, userData: any): boolean {
 
   return matchingUsers.length === 1;
 }
+
+export const getUsernameWithUserId = (user: any): string => {
+  const userCustomId = user?.customId || "";
+  const userObj = user?.userId ? { ...user, ...user.userId } : { ...user };
+
+  return `${userCustomId || ""} - ${
+    userObj?.firstName || NAME_NOT_SPECIFIED_ERROR_MESSAGE
+  } ${userObj?.lastName || ""}`;
+};

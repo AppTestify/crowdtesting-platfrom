@@ -10,6 +10,7 @@ export const issueSchema = z.object({
   status: z.string().optional(),
   device: z.array(z.string()).nonempty("Device is required"),
   testCycle: z.string().min(1, "Test cycle is required"),
+  assignedTo: z.string().nullable().optional(),
 });
 
 export const issueStatusSchema = z.object({

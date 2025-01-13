@@ -30,6 +30,7 @@ export const connectDatabase = async () => {
     registerModels();
     return true;
   } catch (error) {
+    console.log(error)
     return false;
   }
 };

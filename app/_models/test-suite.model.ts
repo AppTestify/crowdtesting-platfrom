@@ -33,7 +33,7 @@ TestSuiteSchema.pre('save', async function (next) {
     if (testSuite.isNew) {
         try {
             const counter = await Counter.findOneAndUpdate(
-                { entity: DBModels.TEST_SUITE },
+                { entity: DBModels.TEST_SUITE, projectId: testSuite.projectId },
                 { $inc: { sequence: 1 } },
                 { new: true, upsert: true }
             );

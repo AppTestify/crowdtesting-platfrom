@@ -33,6 +33,7 @@ export interface IUserByAdmin {
   paypalId?: string;
   customId?: string;
   file?: IDocument;
+  isVerified: boolean;
 }
 
 export interface IUsersBulkDeletePayload {

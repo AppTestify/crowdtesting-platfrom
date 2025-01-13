@@ -35,7 +35,7 @@ TestPlanSchema.pre('save', async function (next) {
     if (testPlan.isNew) {
         try {
             const counter = await Counter.findOneAndUpdate(
-                { entity: DBModels.TEST_PLAN },
+                { entity: DBModels.TEST_PLAN, projectId: testPlan.projectId },
                 { $inc: { sequence: 1 } },
                 { new: true, upsert: true }
             );

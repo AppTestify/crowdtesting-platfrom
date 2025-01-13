@@ -36,6 +36,20 @@ export const getIssuesService = async (
   }
 };
 
+export const getIssuesWithoutPaginationService = async (
+  projectId: string
+): Promise<any> => {
+  try {
+    const response = await genericGet(
+      `${GET_ISSUES_ENPOINT(projectId)}/without-pagination`
+    );
+    return response || [];
+  } catch (error) {
+    console.error(`Error > getIssuesWithoutPaginationService:`, error);
+    throw error;
+  }
+};
+
 export const addIssueService = async (
   projectId: string,
   body: IIssuePayload
@@ -50,6 +64,7 @@ export const addIssueService = async (
     formData.append("description", body?.description || "");
     formData.append("status", body?.status || "");
     formData.append("projectId", body?.projectId || "");
+    formData.append("assignedTo", body?.assignedTo || "");
     if (body?.device && Array.isArray(body.device)) {
       body.device.forEach((device) => {
         formData.append("device[]", device);
