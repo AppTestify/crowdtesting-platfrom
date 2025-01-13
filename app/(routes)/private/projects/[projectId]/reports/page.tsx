@@ -25,51 +25,64 @@ import {
 import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
 import { formatDate } from "@/app/_constants/date-formatter";
-import { AddNote } from "./_components/add-note";
 import toasterService from "@/app/_services/toaster-service";
-import { getNotesService } from "@/app/_services/note.service";
-import { INote, INotePayload } from "@/app/_interface/note";
-import { NoteRowActions } from "./_components/row-actions";
+import { getReportsService } from "@/app/_services/report.service";
+import { IReport, IReportAttachmentDisplay, IReportPayload } from "@/app/_interface/report";
 import { IProject } from "@/app/_interface/project";
 import { getProjectService } from "@/app/_services/project.service";
 import { UserRoles } from "@/app/_constants/user-roles";
 import { useSession } from "next-auth/react";
-import ViewNote from "./_components/view-note";
 import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
+import { AddReport } from "./_components/add-report";
+import ViewReport from "./_components/view-report";
+import { ReportRowActions } from "./_components/row-actions";
+import ExpandableTable from "@/app/_components/expandable-table";
+import { Download, Loader2 } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-export default function TestPlan() {
-    const [notes, setNotes] = useState<INotePayload[]>([]);
+export default function Report() {
+    const [reports, setReports] = useState<IReport[]>([]);
     const [project, setProject] = useState<IProject>();
     const [userData, setUserData] = useState<any>();
     const [isViewOpen, setIsViewOpen] = useState(false);
-    const [note, setNote] = useState<INote>();
+    const [report, setReport] = useState<IReport>();
+    const [isDownloadLoading, setIsDownloadLoading] = useState<boolean>(false);
 
-    const columns: ColumnDef<INotePayload>[] = [
+    const columns: ColumnDef<IReport>[] = [
         {
             accessorKey: "title",
             header: "Title",
             cell: ({ row }) => (
                 <div className="capitalize hover:text-primary cursor-pointer"
-                    onClick={() => openView(row.original as INote)}>
+                    onClick={() => openView(row.original as IReport)}>
                     {row.getValue("title")}
                 </div>
             ),
         },
         {
-            accessorKey: "description",
+            accessorKey: "descripiton",
             header: "Description",
             cell: ({ row }) => (
                 <div
                     title={row.getValue("descripiton")}
-                    className="capitalize w-40 overflow-hidden text-ellipsis line-clamp-2"
+                    className="capitalize w-32 overflow-hidden text-ellipsis line-clamp-2"
                     dangerouslySetInnerHTML={{
                         __html: row.original?.description || "",
                     }}
                 />
             ),
         },
+        {
+            accessorKey: "attachments",
+            header: "Attachments",
+            cell: ({ row }) => (
+                <div>
+                    <ExpandableTable row={row?.original?.attachments as unknown as IReportAttachmentDisplay[]} />
+                </div>
+            ),
+        },
         ...(
-            notes.some((item) => item?.userId?._id) ?
+            reports.some((item) => item?.userId?._id) ?
                 [{
                     accessorKey: "createdBy",
                     header: "Created By",
@@ -91,6 +104,25 @@ export default function TestPlan() {
                 </div>
             ),
         },
+        {
+            accessorKey: "download",
+            header: "  ",
+            cell: ({ row }) => (
+                <TooltipProvider>
+                    <Tooltip delayDuration={50}>
+                        <TooltipTrigger asChild>
+                            <Button disabled={isDownloadLoading} variant={'outline'} size={'icon'} onClick={() => downloadAttachmentZip(row.original._id)}>
+                                {isDownloadLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="w-5 h-5" />}
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>Downlaod attachments</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+
+            ),
+        },
         ...(
             (project?.isActive === true ||
                 (userData?.role === UserRoles.ADMIN)) && userData?.role !== UserRoles.TESTER ?
@@ -98,15 +130,45 @@ export default function TestPlan() {
                     id: "actions",
                     enableHiding: false,
                     cell: ({ row }: { row: any }) => (
-                        <NoteRowActions row={row as Row<INote>} refreshNotes={refreshNotes} />
+                        <ReportRowActions row={row as Row<IReport>} refreshReports={refreshReports} />
                     ),
                 }] : []
         ),
     ];
 
-    const openView = (note: INote) => {
+    // download zip file
+    const downloadAttachmentZip = async (reportId: string) => {
+        setIsDownloadLoading(true);
+        try {
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_URL}/api/project/${projectId}/report/${reportId}/download-zip`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+
+            if (response.ok) {
+                const blob = await response.blob();
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'images.zip';
+                link.click();
+            } else {
+                console.error('Failed to download the file, status:', response.status);
+            }
+        } catch (error) {
+            console.error('Error downloading file:', error);
+        } finally {
+            setIsDownloadLoading(false);
+        }
+    };
+
+    const openView = (report: IReport) => {
         setIsViewOpen(true);
-        setNote(note);
+        setReport(report);
     }
 
     const [sorting, setSorting] = useState<SortingState>([]);
@@ -144,14 +206,14 @@ export default function TestPlan() {
     }, []);
 
     useEffect(() => {
-        getNotes();
+        getReports();
     }, [pageIndex, pageSize]);
 
-    const getNotes = async () => {
+    const getReports = async () => {
         setIsLoading(true);
         try {
-            const response = await getNotesService(projectId, pageIndex, pageSize);
-            setNotes(response?.Notes);
+            const response = await getReportsService(projectId, pageIndex, pageSize);
+            setReports(response?.Reports);
             setTotalPageCount(response?.total);
         } catch (error) {
             toasterService.error();
@@ -161,13 +223,13 @@ export default function TestPlan() {
     };
 
 
-    const refreshNotes = () => {
-        getNotes();
+    const refreshReports = () => {
+        getReports();
         setRowSelection({});
     };
 
     const table = useReactTable({
-        data: notes,
+        data: reports,
         columns,
         onSortingChange: setSorting,
         getCoreRowModel: getCoreRowModel(),
@@ -200,18 +262,18 @@ export default function TestPlan() {
 
     return (
         <main className="mx-4 mt-2">
-            <ViewNote
+            <ViewReport
                 sheetOpen={isViewOpen}
                 setSheetOpen={setIsViewOpen}
-                note={note as INote}
+                report={report as IReport}
             />
             <div className="">
-                <h2 className="text-medium">Notes</h2>
+                <h2 className="text-medium">Reports</h2>
             </div>
             <div className="w-full">
                 <div className="flex py-4 justify-between">
                     <Input
-                        placeholder="Filter note"
+                        placeholder="Filter report"
                         value={(globalFilter as string) ?? ""}
                         onChange={(event) => {
                             table.setGlobalFilter(String(event.target.value));
@@ -220,7 +282,7 @@ export default function TestPlan() {
                     />
                     {(project?.isActive === true || userData?.role === UserRoles.ADMIN) &&
                         <div className="flex gap-2 ml-2">
-                            <AddNote refreshNotes={refreshNotes} />
+                            <AddReport refreshReports={refreshReports} />
                         </div>
                     }
                 </div>

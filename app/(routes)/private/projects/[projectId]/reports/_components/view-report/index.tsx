@@ -1,14 +1,15 @@
 import { formatDate } from '@/app/_constants/date-formatter';
-import { INote } from '@/app/_interface/note';
+import { IReport } from '@/app/_interface/report';
 import { DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetHeader } from '@/components/ui/sheet';
 import React from 'react'
+import ReportAttachments from '../attachments/report-attachment';
 
-export default function ViewNote({ sheetOpen, setSheetOpen, note }:
+export default function ViewReport({ sheetOpen, setSheetOpen, report }:
     {
         sheetOpen: boolean;
         setSheetOpen: React.Dispatch<React.SetStateAction<boolean>>;
-        note: INote;
+        report: IReport;
     }
 ) {
     return (
@@ -16,30 +17,34 @@ export default function ViewNote({ sheetOpen, setSheetOpen, note }:
             <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto">
                 <SheetHeader className="mb-4">
                     <span className="text-mute text-sm">
-                        {note?.userId?.firstName ? (
+                        {report?.userId?.firstName ? (
                             <span>
-                                Created by {note?.userId?.firstName}{" "}
-                                {note?.userId?.lastName}{", "}
+                                Created by {report?.userId?.firstName}{" "}
+                                {report?.userId?.lastName}{", "}
                             </span>
                         ) : null}
-                        Created on {formatDate(note?.createdAt || "")}
+                        Created on {formatDate(report?.createdAt || "")}
                     </span>
                 </SheetHeader>
                 <DropdownMenuSeparator className="border-b" />
                 <div className="mt-2">
-                    <span className="font-semibold text-xl">Title</span>
+                    <span className="font-semibold text-lg">Title</span>
                     <div className="ml-1">
-                        {note?.title}
+                        {report?.title}
                     </div>
                 </div>
                 <div className="mt-2">
-                    <span className="font-semibold text-xl">Description</span>
+                    <span className="font-semibold text-lg">Description</span>
                     <div
                         className="text-sm leading-relaxed text-gray-700 space-y-2 rich-description"
                         dangerouslySetInnerHTML={{
-                            __html: note?.description || "",
+                            __html: report?.description || "",
                         }}
                     />
+                </div>
+                <div className='mt-2'>
+                    <span className="font-semibold text-lg">Attachments</span>
+                    <ReportAttachments reportId={report?._id} isUpdate={false} isView={true} />
                 </div>
             </SheetContent>
         </Sheet>

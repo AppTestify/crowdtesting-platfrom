@@ -11,6 +11,7 @@ import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { AttachmentRowActions } from "../row-actions";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function IssueAttachments({ issueId, isUpdate, isView, setAttachmentsData }: IssueAttachmentsProps) {
   const columns: ColumnDef<IIssueAttachmentDisplay>[] = [
@@ -189,7 +190,9 @@ export default function IssueAttachments({ issueId, isUpdate, isView, setAttachm
             </Table>
           </div>
         ) : isUpdate && isViewLoading ?
-          <div className="text-center h-20">Loading</div> : null
+          <div className="">
+            <Skeleton className="h-[70px] bg-gray-200 w-full rounded-xl" />
+          </div> : null
         }
       </div>
       {attachments.length > 0 &&

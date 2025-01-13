@@ -1,8 +1,8 @@
 "use client";
 import { ConfirmationDialog } from "@/app/_components/confirmation-dialog";
-import { INote } from "@/app/_interface/note";
+import { IReport } from "@/app/_interface/report";
 import { ITestCycle } from "@/app/_interface/test-cycle";
-import { deleteNoteService } from "@/app/_services/note.service";
+import { deleteReportService } from "@/app/_services/report.service";
 import { deleteTestCycleService } from "@/app/_services/test-cycle.service";
 import toasterService from "@/app/_services/toaster-service";
 import { Button } from "@/components/ui/button";
@@ -16,62 +16,63 @@ import {
 import { Row } from "@tanstack/react-table";
 import { Edit, Eye, MoreHorizontal, Trash } from "lucide-react";
 import { useState } from "react";
-import { EditNote } from "../edit-note";
-import ViewNote from "../view-note";
+import { EditReport } from "../edit-report";
+import ViewReport from "../view-report";
 
-export function NoteRowActions({
+export function ReportRowActions({
     row,
-    refreshNotes,
+    refreshReports,
 }: {
-    row: Row<INote>;
-    refreshNotes: () => void;
+    row: Row<IReport>;
+    refreshReports: () => void;
 }) {
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [isViewOpen, setIsViewOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const projectId = row.original.projectId as string;
-    const noteId = row.original._id as string;
-    const deleteNote = async () => {
+    const reportId = row.original._id as string;
+
+    const deleteReport = async () => {
         try {
             setIsLoading(true);
-            const response = await deleteNoteService(projectId, noteId);
+            const response = await deleteReportService(projectId, reportId);
 
             if (response?.message) {
                 setIsLoading(false);
-                refreshNotes();
+                refreshReports();
                 setIsDeleteOpen(false);
                 toasterService.success(response.message);
             }
         } catch (error) {
             toasterService.error();
             setIsDeleteOpen(false);
-            console.log("Error > deleteTestCycle");
+            console.log("Error > deleteReport");
         }
     };
 
     return (
         <>
-            <EditNote
-                Note={row.original as INote}
+            <EditReport
+                report={row.original as IReport}
                 sheetOpen={isEditOpen}
                 setSheetOpen={setIsEditOpen}
-                refreshNotes={refreshNotes}
+                refreshReports={refreshReports}
             />
 
-            <ViewNote
+            <ViewReport
                 sheetOpen={isViewOpen}
                 setSheetOpen={setIsViewOpen}
-                note={row.original as INote}
+                report={row.original as IReport}
             />
 
             <ConfirmationDialog
                 isOpen={isDeleteOpen}
                 setIsOpen={setIsDeleteOpen}
-                title="Delete note"
-                description="Are you sure you want delete this note?"
+                title="Delete report"
+                description="Are you sure you want delete this report?"
                 isLoading={isLoading}
-                successAction={deleteNote}
+                successAction={deleteReport}
                 successLabel="Delete"
                 successLoadingLabel="Deleting"
                 successVariant={"destructive"}

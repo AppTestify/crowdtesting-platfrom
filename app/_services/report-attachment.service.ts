@@ -5,9 +5,9 @@ import {
   genericPostFormData,
 } from "./generic-api-methods";
 
-export const addIssueAttachmentsService = async (
+export const addReportAttachmentsService = async (
   projectId: string,
-  issueId: string,
+  reportId: string,
   body: any
 ): Promise<any> => {
   try {
@@ -17,43 +17,43 @@ export const addIssueAttachmentsService = async (
     });
 
     const response = await genericPostFormData(
-      `${PROJECTS_ENDPOINT}/${projectId}/issue/${issueId}/attachment`,
+      `${PROJECTS_ENDPOINT}/${projectId}/report/${reportId}/attachment`,
       formData
     );
     return response || {};
   } catch (error) {
-    console.error(`Error > addIssueAttachmentService:`, error);
+    console.error(`Error > addReportAttachmentsService:`, error);
     throw error;
   }
 };
 
-export const getIssueAttachmentsService = async (
+export const getReportAttachmentsService = async (
   projectId: string,
-  issueId: string
+  reportId: string
 ): Promise<any> => {
   try {
     const response = await genericGet(
-      `${PROJECTS_ENDPOINT}/${projectId}/issue/${issueId}/attachment`
+      `${PROJECTS_ENDPOINT}/${projectId}/report/${reportId}/attachment`
     );
     return response || [];
   } catch (error) {
-    console.error(`Error > getIssueAttachmentsService:`, error);
+    console.error(`Error > getReportAttachmentsService:`, error);
     throw error;
   }
 };
 
-export const deleteIssueAttachmentService = async (
+export const deleteReportAttachmentService = async (
   projectId: string,
-  issueId: string,
+  reportId: string,
   attachmentId: string
 ): Promise<any> => {
   try {
     const response = await genericDelete(
-      `${PROJECTS_ENDPOINT}/${projectId}/issue/${issueId}/attachment/${attachmentId}`
+      `${PROJECTS_ENDPOINT}/${projectId}/report/${reportId}/attachment/${attachmentId}`
     );
     return response || {};
   } catch (error) {
-    console.error(`Error > deleteIssueAttachmentService:`, error);
+    console.error(`Error > deleteReportAttachmentService:`, error);
     throw error;
   }
 };

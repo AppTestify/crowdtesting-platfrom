@@ -42,14 +42,14 @@ export async function GET(
         const userIdFormat = await IdFormat.findOne({ entity: DBModels.USER });
 
         const response: any = await Project.findById(projectId)
-            .populate("users.userId")
+            .populate("users.userId", "firstName lastName role")
             .select("_id users")
             .lean();
 
         const usersWithCustomIds = await Promise.all(
             response?.users.map(async (user: any) => {
                 const customIdTransformed = replaceCustomId(userIdFormat.idFormat, user.userId?.customId);
-                const tester = await Tester.findOne({ user: user.userId?._id });
+                const tester = await Tester.findOne({ user: user.userId?._id }).select('address');
                 return {
                     ...user,
                     customId: customIdTransformed,

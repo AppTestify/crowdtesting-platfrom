@@ -22,46 +22,50 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import toasterService from "@/app/_services/toaster-service";
-import { Textarea } from "@/components/ui/text-area";
-import { INote } from "@/app/_interface/note";
-import { updateNoteService } from "@/app/_services/note.service";
+import { IReport } from "@/app/_interface/report";
+import { updateReportService } from "@/app/_services/report.service";
 import TextEditor from "../../../../_components/text-editor";
+import { addReportAttachmentsService } from "@/app/_services/report-attachment.service";
+import ReportAttachments from "../attachments/report-attachment";
 
-const NoteSchema = z.object({
+const ReportSchema = z.object({
     title: z.string().min(1, "Required"),
     description: z.string().min(1, 'Required')
 });
 
-export function EditNote({
-    Note,
+export function EditReport({
+    report,
     sheetOpen,
     setSheetOpen,
-    refreshNotes,
+    refreshReports,
 }: {
-    Note: INote;
+    report: IReport;
     sheetOpen: boolean;
     setSheetOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    refreshNotes: () => void;
+    refreshReports: () => void;
 }) {
-    const NoteId = Note._id;
-    const { title, projectId, description } = Note;
+    const ReportId = report._id;
+    const { title, projectId, description } = report;
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const form = useForm<z.infer<typeof NoteSchema>>({
-        resolver: zodResolver(NoteSchema),
+    const [attachments, setAttachments] = useState<any>();
+
+    const form = useForm<z.infer<typeof ReportSchema>>({
+        resolver: zodResolver(ReportSchema),
         defaultValues: {
             title: title || "",
             description: description || ""
         },
     });
 
-    async function onSubmit(values: z.infer<typeof NoteSchema>) {
+    async function onSubmit(values: z.infer<typeof ReportSchema>) {
         setIsLoading(true);
         try {
-            const response = await updateNoteService(projectId as string, NoteId, {
+            const response = await updateReportService(projectId as string, ReportId, {
                 ...values,
             });
             if (response) {
-                refreshNotes();
+                await uploadAttachment();
+                refreshReports();
                 toasterService.success(response.message);
             }
         } catch (error) {
@@ -71,6 +75,17 @@ export function EditNote({
             setIsLoading(false);
         }
     }
+
+    const uploadAttachment = async () => {
+        setIsLoading(true);
+        try {
+            await addReportAttachmentsService(projectId as string, ReportId, { attachments });
+        } catch (error) {
+            toasterService.error();
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const resetForm = () => {
         form.reset();
@@ -86,7 +101,7 @@ export function EditNote({
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
             <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto">
                 <SheetHeader>
-                    <SheetTitle className="text-left">Edit note</SheetTitle>
+                    <SheetTitle className="text-left">Edit report</SheetTitle>
                 </SheetHeader>
                 <div className="mt-4">
                     <Form {...form}>
@@ -97,7 +112,7 @@ export function EditNote({
                                     name="title"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>note title</FormLabel>
+                                            <FormLabel>report title</FormLabel>
                                             <FormControl>
                                                 <Input {...field} />
                                             </FormControl>
@@ -129,6 +144,8 @@ export function EditNote({
                                     )}
                                 />
                             </div>
+                            <ReportAttachments reportId={ReportId} isUpdate={true} isView={false}
+                                setAttachmentsData={setAttachments} />
 
                             <div className="mt-8 w-full flex justify-end gap-2">
                                 <SheetClose asChild>

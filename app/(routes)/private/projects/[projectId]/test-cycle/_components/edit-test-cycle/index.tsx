@@ -60,8 +60,8 @@ export function EditTestCycle({
             title: title || "",
             projectId: projectId,
             description: description || "",
-            startDate: parseDate(formatDateReverse(startDate) || new Date()),
-            endDate: parseDate(formatDateReverse(endDate) || new Date()),
+            startDate: parseDate(startDate || new Date()),
+            endDate: parseDate(endDate || new Date()),
         },
     });
 
@@ -93,21 +93,19 @@ export function EditTestCycle({
         }
     }, [sheetOpen]);
 
-    function parseDate(date: string | Date): Date {
-        if (typeof date === "string") {
-            const parsedDate = new Date(date);
-            if (!isNaN(parsedDate.getTime())) {
-                return parsedDate;
-            }
-        }
-        return new Date();
+    const formatDate = (date: Date) => {
+        return formatSimpleDate(date);
+    };
+
+    function parseDate(date: string | Date | undefined): Date {
+        return date ? new Date(date) : new Date();
     }
 
     return (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
             <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto">
                 <SheetHeader>
-                    <SheetTitle className="text-left">Edit test plan</SheetTitle>
+                    <SheetTitle className="text-left">Edit test cycle</SheetTitle>
                     <SheetDescription className="text-left">
                         A series of iterative testing phases, including planning, execution,
                         and closure, to validate product functionality.
@@ -150,10 +148,11 @@ export function EditTestCycle({
                                                             )}
                                                         >
                                                             {field?.value ? (
-                                                                format(formatSimpleDate(field.value), "PPP")
+                                                                format(field.value, "PPP")
                                                             ) : (
-                                                                <span>Start date</span>
+                                                                <span>Select date</span>
                                                             )}
+
                                                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                                         </Button>
                                                     </FormControl>
@@ -162,7 +161,7 @@ export function EditTestCycle({
                                                     <Calendar
                                                         mode="single"
                                                         selected={field.value}
-                                                        onSelect={field.onChange}
+                                                        onSelect={(date) => field.onChange(date)}
                                                         disabled={(date) => date < new Date("1900-01-01")}
                                                         initialFocus
                                                     />
@@ -190,10 +189,11 @@ export function EditTestCycle({
                                                             )}
                                                         >
                                                             {field?.value ? (
-                                                                format(formatSimpleDate(field.value), "PPP")
+                                                                format(field.value, "PPP")
                                                             ) : (
-                                                                <span>End date</span>
+                                                                <span>Select date</span>
                                                             )}
+
                                                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                                         </Button>
                                                     </FormControl>
@@ -202,7 +202,7 @@ export function EditTestCycle({
                                                     <Calendar
                                                         mode="single"
                                                         selected={field.value}
-                                                        onSelect={field.onChange}
+                                                        onSelect={(date) => field.onChange(date)}
                                                         disabled={(date) =>
                                                             date < form.watch("startDate") ||
                                                             date < new Date("1900-01-01")

@@ -42,7 +42,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { getRequirementsWithoutPaginationService } from "@/app/_services/requirement.service";
 import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
 
-export default function TestPlan() {
+export default function TestCases() {
     const [testCases, setTestCases] = useState<ITestCase[]>([]);
     const [userData, setUserData] = useState<any>();
 
