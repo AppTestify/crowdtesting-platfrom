@@ -46,7 +46,7 @@ export default function Report() {
     const [userData, setUserData] = useState<any>();
     const [isViewOpen, setIsViewOpen] = useState(false);
     const [report, setReport] = useState<IReport>();
-    const [isDownloadLoading, setIsDownloadLoading] = useState<boolean>(false);
+    // const [isDownloadLoading, setIsDownloadLoading] = useState<boolean>(false);
 
     const columns: ColumnDef<IReport>[] = [
         {
@@ -111,8 +111,9 @@ export default function Report() {
                 <TooltipProvider>
                     <Tooltip delayDuration={50}>
                         <TooltipTrigger asChild>
-                            <Button disabled={isDownloadLoading} variant={'outline'} size={'icon'} onClick={() => downloadAttachmentZip(row.original._id)}>
-                                {isDownloadLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="w-5 h-5" />}
+                            <Button variant={'outline'} size={'icon'} onClick={() => downloadAttachmentZip(row.original._id)}>
+                                {/* {isDownloadLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="w-5 h-5" />} */}
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                             </Button>
                         </TooltipTrigger>
                         <TooltipContent>
@@ -138,7 +139,7 @@ export default function Report() {
 
     // download zip file
     const downloadAttachmentZip = async (reportId: string) => {
-        setIsDownloadLoading(true);
+        // setIsDownloadLoading(true);
         try {
             const response = await fetch(
                 `${process.env.NEXT_PUBLIC_URL}/api/project/${projectId}/report/${reportId}/download-zip`,
@@ -162,7 +163,7 @@ export default function Report() {
         } catch (error) {
             console.error('Error downloading file:', error);
         } finally {
-            setIsDownloadLoading(false);
+            // setIsDownloadLoading(false);
         }
     };
 
