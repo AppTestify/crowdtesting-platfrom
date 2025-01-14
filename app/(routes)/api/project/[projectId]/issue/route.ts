@@ -15,7 +15,11 @@ import { isAdmin, isClient, verifySession } from "@/app/_lib/dal";
 import { IdFormat } from "@/app/_models/id-format.model";
 import { IssueAttachment } from "@/app/_models/issue-attachment.model";
 import { Issue } from "@/app/_models/issue.model";
-import { filterIssuesForAdmin, filterIssuesForClient, filterIssuesForTester } from "@/app/_queries/search-issues";
+import {
+  filterIssuesForAdmin,
+  filterIssuesForClient,
+  filterIssuesForTester,
+} from "@/app/_queries/search-issues";
 import { issueSchema } from "@/app/_schemas/issue.schema";
 import {
   getFileMetaData,
@@ -129,7 +133,7 @@ export async function POST(
 
 export async function GET(
   req: Request,
-  { params }: { params: { projectId: string } }
+  { params }: { params: { projectId: string; issueId: string } }
 ) {
   try {
     const session = await verifySession();
@@ -164,7 +168,9 @@ export async function GET(
         const { issues, totalIssues } = await filterIssuesForAdmin(
           searchString,
           skip,
-          limit
+          limit,
+          projectId,
+          customIDFormat
         );
         return Response.json({
           issues: addCustomIds(issues, customIDFormat?.idFormat),
@@ -174,7 +180,9 @@ export async function GET(
         const { issues, totalIssues } = await filterIssuesForClient(
           searchString,
           skip,
-          limit
+          limit,
+          projectId,
+          customIDFormat
         );
         return Response.json({
           issues: addCustomIds(issues, customIDFormat?.idFormat),
@@ -184,7 +192,9 @@ export async function GET(
         const { issues, totalIssues } = await filterIssuesForTester(
           searchString,
           skip,
-          limit
+          limit,
+          projectId,
+          customIDFormat
         );
         return Response.json({
           issues: addCustomIds(issues, customIDFormat?.idFormat),
@@ -197,7 +207,7 @@ export async function GET(
       projectId: projectId,
     }).countDocuments();
 
-    let query = Issue.find({ projectId })
+    let query = Issue.find({ projectId: projectId })
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(Number(limit));
@@ -205,7 +215,7 @@ export async function GET(
     if (await isAdmin(session.user)) {
       response = addCustomIds(
         await query
-          .populate("userId attachments projectId")
+          .populate("userId projectId")
           .populate({ path: "assignedTo", strictPopulate: false })
           .populate({ path: "testCycle", strictPopulate: false })
           .populate("device")
@@ -223,9 +233,9 @@ export async function GET(
           .populate({
             path: "assignedTo",
             select: "firstName lastName _id",
-            strictPopulate: false
+            strictPopulate: false,
           })
-          .populate("device attachments projectId")
+          .populate("device projectId")
           .populate({ path: "testCycle", strictPopulate: false })
           .lean(),
         customIDFormat.idFormat
@@ -233,11 +243,11 @@ export async function GET(
     } else {
       response = addCustomIds(
         await query
-          .populate("userId attachments projectId")
+          .populate("userId projectId")
           .populate({
             path: "assignedTo",
             select: "firstName lastName _id",
-            strictPopulate: false
+            strictPopulate: false,
           })
           .populate({ path: "testCycle", strictPopulate: false })
           .populate("device")

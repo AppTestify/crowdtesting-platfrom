@@ -11,7 +11,11 @@ import {
   USERS_BULK_DELETE_ENDPOINT,
   USERS_ENDPOINT,
 } from "../_constants/api-endpoints";
-import { IUserByAdmin, IUserPassword, IUsersBulkDeletePayload } from "../_interface/user";
+import {
+  IUserByAdmin,
+  IUserPassword,
+  IUsersBulkDeletePayload,
+} from "../_interface/user";
 import {
   genericDelete,
   genericGet,
@@ -72,10 +76,20 @@ export const updatePaymentService = async (
   }
 };
 
-export const getUsersService = async (index: Number, pageSize: Number, role: string, status: boolean | any): Promise<any> => {
+export const getUsersService = async (
+  index: Number,
+  pageSize: Number,
+  role: string,
+  status: boolean | any,
+  searchString?: string
+): Promise<any> => {
   try {
-    const response = await genericGet(`${USERS_ENDPOINT}${PAGINATION_QUERY_ENDPOINT(index, pageSize)}
-    &role=${role}&status=${status}`);
+    const response =
+      await genericGet(`${USERS_ENDPOINT}${PAGINATION_QUERY_ENDPOINT(
+        index,
+        pageSize
+      )}
+    &role=${role}&status=${status}&searchString=${searchString}`);
     return response || [];
   } catch (error) {
     console.error(`Error > getUsersService:`, error);
@@ -103,7 +117,10 @@ export const deleteUserService = async (userId: string): Promise<any> => {
   }
 };
 
-export const updateUserService = async (userId: string, body: IUserByAdmin): Promise<any> => {
+export const updateUserService = async (
+  userId: string,
+  body: IUserByAdmin
+): Promise<any> => {
   try {
     const response = await genericPut(`${GET_USER_ENPOINT(userId)}`, body);
     return response || {};
@@ -130,7 +147,9 @@ export const updateUserStausService = async (
   isActive: boolean
 ): Promise<any> => {
   try {
-    const response = await genericPut(`${GET_USER_ENPOINT(userId)}/status`, { isActive });
+    const response = await genericPut(`${GET_USER_ENPOINT(userId)}/status`, {
+      isActive,
+    });
     return response || {};
   } catch (error) {
     console.error(`Error > updateuserStatusService:`, error);
@@ -138,9 +157,13 @@ export const updateUserStausService = async (
   }
 };
 
-export const sendUserCredentialsService = async (userId: string): Promise<any> => {
+export const sendUserCredentialsService = async (
+  userId: string
+): Promise<any> => {
   try {
-    const response = await genericGet(`${GET_USER_ENPOINT(userId)}/send-credentials`);
+    const response = await genericGet(
+      `${GET_USER_ENPOINT(userId)}/send-credentials`
+    );
     return response || [];
   } catch (error) {
     console.error(`Error > sendUserCredentialsService:`, error);
@@ -158,7 +181,9 @@ export const getUserService = async (userId: string): Promise<any> => {
   }
 };
 
-export const updatePasswordService = async (body: IUserPassword): Promise<any> => {
+export const updatePasswordService = async (
+  body: IUserPassword
+): Promise<any> => {
   try {
     const response = await genericPut(USER_PASSWORD_ENDPOINT, body);
     return response || {};
@@ -168,9 +193,13 @@ export const updatePasswordService = async (body: IUserPassword): Promise<any> =
   }
 };
 
-export const getUsersWithoutPaginationService = async (projectId: string): Promise<any> => {
+export const getUsersWithoutPaginationService = async (
+  projectId: string
+): Promise<any> => {
   try {
-    const response = await genericGet(`${PROJECTS_ENDPOINT}/${projectId}/unique-users`);
+    const response = await genericGet(
+      `${PROJECTS_ENDPOINT}/${projectId}/unique-users`
+    );
     return response || [];
   } catch (error) {
     console.error(`Error > getUsersWithoutPaginationService:`, error);

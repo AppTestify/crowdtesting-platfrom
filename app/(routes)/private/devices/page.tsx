@@ -68,7 +68,7 @@ export default function Devices() {
           enableHiding: false,
         }] : []),
     ...(
-      devices.some((item) => item?.userId?._id) ?
+      devices?.some((item) => item?.userId?._id) ?
         [{
           accessorKey: "createdBy",
           header: "Tester",
@@ -156,7 +156,7 @@ export default function Devices() {
   const [rowSelection, setRowSelection] = React.useState({});
   const [browsers, setBrowsers] = useState<IBrowser[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [globalFilter, setGlobalFilter] = useState<any>([]);
+  const [globalFilter, setGlobalFilter] = useState<unknown>([]);
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
   const [totalPageCount, setTotalPageCount] = useState(0);
@@ -184,7 +184,7 @@ export default function Devices() {
     globalFilterFn: "includesString",
     state: {
       sorting,
-      globalFilter,
+      // globalFilter,
       columnVisibility,
       rowSelection,
     },
@@ -199,6 +199,13 @@ export default function Devices() {
     getBrowsers();
   }, []);
 
+  useEffect(() => {
+    const debounceFetch = setTimeout(() => {
+      getDevices();
+    }, 500);
+    return () => clearTimeout(debounceFetch);
+  }, [globalFilter, pageIndex, pageSize]);
+
   const getUser = async (data: IUserByAdmin) => {
     setUser(data as IUserByAdmin);
     setIsViewOpen(true);
@@ -206,7 +213,7 @@ export default function Devices() {
 
   const getDevices = async () => {
     setIsLoading(true);
-    const devices = await getDevicesService(pageIndex, pageSize);
+    const devices = await getDevicesService(pageIndex, pageSize, globalFilter as unknown as string);
     setDevices(devices.devices);
     setTotalPageCount(devices.total);
     setIsLoading(false);

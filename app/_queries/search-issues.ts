@@ -1,233 +1,392 @@
 import "server-only";
-
+import { ObjectId } from "mongodb";
 import { Issue } from "../_models/issue.model";
 import { IssueStatus } from "../_constants/issue";
+import { customIdForSearch } from "../_utils/common-server-side";
 
 export async function filterIssuesForAdmin(
   searchString: string,
   skip: number,
-  limit: number
+  limit: number,
+  projectId: string,
+  idObject: any
 ) {
   const regex = new RegExp(searchString, "i");
+  searchString = customIdForSearch(idObject, searchString);
 
   const issuesPipeline = [
-    // Step 1: Populate userId
+    {
+      $match: {
+        projectId: new ObjectId(projectId),
+      },
+    },
     {
       $lookup: {
-        from: "users", // User collection name
+        from: "users",
         localField: "userId",
         foreignField: "_id",
         as: "user",
       },
     },
-    { $unwind: "$user" }, // Unwind the user array to get a single object
-
-    // Step 2: Populate devices
+    { $unwind: "$user" },
     {
       $lookup: {
-        from: "devices", // Device collection name
+        from: "devices",
         localField: "device",
         foreignField: "_id",
-        as: "devices",
+        as: "device",
       },
     },
 
-    // Step 3: Populate testCycle
     {
       $lookup: {
-        from: "testcycles", // TestCycle collection name
+        from: "testcycles",
         localField: "testCycle",
         foreignField: "_id",
         as: "testCycle",
       },
     },
-    { $unwind: { path: "$testCycle", preserveNullAndEmptyArrays: true } }, // Unwind testCycle, allowing null if not present
+    { $unwind: { path: "$testCycle", preserveNullAndEmptyArrays: true } },
 
-    // Step 4: Match the search string on multiple fields
+    {
+      $lookup: {
+        from: "projects",
+        localField: "projectId",
+        foreignField: "_id",
+        as: "projectId",
+      },
+    },
+    {
+      $addFields: {
+        projectId: {
+          $cond: {
+            if: { $gt: [{ $size: "$projectId" }, 0] },
+            then: {
+              _id: { $arrayElemAt: ["$projectId._id", 0] },
+              title: { $arrayElemAt: ["$projectId.title", 0] },
+            },
+            else: null,
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: "users", // Lookup for assignedTo field
+        localField: "assignedTo",
+        foreignField: "_id",
+        as: "assignedTo",
+      },
+    },
+    { $unwind: { path: "$assignedTo", preserveNullAndEmptyArrays: true } },
+    {
+      $addFields: {
+        fullName: { $concat: ["$firstName", " ", "$lastName"] },
+        address: "$address",
+      },
+    },
+    {
+      $addFields: {
+        AssigedfullName: {
+          $concat: ["$assignedTo.firstName", " ", "$assignedTo.lastName"],
+        },
+        address: "$address",
+      },
+    },
     {
       $match: {
         $or: [
+          { customId: parseInt(searchString) },
           { title: regex },
           { severity: regex },
           { priority: regex },
           { description: regex },
           { "user.firstName": regex },
           { "user.lastName": regex },
+          { fullName: regex },
           { status: regex },
           { issueType: regex },
-          { "devices.name": regex }, // Matches on device name
-          { "testCycle.name": regex }, // Matches on testCycle name (example field)
+          { "device.name": regex },
+          { "testCycle.name": regex },
+          { "assignedTo.firstName": regex },
+          { "assignedTo.lastName": regex },
+          { AssigedfullName: regex },
         ],
       },
     },
 
-    // Step 5: Embed user details into userId
     {
       $addFields: {
-        userId: "$user", // Replace userId with the full user object
+        userId: "$user",
       },
     },
 
-    // Step 6: Remove unnecessary intermediate fields
     {
       $project: {
-        user: 0, // Remove the original user field
+        user: 0,
       },
     },
   ];
 
-  // Get total count of matching issues
   const totalIssues = await Issue.aggregate([
     ...issuesPipeline,
     { $count: "total" },
   ]);
 
-  // Get paginated issues
   const issues = await Issue.aggregate([
     ...issuesPipeline,
-    { $skip: skip }, // Apply pagination
-    { $limit: limit }, // Limit the number of results
+    { $skip: skip },
+    { $limit: limit },
   ]);
 
   return {
     issues,
-    totalIssues: totalIssues[0]?.total || 0, // Return the count or 0 if no issues
+    totalIssues: totalIssues[0]?.total || 0,
   };
 }
 
 export async function filterIssuesForClient(
   searchString: string,
   skip: number,
-  limit: number
+  limit: number,
+  projectId: string,
+  idObject: any
 ) {
   const regex = new RegExp(searchString, "i");
+  searchString = customIdForSearch(idObject, searchString);
 
   const issuesPipeline = [
-    // Step 1: Exclude issues with status "New"
     {
       $match: {
-        status: { $ne: IssueStatus.NEW  }, // Exclude issues where status is "New"
+        projectId: new ObjectId(projectId),
+        status: { $ne: IssueStatus.NEW },
       },
     },
-
-    // Step 2: Populate devices
     {
       $lookup: {
-        from: "devices", // Device collection name
+        from: "users",
+        localField: "userId",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+    { $unwind: "$user" },
+    {
+      $lookup: {
+        from: "devices",
         localField: "device",
         foreignField: "_id",
-        as: "devices",
+        as: "device",
       },
     },
 
-    // Step 3: Populate testCycle
     {
       $lookup: {
-        from: "testcycles", // TestCycle collection name
-        localField: "testCycle",
+        from: "projects",
+        localField: "projectId",
         foreignField: "_id",
-        as: "testCycle",
+        as: "projectId",
       },
     },
-    { $unwind: { path: "$testCycle", preserveNullAndEmptyArrays: true } }, // Unwind testCycle, allowing null if not present
-
-    // Step 4: Match the search string on multiple fields
+    {
+      $addFields: {
+        projectId: {
+          $cond: {
+            if: { $gt: [{ $size: "$projectId" }, 0] },
+            then: {
+              _id: { $arrayElemAt: ["$projectId._id", 0] },
+              title: { $arrayElemAt: ["$projectId.title", 0] },
+            },
+            else: null,
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: "users", // Lookup for assignedTo field
+        localField: "assignedTo",
+        foreignField: "_id",
+        as: "assignedTo",
+      },
+    },
+    { $unwind: { path: "$assignedTo", preserveNullAndEmptyArrays: true } },
+    {
+      $addFields: {
+        fullName: { $concat: ["$firstName", " ", "$lastName"] },
+        address: "$address",
+      },
+    },
+    {
+      $addFields: {
+        AssigedfullName: {
+          $concat: ["$assignedTo.firstName", " ", "$assignedTo.lastName"],
+        },
+        address: "$address",
+      },
+    },
     {
       $match: {
         $or: [
+          { customId: parseInt(searchString) },
           { title: regex },
           { severity: regex },
           { priority: regex },
           { description: regex },
           { status: regex },
           { issueType: regex },
-          { "devices.name": regex }, // Matches on device name
-          { "testCycle.name": regex }, // Matches on testCycle name (example field)
+          { "device.name": regex },
+          { "user.firstName": regex },
+          { "user.lastName": regex },
+          { fullName: regex },
+          { "assignedTo.firstName": regex },
+          { "assignedTo.lastName": regex },
+          { AssigedfullName: regex },
         ],
+      },
+    },
+    {
+      $addFields: {
+        userId: "$user",
       },
     },
   ];
 
-  // Get total count of matching issues
   const totalIssues = await Issue.aggregate([
     ...issuesPipeline,
     { $count: "total" },
   ]);
 
-  // Get paginated issues
   const issues = await Issue.aggregate([
     ...issuesPipeline,
-    { $skip: skip }, // Apply pagination
-    { $limit: limit }, // Limit the number of results
+    { $skip: skip },
+    { $limit: limit },
   ]);
 
   return {
     issues,
-    totalIssues: totalIssues[0]?.total || 0, // Return the count or 0 if no issues
+    totalIssues: totalIssues[0]?.total || 0,
   };
 }
 
 export async function filterIssuesForTester(
   searchString: string,
   skip: number,
-  limit: number
+  limit: number,
+  projectId: string,
+  idObject: any
 ) {
   const regex = new RegExp(searchString, "i");
+  searchString = customIdForSearch(idObject, searchString);
 
   const issuesPipeline = [
-    // Step 2: Populate devices
+    {
+      $match: {
+        projectId: new ObjectId(projectId),
+      },
+    },
     {
       $lookup: {
-        from: "devices", // Device collection name
+        from: "devices",
         localField: "device",
         foreignField: "_id",
-        as: "devices",
+        as: "device",
       },
     },
-
-    // Step 3: Populate testCycle
     {
       $lookup: {
-        from: "testcycles", // TestCycle collection name
-        localField: "testCycle",
+        from: "projects",
+        localField: "projectId",
         foreignField: "_id",
-        as: "testCycle",
+        as: "projectId",
       },
     },
-    { $unwind: { path: "$testCycle", preserveNullAndEmptyArrays: true } }, // Unwind testCycle, allowing null if not present
-
-    // Step 4: Match the search string on multiple fields
+    {
+      $addFields: {
+        projectId: {
+          $cond: {
+            if: { $gt: [{ $size: "$projectId" }, 0] },
+            then: {
+              _id: { $arrayElemAt: ["$projectId._id", 0] },
+              title: { $arrayElemAt: ["$projectId.title", 0] },
+            },
+            else: null,
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "userId",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+    { $unwind: "$user" },
+    {
+      $lookup: {
+        from: "users", // Lookup for assignedTo field
+        localField: "assignedTo",
+        foreignField: "_id",
+        as: "assignedTo",
+      },
+    },
+    { $unwind: { path: "$assignedTo", preserveNullAndEmptyArrays: true } },
+    {
+      $addFields: {
+        fullName: { $concat: ["$firstName", " ", "$lastName"] },
+        address: "$address",
+      },
+    },
+    {
+      $addFields: {
+        AssigedfullName: {
+          $concat: ["$assignedTo.firstName", " ", "$assignedTo.lastName"],
+        },
+        address: "$address",
+      },
+    },
     {
       $match: {
         $or: [
+          { customId: parseInt(searchString) },
           { title: regex },
           { severity: regex },
           { priority: regex },
           { description: regex },
           { status: regex },
           { issueType: regex },
-          { "devices.name": regex }, // Matches on device name
-          { "testCycle.name": regex }, // Matches on testCycle name (example field)
+          { "device.name": regex },
+          { "user.firstName": regex },
+          { "user.lastName": regex },
+          { fullName: regex },
+          { "assignedTo.firstName": regex },
+          { "assignedTo.lastName": regex },
+          { AssigedfullName: regex },
         ],
+      },
+    },
+    {
+      $addFields: {
+        userId: "$user",
       },
     },
   ];
 
-  // Get total count of matching issues
   const totalIssues = await Issue.aggregate([
     ...issuesPipeline,
     { $count: "total" },
   ]);
 
-  // Get paginated issues
   const issues = await Issue.aggregate([
     ...issuesPipeline,
-    { $skip: skip }, // Apply pagination
-    { $limit: limit }, // Limit the number of results
+    { $skip: skip },
+    { $limit: limit },
   ]);
 
   return {
     issues,
-    totalIssues: totalIssues[0]?.total || 0, // Return the count or 0 if no issues
+    totalIssues: totalIssues[0]?.total || 0,
   };
 }

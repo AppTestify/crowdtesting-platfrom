@@ -1,10 +1,34 @@
-import { PAGINATION_QUERY_ENDPOINT, PROJECT_USER_ENPOINT, PROJECTS_BULK_DELETE_ENDPOINT, PROJECTS_ENDPOINT } from "../_constants/api-endpoints";
-import { IProject, IProjectBulkDeletePayload, IProjectPayload, IProjectUser } from "../_interface/project";
-import { genericDelete, genericGet, genericPost, genericPut } from "./generic-api-methods";
+import {
+  PAGINATION_QUERY_ENDPOINT,
+  PROJECT_USER_ENPOINT,
+  PROJECTS_BULK_DELETE_ENDPOINT,
+  PROJECTS_ENDPOINT,
+} from "../_constants/api-endpoints";
+import {
+  IProject,
+  IProjectBulkDeletePayload,
+  IProjectPayload,
+  IProjectUser,
+} from "../_interface/project";
+import {
+  genericDelete,
+  genericGet,
+  genericPost,
+  genericPut,
+} from "./generic-api-methods";
 
-export const getProjectsService = async (index: Number, pageSize: Number): Promise<any> => {
+export const getProjectsService = async (
+  index: Number,
+  pageSize: Number,
+  searchString?: string
+): Promise<any> => {
   try {
-    const response = await genericGet(`${PROJECTS_ENDPOINT}${PAGINATION_QUERY_ENDPOINT(index, pageSize)}`);
+    const response = await genericGet(
+      `${PROJECTS_ENDPOINT}${PAGINATION_QUERY_ENDPOINT(
+        index,
+        pageSize
+      )}&searchString=${searchString}`
+    );
     return response || [];
   } catch (error) {
     console.error(`Error > getProjects:`, error);
@@ -12,7 +36,9 @@ export const getProjectsService = async (index: Number, pageSize: Number): Promi
   }
 };
 
-export const addProjectService = async (body: IProjectPayload): Promise<any> => {
+export const addProjectService = async (
+  body: IProjectPayload
+): Promise<any> => {
   try {
     const response = await genericPost(PROJECTS_ENDPOINT, body);
     return response || {};
@@ -62,7 +88,9 @@ export const updateProjectStausService = async (
   isActive: boolean
 ): Promise<any> => {
   try {
-    const response = await genericPut(`${PROJECTS_ENDPOINT}/${id}/status`, { isActive });
+    const response = await genericPut(`${PROJECTS_ENDPOINT}/${id}/status`, {
+      isActive,
+    });
     return response || {};
   } catch (error) {
     console.error(`Error > updateProjectStatusService:`, error);
@@ -80,7 +108,9 @@ export const getProjectService = async (projectId: string): Promise<any> => {
   }
 };
 
-export const getProjectUsersService = async (projectId: string): Promise<any> => {
+export const getProjectUsersService = async (
+  projectId: string
+): Promise<any> => {
   try {
     const response = await genericGet(`${PROJECT_USER_ENPOINT(projectId)}`);
     return response || [];
@@ -90,9 +120,15 @@ export const getProjectUsersService = async (projectId: string): Promise<any> =>
   }
 };
 
-export const addProjectUserService = async (projectId: string, body: IProjectUser): Promise<any> => {
+export const addProjectUserService = async (
+  projectId: string,
+  body: IProjectUser
+): Promise<any> => {
   try {
-    const response = await genericPost(`${PROJECT_USER_ENPOINT(projectId)}`, body);
+    const response = await genericPost(
+      `${PROJECT_USER_ENPOINT(projectId)}`,
+      body
+    );
     return response || {};
   } catch (error) {
     console.error(`Error > addProjectUserService:`, error);
@@ -100,9 +136,14 @@ export const addProjectUserService = async (projectId: string, body: IProjectUse
   }
 };
 
-export const deleteProjectUserService = async (projectId: string, userId: string): Promise<any> => {
+export const deleteProjectUserService = async (
+  projectId: string,
+  userId: string
+): Promise<any> => {
   try {
-    const response = await genericDelete(`${PROJECT_USER_ENPOINT(projectId)}/${userId}`);
+    const response = await genericDelete(
+      `${PROJECT_USER_ENPOINT(projectId)}/${userId}`
+    );
     return response || {};
   } catch (error) {
     console.error(`Error > deleteProjectUserService:`, error);
@@ -110,9 +151,15 @@ export const deleteProjectUserService = async (projectId: string, userId: string
   }
 };
 
-export const editProjectUserService = async (projectId: string, body: IProjectUser): Promise<any> => {
+export const editProjectUserService = async (
+  projectId: string,
+  body: IProjectUser
+): Promise<any> => {
   try {
-    const response = await genericPut(`${PROJECT_USER_ENPOINT(projectId)}`, body);
+    const response = await genericPut(
+      `${PROJECT_USER_ENPOINT(projectId)}`,
+      body
+    );
     return response || {};
   } catch (error) {
     console.error(`Error > editProjectUserService:`, error);
@@ -122,7 +169,9 @@ export const editProjectUserService = async (projectId: string, body: IProjectUs
 
 export const getProjectsWithoutPaginationService = async (): Promise<any> => {
   try {
-    const response = await genericGet(`${PROJECTS_ENDPOINT}/without-pagination`);
+    const response = await genericGet(
+      `${PROJECTS_ENDPOINT}/without-pagination`
+    );
     return response || [];
   } catch (error) {
     console.error(`Error > getProjectUsersService:`, error);

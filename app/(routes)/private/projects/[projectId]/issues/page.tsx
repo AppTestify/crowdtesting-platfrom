@@ -140,43 +140,41 @@ export default function Issues() {
       header: "Device",
       cell: ({ row }) => (
         <div className="capitalize">
-          {/* {row.original?.device && row.original.device.length > 0 ? row.original.device[0]?.name : ''} */}
           <ExpandableTable row={row?.original?.device} />
         </div>
       ),
     },
     ...(issues.some((item) => item.userId?._id)
       ? [
-          {
-            accessorKey: "createdBy",
-            header: "Reporter",
-            cell: ({ row }: { row: any }) => (
-              <div className="">
-                {`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}
-              </div>
-            ),
-          },
-        ]
+        {
+          accessorKey: "createdBy",
+          header: "Reporter",
+          cell: ({ row }: { row: any }) => (
+            <div className="">
+              {`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}
+            </div>
+          ),
+        },
+      ]
       : []),
     ...(issues.some((item) => item.assignedTo?._id)
       ? [
-          {
-            accessorKey: "assignedTo",
-            header: "Assignee",
-            cell: ({ row }: { row: any }) => (
-              <div>
-                {row.original?.assignedTo?._id ? (
-                  `${
-                    row.original?.assignedTo?.firstName ||
-                    NAME_NOT_SPECIFIED_ERROR_MESSAGE
-                  } ${row.original?.assignedTo?.lastName || ""}`
-                ) : (
-                  <span className="text-gray-400">Unassigned</span>
-                )}
-              </div>
-            ),
-          },
-        ]
+        {
+          accessorKey: "assignedTo",
+          header: "Assignee",
+          cell: ({ row }: { row: any }) => (
+            <div>
+              {row.original?.assignedTo?._id ? (
+                `${row.original?.assignedTo?.firstName ||
+                NAME_NOT_SPECIFIED_ERROR_MESSAGE
+                } ${row.original?.assignedTo?.lastName || ""}`
+              ) : (
+                <span className="text-gray-400">Unassigned</span>
+              )}
+            </div>
+          ),
+        },
+      ]
       : []),
     {
       accessorKey: "status",
@@ -240,7 +238,7 @@ export default function Issues() {
   const getIssues = async () => {
     setIsLoading(true);
     try {
-      const response = await getIssuesService(projectId, pageIndex, pageSize);
+      const response = await getIssuesService(projectId, pageIndex, pageSize, globalFilter as unknown as string);
       setIssues(response?.issues);
       setTotalPageCount(response?.total);
     } catch (error) {
@@ -268,7 +266,7 @@ export default function Issues() {
     globalFilterFn: "includesString",
     state: {
       sorting,
-      globalFilter,
+      // globalFilter,
       columnVisibility,
       rowSelection,
     },
@@ -289,32 +287,32 @@ export default function Issues() {
 
   const generateExcel = async () => {
     setIsExcelLoading(true);
-    const issues = await getIssuesWithoutPaginationService(projectId);
     const header =
       userData.role === UserRoles.ADMIN
         ? [
-            "ID",
-            "Title",
-            "Severity",
-            "Priority",
-            "issueType",
-            "testCycle",
-            "Device Name",
-            "Created By",
-            "Status",
-            "Attachments",
-          ]
+          "ID",
+          "Title",
+          "Severity",
+          "Priority",
+          "issueType",
+          "testCycle",
+          "Device Name",
+          "Created By",
+          "Status",
+          "Attachments",
+        ]
         : [
-            "ID",
-            "Title",
-            "Severity",
-            "Priority",
-            "issueType",
-            "testCycle",
-            "Device Name",
-            "Status",
-            "Attachments",
-          ];
+          "ID",
+          "Title",
+          "Severity",
+          "Priority",
+          "issueType",
+          "testCycle",
+          "Device Name",
+          "Status",
+          "Attachments",
+        ];
+
     const data = issues?.map((row: IIssue) => [
       row.customId,
       row.title,
@@ -329,15 +327,15 @@ export default function Issues() {
       userData?.role === UserRoles.ADMIN
         ? row.status || ""
         : row.attachments && row?.attachments?.length > 0
-        ? process.env.NEXT_PUBLIC_URL +
+          ? process.env.NEXT_PUBLIC_URL +
           `/download/${projectId}/issue?issue=` +
           row.id
-        : "",
+          : "",
       userData?.role === UserRoles.ADMIN
         ? row.attachments && row?.attachments?.length > 0
           ? process.env.NEXT_PUBLIC_URL +
-            `/download/${projectId}/issue?issue=` +
-            row.id
+          `/download/${projectId}/issue?issue=` +
+          row.id
           : ""
         : "",
     ]);
@@ -349,6 +347,13 @@ export default function Issues() {
     setIsExcelLoading(false);
   };
   const hasData = table.getRowModel().rows?.length > 0;
+
+  useEffect(() => {
+    const debounceFetch = setTimeout(() => {
+      getIssues();
+    }, 500);
+    return () => clearTimeout(debounceFetch);
+  }, [globalFilter, pageIndex, pageSize]);
 
   return (
     <main className="mx-4 mt-2">
@@ -370,7 +375,7 @@ export default function Issues() {
             placeholder="Filter Issues"
             value={(globalFilter as string) ?? ""}
             onChange={(event) => {
-              table.setGlobalFilter(String(event.target.value));
+              setGlobalFilter(event.target.value);
             }}
             className="max-w-sm"
           />
@@ -395,9 +400,9 @@ export default function Issues() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}

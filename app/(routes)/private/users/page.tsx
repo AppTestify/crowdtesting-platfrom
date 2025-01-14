@@ -197,7 +197,7 @@ export default function Users() {
     const getUsers = async () => {
         setIsLoading(true);
         try {
-            const users = await getUsersService(pageIndex, pageSize, selectedRole, selectedStatus);
+            const users = await getUsersService(pageIndex, pageSize, selectedRole, selectedStatus, globalFilter as unknown as string);
             setUsers(users?.users);
             setFilteredUsers(users?.users);
             setTotalPageCount(users?.total)
@@ -208,6 +208,12 @@ export default function Users() {
         }
     };
 
+    useEffect(() => {
+        const debounceFetch = setTimeout(() => {
+            getUsers();
+        }, 500);
+        return () => clearTimeout(debounceFetch);
+    }, [globalFilter, pageIndex, pageSize]);
 
     const refreshUsers = () => {
         getUsers();
@@ -227,7 +233,7 @@ export default function Users() {
         globalFilterFn: "includesString",
         state: {
             sorting,
-            globalFilter,
+            // globalFilter,
             columnVisibility,
             rowSelection,
         },
@@ -241,7 +247,7 @@ export default function Users() {
     };
 
     const getSelectedRows = () => {
-        return table.getFilteredSelectedRowModel().rows.map((row) => row.original?.id)
+        return table.getFilteredSelectedRowModel()?.rows?.map((row) => row.original?.id)
             .filter((id): id is string => id !== undefined);
     };
 
@@ -288,7 +294,7 @@ export default function Users() {
                             placeholder="Filter users"
                             value={(globalFilter as string) ?? ""}
                             onChange={(event) => {
-                                table.setGlobalFilter(String(event.target.value));
+                                table.setGlobalFilter(event.target.value);
                             }}
                             className="w-full"
                         />

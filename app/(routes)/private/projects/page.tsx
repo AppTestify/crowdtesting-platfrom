@@ -181,7 +181,7 @@ export default function Projects() {
 
   const getProjects = async () => {
     setIsLoading(true);
-    const response = await getProjectsService(pageIndex, pageSize);
+    const response = await getProjectsService(pageIndex, pageSize, globalFilter as unknown as string);
     const formattedProjects = response?.projects?.map((project: any) => ({
       ...project,
       startDate: formatDateWithoutTime(project.startDate),
@@ -210,7 +210,7 @@ export default function Projects() {
     globalFilterFn: "includesString",
     state: {
       sorting,
-      globalFilter,
+      // globalFilter,
       columnVisibility,
       rowSelection,
     },
@@ -241,6 +241,13 @@ export default function Projects() {
       setUserData(user);
     }
   }, [data]);
+
+  useEffect(() => {
+    const debounceFetch = setTimeout(() => {
+      getProjects();
+    }, 500);
+    return () => clearTimeout(debounceFetch);
+  }, [globalFilter, pageIndex, pageSize]);
 
   const getUser = async (data: IUserByAdmin) => {
     setUser(data as IUserByAdmin);

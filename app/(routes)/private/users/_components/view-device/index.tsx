@@ -21,10 +21,24 @@ export default function ViewUserDevice({ device }: { device: IDevice[] }) {
             header: "Name",
             cell: ({ row }) => (
                 <div>{row.getValue("name")}
-                    <span className="ml-1">
+                    {/* <span className="ml-1">
                         {`(${row.original?.version})`}
-                    </span>
+                    </span> */}
                 </div>
+            ),
+        },
+        {
+            accessorKey: "version",
+            header: "Version",
+            cell: ({ row }) => (
+                <div className="capitalize">{row.getValue("version")}</div>
+            ),
+        },
+        {
+            accessorKey: "os",
+            header: "OS",
+            cell: ({ row }) => (
+                <div className="capitalize">{row.getValue("os")}</div>
             ),
         },
         {

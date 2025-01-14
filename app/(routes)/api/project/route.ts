@@ -10,6 +10,11 @@ import { connectDatabase } from "@/app/_db";
 import { isAdmin, isClient, verifySession } from "@/app/_lib/dal";
 import { IdFormat } from "@/app/_models/id-format.model";
 import { Project } from "@/app/_models/project.model";
+import {
+  filterProjectsForAdmin,
+  filterProjectsForClient,
+  filterProjectsForTester,
+} from "@/app/_queries/search-project";
 import { projectSchema } from "@/app/_schemas/project.schema";
 import { serverSidePagination } from "@/app/_utils/common-server-side";
 import { addCustomIds } from "@/app/_utils/data-formatters";
@@ -86,10 +91,52 @@ export async function GET(req: Request) {
 
     let response = null;
     let totalProjects;
+    const url = new URL(req.url);
+    const searchString = url.searchParams.get("searchString");
     const { skip, limit } = serverSidePagination(req);
     const projectIdFormat = await IdFormat.findOne({
       entity: DBModels.PROJECT,
     });
+
+    if (searchString) {
+      if (await isAdmin(session.user)) {
+        const { projects, totalProjects } = await filterProjectsForAdmin(
+          searchString,
+          skip,
+          limit,
+          projectIdFormat
+        );
+        return Response.json({
+          projects: addCustomIds(projects, projectIdFormat?.idFormat),
+          total: totalProjects,
+        });
+      } else if (await isClient(session.user)) {
+        const { projects, totalProjects } = await filterProjectsForClient(
+          searchString,
+          skip,
+          limit,
+          projectIdFormat,
+          session.user
+        );
+        return Response.json({
+          projects: addCustomIds(projects, projectIdFormat?.idFormat),
+          total: totalProjects,
+        });
+      } else {
+        const { projects, totalProjects } = await filterProjectsForTester(
+          searchString as string,
+          skip,
+          limit,
+          projectIdFormat,
+          session.user
+        );
+        return Response.json({
+          projects: addCustomIds(projects, projectIdFormat?.idFormat),
+          total: totalProjects,
+        });
+      }
+    }
+
     if (await isAdmin(session.user)) {
       response = addCustomIds(
         await Project.find({ deletedAt: { $exists: false } })
@@ -109,7 +156,6 @@ export async function GET(req: Request) {
           deletedAt: { $exists: false },
           userId: session.user._id,
         })
-          .populate("userId")
           .sort({ createdAt: -1 })
           .skip(skip)
           .limit(Number(limit))

@@ -16,11 +16,15 @@ import {
 
 export const getDevicesService = async (
   index: Number,
-  pageSize: Number
+  pageSize: Number,
+  searchString?: string
 ): Promise<any> => {
   try {
     const response = await genericGet(
-      `${DEVICES_ENDPOINT}${PAGINATION_QUERY_ENDPOINT(index, pageSize)}`
+      `${DEVICES_ENDPOINT}${PAGINATION_QUERY_ENDPOINT(
+        index,
+        pageSize
+      )}&searchString=${searchString}`
     );
     return response || [];
   } catch (error) {

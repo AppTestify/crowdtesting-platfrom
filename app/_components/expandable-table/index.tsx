@@ -36,7 +36,7 @@ export default function ExpandableTable({ row }: { row: any[] }) {
                     <DropdownMenuContent>
                         {hiddenRows.map((hiddenItem, index) => (
                             <DropdownMenuItem key={index} className="pointer-events-none">
-                                <div>
+                                <div className='text-xs'>
                                     {hiddenItem?.name ? hiddenItem?.name : hiddenItem?.title}
                                 </div>
                             </DropdownMenuItem>

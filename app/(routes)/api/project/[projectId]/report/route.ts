@@ -12,11 +12,13 @@ import AttachmentService from "@/app/_helpers/attachment.helper";
 import { isAdmin, verifySession } from "@/app/_lib/dal";
 import { ReportAttachment } from "@/app/_models/report-attachment.model";
 import { Report } from "@/app/_models/report.model";
+import { filterReportsForAdmin, filterReportsNotForAdmin } from "@/app/_queries/search-report";
 import { ReportSchema } from "@/app/_schemas/report.schema";
 import {
   getFileMetaData,
   serverSidePagination,
 } from "@/app/_utils/common-server-side";
+import { addCustomIds } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function POST(
@@ -139,10 +141,38 @@ export async function GET(
 
     let response = null;
     const { projectId } = params;
+    const url = new URL(req.url);
+    const searchString = url.searchParams.get("searchString");
     const { skip, limit } = serverSidePagination(req);
     const totalReports = await Report.find({
       projectId: projectId,
     }).countDocuments();
+
+    if (searchString) {
+      if (!(await isAdmin(session.user))) {
+        const { reports, totalReports } = await filterReportsNotForAdmin(
+          searchString,
+          skip,
+          limit,
+          projectId
+        );
+        return Response.json({
+          Reports: reports,
+          total: totalReports,
+        });
+      } else {
+        const { reports, totalReports } = await filterReportsForAdmin(
+          searchString,
+          skip,
+          limit,
+          projectId
+        );
+        return Response.json({
+          Reports: reports,
+          total: totalReports,
+        });
+      }
+    }
 
     if (!(await isAdmin(session.user))) {
       response = await Report.find({ projectId: projectId })

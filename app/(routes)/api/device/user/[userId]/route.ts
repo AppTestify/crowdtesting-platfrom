@@ -31,7 +31,7 @@ export async function GET(
 
         const { userId } = params;
 
-        const response = await Device.find({ userId: userId }).select("_id name userId version country");
+        const response = await Device.find({ userId: userId }).select("_id name userId version country os");
 
         return Response.json(response);
     } catch (error: any) {

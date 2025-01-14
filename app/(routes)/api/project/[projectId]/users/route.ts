@@ -14,7 +14,6 @@ import { IdFormat } from "@/app/_models/id-format.model";
 import { Project } from "@/app/_models/project.model";
 import { Tester } from "@/app/_models/tester.model";
 import { projectUserSchema } from "@/app/_schemas/project.schema";
-import { usersWithCustomIds } from "@/app/_utils/common-server-side";
 import { replaceCustomId } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 
@@ -46,7 +45,7 @@ export async function GET(
     const userIdFormat = await IdFormat.findOne({ entity: DBModels.USER });
 
     const response: any = await Project.findById(projectId)
-      .populate("users.userId", "firstName lastName role")
+      .populate("users.userId", "firstName lastName role customId")
       .select("_id users")
       .lean();
 

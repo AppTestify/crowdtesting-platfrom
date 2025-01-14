@@ -130,9 +130,17 @@ export default function TestPlan() {
             setUserData(user);
         }
     }, [data]);
+
     useEffect(() => {
         getTestCycle();
     }, [pageIndex, pageSize]);
+
+    useEffect(() => {
+        const debounceFetch = setTimeout(() => {
+            getTestCycle();
+        }, 500);
+        return () => clearTimeout(debounceFetch);
+    }, [globalFilter, pageIndex, pageSize]);
 
     const ViewTestCycle = (testCycle: ITestCycle) => {
         setTestCycleData(testCycle);
@@ -141,7 +149,7 @@ export default function TestPlan() {
 
     const getTestCycle = async () => {
         setIsLoading(true);
-        const response = await getTestCycleService(projectId, pageIndex, pageSize);
+        const response = await getTestCycleService(projectId, pageIndex, pageSize, globalFilter as unknown as string);
         setTestCycle(response?.testCycles);
         setTotalPageCount(response?.total);
         setIsLoading(false);
@@ -166,7 +174,7 @@ export default function TestPlan() {
         globalFilterFn: "includesString",
         state: {
             sorting,
-            globalFilter,
+            // globalFilter,
             columnVisibility,
             rowSelection,
         },

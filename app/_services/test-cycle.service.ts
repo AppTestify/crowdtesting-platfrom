@@ -19,14 +19,15 @@ import {
 export const getTestCycleService = async (
   projectId: string,
   index: Number,
-  pageSize: Number
+  pageSize: Number,
+  searchString?: string
 ): Promise<any> => {
   try {
     const response = await genericGet(
       `${TEST_CYCLE_ENPOINT(projectId)}${PAGINATION_QUERY_ENDPOINT(
         index,
         pageSize
-      )}`
+      )}&searchString=${searchString}`
     );
     return response || [];
   } catch (error) {

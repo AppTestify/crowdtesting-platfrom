@@ -8,9 +8,14 @@ import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
 import { isAdmin, isClient, verifySession } from "@/app/_lib/dal";
 import { Device } from "@/app/_models/device.model";
+import {
+  filterDevicesForAdmin,
+  filterDevicesForClient,
+  filterDevicesForTester,
+} from "@/app/_queries/search-device";
 import { deviceSchema } from "@/app/_schemas/device.schema";
 import { serverSidePagination } from "@/app/_utils/common-server-side";
-import { normaliseIds } from "@/app/_utils/data-formatters";
+import { addCustomIds, normaliseIds } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function POST(req: Request) {
@@ -83,8 +88,48 @@ export async function GET(req: Request) {
     }
 
     let response = null;
+    const url = new URL(req.url);
+    const searchString = url.searchParams.get("searchString");
     const { skip, limit } = serverSidePagination(req);
     let totalDevices;
+
+    if (searchString) {
+      if (await isAdmin(session.user)) {
+        const { devices, totalDevices } = await filterDevicesForAdmin(
+          searchString,
+          skip,
+          limit
+        );
+
+        return Response.json({
+          devices: normaliseIds(devices),
+          total: totalDevices,
+        });
+      } else if (await isClient(session.user)) {
+        const { devices, totalDevices } = await filterDevicesForClient(
+          searchString,
+          skip,
+          limit
+        );
+
+        return Response.json({
+          devices: normaliseIds(devices),
+          total: totalDevices,
+        });
+      } else {
+        const { devices, totalDevices } = await filterDevicesForTester(
+          searchString,
+          skip,
+          limit,
+          session.user
+        );
+
+        return Response.json({
+          devices: normaliseIds(devices),
+          total: totalDevices,
+        });
+      }
+    }
 
     if (await isAdmin(session.user)) {
       response = normaliseIds(
@@ -113,17 +158,19 @@ export async function GET(req: Request) {
           .limit(Number(limit))
           .lean()
       );
-      totalDevices = await Device.find({ userId: session.user._id }).countDocuments();
+      totalDevices = await Device.find({
+        userId: session.user._id,
+      }).countDocuments();
     }
     response = response.map((res) => ({
       ...res,
       userId: {
         ...res.userId,
-        id: res?.userId?._id
-      }
+        id: res?.userId?._id,
+      },
     }));
 
-    return Response.json({ "devices": response, "total": totalDevices });
+    return Response.json({ devices: response, total: totalDevices });
   } catch (error: any) {
     return errorHandler(error);
   }

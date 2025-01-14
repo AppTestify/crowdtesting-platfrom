@@ -53,7 +53,7 @@ export default function UserCertificates({ certificate = [] }: { certificate?: I
         <div>
             {certificate.length === 0 ? (
                 <div>
-                    <p className="text-sm">No Certificates added</p>
+                    <p className="text-sm">No certificates added</p>
                 </div>
             ) : (
                 <div className="mt-4 rounded-md border">

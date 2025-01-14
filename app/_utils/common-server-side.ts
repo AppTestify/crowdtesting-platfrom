@@ -102,16 +102,22 @@ export const getAllAttachments = async (issue: any) => {
   }
 };
 
-
 export const usersWithCustomIds = async (response: any, userIdFormat: any) => {
   if (!response?.users?.length) return [];
 
-  const userIds = response.users.map((user: any) => user.userId?._id.toString()).filter(Boolean);
+  const userIds = response.users
+    .map((user: any) => user.userId?._id.toString())
+    .filter(Boolean);
   const testers = await Tester.find({ user: { $in: userIds } }).lean();
-  const testersMap = new Map(testers.map((tester) => [tester.user.toString(), tester]));
+  const testersMap = new Map(
+    testers.map((tester) => [tester.user.toString(), tester])
+  );
 
   return response.users.map((user: any) => {
-    const customIdTransformed = replaceCustomId(userIdFormat.idFormat, user.customId || 0);
+    const customIdTransformed = replaceCustomId(
+      userIdFormat.idFormat,
+      user.customId || 0
+    );
     const tester = testersMap.get(user.userId?._id?.toString() || "");
     return {
       ...user,
@@ -121,3 +127,12 @@ export const usersWithCustomIds = async (response: any, userIdFormat: any) => {
   });
 };
 
+export const customIdForSearch = (idObject: any, searchString: string) => {
+  const idFormat = idObject?.idFormat.replace(/\{.*?\}/, "");
+
+  if (searchString?.toLowerCase().startsWith(idFormat?.toLowerCase())) {
+    searchString = searchString.slice(idFormat?.length);
+  }
+
+  return searchString;
+};

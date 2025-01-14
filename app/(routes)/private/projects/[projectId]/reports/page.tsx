@@ -27,7 +27,7 @@ import { useParams } from "next/navigation";
 import { formatDate } from "@/app/_constants/date-formatter";
 import toasterService from "@/app/_services/toaster-service";
 import { getReportsService } from "@/app/_services/report.service";
-import { IReport, IReportAttachmentDisplay, IReportPayload } from "@/app/_interface/report";
+import { IReport, IReportAttachmentDisplay } from "@/app/_interface/report";
 import { IProject } from "@/app/_interface/project";
 import { getProjectService } from "@/app/_services/project.service";
 import { UserRoles } from "@/app/_constants/user-roles";
@@ -209,10 +209,17 @@ export default function Report() {
         getReports();
     }, [pageIndex, pageSize]);
 
+    useEffect(() => {
+        const debounceFetch = setTimeout(() => {
+            getReports();
+        }, 500);
+        return () => clearTimeout(debounceFetch);
+    }, [globalFilter, pageIndex, pageSize]);
+
     const getReports = async () => {
         setIsLoading(true);
         try {
-            const response = await getReportsService(projectId, pageIndex, pageSize);
+            const response = await getReportsService(projectId, pageIndex, pageSize, globalFilter as unknown as string);
             setReports(response?.Reports);
             setTotalPageCount(response?.total);
         } catch (error) {
@@ -241,7 +248,7 @@ export default function Report() {
         globalFilterFn: "includesString",
         state: {
             sorting,
-            globalFilter,
+            // globalFilter,
             columnVisibility,
             rowSelection,
         },

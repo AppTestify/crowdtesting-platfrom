@@ -14,6 +14,7 @@ import { isAdmin, verifySession } from "@/app/_lib/dal";
 import { IdFormat } from "@/app/_models/id-format.model";
 import { Tester } from "@/app/_models/tester.model";
 import { User } from "@/app/_models/user.model";
+import { filterUsers } from "@/app/_queries/search-user";
 import { adminUserCreateSchema } from "@/app/_schemas/auth.schema";
 import { serverSidePagination } from "@/app/_utils/common-server-side";
 import { addCustomIds } from "@/app/_utils/data-formatters";
@@ -52,6 +53,7 @@ export async function GET(req: Request) {
     const url = new URL(req.url);
     const role = url.searchParams.get("role");
     const status = url.searchParams.get("status");
+    const searchString = url.searchParams.get("searchString");
     const filter: any = { _id: { $ne: session.user._id } };
     if (role) {
       filter.role = role;
@@ -62,6 +64,20 @@ export async function GET(req: Request) {
 
     const userIdFormat = await IdFormat.findOne({ entity: DBModels.USER });
     const { skip, limit } = serverSidePagination(req);
+
+    if (searchString) {
+      const { users, totalUsers } = await filterUsers(
+        searchString,
+        skip,
+        limit,
+        userIdFormat,
+        role as string
+      );
+      return Response.json({
+        users: addCustomIds(users, userIdFormat?.idFormat),
+        total: totalUsers,
+      });
+    }
 
     const users = addCustomIds(
       await User.find(filter)
