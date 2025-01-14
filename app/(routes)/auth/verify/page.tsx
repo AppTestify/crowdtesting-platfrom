@@ -72,7 +72,7 @@ function VerifyWrapper() {
                       <span>
                         Your account has been activate please{" "}
                         <Link
-                          href="/auth/login"
+                          href="/auth/sign-in"
                           className="underline p-0 text-black"
                         >
                           Login
