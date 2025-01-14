@@ -11,4 +11,4 @@ export const getProjectTabs = (user: any) => {
     default:
       return ["dashboard","test instructions", "users", "issues", "reports"];
   }
-};
+}

@@ -268,7 +268,7 @@ const ViewIssue = () => {
                   <span className="text-gray-500 min-w-[70px] text-sm">Reporter</span>
                   <span className="text-sm flex items-center">
                     <UserCircle2Icon className="text-gray-600 h-4 w-4 mr-1"/>
-                    {`${issueData?.userId?.firstName} ${issueData?.userId?.lastName}`}
+                    {`${issueData?.userId?.firstName || ""} ${issueData?.userId?.lastName || ""}`}
                   </span>
                 </div>
               </div>

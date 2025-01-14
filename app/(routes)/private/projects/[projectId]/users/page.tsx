@@ -30,7 +30,7 @@ import { IProjectUserDisplay } from "@/app/_interface/project";
 import { statusBadgeProjectUserRole } from "@/app/_utils/common-functionality";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
-import { getUsernameWithUserId } from "@/app/_utils/common";
+import { getUsernameWithUserId, getUsernameWithUserIdReverse } from "@/app/_utils/common";
 
 export default function ProjectUsers() {
     const [userData, setUserData] = useState<any>();
@@ -41,7 +41,7 @@ export default function ProjectUsers() {
             header: "Name",
             cell: ({ row }) => (
                 <div className="capitalize">
-                    {getUsernameWithUserId(row.original)}
+                    {getUsernameWithUserIdReverse(row.original)}
                 </div>
             ),
         },

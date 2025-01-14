@@ -54,10 +54,15 @@ export async function PUT(
     }
 
     const { issueId } = params;
+
+    const updatedIssue = {
+      ...response.data,
+      assignedTo: response.data.assignedTo || null
+    }
     const updateResponse = await Issue.findByIdAndUpdate(
       issueId,
       {
-        ...response.data,
+        ...updatedIssue,
       },
       { new: true }
     );

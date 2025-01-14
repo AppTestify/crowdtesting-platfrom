@@ -59,7 +59,10 @@ export function AddUser({ refreshUsers }: { refreshUsers: () => void; }) {
     async function onSubmit(values: z.infer<typeof userSchema>) {
         setIsLoading(true);
         try {
-            const response = await addUserService({ ...values });
+            const response = await addUserService({
+                ...values,
+                isVerified: false
+            });
             if (response) {
                 if (response.status === HttpStatusCode.BAD_REQUEST) {
                     toasterService.error(response?.message);
