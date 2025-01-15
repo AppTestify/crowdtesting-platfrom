@@ -1,0 +1,24 @@
+import { IIssue } from "./issue";
+import { IUserByAdmin } from "./user";
+
+export interface ITaskPayload {
+  title: string;
+  priority: string;
+  status: string;
+  description: string;
+  issueId?: string;
+  assignedTo?: string;
+}
+
+export interface ITask {
+  title: string;
+  priority: string;
+  status: string;
+  description: string;
+  issueId?: IIssue;
+  assignedTo?: IUserByAdmin;
+  projectId: string;
+  id: string;
+  userId: IUserByAdmin;
+  createdAt: string;
+}

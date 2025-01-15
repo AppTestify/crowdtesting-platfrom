@@ -38,6 +38,20 @@ export const enum IssueStatus {
   BLOCKED = "Blocked",
 }
 
+export const enum TaskStatus {
+  TODO = "Todo",
+  IN_PROGRESS = "In progress",
+  BLOCKED = "Blocked",
+  DONE = "Done",
+}
+
+export const TASK_STATUS_LIST = [
+  TaskStatus.TODO,
+  TaskStatus.IN_PROGRESS,
+  TaskStatus.BLOCKED,
+  TaskStatus.DONE,
+];
+
 export const ISSUE_STATUS_LIST = [
   IssueStatus.NEW,
   IssueStatus.OPEN,

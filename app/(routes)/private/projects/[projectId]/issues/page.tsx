@@ -230,11 +230,6 @@ export default function Issues() {
     }
   };
 
-  useEffect(() => {
-    getIssues();
-    getProject();
-  }, [pageIndex, pageSize]);
-
   const getIssues = async () => {
     setIsLoading(true);
     try {
@@ -351,6 +346,7 @@ export default function Issues() {
   useEffect(() => {
     const debounceFetch = setTimeout(() => {
       getIssues();
+      getProject();
     }, 500);
     return () => clearTimeout(debounceFetch);
   }, [globalFilter, pageIndex, pageSize]);

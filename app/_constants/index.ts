@@ -25,6 +25,7 @@ export enum DBModels {
   COUNTER = "Counter",
   REPORT = "Report",
   PROJECT_USERS = "ProjectUsers",
+  TASK = "Task",
 }
 
 export const JWT_TOKEN_EXPIRE_LIMIT = "8h";

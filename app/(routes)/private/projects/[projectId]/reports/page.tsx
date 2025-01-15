@@ -124,17 +124,13 @@ export default function Report() {
 
             ),
         },
-        ...(
-            (project?.isActive === true ||
-                (userData?.role === UserRoles.ADMIN)) && userData?.role !== UserRoles.TESTER ?
-                [{
-                    id: "actions",
-                    enableHiding: false,
-                    cell: ({ row }: { row: any }) => (
-                        <ReportRowActions row={row as Row<IReport>} refreshReports={refreshReports} />
-                    ),
-                }] : []
-        ),
+        {
+            id: "actions",
+            enableHiding: false,
+            cell: ({ row }: { row: any }) => (
+                <ReportRowActions row={row as Row<IReport>} refreshReports={refreshReports} />
+            ),
+        },
     ];
 
     // download zip file
@@ -207,10 +203,6 @@ export default function Report() {
     useEffect(() => {
         getProject();
     }, []);
-
-    useEffect(() => {
-        getReports();
-    }, [pageIndex, pageSize]);
 
     useEffect(() => {
         const debounceFetch = setTimeout(() => {
