@@ -35,11 +35,11 @@ const chartConfig = {
     },
     Active: {
         label: 'Active',
-        color: 'hsl(var(--primary))'
+        color: 'hsl(var(--chart-2))'
     },
     InActive: {
         label: 'In Active',
-        color: '#F87171'
+        color: 'hsl(var(--chart-1))'
     }
 } satisfies ChartConfig
 
@@ -60,9 +60,9 @@ const getColorForStatus = (status: string) => {
         case "ongoing":
             return 'hsl(var(--chart-1))';
         case "active":
-            return 'hsl(var(--primary))';
+            return 'hsl(var(--chart-2))';
         case "inActive":
-            return '#F87171';
+            return 'hsl(var(--chart-1))';
         default:
             return 'hsl(var(--primary))';
     }

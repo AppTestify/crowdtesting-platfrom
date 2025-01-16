@@ -22,20 +22,21 @@ export const explodeString = (text: any, delimeter: string) => {
 };
 
 export const generateAuthKeyForUnprotectedRoutes = (
-  entityId: string
+  entityId: string,
+  role: string
 ): string => {
   const currentDateTimeUTC = new Date().toISOString();
   return encodeToBase64(
-    `${entityId.toString()}${Delimeters.PIPE}${currentDateTimeUTC}`
+    `${entityId.toString()}${Delimeters.PIPE}${currentDateTimeUTC}${Delimeters.PIPE}${role}`
   );
 };
 
-export const generateVerificationLink = (id: string) => {
+export const generateVerificationLink = (id: string, role: string) => {
   const frontEndURL: string = process.env.URL ?? "";
   const verificationPath: string = "/auth/verify";
 
   const generatedAuthKeyForCandidate: string =
-    generateAuthKeyForUnprotectedRoutes(id);
+    generateAuthKeyForUnprotectedRoutes(id, role);
   const generatedVerificationLink: string = `${frontEndURL}${verificationPath}?token=${generatedAuthKeyForCandidate}`;
 
   return generatedVerificationLink;

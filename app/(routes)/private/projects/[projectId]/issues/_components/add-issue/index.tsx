@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, Plus, Trash } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import toasterService from "@/app/_services/toaster-service";
 import {
@@ -102,6 +102,7 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
   const [isInvalidDevices, setIsInvalidDevices] = useState<boolean>(false);
   const [userProjectRole, setUserProjectRole] =
     useState<ProjectUserRoles | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (data && users?.length) {
@@ -187,28 +188,37 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const files = Array.from(e.target.files).map((file) => ({
-        ...file,
-        name: file.name,
-        contentType: file.type,
-        size: file.size,
-        getValue: (key: string) =>
-          key === "contentType" ? file.type : undefined,
-      }));
-      const fileArray = Array.from(e.target.files);
-      setAttachments(files);
-      form.setValue("attachments", fileArray);
+      const newFiles = Array.from(e.target.files);
+
+      setAttachments((prevAttachments = []) => {
+        const uniqueAttachments = newFiles.filter(
+          (file) =>
+            !prevAttachments.some(
+              (prevFile) => prevFile.name === file.name && prevFile.size === file.size
+            )
+        );
+
+        const updatedAttachments = [...prevAttachments, ...uniqueAttachments];
+        form.setValue("attachments", updatedAttachments);
+
+        return updatedAttachments;
+      });
+
     }
   };
 
   const handleRemoveFile = (index: number) => {
-    setAttachments((prevAttachments) =>
-      prevAttachments?.filter((_, i) => i !== index)
-    );
-    form.setValue(
-      "attachments",
-      attachments?.filter((_, i) => i !== index)
-    );
+    setAttachments((prevAttachments) => {
+      const updatedAttachments = prevAttachments?.filter((_, i) => i !== index);
+
+      form.setValue("attachments", updatedAttachments);
+
+      return updatedAttachments;
+    });
+
+    if (inputRef.current) {
+      inputRef.current.value = '';  
+    }
   };
 
   const getDevices = async () => {
@@ -469,7 +479,7 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
               </div>
 
               {userProjectRole === ProjectUserRoles.ADMIN ||
-              userProjectRole === ProjectUserRoles.CLIENT ? (
+                userProjectRole === ProjectUserRoles.CLIENT ? (
                 <div className="grid grid-cols-1 gap-2 mt-4">
                   <FormField
                     control={form.control}
@@ -539,6 +549,7 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
                     id="attachments"
                     type="file"
                     multiple
+                    ref={inputRef}
                     onChange={handleFileChange}
                   />
                   <label

@@ -24,7 +24,6 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   getIssuesService,
-  getIssuesWithoutPaginationService,
 } from "@/app/_services/issue.service";
 import { IIssue, IIssueView } from "@/app/_interface/issue";
 import { AddIssue } from "./_components/add-issue";
@@ -218,7 +217,9 @@ export default function Issues() {
   const [issue, setIssue] = useState<IIssue>();
   const [isViewOpen, setIsViewOpen] = useState<boolean>(false);
   const [totalPageCount, setTotalPageCount] = useState(0);
-  const [pageIndex, setPageIndex] = useState(1);
+  const [pageIndex, setPageIndex] = useState<number>(() => {
+    return Number(localStorage.getItem("currentPage")) || 1;
+  });
   const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
   const [isExcelLoading, setIsExcelLoading] = useState<boolean>(false);
   const { data } = useSession();
@@ -229,6 +230,10 @@ export default function Issues() {
       setUserData(user);
     }
   }, [data]);
+
+  useEffect(() => {
+    localStorage.setItem("currentPage", pageIndex.toString());
+  }, [pageIndex]);
 
   const getProject = async () => {
     setIsLoading(true);
@@ -273,7 +278,6 @@ export default function Issues() {
     globalFilterFn: "includesString",
     state: {
       sorting,
-      // globalFilter,
       columnVisibility,
       rowSelection,
     },
@@ -295,7 +299,7 @@ export default function Issues() {
   const generateExcel = async () => {
     setIsExcelLoading(true);
     const header =
-      userData.role === UserRoles.ADMIN
+      userData?.role === UserRoles.ADMIN
         ? [
           "ID",
           "Title",
@@ -303,7 +307,7 @@ export default function Issues() {
           "Priority",
           "Issue Type",
           "Test Cycle",
-          "Device Name",
+          "Devices Name",
           "Created By",
           "Status",
           "Attachments",
@@ -315,7 +319,7 @@ export default function Issues() {
           "Priority",
           "Issue Type",
           "Test Cycle",
-          "Device Name",
+          "Devices Name",
           "Status",
           "Attachments",
         ];
@@ -328,7 +332,7 @@ export default function Issues() {
       row.priority,
       row.issueType,
       row.testCycle?.title || "",
-      row.device?.[0]?.name || "",
+      row.device?.map((deviceData) => deviceData?.name).join(", ") || "",
       userData?.role === UserRoles.ADMIN
         ? `${row.userId?.firstName} ${row.userId?.lastName}` || ""
         : row.status,
@@ -452,10 +456,6 @@ export default function Issues() {
           </Table>
         </div>
         <div className="flex items-center justify-end space-x-2 py-4">
-          <div className="flex-1 text-sm text-muted-foreground">
-            {table.getFilteredSelectedRowModel().rows.length} of{" "}
-            {table.getFilteredRowModel().rows.length} row(s) selected.
-          </div>
 
           <div className="flex space-x-2">
             <Button

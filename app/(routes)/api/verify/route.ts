@@ -46,7 +46,7 @@ export async function POST(req: Request) {
     }
 
     const { token } = response.data;
-    const [id, emailSentAt] = extractDataFromVerificationToken(token);
+    const [id, emailSentAt, role] = extractDataFromVerificationToken(token);
 
     if (!id || !emailSentAt) {
       return Response.json(
@@ -106,7 +106,8 @@ export async function POST(req: Request) {
           email: existingUser.email,
           name: `${name}`,
           link: `${process.env.URL}/auth/sign-in`,
-          greeting: existingUser?.firstName && existingUser?.lastName ? "Dear" : "",
+          greeting:
+            existingUser?.firstName && existingUser?.lastName ? "Dear" : "",
         });
       }
     }
@@ -114,6 +115,7 @@ export async function POST(req: Request) {
     return Response.json({
       message: "Account verified successfully",
       isActivated: true,
+      role: role,
     });
   } catch (error: any) {
     return Response.json(

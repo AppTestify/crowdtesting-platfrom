@@ -23,7 +23,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { IIssue, IIssueAttachment } from "@/app/_interface/issue";
+import { IIssue } from "@/app/_interface/issue";
 import {
   Select,
   SelectContent,
@@ -42,7 +42,6 @@ import {
   PROJECT_ADMIN_ISSUE_STATUS_LIST,
 } from "@/app/_constants/issue";
 import {
-  getIssueService,
   updateIssueService,
 } from "@/app/_services/issue.service";
 import IssueAttachments from "../attachments/issue-attachment";
@@ -51,7 +50,6 @@ import TextEditor from "@/app/(routes)/private/projects/_components/text-editor"
 import { addIssueAttachmentsService } from "@/app/_services/issue-attachment.service";
 import {
   getDevicesWithoutPaginationByIdsService,
-  getDevicesWithoutPaginationService,
 } from "@/app/_services/device.service";
 import { IDevice } from "@/app/_interface/device";
 import { useSession } from "next-auth/react";

@@ -13,14 +13,39 @@ import React, { useEffect, useState } from 'react'
 import NonVerifiedRowActions from '../non-verified-row-actions';
 import { IUserByAdmin } from '@/app/_interface/user';
 import ViewTesterIssue from '../../../users/_components/view-user';
+import { DocumentBulkNonVerified } from '../bulk-non-verify';
+import { PAGINATION_LIMIT } from '@/app/_constants/pagination-limit';
+import { Button } from '@/components/ui/button';
 
 export default function NonVerifiedDocument() {
     const [documents, setDocuments] = useState<IDocument[]>([]);
 
     const columns: ColumnDef<IDocument>[] = [
         {
+            id: "select",
+            header: ({ table }) => (
+                <Checkbox
+                    checked={
+                        table.getIsAllPageRowsSelected() ||
+                        (table.getIsSomePageRowsSelected() && "indeterminate")
+                    }
+                    onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+                    aria-label="Select all"
+                />
+            ),
+            cell: ({ row }) => (
+                <Checkbox
+                    checked={row.getIsSelected()}
+                    onCheckedChange={(value) => row.toggleSelected(!!value)}
+                    aria-label="Select row"
+                />
+            ),
+            enableSorting: false,
+            enableHiding: false,
+        },
+        {
             accessorKey: "name",
-            header: "file",
+            header: "File Name",
             cell: ({ row }) => (
                 <div>
                     <DocumentName document={row} />
@@ -74,6 +99,11 @@ export default function NonVerifiedDocument() {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [user, setUser] = useState<IUserByAdmin>();
     const [isViewOpen, setIsViewOpen] = useState(false);
+    const [totalPageCount, setTotalPageCount] = useState(0);
+    const [pageIndex, setPageIndex] = useState<number>(() => {
+        return Number(localStorage.getItem("currentPage")) || 1;
+    });
+    const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
 
     const table = useReactTable({
         data: documents,
@@ -87,7 +117,7 @@ export default function NonVerifiedDocument() {
         globalFilterFn: "includesString",
         state: {
             sorting,
-            globalFilter,
+            // globalFilter,
             columnVisibility,
             rowSelection,
         },
@@ -98,9 +128,10 @@ export default function NonVerifiedDocument() {
     const verifyDocument = async () => {
         setIsLoading(true);
         try {
-            const response = await getApprovalFilesService(true);
+            const response = await getApprovalFilesService(true, pageIndex, pageSize, globalFilter as unknown as string);
             if (response) {
-                setDocuments(response);
+                setDocuments(response.documents);
+                setTotalPageCount(response?.total);
             }
         } catch (error) {
             toasterService.error();
@@ -109,17 +140,37 @@ export default function NonVerifiedDocument() {
         }
     }
 
+    const getSelectedRows = () => {
+        return table.getFilteredSelectedRowModel().rows.map((row) => row.original?.id)
+            .filter((id): id is string => id !== undefined);
+    };
+
     const refreshDocuments = () => {
         verifyDocument();
     }
 
     useEffect(() => {
-        verifyDocument();
-    }, []);
+        const debounceFetch = setTimeout(() => {
+            verifyDocument();
+        }, 500);
+        return () => clearTimeout(debounceFetch);
+    }, [globalFilter, pageIndex, pageSize]);
 
     const getUser = async (data: IUserByAdmin) => {
         setUser(data as IUserByAdmin);
         setIsViewOpen(true);
+    };
+
+    const handlePreviousPage = () => {
+        if (pageIndex > 1) {
+            setPageIndex(pageIndex - 1);
+        }
+    };
+
+    const handleNextPage = () => {
+        if (pageIndex < Math.ceil(totalPageCount / pageSize)) {
+            setPageIndex(pageIndex + 1);
+        }
     };
 
     return (
@@ -138,17 +189,14 @@ export default function NonVerifiedDocument() {
                     }}
                     className="max-w-sm"
                 />
-                {/* {userData?.role != UserRoles.CLIENT &&
-                    <div className="flex gap-2 ml-2">
-                        {getSelectedRows().length ? (
-                            <BulkDelete
-                                ids={getSelectedRows()}
-                                refreshDevices={refreshDevices}
-                            />
-                        ) : null}
-                        <AddDevice browsers={browsers} refreshDevices={refreshDevices} />
-                    </div>
-                } */}
+                <div className="flex gap-2 ml-2">
+                    {getSelectedRows().length ? (
+                        <DocumentBulkNonVerified
+                            ids={getSelectedRows()}
+                            refreshDocuments={refreshDocuments}
+                        />
+                    ) : null}
+                </div>
             </div>
             <div className="rounded-md border w-full">
                 <Table>
@@ -199,6 +247,27 @@ export default function NonVerifiedDocument() {
                         )}
                     </TableBody>
                 </Table>
+            </div>
+            <div className="flex items-center justify-end space-x-2 py-4">
+
+                <div className="flex space-x-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handlePreviousPage}
+                        disabled={pageIndex === 1}
+                    >
+                        Previous
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleNextPage}
+                        disabled={pageIndex >= Math.ceil(totalPageCount / pageSize)}
+                    >
+                        Next
+                    </Button>
+                </div>
             </div>
         </div>
     )

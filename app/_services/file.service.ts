@@ -1,4 +1,4 @@
-import { FILES_ENDPOINT } from "../_constants/api-endpoints";
+import { FILES_ENDPOINT, PAGINATION_QUERY_ENDPOINT } from "../_constants/api-endpoints";
 import {
   genericDelete,
   genericFileGet,
@@ -93,11 +93,17 @@ export const getFilesByUserIdToAdminService = async (
 };
 
 export const getApprovalFilesService = async (
-  verify: boolean
+  verify: boolean,
+  index: Number,
+  pageSize: Number,
+  searchString?: string
 ): Promise<any> => {
   try {
     const response = await genericGet(
-      `${FILES_ENDPOINT}/approval?verify=${verify}`
+      `${FILES_ENDPOINT}/approval${PAGINATION_QUERY_ENDPOINT(
+        index,
+        pageSize
+      )}&verify=${verify}&searchString=${searchString}`
     );
 
     return response || {};
@@ -127,6 +133,32 @@ export const verifyFilesService = async (fileIds: string[]): Promise<any> => {
     return response || {};
   } catch (error) {
     console.error(`Error > verifyFileService:`, error);
+    throw error;
+  }
+};
+
+export const nonVerifyFileService = async (fileId: string): Promise<any> => {
+  try {
+    const response = await genericPut(`${FILES_ENDPOINT}/${fileId}/non-verify`);
+
+    return response || {};
+  } catch (error) {
+    console.error(`Error > nonVerifyFileService:`, error);
+    throw error;
+  }
+};
+
+export const nonVerifyFilesService = async (
+  fileIds: string[]
+): Promise<any> => {
+  try {
+    const response = await genericPut(`${FILES_ENDPOINT}/multiple-non-verify`, {
+      fileIds,
+    });
+
+    return response || {};
+  } catch (error) {
+    console.error(`Error > nonVerifyFilesService:`, error);
     throw error;
   }
 };

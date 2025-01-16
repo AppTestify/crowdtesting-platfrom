@@ -134,7 +134,7 @@ export default function ViewTestCaseData({
               </div>
             ))
           ) : (
-            <div>No test case steps available</div>
+            <div>No test data available</div>
           )}
         </div>
       ) : (

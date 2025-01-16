@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { ColumnDef, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, SortingState, useReactTable, VisibilityState } from "@tanstack/react-table";
 import { Trash } from "lucide-react";
 import { useParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { AttachmentRowActions } from "../row-actions";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -63,6 +63,7 @@ export default function IssueAttachments({ issueId, isUpdate, isView, setAttachm
   const [documents, setDocuments] = useState<IIssueAttachmentDisplay[]>([]);
   const [globalFilter, setGlobalFilter] = useState<any>([]);
   const { projectId } = useParams<{ projectId: string }>();
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const table = useReactTable({
     data: documents,
@@ -86,16 +87,27 @@ export default function IssueAttachments({ issueId, isUpdate, isView, setAttachm
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const files = Array.from(e.target.files).map((file) => ({
+      const newFiles = Array.from(e.target.files).map((file) => ({
         ...file,
         name: file.name,
         contentType: file.type,
         size: file.size,
         getValue: (key: string) => (key === "contentType" ? file.type : undefined),
       }));
-      const newFiles = Array.from(e.target.files);
-      setAttachmentsData?.(newFiles);
-      setAttachments(files)
+
+      setAttachmentsData?.((prevFiles = []) => {
+        const uniqueFiles = Array.from(e.target.files as any).filter(
+          (file: any) => !prevFiles.some((prevFile) => prevFile.name === file.name && prevFile.size === file.size)
+        );
+        return [...prevFiles, ...uniqueFiles];
+      });
+
+      setAttachments((prevAttachments = []) => {
+        const uniqueAttachments = newFiles.filter(
+          (file) => !prevAttachments.some((prevFile) => prevFile.name === file.name && prevFile.size === file.size)
+        );
+        return [...prevAttachments, ...uniqueAttachments];
+      });
     }
   };
 
@@ -126,6 +138,10 @@ export default function IssueAttachments({ issueId, isUpdate, isView, setAttachm
     const updateFiles = attachments.filter((_, i) => i !== index);
     setAttachmentsData?.(updateFiles);
     setAttachments(updateFiles);
+
+    if (inputRef.current) {
+      inputRef.current.value = '';
+    }
   };
 
   return (
@@ -140,6 +156,7 @@ export default function IssueAttachments({ issueId, isUpdate, isView, setAttachm
                 id="attachments"
                 type="file"
                 multiple
+                ref={inputRef}
                 onChange={handleFileChange}
               />
               <label

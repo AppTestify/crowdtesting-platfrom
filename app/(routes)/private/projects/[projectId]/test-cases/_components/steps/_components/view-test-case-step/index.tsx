@@ -44,7 +44,7 @@ export default function TestCaseStepView({ testCaseId }: { testCaseId: string })
                             </div>
                         ))
                     ) : (
-                        <div>No test case steps available</div>
+                        <div>No test data available</div>
                     )}
                 </div>
             ) : (

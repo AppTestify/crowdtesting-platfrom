@@ -43,7 +43,7 @@ export const statusBadge = (status: string | undefined) => {
         case IssueStatus.REOPENED:
             return <Badge className="bg-pink-500 hover:bg-pink-500 font-medium">{IssueStatus.REOPENED}</Badge>;
         case IssueStatus.DEFERRED:
-            return <Badge className="bg-yellow-400 hover:bg-yellow-400 font-medium">{IssueStatus.DEFERRED}</Badge>;
+            return <Badge className="bg-amber-600 hover:bg-amber-600 font-medium">{IssueStatus.DEFERRED}</Badge>;
         case IssueStatus.DUPLICATE:
             return <Badge className="bg-blue-400 hover:bg-blue-400 font-medium">{IssueStatus.DUPLICATE}</Badge>;
         case IssueStatus.REJECTED:
@@ -158,7 +158,7 @@ export const paymentStatusBadge = (status: string | undefined) => {
         case PaymentStatus.FAILED:
             return <Badge className="bg-red-700 hover:bg-red-700 font-medium">{PaymentStatus?.FAILED}</Badge>;
         case PaymentStatus.CANCELLED:
-            return <Badge className="bg-yellow-400 hover:bg-yellow-400 font-medium">{PaymentStatus?.CANCELLED}</Badge>;
+            return <Badge className="bg-yellow-500 hover:bg-yellow-500 font-medium">{PaymentStatus?.CANCELLED}</Badge>;
         case PaymentStatus.REFUNDED:
             return <Badge className="bg-blue-400 hover:bg-blue-400 font-medium">{PaymentStatus?.REFUNDED}</Badge>;
         case PaymentStatus.PROCESSING:

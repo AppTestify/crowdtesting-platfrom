@@ -14,6 +14,8 @@ export function DocumentName({ document }: { document: any }) {
 
   if (document?.original) {
     contentType = document?.original?.contentType;
+  } else if (!document?.contentType) {
+    contentType = document?.type;
   } else {
     contentType = document?.contentType;
   }

@@ -16,12 +16,19 @@ import ViewTesterIssue from '../../../users/_components/view-user';
 import { IUserByAdmin } from '@/app/_interface/user';
 import { UserRoles } from '@/app/_constants/user-roles';
 import { DocumentBulkVeified } from '../bulk-verify';
+import { PAGINATION_LIMIT } from '@/app/_constants/pagination-limit';
+import { Button } from '@/components/ui/button';
 
 export default function VerifiedDocuments() {
     const [documents, setDocuments] = useState<IDocument[]>([]);
     const [userData, setUserData] = useState<IUserByAdmin>();
     const searchParams = useSearchParams();
     const [isViewOpen, setIsViewOpen] = useState(false);
+    const [totalPageCount, setTotalPageCount] = useState(0);
+    const [pageIndex, setPageIndex] = useState<number>(() => {
+        return Number(localStorage.getItem("currentPage")) || 1;
+    });
+    const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
     const user = searchParams.get('user');
 
     const columns: ColumnDef<IDocument>[] = [
@@ -49,7 +56,7 @@ export default function VerifiedDocuments() {
         },
         {
             accessorKey: "name",
-            header: "file",
+            header: "File Name",
             cell: ({ row }) => (
                 <div>
                     <DocumentName document={row} />
@@ -103,7 +110,7 @@ export default function VerifiedDocuments() {
         globalFilterFn: "includesString",
         state: {
             sorting,
-            globalFilter,
+            // globalFilter,
             columnVisibility,
             rowSelection,
         },
@@ -114,7 +121,7 @@ export default function VerifiedDocuments() {
     const verifyDocument = async () => {
         setIsLoading(true);
         try {
-            const response = await getApprovalFilesService(false);
+            const response = await getApprovalFilesService(false, pageIndex, pageSize, globalFilter as unknown as string);
             if (response) {
                 // if (user) {
                 //     const filterDocuments = response.filter((document: any) => {
@@ -123,7 +130,8 @@ export default function VerifiedDocuments() {
                 //     setDocuments(filterDocuments)
                 // } else {
                 // }
-                setDocuments(response);
+                setTotalPageCount(response?.total);
+                setDocuments(response?.documents);
             }
         } catch (error) {
             toasterService.error();
@@ -142,14 +150,28 @@ export default function VerifiedDocuments() {
     }
 
     useEffect(() => {
-        verifyDocument();
-    }, []);
+        const debounceFetch = setTimeout(() => {
+            verifyDocument();
+        }, 500);
+        return () => clearTimeout(debounceFetch);
+    }, [globalFilter, pageIndex, pageSize]);
 
     const getUser = async (data: IUserByAdmin) => {
         setUserData(data as IUserByAdmin);
         setIsViewOpen(true);
     };
 
+    const handlePreviousPage = () => {
+        if (pageIndex > 1) {
+            setPageIndex(pageIndex - 1);
+        }
+    };
+
+    const handleNextPage = () => {
+        if (pageIndex < Math.ceil(totalPageCount / pageSize)) {
+            setPageIndex(pageIndex + 1);
+        }
+    };
 
     return (
         <div className='mt-4 '>
@@ -229,12 +251,8 @@ export default function VerifiedDocuments() {
                 </Table>
             </div>
             <div className="flex items-center justify-end space-x-2 py-4">
-                <div className="flex-1 text-sm text-muted-foreground">
-                    {table.getFilteredSelectedRowModel().rows.length} of{" "}
-                    {table.getFilteredRowModel().rows.length} row(s) selected.
-                </div>
 
-                {/* <div className="flex space-x-2">
+                <div className="flex space-x-2">
                     <Button
                         variant="outline"
                         size="sm"
@@ -251,7 +269,7 @@ export default function VerifiedDocuments() {
                     >
                         Next
                     </Button>
-                </div> */}
+                </div>
             </div>
         </div>
     )
