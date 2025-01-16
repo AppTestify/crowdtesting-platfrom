@@ -53,12 +53,19 @@ export default function Report() {
         {
             accessorKey: "title",
             header: "Title",
-            cell: ({ row }) => (
-                <div className="capitalize hover:text-primary cursor-pointer"
-                    onClick={() => openView(row.original as IReport)}>
-                    {row.getValue("title")}
-                </div>
-            ),
+            cell: ({ row }) => {
+                const title = row.getValue("title");
+                if (typeof title === "string") {
+                    return (
+                        <div
+                            title={row.getValue('title')}
+                            className="capitalize hover:text-primary cursor-pointer"
+                            onClick={() => openView(row.original as IReport)}>
+                            {title.length > 30 ? `${title.substring(0, 30)}...` : title}
+                        </div>
+                    )
+                }
+            },
         },
         {
             accessorKey: "descripiton",

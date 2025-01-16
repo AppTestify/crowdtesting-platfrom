@@ -51,7 +51,9 @@ export default function Tasks() {
                 const title = row.getValue("title");
                 if (typeof title === "string") {
                     return (
-                        <div onClick={() => getTask(row.original)} className="capitalize hover:text-primary cursor-pointer">
+                        <div
+                            title={title}
+                            onClick={() => getTask(row.original)} className="capitalize hover:text-primary cursor-pointer">
                             {title.length > 30 ? `${title.substring(0, 30)}...` : title}
                         </div>
                     );

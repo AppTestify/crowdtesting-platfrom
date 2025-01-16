@@ -27,8 +27,6 @@ import { getUsersService } from "@/app/_services/user.service";
 import { IUserByAdmin } from "@/app/_interface/user";
 import { UserRowActions } from "./_components/row-actions";
 import { AddUser } from "./_components/add-user";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getAvatarFallbackText, getFormattedBase64ForSrc } from "@/app/_utils/string-formatters";
 import { UserBulkDelete } from "./_components/bulk-delete";
 import UserStatus from "./_components/user-status";
 import { UserRoles } from "@/app/_constants/user-roles";
@@ -177,15 +175,12 @@ export default function Users() {
     const [isClientViewOpen, setIsClientViewOpen] = useState(false);
     const [user, setUser] = useState<IUserByAdmin>();
 
-    useEffect(() => {
-        getUsers();
-    }, [pageIndex, pageSize, selectedStatus, selectedRole]);
-
     const handleStatusChange = (status: UserStatusList) => {
         setSelectedStatus(status);
     };
 
     const handleRoleChange = (role: string) => {
+        setPageIndex(1);
         setSelectedRole(role);
     };
 
@@ -213,7 +208,7 @@ export default function Users() {
             getUsers();
         }, 500);
         return () => clearTimeout(debounceFetch);
-    }, [globalFilter, pageIndex, pageSize]);
+    }, [globalFilter, pageIndex, pageSize, selectedStatus, selectedRole]);
 
     const refreshUsers = () => {
         getUsers();

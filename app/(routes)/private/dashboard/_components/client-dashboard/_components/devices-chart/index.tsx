@@ -20,7 +20,7 @@ const getColorForPriority = (level: string) => {
         case Priority.HIGH:
             return '#F87171';
         default:
-            return 'hsl(var(--primary))';
+            return 'hsl(var(--chart-2))';
     }
 };
 
@@ -72,7 +72,7 @@ export default function DeviceChart({ title, description, dataKey, chartData }: 
                             />
                             <Bar
                                 dataKey={dataKey}
-                                fill="var(--color-severity)"
+                                fill="hsl(var(--chart-2))"
                                 radius={8}
                             >
                                 <LabelList

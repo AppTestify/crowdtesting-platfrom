@@ -215,10 +215,19 @@ export async function GET(
     if (await isAdmin(session.user)) {
       response = addCustomIds(
         await query
-          .populate("userId projectId")
-          .populate({ path: "assignedTo", strictPopulate: false })
-          .populate({ path: "testCycle", strictPopulate: false })
-          .populate("device")
+          .populate("userId", "firstName lastName")
+          .populate("projectId", "title")
+          .populate({
+            path: "assignedTo",
+            select: "firstName lastName",
+            strictPopulate: false,
+          })
+          .populate({
+            path: "testCycle",
+            select: "title",
+            strictPopulate: false,
+          })
+          .populate("device", "name")
           .lean(),
         customIDFormat.idFormat
       );
@@ -235,22 +244,35 @@ export async function GET(
             select: "firstName lastName _id",
             strictPopulate: false,
           })
-          .populate("device projectId")
-          .populate({ path: "testCycle", strictPopulate: false })
+          .populate("projectId", "title")
+          .populate("device", "name")
+          .populate({
+            path: "testCycle",
+            select: "title",
+            strictPopulate: false,
+          })
           .lean(),
         customIDFormat.idFormat
       );
     } else {
       response = addCustomIds(
         await query
-          .populate("userId projectId")
+          .populate({
+            path: "userId",
+            select: "firstName lastName _id",
+          })
+          .populate("projectId", "title")
           .populate({
             path: "assignedTo",
             select: "firstName lastName _id",
             strictPopulate: false,
           })
-          .populate({ path: "testCycle", strictPopulate: false })
-          .populate("device")
+          .populate({
+            path: "testCycle",
+            select: "title",
+            strictPopulate: false,
+          })
+          .populate("device", "name")
           .lean(),
         customIDFormat.idFormat
       );

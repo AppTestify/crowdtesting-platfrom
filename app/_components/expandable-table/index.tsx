@@ -11,7 +11,6 @@ export default function ExpandableTable({ row }: { row: any[] }) {
     const mobileVisibleCount = 1;
     const desktopVisibleCount = 1;
     const [showAll, setShowAll] = useState(false);
-
     const visibleCount = isMobile ? mobileVisibleCount : desktopVisibleCount;
 
     const displayedRows = row.slice(0, visibleCount);

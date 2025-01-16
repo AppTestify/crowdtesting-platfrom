@@ -33,10 +33,12 @@ export async function GET(
 
     const { projectId } = params;
     const currentDate = new Date();
+    const startOfDay = new Date(currentDate.setHours(0, 0, 0, 0));
+    const endOfDay = new Date(currentDate.setHours(23, 59, 59, 999));
     const response = await TestCycle.find({
       projectId: projectId,
-      startDate: { $lte: currentDate },
-      endDate: { $gte: currentDate },
+      startDate: { $lte: endOfDay },
+      endDate: { $gte: startOfDay },
     })
       .select("_id title")
       .lean();

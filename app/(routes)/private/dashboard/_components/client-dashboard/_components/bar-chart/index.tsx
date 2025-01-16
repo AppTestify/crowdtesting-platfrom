@@ -14,132 +14,135 @@ interface HorizontalBarChartProps {
 const chartConfig = {
     [IssueStatus.NEW]: {
         label: IssueStatus.NEW,
-        color: "#9CA3AF",
+        color: "#2C3E50", // Dark blue-gray
     },
     [IssueStatus.FIXED]: {
         label: IssueStatus.FIXED,
-        color: "hsl(var(--primary))",
+        color: "hsl(var(--chart-2))", // Strong red
     },
     [IssueStatus.DUPLICATE]: {
         label: IssueStatus.DUPLICATE,
-        color: "#60A5FA",
+        color: "#8E44AD", // Purple
     },
     [IssueStatus.OPEN]: {
         label: IssueStatus.OPEN,
-        color: "#3B82F6",
+        color: "#3498DB", // Bright blue
     },
     [IssueStatus.DEFERRED]: {
         label: IssueStatus.DEFERRED,
-        color: "#FACC15",
+        color: "#F39C12", // Yellow-orange
     },
     [IssueStatus.ASSIGNED]: {
         label: IssueStatus.ASSIGNED,
-        color: "#6366F1",
+        color: "#1ABC9C", // Teal
     },
     [IssueStatus.IN_PROGRESS]: {
         label: IssueStatus.IN_PROGRESS,
-        color: "#EAB308",
+        color: "#D4AC0D", // Muted gold
     },
+
     [IssueStatus.READY_FOR_RETEST]: {
         label: IssueStatus.READY_FOR_RETEST,
-        color: "#2DD4BF",
+        color: "#E67E22", // Orange
     },
     [IssueStatus.RETESTING]: {
         label: IssueStatus.RETESTING,
-        color: "#FB923C",
+        color: "#D35400", // Dark orange
     },
     [IssueStatus.VERIFIED]: {
         label: IssueStatus.VERIFIED,
-        color: "#15803D",
+        color: "#16A070", // Deep teal green
     },
     [IssueStatus.CLOSED]: {
         label: IssueStatus.CLOSED,
-        color: "#A855F7",
+        color: "#7D7C7C", // Lighter gray
     },
     [IssueStatus.REOPENED]: {
         label: IssueStatus.REOPENED,
-        color: "#EC4899",
+        color: "#C0392B", // Red
     },
     [IssueStatus.REJECTED]: {
         label: IssueStatus.REJECTED,
-        color: "#F87171",
+        color: "#D32F2F", // Dark red
     },
+
     [IssueStatus.CANNOT_REPRODUCE]: {
         label: IssueStatus.CANNOT_REPRODUCE,
-        color: "#4B5563",
+        color: "#7F8C8D", // Gray
     },
     [IssueStatus.BLOCKED]: {
         label: IssueStatus.BLOCKED,
-        color: "#B91C1C",
+        color: "#E74C3C", // Strong red
     },
     [IssueStatus.NOT_A_BUG]: {
         label: IssueStatus.NOT_A_BUG,
-        color: "#6B7280",
+        color: "#BDC3C7", // Light gray
     },
     Completed: {
         label: "Completed",
-        color: 'hsl(var(--primary))'
+        color: "#27AE60", // Green
     },
     Ongoing: {
         label: 'Ongoing',
-        color: '#F4A462'
+        color: "#E67E22", // Orange
     },
     Active: {
         label: 'Active',
-        color: 'hsl(var(--primary))'
+        color: "#8E44AD", // Purple
     },
     InActive: {
         label: 'In Active',
-        color: '#F87171'
+        color: "#C0392B", // Red
     }
-} satisfies ChartConfig
+} satisfies ChartConfig;
 
 const getColorForStatus = (status: string) => {
     switch (status) {
         case IssueStatus.NEW:
-            return '#9CA3AF';
+            return '#2C3E50'; // Dark blue-gray
         case IssueStatus.FIXED:
-            return 'hsl(var(--primary))';
+            return 'hsl(var(--chart-2))'; // Strong red
         case IssueStatus.DUPLICATE:
-            return '#60A5FA';
+            return '#8E44AD'; // Purple
         case IssueStatus.OPEN:
-            return '#3B82F6';
+            return '#3498DB'; // Bright blue
         case IssueStatus.DEFERRED:
-            return '#FACC15';
+            return '#F39C12'; // Yellow-orange
         case IssueStatus.ASSIGNED:
-            return '#6366F1';
+            return '#1ABC9C'; // Teal
         case IssueStatus.IN_PROGRESS:
-            return '#EAB308';
+            return '#D4AC0D'; // Bright yellow
         case IssueStatus.READY_FOR_RETEST:
-            return '#2DD4BF';
+            return '#E67E22'; // Orange
         case IssueStatus.RETESTING:
-            return '#FB923C';
+            return '#D35400'; // Dark orange
         case IssueStatus.VERIFIED:
-            return '#15803D';
+            return '#16A070'; // Light green
         case IssueStatus.CLOSED:
-            return '#A855F7';
+            return '#7D7C7C'; // Purple
         case IssueStatus.REOPENED:
-            return '#EC4899';
+            return '#C0392B'; // Red
         case IssueStatus.REJECTED:
-            return '#F87171';
+            return '#D32F2F'; // Yellow-orange
         case IssueStatus.CANNOT_REPRODUCE:
-            return '#4B5563';
+            return '#7F8C8D'; // Gray
         case IssueStatus.BLOCKED:
-            return '#B91C1C';
+            return '#E74C3C'; // Strong red
         case IssueStatus.NOT_A_BUG:
-            return '#6B7280';
+            return '#BDC3C7'; // Light gray
         case "completed":
-            return 'hsl(var(--primary))';
+            return '#27AE60'; // Green
         case "ongoing":
-            return '#F4A462';
+            return '#E67E22'; // Orange
         case "active":
-            return 'hsl(var(--primary))';
+            return '#8E44AD'; // Purple
         case "inActive":
-            return '#F87171';
+            return '#C0392B'; // Red
         default:
-            return 'hsl(var(--primary))';
+            return '#27AE60'; // Default to green
     }
 };
+
 
 const CustomYAxisTick = ({ x, y, payload, width }: any) => {
     const label = chartConfig[payload.value as keyof typeof chartConfig]?.label;
@@ -197,7 +200,7 @@ export default function StatusBarChart({ title, description, chartData, dataKey 
                                 left: 10,
                                 right: 10,
                             }}
-                            barSize={30}
+                            barSize={25}
                         >
                             <YAxis
                                 dataKey="level"
@@ -237,7 +240,8 @@ export default function StatusBarChart({ title, description, chartData, dataKey 
                                     />
                                 }
                             />
-                            <Bar dataKey="status" layout="vertical" radius={5} />
+                            <Bar
+                                dataKey="status" layout="vertical" radius={5} />
                         </BarChart>
                     </ChartContainer>
                 )}

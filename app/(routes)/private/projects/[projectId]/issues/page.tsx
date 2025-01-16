@@ -144,7 +144,7 @@ export default function Issues() {
         </div>
       ),
     },
-    ...(issues.some((item) => item.userId?._id)
+    ...(userData?.role !== UserRoles.CLIENT
       ? [
         {
           accessorKey: "createdBy",
@@ -178,12 +178,24 @@ export default function Issues() {
       : []),
     {
       accessorKey: "status",
-      header: ({ column }) => <div className="ml-1">Status</div>,
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          // className="mr-8"
+          >
+            Status
+            <ArrowUpDown />
+          </Button>
+        );
+      },
       cell: ({ row }) => (
-        <div className="capitalize max-w-[200px] truncate">
+        <div className="capitalize max-w-[200px] truncate ml-4">
           {statusBadge(row.getValue("status"))}
         </div>
       ),
+      sortingFn: "alphanumeric"
     },
     {
       id: "actions",
@@ -289,8 +301,8 @@ export default function Issues() {
           "Title",
           "Severity",
           "Priority",
-          "issueType",
-          "testCycle",
+          "Issue Type",
+          "Test Cycle",
           "Device Name",
           "Created By",
           "Status",
@@ -301,14 +313,15 @@ export default function Issues() {
           "Title",
           "Severity",
           "Priority",
-          "issueType",
-          "testCycle",
+          "Issue Type",
+          "Test Cycle",
           "Device Name",
           "Status",
           "Attachments",
         ];
 
-    const data = issues?.map((row: IIssue) => [
+    const response = await getIssuesService(projectId, pageIndex, totalPageCount, globalFilter as unknown as string);
+    const data = response?.issues?.map((row: IIssue) => [
       row.customId,
       row.title,
       row.severity,
@@ -344,9 +357,12 @@ export default function Issues() {
   const hasData = table.getRowModel().rows?.length > 0;
 
   useEffect(() => {
+    getProject();
+  }, []);
+
+  useEffect(() => {
     const debounceFetch = setTimeout(() => {
       getIssues();
-      getProject();
     }, 500);
     return () => clearTimeout(debounceFetch);
   }, [globalFilter, pageIndex, pageSize]);
