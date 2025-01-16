@@ -6,22 +6,25 @@ import { Bar, BarChart, CartesianGrid, Cell, LabelList, XAxis } from 'recharts';
 
 const chartConfig = {
     [Priority.LOW]: {
-        color: "hsl(var(--primary))",
+        color: "hsl(var(--chart-2))",
     },
     [Priority.NORMAL]: {
-        color: "#FACC15",
+        color: "hsl(var(--chart-4))",
     },
     [Priority.HIGH]: {
-        color: "#F87171",
+        color: "hsl(var(--chart-1))",
     },
     [Severity.MINOR]: {
-        color: "#60A5FA",
+        color: "hsl(var(--chart-2))",
     },
     [Severity.MAJOR]: {
-        color: "#FB923C",
+        color: "hsl(var(--chart-4))",
     },
     [Severity.CRITICAL]: {
-        color: "#F87171",
+        color: "hsl(var(--chart-1))",
+    },
+    [Severity.BLOCKER]: {
+        color: "hsl(var(--chart-3))",
     },
     Severity: {
         label: "Severity",
@@ -33,17 +36,19 @@ type PriorityType = "Low" | "Normal" | "High" | "Severity";
 const getColorForPriority = (level: string) => {
     switch (level) {
         case Priority.LOW:
-            return 'hsl(var(--primary))';
+            return 'hsl(var(--chart-2))';
         case Priority.NORMAL:
-            return '#FACC15';
+            return 'hsl(var(--chart-4))';
         case Priority.HIGH:
-            return '#F87171';
+            return 'hsl(var(--chart-1))';
         case Severity.MINOR:
-            return '#60A5FA';
+            return 'hsl(var(--chart-2))';
         case Severity.MAJOR:
-            return '#FB923C';
+            return 'hsl(var(--chart-4))';
         case Severity.CRITICAL:
-            return '#F87171';
+            return 'hsl(var(--chart-1))';
+        case Severity.BLOCKER:
+            return 'hsl(var(--chart-3))';
         default:
             return 'hsl(var(--primary))';
     }

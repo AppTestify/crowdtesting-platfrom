@@ -1,5 +1,5 @@
 import { ChevronDown, ChevronUp, Equal, FileSpreadsheet, Loader2 } from "lucide-react";
-import { IssueStatus, Priority } from "../_constants/issue";
+import { IssueStatus, Priority, TaskStatus } from "../_constants/issue";
 import { Badge } from "@/components/ui/badge";
 import { UserRoles } from "../_constants/user-roles";
 import { ProjectUserRoles } from "../_constants/project-user-roles";
@@ -54,6 +54,21 @@ export const statusBadge = (status: string | undefined) => {
             return <Badge className="bg-gray-500 hover:bg-gray-500 font-medium">{IssueStatus.NOT_A_BUG}</Badge>;
         case IssueStatus.BLOCKED:
             return <Badge className="bg-red-700 hover:bg-red-700 font-medium">{IssueStatus.BLOCKED}</Badge>;
+        default:
+            return null;
+    }
+};
+
+export const taskStatusBadge = (status: string | undefined) => {
+    switch (status) {
+        case TaskStatus.TODO:
+            return <Badge className="bg-gray-400 hover:bg-gray-400 font-medium">{TaskStatus.TODO}</Badge>;
+        case TaskStatus.IN_PROGRESS:
+            return <Badge className="bg-yellow-500 hover:bg-yellow-500 font-medium">{TaskStatus.IN_PROGRESS}</Badge>;
+        case TaskStatus.BLOCKED:
+            return <Badge className="bg-destructive hover:bg-destructive font-medium">{TaskStatus.BLOCKED}</Badge>;
+        case TaskStatus.DONE:
+            return <Badge className="bg-primary hover:bg-primary font-medium">{TaskStatus.DONE}</Badge>;
         default:
             return null;
     }

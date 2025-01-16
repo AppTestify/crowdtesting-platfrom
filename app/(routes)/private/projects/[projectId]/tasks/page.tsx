@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import {
     ColumnDef,
-    Row,
     SortingState,
     VisibilityState,
     flexRender,
@@ -24,91 +23,114 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
-import { getTestCycleService } from "@/app/_services/test-cycle.service";
-import { ITestCycle } from "@/app/_interface/test-cycle";
-import { AddTestCycle } from "./_components/add-test-cycle";
-import { TestCycleRowActions } from "./_components/row-actions";
-import { formatDateWithoutTime } from "@/app/_constants/date-formatter";
+import {
+    displayIcon,
+    taskStatusBadge,
+} from "@/app/_utils/common-functionality";
 import { ArrowUpDown } from "lucide-react";
-import TestCycleView from "./_components/view-test-cycle";
 import { useSession } from "next-auth/react";
-import { UserRoles } from "@/app/_constants/user-roles";
+import toasterService from "@/app/_services/toaster-service";
 import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
+import { NAME_NOT_SPECIFIED_ERROR_MESSAGE } from "@/app/_constants/errors";
+import { AddTask } from "./_components/add-task";
+import { getTaskService } from "@/app/_services/task.service";
+import { TaskRowActions } from "./_components/row-actions";
+import { ITask } from "@/app/_interface/task";
+import ViewTask from "./_components/view-task";
 
-export default function TestPlan() {
-    const [testCycle, setTestCycle] = useState<ITestCycle[]>([]);
+export default function Tasks() {
+    const [issues, setTasks] = useState<ITask[]>([]);
     const [userData, setUserData] = useState<any>();
+    const { projectId } = useParams<{ projectId: string }>();
 
-    const columns: ColumnDef<ITestCycle>[] = [
+    const columns: ColumnDef<ITask>[] = [
         {
-            accessorKey: "customId",
+            accessorKey: "title",
+            header: "Title",
+            cell: ({ row }) => {
+                const title = row.getValue("title");
+                if (typeof title === "string") {
+                    return (
+                        <div
+                            title={title}
+                            onClick={() => getTask(row.original)} className="capitalize hover:text-primary cursor-pointer">
+                            {title.length > 30 ? `${title.substring(0, 30)}...` : title}
+                        </div>
+                    );
+                }
+            },
+        },
+        {
+            accessorKey: "priority",
             header: ({ column }) => {
-                const isSorted = column.getIsSorted();
                 return (
                     <Button
                         variant="ghost"
-                        onClick={() => column.toggleSorting(isSorted === "asc")}
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
-                        ID
+                        Priority
                         <ArrowUpDown />
                     </Button>
                 );
             },
             cell: ({ row }) => (
-                <div className="hover:text-primary cursor-pointer ml-4" onClick={() => ViewTestCycle(row.original as ITestCycle)}>
-                    {row.getValue("customId")}</div>
-            ),
-            sortingFn: "alphanumeric"
-        },
-        {
-            accessorKey: "title",
-            header: "Title",
-            cell: ({ row }) => (
-                <div className="capitalize hover:text-primary cursor-pointer" onClick={() => ViewTestCycle(row.original as ITestCycle)}>
-                    {row.getValue("title")}</div>
-            ),
-        },
-        {
-            accessorKey: "description",
-            header: "Description",
-            cell: ({ row }) => (
-                <div
-                    title={row.getValue("description")}
-                    className="capitalize w-48 overflow-hidden text-ellipsis line-clamp-2">
-                    {row.getValue("description")}
+                <div className="capitalize flex items-center">
+                    <span className="mr-1">{displayIcon(row.getValue("priority"))}</span>
+                    {row.getValue("priority")}
                 </div>
             ),
         },
         {
-            accessorKey: "estimation",
-            header: "Start Date - End Date",
-            cell: ({ row }) => (
-                <div
-                    className="capitalize">
-                    {formatDateWithoutTime(row.original?.startDate)} - {formatDateWithoutTime(row.original?.endDate)}
+            accessorKey: "issueId",
+            header: "Issue",
+            cell: ({ row }: { row: any }) => (
+                <div className="">
+                    {row.original.issueId?.title}
                 </div>
             ),
         },
-        ...(
-            testCycle.some((item) => item?.userId?._id) ?
-                [{
-                    accessorKey: "createdBy",
-                    header: "Created By",
-                    cell: ({ row }: { row: any }) => (
-                        <div className="">{`${row.original?.userId?.firstName || ""} ${row.original?.userId?.lastName || ""}`}</div>
-                    ),
-                }] : []
-        ),
-        ...(
-            userData?.role != UserRoles.TESTER ?
-                [{
-                    id: "actions",
-                    enableHiding: false,
-                    cell: ({ row }: { row: any }) => (
-                        <TestCycleRowActions row={row as Row<ITestCycle>} refreshTestCycle={refreshTestCycle} />
-                    ),
-                }] : []
-        )
+        {
+            accessorKey: "createdBy",
+            header: "Reporter",
+            cell: ({ row }: { row: any }) => (
+                <div className="">
+                    {`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}
+                </div>
+            ),
+        },
+        {
+            accessorKey: "assignedTo",
+            header: "Assignee",
+            cell: ({ row }: { row: any }) => (
+                <div>
+                    {row.original?.assignedTo?._id ? (
+                        `${row.original?.assignedTo?.firstName ||
+                        NAME_NOT_SPECIFIED_ERROR_MESSAGE
+                        } ${row.original?.assignedTo?.lastName || ""}`
+                    ) : (
+                        <span className="text-gray-400">Unassigned</span>
+                    )}
+                </div>
+            ),
+        },
+        {
+            accessorKey: "status",
+            header: ({ column }) => <div className="ml-1">Status</div>,
+            cell: ({ row }) => (
+                <div className="capitalize max-w-[200px] truncate">
+                    {taskStatusBadge(row.getValue("status"))}
+                </div>
+            ),
+        },
+        {
+            id: "actions",
+            enableHiding: false,
+            cell: ({ row }: { row: any }) => (
+                <>
+                    <TaskRowActions row={row} refreshTasks={refreshTasks} />
+                </>
+            ),
+        },
     ];
 
     const [sorting, setSorting] = useState<SortingState>([]);
@@ -116,12 +138,11 @@ export default function TestPlan() {
     const [rowSelection, setRowSelection] = useState({});
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [globalFilter, setGlobalFilter] = useState<unknown>([]);
-    const [pageIndex, setPageIndex] = useState(1);
     const [totalPageCount, setTotalPageCount] = useState(0);
     const [isViewOpen, setIsViewOpen] = useState<boolean>(false);
-    const [testCycleData, setTestCycleData] = useState<ITestCycle>();
+    const [task, setTask] = useState<ITask>();
+    const [pageIndex, setPageIndex] = useState(1);
     const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
-    const { projectId } = useParams<{ projectId: string }>();
     const { data } = useSession();
 
     useEffect(() => {
@@ -131,34 +152,31 @@ export default function TestPlan() {
         }
     }, [data]);
 
-    useEffect(() => {
-        const debounceFetch = setTimeout(() => {
-            getTestCycle();
-        }, 500);
-        return () => clearTimeout(debounceFetch);
-    }, [globalFilter, pageIndex, pageSize]);
-
-    const ViewTestCycle = (testCycle: ITestCycle) => {
-        setTestCycleData(testCycle);
+    const getTask = async (data: ITask) => {
+        setTask(data as ITask);
         setIsViewOpen(true);
-    }
-
-    const getTestCycle = async () => {
-        setIsLoading(true);
-        const response = await getTestCycleService(projectId, pageIndex, pageSize, globalFilter as unknown as string);
-        setTestCycle(response?.testCycles);
-        setTotalPageCount(response?.total);
-        setIsLoading(false);
     };
 
+    const getTasks = async () => {
+        setIsLoading(true);
+        try {
+            const response = await getTaskService(projectId, pageIndex, pageSize, globalFilter as unknown as string);
+            setTasks(response?.tasks);
+            setTotalPageCount(response?.total);
+        } catch (error) {
+            toasterService.error();
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
-    const refreshTestCycle = () => {
-        getTestCycle();
+    const refreshTasks = () => {
+        getTasks();
         setRowSelection({});
     };
 
     const table = useReactTable({
-        data: testCycle,
+        data: issues,
         columns,
         onSortingChange: setSorting,
         getCoreRowModel: getCoreRowModel(),
@@ -189,35 +207,35 @@ export default function TestPlan() {
         }
     };
 
+
+    useEffect(() => {
+        const debounceFetch = setTimeout(() => {
+            getTasks();
+        }, 500);
+        return () => clearTimeout(debounceFetch);
+    }, [globalFilter, pageIndex, pageSize]);
+
     return (
         <main className="mx-4 mt-2">
-            <TestCycleView
+            <ViewTask
+                task={task as ITask}
                 sheetOpen={isViewOpen}
                 setSheetOpen={setIsViewOpen}
-                testCycle={testCycleData as ITestCycle}
             />
             <div className="">
-                <h2 className="text-medium">Test cycle</h2>
-                <span className="text-xs text-gray-600">
-                    A series of iterative testing phases, including planning, execution, and closure,
-                    to validate product functionality.
-                </span>
+                <h2 className="text-medium">Tasks</h2>
             </div>
             <div className="w-full">
                 <div className="flex py-4 justify-between">
                     <Input
-                        placeholder="Filter test cycle"
+                        placeholder="Filter tasks"
                         value={(globalFilter as string) ?? ""}
                         onChange={(event) => {
-                            table.setGlobalFilter(String(event.target.value));
+                            setGlobalFilter(event.target.value);
                         }}
                         className="max-w-sm"
                     />
-                    {userData?.role != UserRoles.TESTER &&
-                        <div className="flex gap-2 ml-2">
-                            <AddTestCycle refreshTestCycle={refreshTestCycle} />
-                        </div>
-                    }
+                    <AddTask refreshTasks={refreshTasks} />
                 </div>
                 <div className="rounded-md border">
                     <Table>
@@ -240,7 +258,7 @@ export default function TestPlan() {
                             ))}
                         </TableHeader>
                         <TableBody>
-                            {table && table.getRowModel() && table?.getRowModel()?.rows?.length ? (
+                            {table.getRowModel().rows?.length ? (
                                 table.getRowModel().rows.map((row) => (
                                     <TableRow
                                         key={row.id}

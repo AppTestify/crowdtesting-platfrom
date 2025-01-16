@@ -27,11 +27,11 @@ const chartConfig = {
     },
     Completed: {
         label: "Completed",
-        color: 'hsl(var(--primary))'
+        color: 'hsl(var(--chart-2))'
     },
     Ongoing: {
         label: 'Ongoing',
-        color: '#F4A462'
+        color: 'hsl(var(--chart-1))'
     },
     Active: {
         label: 'Active',
@@ -56,9 +56,9 @@ const getColorForStatus = (status: string) => {
         case IssueStatus.DEFERRED:
             return '#FACC15';
         case "completed":
-            return 'hsl(var(--primary))';
+            return 'hsl(var(--chart-2))';
         case "ongoing":
-            return '#F4A462';
+            return 'hsl(var(--chart-1))';
         case "active":
             return 'hsl(var(--primary))';
         case "inActive":

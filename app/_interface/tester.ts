@@ -1,4 +1,5 @@
 import { Document } from "mongoose";
+import { ILanguage } from "../(routes)/private/profile/_components/tester-profile/_components/languages";
 
 // Interface for Images as Blobs
 interface IImage {
@@ -66,8 +67,8 @@ export interface ITester extends Document {
   isApproved: boolean;
   bio?: string;
   certifications?: ICertification[];
+  languages?: ILanguage[];
 }
-
 
 export interface IUserInfoData {
   _id: string;
@@ -79,7 +80,6 @@ export interface IUserInfoData {
   updatedAt: string;
   __v: number;
 }
-
 
 export interface Timezone {
   zoneName: string;

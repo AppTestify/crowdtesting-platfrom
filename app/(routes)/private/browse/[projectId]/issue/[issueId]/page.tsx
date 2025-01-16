@@ -188,8 +188,8 @@ const ViewIssue = () => {
                   </Button>
                 )
               ) : (project?.isActive &&
-                  issueData?.userId?._id?.toString() ===
-                    userData?._id?.toString()) ||
+                issueData?.userId?._id?.toString() ===
+                userData?._id?.toString()) ||
                 userData?.role !== UserRoles.TESTER ? (
                 <Button size={"sm"} onClick={() => setIsEditStatusOpen(true)}>
                   <Edit className="h-2 w-2" /> Edit
@@ -233,7 +233,7 @@ const ViewIssue = () => {
                   <span className="text-gray-500 min-w-[70px] text-sm">Severity</span>
                   <span className="text-sm">{issueData?.severity}</span>
                 </div>
-                
+
                 <div className="flex items-center gap-[20px]">
                   <span className="text-gray-500 min-w-[70px] text-sm">Priority</span>
                   <span className="text-sm flex items-center">
@@ -252,11 +252,10 @@ const ViewIssue = () => {
                 <div className="flex items-center gap-[20px]">
                   <span className="text-gray-500 min-w-[70px] text-sm">Assignee</span>
                   <span className="text-sm flex items-center">
-                    <UserCircle2Icon className="text-gray-600 h-4 w-4 mr-1"/>
+                    <UserCircle2Icon className="text-gray-600 h-4 w-4 mr-1" />
                     {issueData?.assignedTo?._id ? (
-                      `${
-                        issueData?.assignedTo?.firstName ||
-                        NAME_NOT_SPECIFIED_ERROR_MESSAGE
+                      `${issueData?.assignedTo?.firstName ||
+                      NAME_NOT_SPECIFIED_ERROR_MESSAGE
                       } ${issueData?.assignedTo?.lastName || ""}`
                     ) : (
                       <span className="text-gray-400">Unassigned</span>
@@ -264,13 +263,15 @@ const ViewIssue = () => {
                   </span>
                 </div>
 
-                <div className="flex items-center gap-[20px]">
-                  <span className="text-gray-500 min-w-[70px] text-sm">Reporter</span>
-                  <span className="text-sm flex items-center">
-                    <UserCircle2Icon className="text-gray-600 h-4 w-4 mr-1"/>
-                    {`${issueData?.userId?.firstName || ""} ${issueData?.userId?.lastName || ""}`}
-                  </span>
-                </div>
+                {userData?.role !== UserRoles.CLIENT &&
+                  <div className="flex items-center gap-[20px]">
+                    <span className="text-gray-500 min-w-[70px] text-sm">Reporter</span>
+                    <span className="text-sm flex items-center">
+                      <UserCircle2Icon className="text-gray-600 h-4 w-4 mr-1" />
+                      {`${issueData?.userId?.firstName || ""} ${issueData?.userId?.lastName || ""}`}
+                    </span>
+                  </div>
+                }
               </div>
 
               <div className="mt-3">

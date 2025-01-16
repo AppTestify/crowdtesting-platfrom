@@ -16,7 +16,7 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: "AppTestify Platform",
-  description: "Crowd Testing",
+  description: "Test Management",
 };
 
 export default function RootLayout({

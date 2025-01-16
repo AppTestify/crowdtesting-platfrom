@@ -162,7 +162,9 @@ export function EditTestCycle({
                                                         mode="single"
                                                         selected={field.value}
                                                         onSelect={(date) => field.onChange(date)}
-                                                        disabled={(date) => date < new Date("1900-01-01")}
+                                                        disabled={(date) => date < new Date("1900-01-01") ||
+                                                            date > form.watch('endDate')
+                                                        }
                                                         initialFocus
                                                     />
                                                 </PopoverContent>

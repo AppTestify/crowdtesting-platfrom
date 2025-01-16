@@ -34,7 +34,6 @@ export const SKILLS: string[] = [
   "Version Control Systems",
   "Scripting Languages",
   "API Testing",
-  "Performance Testing",
   "Continuous Integration/Continuous Deployment",
   "Mobile Testing",
   "Security Testing",

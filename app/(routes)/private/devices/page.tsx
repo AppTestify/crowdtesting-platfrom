@@ -190,11 +190,7 @@ export default function Devices() {
     },
     onGlobalFilterChange: setGlobalFilter,
   });
-
-  useEffect(() => {
-    getDevices();
-  }, [pageIndex, pageSize]);
-
+ 
   useEffect(() => {
     getBrowsers();
   }, []);

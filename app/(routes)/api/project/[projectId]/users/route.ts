@@ -55,9 +55,9 @@ export async function GET(
           userIdFormat.idFormat,
           user.userId?.customId
         );
-        const tester = await Tester.findOne({ user: user.userId?._id }).select(
-          "address"
-        );
+        const tester = await Tester.findOne({ user: user.userId?._id })
+          .select("address languages skills")
+          .sort({ _id: -1 });
         return {
           ...user,
           customId: customIdTransformed,

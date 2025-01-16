@@ -98,6 +98,7 @@ function countresults(issue: any[]) {
   severityCounts[Severity.MINOR] = 0;
   severityCounts[Severity.MAJOR] = 0;
   severityCounts[Severity.CRITICAL] = 0;
+  severityCounts[Severity.BLOCKER] = 0;
 
   const priorityCounts: any = {};
   priorityCounts[Priority.LOW] = 0;

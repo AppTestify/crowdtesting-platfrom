@@ -175,10 +175,6 @@ export default function Projects() {
     userData?.role === UserRoles.TESTER ? [...columns, statusColumn]
       : [...columns, statusColumn, actionsColumn];
 
-  useEffect(() => {
-    getProjects();
-  }, [pageIndex, pageSize]);
-
   const getProjects = async () => {
     setIsLoading(true);
     const response = await getProjectsService(pageIndex, pageSize, globalFilter as unknown as string);
@@ -210,7 +206,6 @@ export default function Projects() {
     globalFilterFn: "includesString",
     state: {
       sorting,
-      // globalFilter,
       columnVisibility,
       rowSelection,
     },
@@ -248,11 +243,6 @@ export default function Projects() {
     }, 500);
     return () => clearTimeout(debounceFetch);
   }, [globalFilter, pageIndex, pageSize]);
-
-  const getUser = async (data: IUserByAdmin) => {
-    setUser(data as IUserByAdmin);
-    setIsViewOpen(true);
-  };
 
   return (
     <main className="mx-4 mt-4">

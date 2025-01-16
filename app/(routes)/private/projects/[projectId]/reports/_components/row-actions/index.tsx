@@ -1,9 +1,7 @@
 "use client";
 import { ConfirmationDialog } from "@/app/_components/confirmation-dialog";
 import { IReport } from "@/app/_interface/report";
-import { ITestCycle } from "@/app/_interface/test-cycle";
 import { deleteReportService } from "@/app/_services/report.service";
-import { deleteTestCycleService } from "@/app/_services/test-cycle.service";
 import toasterService from "@/app/_services/toaster-service";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,9 +13,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Row } from "@tanstack/react-table";
 import { Edit, Eye, MoreHorizontal, Trash } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { EditReport } from "../edit-report";
 import ViewReport from "../view-report";
+import { useSession } from "next-auth/react";
+import { UserRoles } from "@/app/_constants/user-roles";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export function ReportRowActions({
     row,
@@ -30,8 +31,17 @@ export function ReportRowActions({
     const [isViewOpen, setIsViewOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [userData, setUserData] = useState<any>();
     const projectId = row.original.projectId as string;
     const reportId = row.original._id as string;
+    const { data } = useSession();
+
+    useEffect(() => {
+        if (data) {
+            const { user } = data;
+            setUserData(user);
+        }
+    }, [data]);
 
     const deleteReport = async () => {
         try {
@@ -79,42 +89,48 @@ export function ReportRowActions({
             />
 
             <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">Open menu</span>
-                        <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                    <DropdownMenuItem
-                        className="mb-1"
-                        onClick={() => {
-                            setIsViewOpen(true);
-                        }}
-                    >
-                        <Eye className="h-2 w-2" /> View
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator className="border-b" />
-                    <DropdownMenuItem
-                        className="mb-1"
-                        onClick={() => {
-                            setIsEditOpen(true);
-                        }}
-                    >
-                        <Edit className="h-2 w-2" /> Edit
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator className="border-b" />
-                    <DropdownMenuItem
-                        className="my-1"
-                        onClick={() => {
-                            setIsDeleteOpen(true);
-                            setIsLoading(false);
-                        }}
-                    >
-                        <Trash className="h-2 w-2 text-destructive" />{" "}
-                        <span className="text-destructive">Delete</span>
-                    </DropdownMenuItem>
-                </DropdownMenuContent>
+                {userData?.role !== UserRoles.TESTER ?
+                    <>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                                <span className="sr-only">Open menu</span>
+                                <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                                className="mb-1"
+                                onClick={() => {
+                                    setIsViewOpen(true);
+                                }}
+                            >
+                                <Eye className="h-2 w-2" /> View
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator className="border-b" />
+                            <DropdownMenuItem
+                                className="mb-1"
+                                onClick={() => {
+                                    setIsEditOpen(true);
+                                }}
+                            >
+                                <Edit className="h-2 w-2" /> Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator className="border-b" />
+                            <DropdownMenuItem
+                                className="my-1"
+                                onClick={() => {
+                                    setIsDeleteOpen(true);
+                                    setIsLoading(false);
+                                }}
+                            >
+                                <Trash className="h-2 w-2 text-destructive" />{" "}
+                                <span className="text-destructive">Delete</span>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </>
+                    :
+                    null
+                }
             </DropdownMenu>
         </>
     );

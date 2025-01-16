@@ -31,6 +31,7 @@ import { statusBadgeProjectUserRole } from "@/app/_utils/common-functionality";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
 import { getUsernameWithUserId, getUsernameWithUserIdReverse } from "@/app/_utils/common";
+import ExpandableTable from "@/app/_components/expandable-table";
 
 export default function ProjectUsers() {
     const [userData, setUserData] = useState<any>();
@@ -45,15 +46,28 @@ export default function ProjectUsers() {
                 </div>
             ),
         },
-        // {
-        //     accessorKey: "name",
-        //     header: "Name",
-        //     cell: ({ row }) => (
-        //         <div>
-        //             {`${row.original?.userId?.firstName || ""} ${row.original?.userId?.lastName || ""}`}
-        //         </div>
-        //     ),
-        // },
+        {
+            accessorKey: "skills",
+            header: "Skills",
+            cell: ({ row }) => {
+                const skills = row.original?.tester?.skills;
+                const formattedSkills = skills?.map(skill => ({ name: skill }));
+                return (
+                    <div>
+                        <ExpandableTable row={formattedSkills as any[]} />
+                    </div>
+                );
+            },
+        },
+        {
+            accessorKey: "language",
+            header: "Language",
+            cell: ({ row }) => (
+                <div className="capitalize">
+                    <ExpandableTable row={row.original.tester?.languages as any[]} />
+                </div>
+            ),
+        },
         {
             accessorFn: (row) => row.role || "",
             accessorKey: "projectUserRole",

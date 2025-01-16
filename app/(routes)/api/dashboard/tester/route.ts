@@ -100,6 +100,7 @@ function countresults(issue: any[]) {
   severityCounts[Severity.MINOR] = 0;
   severityCounts[Severity.MAJOR] = 0;
   severityCounts[Severity.CRITICAL] = 0;
+  severityCounts[Severity.BLOCKER] = 0;
 
   const statusCounts: any = {};
   statusCounts[IssueStatus.NEW] = 0;
