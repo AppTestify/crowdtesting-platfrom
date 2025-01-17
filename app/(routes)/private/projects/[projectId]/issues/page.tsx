@@ -47,6 +47,7 @@ import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
 import ExpandableTable from "@/app/_components/expandable-table";
 import { checkProjectAdmin } from "@/app/_utils/common";
 import { NAME_NOT_SPECIFIED_ERROR_MESSAGE } from "@/app/_constants/errors";
+import { DBModels } from "@/app/_constants";
 
 export default function Issues() {
   const [issues, setIssues] = useState<IIssueView[]>([]);
@@ -98,7 +99,9 @@ export default function Issues() {
             <Link
               href={`/private/browse/${projectId}/issue/${row.original?.id}`}
             >
-              <div className="capitalize hover:text-primary cursor-pointer">
+              <div
+                title={title}
+                className="capitalize hover:text-primary cursor-pointer">
                 {title.length > 30 ? `${title.substring(0, 30)}...` : title}
               </div>
             </Link>
@@ -218,7 +221,11 @@ export default function Issues() {
   const [isViewOpen, setIsViewOpen] = useState<boolean>(false);
   const [totalPageCount, setTotalPageCount] = useState(0);
   const [pageIndex, setPageIndex] = useState<number>(() => {
-    return Number(localStorage.getItem("currentPage")) || 1;
+    const entity = localStorage.getItem("entity");
+    if (entity === DBModels.ISSUE) {
+      return Number(localStorage.getItem("currentPage")) || 1;
+    }
+    return 1;
   });
   const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
   const [isExcelLoading, setIsExcelLoading] = useState<boolean>(false);
@@ -233,6 +240,7 @@ export default function Issues() {
 
   useEffect(() => {
     localStorage.setItem("currentPage", pageIndex.toString());
+    localStorage.setItem("entity", DBModels.ISSUE);
   }, [pageIndex]);
 
   const getProject = async () => {

@@ -32,6 +32,7 @@ import { TestPlansRowActions } from "./_components/row-actions";
 import ViewTestPlan from "./_components/view-test-plan";
 import { ArrowUpDown } from "lucide-react";
 import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
+import { DBModels } from "@/app/_constants";
 
 export default function TestPlan() {
     const [testPlans, setTestPlans] = useState<ITestPlanPayload[]>([]);
@@ -98,7 +99,13 @@ export default function TestPlan() {
     const [rowSelection, setRowSelection] = useState({});
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [globalFilter, setGlobalFilter] = useState<unknown>([]);
-    const [pageIndex, setPageIndex] = useState(1);
+    const [pageIndex, setPageIndex] = useState<number>(() => {
+        const entity = localStorage.getItem("entity");
+        if (entity === DBModels.TEST_PLAN) {
+            return Number(localStorage.getItem("currentPage")) || 1;
+        }
+        return 1;
+    });
     const [totalPageCount, setTotalPageCount] = useState(0);
     const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
     const [isViewOpen, setIsViewOpen] = useState(false);
@@ -108,6 +115,11 @@ export default function TestPlan() {
     useEffect(() => {
         getTestPlans();
     }, [pageIndex, pageSize]);
+
+    useEffect(() => {
+        localStorage.setItem("currentPage", pageIndex.toString());
+        localStorage.setItem("entity", DBModels.TEST_PLAN);
+    }, [pageIndex]);
 
     const getTestPlans = async () => {
         setIsLoading(true);

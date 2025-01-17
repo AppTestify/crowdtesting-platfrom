@@ -218,7 +218,6 @@ const EditIssue = ({
     }
 
     if (!isInvalidDevices && form.formState.isValid) {
-      form.handleSubmit(onSubmit)();
       const values = form.getValues();
       await onSubmit(values);
     }
@@ -309,7 +308,7 @@ const EditIssue = ({
       setSheetOpen(open);
 
       if (!open) {
-        handleSheetClose();
+        // handleSheetClose();
       }
     }
   };
@@ -444,7 +443,7 @@ const EditIssue = ({
                           userData?.role === UserRoles.TESTER &&
                           !checkProjectRole &&
                           form.watch("status") !==
-                            IssueStatus.READY_FOR_RETEST &&
+                          IssueStatus.READY_FOR_RETEST &&
                           !ISSUE_TESTER_STATUS_LIST.includes(field.value as any)
                         }
                         value={field.value}
@@ -454,7 +453,7 @@ const EditIssue = ({
                         </SelectTrigger>
                         <SelectContent>
                           {userData?.role === UserRoles.TESTER &&
-                          !checkProjectRole ? (
+                            !checkProjectRole ? (
                             <SelectGroup>
                               {ISSUE_TESTER_STATUS_LIST.map((status) => (
                                 <SelectItem value={status} key={status}>
@@ -571,8 +570,8 @@ const EditIssue = ({
                               (cycle) => cycle._id === field.value
                             )
                               ? testCycles.find(
-                                  (cycle) => cycle._id === field.value
-                                )?.title
+                                (cycle) => cycle._id === field.value
+                              )?.title
                               : testCycle?.title}
                           </SelectValue>
                         </SelectTrigger>
@@ -606,7 +605,7 @@ const EditIssue = ({
               </div>
 
               {userProjectRole === ProjectUserRoles.ADMIN ||
-              userProjectRole === ProjectUserRoles.CLIENT ? (
+                userProjectRole === ProjectUserRoles.CLIENT ? (
                 <div className="grid grid-cols-1 gap-2 mt-4">
                   <FormField
                     control={form.control}

@@ -34,6 +34,7 @@ import { ArrowUpDown } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
 import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
+import { DBModels } from "@/app/_constants";
 
 export default function Issues() {
   const [requirements, setRequirements] = useState<IRequirement[]>([]);
@@ -117,7 +118,13 @@ export default function Issues() {
   const [rowSelection, setRowSelection] = useState({});
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [globalFilter, setGlobalFilter] = useState<unknown>([]);
-  const [pageIndex, setPageIndex] = useState(1);
+  const [pageIndex, setPageIndex] = useState<number>(() => {
+    const entity = localStorage.getItem("entity");
+    if (entity === DBModels.REQUIREMENT) {
+      return Number(localStorage.getItem("currentPage")) || 1;
+    }
+    return 1;
+  });
   const [requirement, setRequirement] = useState<IRequirement>();
   const [totalPageCount, setTotalPageCount] = useState(0);
   const [isViewOpen, setIsViewOpen] = useState(false);
@@ -189,6 +196,11 @@ export default function Issues() {
       setPageIndex(pageIndex + 1);
     }
   };
+
+  useEffect(() => {
+    localStorage.setItem("currentPage", pageIndex.toString());
+    localStorage.setItem("entity", DBModels.REQUIREMENT);
+  }, [pageIndex]);
 
   return (
     <main className="mx-4 mt-2">

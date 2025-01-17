@@ -34,6 +34,7 @@ import TestCycleView from "./_components/view-test-cycle";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
 import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
+import { DBModels } from "@/app/_constants";
 
 export default function TestPlan() {
     const [testCycle, setTestCycle] = useState<ITestCycle[]>([]);
@@ -116,7 +117,13 @@ export default function TestPlan() {
     const [rowSelection, setRowSelection] = useState({});
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [globalFilter, setGlobalFilter] = useState<unknown>([]);
-    const [pageIndex, setPageIndex] = useState(1);
+    const [pageIndex, setPageIndex] = useState<number>(() => {
+        const entity = localStorage.getItem("entity");
+        if (entity === DBModels.TEST_CYCLE) {
+            return Number(localStorage.getItem("currentPage")) || 1;
+        }
+        return 1;
+    });
     const [totalPageCount, setTotalPageCount] = useState(0);
     const [isViewOpen, setIsViewOpen] = useState<boolean>(false);
     const [testCycleData, setTestCycleData] = useState<ITestCycle>();
@@ -137,6 +144,11 @@ export default function TestPlan() {
         }, 500);
         return () => clearTimeout(debounceFetch);
     }, [globalFilter, pageIndex, pageSize]);
+
+    useEffect(() => {
+        localStorage.setItem("currentPage", pageIndex.toString());
+        localStorage.setItem("entity", DBModels.TEST_CYCLE);
+    }, [pageIndex]);
 
     const ViewTestCycle = (testCycle: ITestCycle) => {
         setTestCycleData(testCycle);

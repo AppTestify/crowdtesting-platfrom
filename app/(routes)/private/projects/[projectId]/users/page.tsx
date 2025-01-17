@@ -21,7 +21,6 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
 import { getProjectUsersService } from "@/app/_services/project.service";
 import { AddProjectUser } from "./add-user";
