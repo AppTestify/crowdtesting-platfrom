@@ -64,7 +64,7 @@ export const taskStatusBadge = (status: string | undefined) => {
         case TaskStatus.TODO:
             return <Badge className="bg-gray-400 hover:bg-gray-400 font-medium">{TaskStatus.TODO}</Badge>;
         case TaskStatus.IN_PROGRESS:
-            return <Badge className="bg-yellow-500 hover:bg-yellow-500 font-medium">{TaskStatus.IN_PROGRESS}</Badge>;
+            return <Badge className="bg-orange-500 hover:bg-orange-500 font-medium">{TaskStatus.IN_PROGRESS}</Badge>;
         case TaskStatus.BLOCKED:
             return <Badge className="bg-destructive hover:bg-destructive font-medium">{TaskStatus.BLOCKED}</Badge>;
         case TaskStatus.DONE:

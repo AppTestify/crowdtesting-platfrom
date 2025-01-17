@@ -41,8 +41,8 @@ import TextEditor from "../text-editor";
 
 const projectSchema = z.object({
   title: z.string().min(1, "Required"),
-  startDate: z.date(),
-  endDate: z.date(),
+  startDate: z.date().nullable(),
+  endDate: z.date().nullable(),
   description: z.string().min(1, "Required"),
   isActive: z.boolean().optional(),
 });
@@ -55,8 +55,8 @@ export function AddProject({ refreshProjects }: { refreshProjects: () => void; }
     resolver: zodResolver(projectSchema),
     defaultValues: {
       title: "",
-      startDate: new Date(),
-      endDate: new Date(),
+      startDate: null,
+      endDate: null,
       description: "",
       isActive: true,
     },
@@ -65,7 +65,11 @@ export function AddProject({ refreshProjects }: { refreshProjects: () => void; }
   async function onSubmit(values: z.infer<typeof projectSchema>) {
     setIsLoading(true);
     try {
-      const response = await addProjectService({ ...values });
+      const response = await addProjectService({
+        ...values,
+        startDate: values.startDate ?? null,
+        endDate: values.endDate ?? null,
+      });
       if (response) {
         refreshProjects();
         toasterService.success(response?.message);
@@ -130,7 +134,7 @@ export function AddProject({ refreshProjects }: { refreshProjects: () => void; }
                             <Button
                               variant={"outline"}
                               className={cn(
-                                "w-[260px] pl-3 text-left font-normal",
+                                "w-full pl-3 text-left font-normal",
                                 !field.value && "text-muted-foreground"
                               )}
                             >
@@ -146,7 +150,7 @@ export function AddProject({ refreshProjects }: { refreshProjects: () => void; }
                         <PopoverContent className="w-auto p-0" align="start">
                           <Calendar
                             mode="single"
-                            selected={field.value}
+                            selected={field.value || undefined}
                             onSelect={field.onChange}
                             disabled={(date) => date < new Date("1900-01-01")}
                             initialFocus
@@ -170,7 +174,7 @@ export function AddProject({ refreshProjects }: { refreshProjects: () => void; }
                             <Button
                               variant={"outline"}
                               className={cn(
-                                "w-[260px] pl-3 text-left font-normal",
+                                "w-full pl-3 text-left font-normal",
                                 !field.value && "text-muted-foreground"
                               )}
                             >
@@ -186,10 +190,10 @@ export function AddProject({ refreshProjects }: { refreshProjects: () => void; }
                         <PopoverContent className="w-auto p-0" align="start">
                           <Calendar
                             mode="single"
-                            selected={field.value}
+                            selected={field.value || undefined}
                             onSelect={field.onChange}
                             disabled={(date) =>
-                              date < form.watch("startDate") ||
+                              date < (form.watch("startDate") ?? new Date("1900-01-01")) ||
                               date < new Date("1900-01-01")
                             }
                             initialFocus

@@ -39,7 +39,7 @@ export const enum IssueStatus {
 }
 
 export const enum TaskStatus {
-  TODO = "Todo",
+  TODO = "To do",
   IN_PROGRESS = "In progress",
   BLOCKED = "Blocked",
   DONE = "Done",

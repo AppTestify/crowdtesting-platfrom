@@ -109,14 +109,26 @@ export default function Projects() {
       accessorKey: "startDate",
       header: "Start Date",
       cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("startDate")}</div>
+        <div className="capitalize">
+          {row.original?.startDate !== null ? (
+            <span>{formatDateWithoutTime(row.getValue("startDate"))}</span>
+          ) : (
+            <span className="text-gray-400">Not available</span>
+          )}
+        </div>
       ),
     },
     {
       accessorKey: "endDate",
       header: "End Date",
       cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("endDate")}</div>
+        <div className="capitalize">
+          {row.original?.endDate !== null ? (
+            <span>{formatDateWithoutTime(row.getValue("endDate"))}</span>
+          ) : (
+            <span className="text-gray-400">Not available</span>
+          )}
+        </div>
       ),
     },
   ];
@@ -180,8 +192,8 @@ export default function Projects() {
     const response = await getProjectsService(pageIndex, pageSize, globalFilter as unknown as string);
     const formattedProjects = response?.projects?.map((project: any) => ({
       ...project,
-      startDate: formatDateWithoutTime(project.startDate),
-      endDate: formatDateWithoutTime(project.endDate),
+      startDate: project?.startDate,
+      endDate: project?.endDate
     }));
     setProjects(formattedProjects as IProjectPayload[]);
     setTotalPageCount(response?.total);

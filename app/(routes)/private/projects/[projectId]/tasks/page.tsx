@@ -37,6 +37,7 @@ import { getTaskService } from "@/app/_services/task.service";
 import { TaskRowActions } from "./_components/row-actions";
 import { ITask } from "@/app/_interface/task";
 import ViewTask from "./_components/view-task";
+import { DBModels } from "@/app/_constants";
 
 export default function Tasks() {
     const [issues, setTasks] = useState<ITask[]>([]);
@@ -83,11 +84,16 @@ export default function Tasks() {
         {
             accessorKey: "issueId",
             header: "Issue",
-            cell: ({ row }: { row: any }) => (
-                <div className="">
-                    {row.original.issueId?.title}
-                </div>
-            ),
+            cell: ({ row }: { row: any }) => {
+                const issueTitle = row.getValue("title");
+                return (
+                    <div title={issueTitle}
+                        className="capitalize"
+                    >
+                        {issueTitle.length > 30 ? `${issueTitle.substring(0, 30)}...` : issueTitle}
+                    </div>
+                )
+            },
         },
         {
             accessorKey: "createdBy",
@@ -141,7 +147,13 @@ export default function Tasks() {
     const [totalPageCount, setTotalPageCount] = useState(0);
     const [isViewOpen, setIsViewOpen] = useState<boolean>(false);
     const [task, setTask] = useState<ITask>();
-    const [pageIndex, setPageIndex] = useState(1);
+    const [pageIndex, setPageIndex] = useState<number>(() => {
+        const entity = localStorage.getItem("entity");
+        if (entity === DBModels.TASK) {
+            return Number(localStorage.getItem("currentPage")) || 1;
+        }
+        return 1;
+    });
     const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
     const { data } = useSession();
 
@@ -207,6 +219,10 @@ export default function Tasks() {
         }
     };
 
+    useEffect(() => {
+        localStorage.setItem("currentPage", pageIndex.toString());
+        localStorage.setItem("entity", DBModels.TASK);
+    }, [pageIndex]);
 
     useEffect(() => {
         const debounceFetch = setTimeout(() => {

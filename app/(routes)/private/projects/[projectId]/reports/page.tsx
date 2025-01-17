@@ -39,6 +39,7 @@ import { ReportRowActions } from "./_components/row-actions";
 import ExpandableTable from "@/app/_components/expandable-table";
 import { Download, Loader2 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { DBModels } from "@/app/_constants";
 
 export default function Report() {
     const [reports, setReports] = useState<IReport[]>([]);
@@ -182,7 +183,13 @@ export default function Report() {
     const [rowSelection, setRowSelection] = useState({});
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [globalFilter, setGlobalFilter] = useState<unknown>([]);
-    const [pageIndex, setPageIndex] = useState(1);
+    const [pageIndex, setPageIndex] = useState<number>(() => {
+        const entity = localStorage.getItem("entity");
+        if (entity === DBModels.REPORT) {
+            return Number(localStorage.getItem("currentPage")) || 1;
+        }
+        return 1;
+    });
     const [totalPageCount, setTotalPageCount] = useState(0);
     const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
     const { projectId } = useParams<{ projectId: string }>();
@@ -217,6 +224,11 @@ export default function Report() {
         }, 500);
         return () => clearTimeout(debounceFetch);
     }, [globalFilter, pageIndex, pageSize]);
+
+    useEffect(() => {
+        localStorage.setItem("currentPage", pageIndex.toString());
+        localStorage.setItem("entity", DBModels.REPORT);
+    }, [pageIndex]);
 
     const getReports = async () => {
         setIsLoading(true);

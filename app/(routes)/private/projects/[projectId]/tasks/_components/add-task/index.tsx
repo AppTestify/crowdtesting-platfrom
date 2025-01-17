@@ -81,6 +81,7 @@ export function AddTask({ refreshTasks }: { refreshTasks: () => void }) {
     const { projectId } = useParams<{ projectId: string }>();
     const [issues, setIssues] = useState<IIssue[]>([]);
     const [isViewLoading, setIsViewLoading] = useState<boolean>(false);
+    const [isIssuesView, setIsIssuesView] = useState<boolean>(false);
     const [users, setUsers] = useState<IProjectUserDisplay[]>([]);
     const [userProjectRole, setUserProjectRole] =
         useState<ProjectUserRoles | null>(null);
@@ -150,7 +151,7 @@ export function AddTask({ refreshTasks }: { refreshTasks: () => void }) {
     };
 
     const getIssues = async () => {
-        setIsViewLoading(true);
+        setIsIssuesView(true);
         try {
             const response = await getIssuesWithoutPaginationService(projectId);
             if (response) {
@@ -159,7 +160,7 @@ export function AddTask({ refreshTasks }: { refreshTasks: () => void }) {
         } catch (error) {
             toasterService.error();
         } finally {
-            setIsViewLoading(false);
+            setIsIssuesView(false);
         }
     }
 
@@ -276,8 +277,10 @@ export function AddTask({ refreshTasks }: { refreshTasks: () => void }) {
                                                                     key={issue.id}
                                                                     value={issue.id as string}
                                                                 >
-                                                                    <div className="flex items-center">
-                                                                        {issue?.title}
+                                                                    <div title={issue?.title}
+                                                                        className="flex items-center"
+                                                                    >
+                                                                        {issue?.customId} - {issue?.title.length > 30 ? `${issue?.title.substring(0, 30)}...` : issue?.title}
                                                                     </div>
                                                                 </SelectItem>
                                                             ))

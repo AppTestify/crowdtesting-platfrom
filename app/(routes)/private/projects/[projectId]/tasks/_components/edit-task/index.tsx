@@ -256,8 +256,10 @@ export function EditTask({
                                                                     key={issue.id}
                                                                     value={issue.id as string}
                                                                 >
-                                                                    <div className="flex items-center">
-                                                                        {issue?.title}
+                                                                    <div
+                                                                        title={issue?.title}
+                                                                        className="flex items-center">
+                                                                        {issue?.customId} - {issue?.title.length > 30 ? `${issue?.title.substring(0, 30)}...` : issue?.title}
                                                                     </div>
                                                                 </SelectItem>
                                                             ))

@@ -21,7 +21,6 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
 import { getProjectUsersService } from "@/app/_services/project.service";
 import { AddProjectUser } from "./add-user";
@@ -39,7 +38,7 @@ export default function ProjectUsers() {
     const columns: ColumnDef<IProjectUserDisplay>[] = [
         {
             accessorKey: "userName",
-            header: "Name",
+            header: "Tester Identification Number",
             cell: ({ row }) => {
                 const firstName = row?.original?.userId?.firstName;
                 const lastName = row?.original?.userId?.lastName;

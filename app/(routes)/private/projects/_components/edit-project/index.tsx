@@ -41,12 +41,17 @@ import {
 
 const projectSchema = z.object({
   title: z.string().min(1, "Required"),
-  startDate: z.preprocess((val) => {
-    return typeof val === "string" ? new Date(val) : val;
-  }, z.date()),
-  endDate: z.preprocess((val) => {
-    return typeof val === "string" ? new Date(val) : val;
-  }, z.date()),
+  startDate: z.preprocess(
+    (val) => (val ? new Date(val as string) : null),
+    z.date().nullable()
+  )
+    .optional(),
+  endDate: z
+    .preprocess(
+      (val) => (val ? new Date(val as string) : null),
+      z.date().nullable()
+    )
+    .optional(),
   description: z.string().min(1, "Required"),
   isActive: z.boolean().optional(),
 });
@@ -69,8 +74,8 @@ const EditProject = ({
     resolver: zodResolver(projectSchema),
     defaultValues: {
       title: title || "",
-      startDate: parseDate(formatDateReverse(startDate) || new Date()),
-      endDate: parseDate(formatDateReverse(endDate) || new Date()),
+      startDate: startDate ? new Date(startDate) : null,
+      endDate: endDate ? new Date(endDate) : null,
       description: description || "",
     },
   });
@@ -80,8 +85,8 @@ const EditProject = ({
     try {
       const response = await updateProjectService(projectId, {
         ...values,
-        startDate: new Date(values.startDate.toISOString()),
-        endDate: new Date(values.endDate.toISOString()),
+        startDate: values.startDate ? new Date(values.startDate.toISOString()) : null,
+        endDate: values.endDate ? new Date(values.endDate.toISOString()) : null,
       });
       if (response) {
         refreshProjects();
@@ -161,7 +166,7 @@ const EditProject = ({
                         <PopoverContent className="w-auto p-0" align="start">
                           <Calendar
                             mode="single"
-                            selected={field.value}
+                            selected={field.value || undefined}
                             onSelect={field.onChange}
                             disabled={(date) => date < new Date("1900-01-01")}
                             initialFocus
@@ -201,10 +206,10 @@ const EditProject = ({
                         <PopoverContent className="w-auto p-0" align="start">
                           <Calendar
                             mode="single"
-                            selected={field.value}
+                            selected={field.value || undefined}
                             onSelect={field.onChange}
                             disabled={(date) =>
-                              date < form.watch("startDate") ||
+                              (form.watch("startDate") ? date < (form.watch("startDate") as Date) : false) ||
                               date < new Date("1900-01-01")
                             }
                             initialFocus

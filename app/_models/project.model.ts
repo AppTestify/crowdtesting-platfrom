@@ -4,8 +4,8 @@ import { Counter } from "./counter.model";
 
 export interface IProject extends Document {
   title: string;
-  startDate: Date;
-  endDate: Date;
+  startDate?: Date;
+  endDate?: Date;
   description: string;
   isActive: Boolean;
   users: Types.ObjectId[];
@@ -14,32 +14,33 @@ export interface IProject extends Document {
   deletedAt?: Date;
 }
 
-const ProjectUserSchema = new Schema({
-  userId: { type: Schema.Types.ObjectId, ref: DBModels.USER, required: true },
-  role: { type: String },
-  customId: { type: Number }
-},
+const ProjectUserSchema = new Schema(
+  {
+    userId: { type: Schema.Types.ObjectId, ref: DBModels.USER, required: true },
+    role: { type: String },
+    customId: { type: Number },
+  },
   { timestamps: true }
 );
 
 const ProjectSchema = new Schema<IProject>(
   {
     title: { type: String, required: true },
-    startDate: { type: Date, required: true },
-    endDate: { type: Date, required: true },
+    startDate: { type: Date, required: false },
+    endDate: { type: Date, required: false },
     description: { type: String, required: false },
     isActive: { type: Boolean, required: true },
     users: [ProjectUserSchema],
     userId: { type: Schema.Types.ObjectId, ref: DBModels.USER, required: true },
     customId: { type: Number },
-    deletedAt: Date
+    deletedAt: Date,
   },
   {
     timestamps: true,
   }
 );
 
-ProjectSchema.pre('save', async function (next) {
+ProjectSchema.pre("save", async function (next) {
   const project = this;
 
   if (project.isNew) {

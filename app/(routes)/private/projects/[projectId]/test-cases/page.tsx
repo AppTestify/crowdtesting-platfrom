@@ -41,6 +41,7 @@ import { UserRoles } from "@/app/_constants/user-roles";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getRequirementsWithoutPaginationService } from "@/app/_services/requirement.service";
 import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
+import { DBModels } from "@/app/_constants";
 
 export default function TestCases() {
     const [testCases, setTestCases] = useState<ITestCase[]>([]);
@@ -132,7 +133,13 @@ export default function TestCases() {
     const [rowSelection, setRowSelection] = useState({});
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [globalFilter, setGlobalFilter] = useState<unknown>([]);
-    const [pageIndex, setPageIndex] = useState(1);
+    const [pageIndex, setPageIndex] = useState<number>(() => {
+        const entity = localStorage.getItem("entity");
+        if (entity === DBModels.TEST_CASE) {
+            return Number(localStorage.getItem("currentPage")) || 1;
+        }
+        return 1;
+    });
     const [totalPageCount, setTotalPageCount] = useState(0);
     const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
     const { projectId } = useParams<{ projectId: string }>();
@@ -174,6 +181,11 @@ export default function TestCases() {
         getTestSuites();
         getRequirements();
     }, []);
+
+    useEffect(() => {
+        localStorage.setItem("currentPage", pageIndex.toString());
+        localStorage.setItem("entity", DBModels.TEST_CASE);
+    }, [pageIndex]);
 
     const getRequirements = async () => {
         try {
