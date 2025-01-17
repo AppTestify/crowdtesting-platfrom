@@ -37,7 +37,6 @@ export async function filterIssuesForAdmin(
         as: "device",
       },
     },
-
     {
       $lookup: {
         from: "testcycles",
@@ -226,6 +225,15 @@ export async function filterIssuesForClient(
       },
     },
     {
+      $lookup: {
+        from: "testcycles",
+        localField: "testCycle",
+        foreignField: "_id",
+        as: "testCycle",
+      },
+    },
+    { $unwind: { path: "$testCycle", preserveNullAndEmptyArrays: true } },
+    {
       $match: {
         $or: [
           { customId: parseInt(searchString) },
@@ -236,6 +244,7 @@ export async function filterIssuesForClient(
           { status: regex },
           { issueType: regex },
           { "device.name": regex },
+          { "testCycle.name": regex },
           { "user.firstName": regex },
           { "user.lastName": regex },
           { fullName: regex },
@@ -348,6 +357,15 @@ export async function filterIssuesForTester(
       },
     },
     {
+      $lookup: {
+        from: "testcycles",
+        localField: "testCycle",
+        foreignField: "_id",
+        as: "testCycle",
+      },
+    },
+    { $unwind: { path: "$testCycle", preserveNullAndEmptyArrays: true } },
+    {
       $match: {
         $or: [
           { customId: parseInt(searchString) },
@@ -360,6 +378,7 @@ export async function filterIssuesForTester(
           { "device.name": regex },
           { "user.firstName": regex },
           { "user.lastName": regex },
+          { "testCycle.name": regex },
           { fullName: regex },
           { "assignedTo.firstName": regex },
           { "assignedTo.lastName": regex },

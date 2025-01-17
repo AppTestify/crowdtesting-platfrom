@@ -1,5 +1,7 @@
 import { UserRoles } from '@/app/_constants/user-roles';
 import { IUserByAdmin } from '@/app/_interface/user';
+import toasterService from '@/app/_services/toaster-service';
+import { getUserService } from '@/app/_services/user.service';
 import { showUsersRoleInBadges } from '@/app/_utils/common-functionality';
 import { getAvatarFallbackText, getFormattedBase64ForSrc } from '@/app/_utils/string-formatters';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -9,7 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { formatDistanceToNow } from 'date-fns';
 import { Copy } from 'lucide-react';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 export default function ViewClientUser({
     user,
@@ -22,7 +24,8 @@ export default function ViewClientUser({
 }) {
     const [isViewLoading, setIsViewLoading] = useState<boolean>(false);
     const [open, setOpen] = useState(false);
-
+    const [userData, setUserData] = useState<IUserByAdmin>();
+    const userId = user?.id;
 
     const copyEmail = (email: string) => {
         navigator.clipboard.writeText(email)
@@ -34,6 +37,26 @@ export default function ViewClientUser({
                 console.error("Failed to copy email: ", err);
             });
     };
+
+    const getUser = async () => {
+        try {
+            setIsViewLoading(true);
+            const users = await getUserService(userId as string);
+            if (users) {
+                setUserData(users);
+            }
+        } catch (error) {
+            toasterService.error();
+        } finally {
+            setIsViewLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (sheetOpen && userId) {
+            getUser();
+        }
+    }, [sheetOpen, userId]);
 
     return (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
@@ -61,30 +84,30 @@ export default function ViewClientUser({
                             <div className="flex items-center space-x-2 p-2">
                                 <Avatar className="h-16 w-16 rounded-full overflow-hidden">
                                     <AvatarImage
-                                        src={getFormattedBase64ForSrc(user?.profilePicture)}
+                                        src={getFormattedBase64ForSrc(userData?.profilePicture)}
                                         alt="Profile Picture"
                                         className="h-full w-full object-cover"
                                     />
                                     <AvatarFallback>
                                         {getAvatarFallbackText({
-                                            ...user,
-                                            name: `${user?.firstName || ""} ${user?.lastName || ""}`,
-                                            email: user?.email || ""
+                                            ...userData,
+                                            name: `${userData?.firstName || ""} ${userData?.lastName || ""}`,
+                                            email: userData?.email || ""
                                         })}
                                     </AvatarFallback>
                                 </Avatar>
                                 <div className="flex flex-col space-y-1">
                                     <div className="font-semibold text-gray-800 text-md truncate">
-                                        {user?.firstName || "User"} {user?.lastName || "Name"}
+                                        {userData?.firstName || "User"} {userData?.lastName || "Name"}
                                     </div>
                                     <TooltipProvider>
                                         <div className="flex text-gray-500 text-sm truncate">
-                                            <span className="truncate">{user?.email}</span>
+                                            <span className="truncate">{userData?.email}</span>
                                             <Tooltip open={open}>
                                                 <TooltipTrigger asChild>
                                                     <span
                                                         className="ml-2 flex-shrink-0 cursor-pointer"
-                                                        onClick={() => copyEmail(user?.email as string)}
+                                                        onClick={() => copyEmail(userData?.email as string)}
                                                     >
                                                         <Copy className="w-4" />
                                                     </span>
@@ -98,12 +121,12 @@ export default function ViewClientUser({
                                 </div>
                                 <div className="flex-1 space-y-2">
                                     <div className="text-end text-gray-500 text-sm">
-                                        {showUsersRoleInBadges(user?.role as UserRoles)}
+                                        {showUsersRoleInBadges(userData?.role as UserRoles)}
                                     </div>
                                     <div className="text-end text-xs text-gray-500">
                                         {
-                                            user?.createdAt ?
-                                                formatDistanceToNow(new Date(user?.createdAt), { addSuffix: true }) :
+                                            userData?.createdAt ?
+                                                formatDistanceToNow(new Date(userData?.createdAt), { addSuffix: true }) :
                                                 "Date not available"
                                         }
                                     </div>
