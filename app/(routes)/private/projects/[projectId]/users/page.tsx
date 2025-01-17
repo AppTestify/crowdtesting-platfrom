@@ -40,11 +40,24 @@ export default function ProjectUsers() {
         {
             accessorKey: "userName",
             header: "Name",
-            cell: ({ row }) => (
-                <div className="capitalize">
-                    {getUsernameWithUserIdReverse(row.original)}
-                </div>
-            ),
+            cell: ({ row }) => {
+                const firstName = row?.original?.userId?.firstName;
+                const lastName = row?.original?.userId?.lastName;
+                return (
+                    <div className="capitalize">
+                        {userData?.role === UserRoles.ADMIN ?
+                            <div>
+                                {`${row?.original.customId} ${firstName && lastName
+                                    ? `- ${firstName} ${lastName}`
+                                    : ""
+                                    }`}
+                            </div>
+                            :
+                            <div>{row.original.customId}</div>
+                        }
+                    </div>
+                )
+            },
         },
         {
             accessorKey: "skills",
