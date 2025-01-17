@@ -39,7 +39,7 @@ export default function ProjectUsers() {
     const columns: ColumnDef<IProjectUserDisplay>[] = [
         {
             accessorKey: "userName",
-            header: "Name",
+            header: "Tester Identification Number",
             cell: ({ row }) => {
                 const firstName = row?.original?.userId?.firstName;
                 const lastName = row?.original?.userId?.lastName;
