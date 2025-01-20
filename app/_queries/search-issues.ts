@@ -9,7 +9,10 @@ export async function filterIssuesForAdmin(
   skip: number,
   limit: number,
   projectId: string,
-  idObject: any
+  idObject: any,
+  severity?: string,
+  priority?: string,
+  status?: string
 ) {
   const regex = new RegExp(searchString, "i");
   searchString = customIdForSearch(idObject, searchString);
@@ -20,6 +23,33 @@ export async function filterIssuesForAdmin(
         projectId: new ObjectId(projectId),
       },
     },
+    ...(severity
+      ? [
+          {
+            $match: {
+              severity: severity,
+            },
+          },
+        ]
+      : []),
+    ...(priority
+      ? [
+          {
+            $match: {
+              priority: priority,
+            },
+          },
+        ]
+      : []),
+    ...(status
+      ? [
+          {
+            $match: {
+              status: status,
+            },
+          },
+        ]
+      : []),
     {
       $lookup: {
         from: "users",
@@ -149,7 +179,10 @@ export async function filterIssuesForClient(
   skip: number,
   limit: number,
   projectId: string,
-  idObject: any
+  idObject: any,
+  severity?: string,
+  priority?: string,
+  status?: string
 ) {
   const regex = new RegExp(searchString, "i");
   searchString = customIdForSearch(idObject, searchString);
@@ -161,6 +194,33 @@ export async function filterIssuesForClient(
         status: { $ne: IssueStatus.NEW },
       },
     },
+    ...(severity
+      ? [
+          {
+            $match: {
+              severity: severity,
+            },
+          },
+        ]
+      : []),
+    ...(priority
+      ? [
+          {
+            $match: {
+              priority: priority,
+            },
+          },
+        ]
+      : []),
+    ...(status
+      ? [
+          {
+            $match: {
+              status: status,
+            },
+          },
+        ]
+      : []),
     {
       $lookup: {
         from: "users",
@@ -283,7 +343,10 @@ export async function filterIssuesForTester(
   skip: number,
   limit: number,
   projectId: string,
-  idObject: any
+  idObject: any,
+  severity?: string,
+  priority?: string,
+  status?: string
 ) {
   const regex = new RegExp(searchString, "i");
   searchString = customIdForSearch(idObject, searchString);
@@ -294,6 +357,33 @@ export async function filterIssuesForTester(
         projectId: new ObjectId(projectId),
       },
     },
+    ...(severity
+      ? [
+          {
+            $match: {
+              severity: severity,
+            },
+          },
+        ]
+      : []),
+    ...(priority
+      ? [
+          {
+            $match: {
+              priority: priority,
+            },
+          },
+        ]
+      : []),
+    ...(status
+      ? [
+          {
+            $match: {
+              status: status,
+            },
+          },
+        ]
+      : []),
     {
       $lookup: {
         from: "devices",

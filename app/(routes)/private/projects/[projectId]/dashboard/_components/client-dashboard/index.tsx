@@ -60,7 +60,7 @@ export default function ProjectClientDashboard() {
                     </CardHeader>
                 </Card>
             </div>
-            <div className="mt-1 sm:mt-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-2">
+            <div className="mt-1 sm:mt-2 grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-2">
                 <HorizontalBarChart
                     title="Issues by severity"
                     description="Showing issue severity levels"
@@ -73,16 +73,20 @@ export default function ProjectClientDashboard() {
                     dataKey="priority"
                     chartData={dashboard?.priority || {}}
                 />
+                <DonutChart chartData={dashboard?.issueType} dataKey={"issueType"} title={"Issue Type"}
+                    description={"Showing issue type levels"}
+                    headerTitle={"Issue by type"} />
             </div>
-            <div className="grid gap-2 mt-1 sm:mt-2 grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
-                <DonutChart chartData={dashboard?.issueType} dataKey={"issueType"} />
+            <div className="grid gap-2 mt-1 sm:mt-2 grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
                 <StatusBarChart
                     title="Issues by status"
                     description="Showing status priority levels"
                     chartData={dashboard?.status || {}}
                     dataKey="status"
                 />
-
+                <DonutChart chartData={dashboard?.task} dataKey={"issueType"} title={"Task"}
+                    description={"Showing task status levels"}
+                    headerTitle={"Task by status"} />
             </div>
 
             <div className="w-full sm:w-[60%] flex justify-center mt-1 mb-2">

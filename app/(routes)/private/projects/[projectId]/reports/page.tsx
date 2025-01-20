@@ -226,6 +226,10 @@ export default function Report() {
     }, [globalFilter, pageIndex, pageSize]);
 
     useEffect(() => {
+        setPageIndex(1);
+    }, [globalFilter]);
+
+    useEffect(() => {
         localStorage.setItem("currentPage", pageIndex.toString());
         localStorage.setItem("entity", DBModels.REPORT);
     }, [pageIndex]);

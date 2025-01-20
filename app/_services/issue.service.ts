@@ -21,14 +21,17 @@ export const getIssuesService = async (
   projectId: string,
   index: Number,
   pageSize: Number,
-  searchString?: string
+  searchString?: string,
+  severity?: string,
+  priority?: string,
+  status?: string
 ): Promise<any> => {
   try {
     const response = await genericGet(
       `${GET_ISSUES_ENPOINT(projectId)}${PAGINATION_QUERY_ENDPOINT(
         index,
         pageSize
-      )}&searchString=${searchString}`
+      )}&searchString=${searchString}&severity=${severity}&priority=${priority}&status=${status}`
     );
     return response || [];
   } catch (error) {

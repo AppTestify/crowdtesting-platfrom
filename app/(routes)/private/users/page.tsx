@@ -210,6 +210,10 @@ export default function Users() {
         return () => clearTimeout(debounceFetch);
     }, [globalFilter, pageIndex, pageSize, selectedStatus, selectedRole]);
 
+    useEffect(() => {
+        setPageIndex(1);
+    }, [globalFilter]);
+
     const refreshUsers = () => {
         getUsers();
         setRowSelection({});

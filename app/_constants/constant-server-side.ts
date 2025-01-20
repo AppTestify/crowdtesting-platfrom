@@ -25,4 +25,5 @@ export const enum AttachmentFolder {
   SYSTEM = "system",
   REPORT = "report",
   PROFILE_PICTURES = "profile-pictures",
+  TEST_CYCLE = "test-cycle",
 }

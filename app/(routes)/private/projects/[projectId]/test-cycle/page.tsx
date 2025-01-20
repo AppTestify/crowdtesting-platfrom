@@ -29,7 +29,6 @@ import { ITestCycle } from "@/app/_interface/test-cycle";
 import { AddTestCycle } from "./_components/add-test-cycle";
 import { TestCycleRowActions } from "./_components/row-actions";
 import { formatDateWithoutTime } from "@/app/_constants/date-formatter";
-import { ArrowUpDown } from "lucide-react";
 import TestCycleView from "./_components/view-test-cycle";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
@@ -42,30 +41,12 @@ export default function TestPlan() {
 
     const columns: ColumnDef<ITestCycle>[] = [
         {
-            accessorKey: "customId",
-            header: ({ column }) => {
-                const isSorted = column.getIsSorted();
-                return (
-                    <Button
-                        variant="ghost"
-                        onClick={() => column.toggleSorting(isSorted === "asc")}
-                    >
-                        ID
-                        <ArrowUpDown />
-                    </Button>
-                );
-            },
-            cell: ({ row }) => (
-                <div className="hover:text-primary cursor-pointer ml-4" onClick={() => ViewTestCycle(row.original as ITestCycle)}>
-                    {row.getValue("customId")}</div>
-            ),
-            sortingFn: "alphanumeric"
-        },
-        {
             accessorKey: "title",
             header: "Title",
             cell: ({ row }) => (
-                <div className="capitalize hover:text-primary cursor-pointer" onClick={() => ViewTestCycle(row.original as ITestCycle)}>
+                <div
+                    title={row.getValue("title")}
+                    className="capitalize hover:text-primary cursor-pointer" onClick={() => ViewTestCycle(row.original as ITestCycle)}>
                     {row.getValue("title")}</div>
             ),
         },
@@ -144,6 +125,10 @@ export default function TestPlan() {
         }, 500);
         return () => clearTimeout(debounceFetch);
     }, [globalFilter, pageIndex, pageSize]);
+
+    useEffect(() => {
+        setPageIndex(1);
+    }, [globalFilter]);
 
     useEffect(() => {
         localStorage.setItem("currentPage", pageIndex.toString());

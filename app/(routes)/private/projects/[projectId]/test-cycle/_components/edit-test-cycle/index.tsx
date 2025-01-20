@@ -31,6 +31,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
+import { addTestCycleAttachmentsService } from "@/app/_services/test-cycle-attachment.service";
+import TestCycleAttachments from "../attachments/test-cycle-attachment";
 
 const testCycleSchema = z.object({
     title: z.string().min(1, "Required"),
@@ -54,6 +56,8 @@ export function EditTestCycle({
     const testCycleId = testCycle.id;
     const { title, projectId, description, startDate, endDate } = testCycle;
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [attachments, setAttachments] = useState<any>();
+
     const form = useForm<z.infer<typeof testCycleSchema>>({
         resolver: zodResolver(testCycleSchema),
         defaultValues: {
@@ -72,6 +76,7 @@ export function EditTestCycle({
                 ...values,
             });
             if (response) {
+                await uploadAttachment();
                 refreshTestCycle();
                 toasterService.success(response.message);
             }
@@ -83,6 +88,19 @@ export function EditTestCycle({
         }
     }
 
+    const uploadAttachment = async () => {
+        setIsLoading(true);
+        try {
+            await addTestCycleAttachmentsService(projectId as string, testCycleId, {
+                attachments,
+            });
+        } catch (error) {
+            toasterService.error();
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const resetForm = () => {
         form.reset();
     };
@@ -90,6 +108,7 @@ export function EditTestCycle({
     useEffect(() => {
         if (sheetOpen) {
             resetForm();
+            setAttachments([]);
         }
     }, [sheetOpen]);
 
@@ -234,6 +253,13 @@ export function EditTestCycle({
                                     )}
                                 />
                             </div>
+
+                            <TestCycleAttachments
+                                testCycleId={testCycleId}
+                                isUpdate={true}
+                                isView={false}
+                                setAttachmentsData={setAttachments}
+                            />
 
                             <div className="mt-8 w-full flex justify-end gap-2">
                                 <SheetClose asChild>

@@ -7,6 +7,9 @@ export interface ITestCyclePayload {
   projectId?: string;
   description: string;
   userId?: IUserByAdmin;
+  attachments?: File[];
+  startDate: Date;
+  endDate: Date;
   id?: string;
   resultCounts?: {
     blocked: number;
@@ -37,4 +40,23 @@ export interface IAssignedTestCase {
 export interface IUnAssignedTestCase {
   testCaseIds: string[];
   isSingleDelete: boolean;
+}
+
+export interface ITestCycleAttachment {
+  attachment: {
+    _id: string;
+    id: string;
+    data: string;
+    name: string;
+    contentType?: string;
+    cloudId: string;
+  };
+  base64: any;
+}
+
+export interface TestCycleAttachmentsProps {
+  testCycleId: string;
+  isUpdate: boolean;
+  isView: boolean;
+  setAttachmentsData?: React.Dispatch<React.SetStateAction<any[]>>;
 }
