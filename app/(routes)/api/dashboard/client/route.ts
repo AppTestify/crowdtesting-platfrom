@@ -8,12 +8,15 @@ import {
   IssueType,
   Priority,
   Severity,
+  TaskStatus,
 } from "@/app/_constants/issue";
 import { connectDatabase } from "@/app/_db";
 import { IProject } from "@/app/_interface/project";
+import { ITask } from "@/app/_interface/task";
 import { verifySession } from "@/app/_lib/dal";
 import { Issue } from "@/app/_models/issue.model";
 import { Project } from "@/app/_models/project.model";
+import { Task } from "@/app/_models/task.model";
 import { TestCycle } from "@/app/_models/test-cycle.model";
 import { errorHandler } from "@/app/_utils/error-handler";
 
@@ -63,6 +66,12 @@ export async function GET(req: Request) {
     const { severityCounts, priorityCounts, statusCounts, issueTypeCounts } =
       countresults(issues);
 
+    // task by status
+    const tasks = await Task.find({
+      projectId: projects.map((project) => project._id),
+    });
+    const taskCounts = countTaskByStatus(tasks);
+
     return Response.json({
       severity: severityCounts,
       priority: priorityCounts,
@@ -73,6 +82,7 @@ export async function GET(req: Request) {
       totalTestCycle: testCycleCounts,
       totalProjects: projects.length,
       totalIssues: issues.length,
+      task: taskCounts,
     });
   } catch (error: any) {
     return errorHandler(error);
@@ -91,6 +101,24 @@ function countProjectResults(projects: IProject[]) {
   });
 
   return statusCounts;
+}
+
+function countTaskByStatus(tasks: ITask[]) {
+  const taskCounts: any = {};
+  taskCounts[TaskStatus.TODO] = 0;
+  taskCounts[TaskStatus.IN_PROGRESS] = 0;
+  taskCounts[TaskStatus.BLOCKED] = 0;
+  taskCounts[TaskStatus.DONE] = 0;
+
+  tasks.forEach((task) => {
+    // if (project?.isActive === true) statusCounts.active++;
+    // else statusCounts.inActive++;
+    if (task.status) {
+      taskCounts[task.status]++;
+    }
+  });
+
+  return taskCounts;
 }
 
 function countresults(issue: any[]) {

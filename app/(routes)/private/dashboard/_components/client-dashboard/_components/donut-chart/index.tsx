@@ -23,7 +23,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { IssueType } from "@/app/_constants/issue";
+import { IssueType, TaskStatus } from "@/app/_constants/issue";
 
 const chartConfig = {
     [IssueType.FUNCTIONAL]: {
@@ -46,6 +46,22 @@ const chartConfig = {
         label: IssueType.SECURITY,
         color: "hsl(var(--chart-2))",
     },
+    [TaskStatus.TODO]: {
+        label: TaskStatus.TODO,
+        color: "hsl(var(--chart-3))",
+    },
+    [TaskStatus.IN_PROGRESS]: {
+        label: TaskStatus.IN_PROGRESS,
+        color: "hsl(var(--chart-4))",
+    },
+    [TaskStatus.BLOCKED]: {
+        label: TaskStatus.BLOCKED,
+        color: "hsl(var(--chart-1))",
+    },
+    [TaskStatus.DONE]: {
+        label: TaskStatus.DONE,
+        color: "hsl(var(--chart-2))",
+    },
 } satisfies ChartConfig;
 
 const getColorForPriority = (level: string) => {
@@ -60,6 +76,14 @@ const getColorForPriority = (level: string) => {
             return 'hsl(var(--chart-1))';
         case IssueType.SECURITY:
             return 'hsl(var(--chart-2))';
+        case TaskStatus.TODO:
+            return 'hsl(var(--chart-3))';
+        case TaskStatus.IN_PROGRESS:
+            return 'hsl(var(--chart-4))';
+        case TaskStatus.BLOCKED:
+            return 'hsl(var(--chart-1))';
+        case TaskStatus.DONE:
+            return 'hsl(var(--chart-2))';
         default:
             return 'hsl(var(--primary))';
     }
@@ -68,9 +92,15 @@ const getColorForPriority = (level: string) => {
 export function DonutChart({
     chartData,
     dataKey,
+    title,
+    description,
+    headerTitle,
 }: {
     chartData: Record<string, number>;
     dataKey: string;
+    title: string;
+    description: string;
+    headerTitle: string;
 }) {
 
     const formattedData = React.useMemo(() => {
@@ -115,8 +145,8 @@ export function DonutChart({
             <ChartStyle id="pie-interactive" config={chartConfig} />
             <CardHeader className="flex-row items-start space-y-0 pb-0">
                 <div className="grid gap-1">
-                    <CardTitle>Issue by type</CardTitle>
-                    <CardDescription>Showing issue type levels</CardDescription>
+                    <CardTitle>{headerTitle}</CardTitle>
+                    <CardDescription>{description}</CardDescription>
                 </div>
                 <Select value={activeLevel} onValueChange={setActiveLevel}>
                     <SelectTrigger
@@ -200,14 +230,14 @@ export function DonutChart({
                                                         y={viewBox.cy}
                                                         className="fill-foreground text-3xl font-bold"
                                                     >
-                                                        {formattedData[activeIndex]?.issueType.toLocaleString()}
+                                                        {formattedData[activeIndex]?.issueType?.toLocaleString()}
                                                     </tspan>
                                                     <tspan
                                                         x={viewBox.cx}
                                                         y={(viewBox.cy || 0) + 24}
                                                         className="fill-muted-foreground"
                                                     >
-                                                        Issue Type
+                                                        {title}
                                                     </tspan>
                                                 </text>
                                             )

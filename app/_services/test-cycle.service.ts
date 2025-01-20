@@ -13,6 +13,7 @@ import {
   genericGet,
   genericPatch,
   genericPost,
+  genericPostFormData,
   genericPut,
 } from "./generic-api-methods";
 
@@ -41,9 +42,19 @@ export const addTestCycleService = async (
   body: ITestCyclePayload
 ): Promise<any> => {
   try {
-    const response = await genericPost(
+    const formData = new FormData();
+    formData.append("title", body?.title);
+    formData.append("projectId", projectId);
+    formData.append("description", body?.description);
+    formData.append("startDate", body?.startDate.toISOString());
+    formData.append("endDate", body?.endDate.toISOString());
+    body?.attachments?.forEach((file) => {
+      formData.append("attachments", file);
+    });
+
+    const response = await genericPostFormData(
       `${TEST_CYCLE_ENPOINT(projectId)}`,
-      body
+      formData
     );
     return response || {};
   } catch (error) {

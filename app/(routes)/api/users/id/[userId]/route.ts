@@ -174,24 +174,30 @@ export async function GET(
       throw new Error(GENERIC_ERROR_MESSAGE);
     }
 
+    // If file exists
     const attachmentService = new AttachmentService();
-
+    response = response.toObject();
     if (response.role === UserRoles.TESTER) {
       const tester = await Tester.findOne({ user: userId }).sort({ _id: -1 });
-      response = response.toObject();
       response.tester = tester;
     }
 
-    // If file exists
     if (response?.profilePicture?.cloudId) {
       try {
         const fileResponse = await attachmentService.fetchFileAsBase64(
           response?.profilePicture?.cloudId
         );
-        response.profilePicture.data = fileResponse;
+
+        response.profilePicture = {
+          ...response.profilePicture,
+          data: fileResponse || null,
+        };
       } catch (error) {
-        console.error("Error fetching profile picture as base64:", error);
-        response.profilePicture.data = null;
+        console.error("Error fetching profile picture as Base64:", error);
+        response.profilePicture = {
+          ...response.profilePicture,
+          data: null,
+        };
       }
     }
 

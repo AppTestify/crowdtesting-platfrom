@@ -1,6 +1,8 @@
 import { DBModels } from "@/app/_constants";
+import { AttachmentFolder } from "@/app/_constants/constant-server-side";
 import {
   DB_CONNECTION_ERROR_MESSAGE,
+  GENERIC_ERROR_MESSAGE,
   INVALID_INPUT_ERROR_MESSAGE,
   USER_UNAUTHORIZED_ERROR_MESSAGE,
   USER_UNAUTHORIZED_SERVER_ERROR_MESSAGE,
@@ -8,16 +10,21 @@ import {
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { TestCaseExecutionResult } from "@/app/_constants/test-case";
 import { connectDatabase } from "@/app/_db";
+import AttachmentService from "@/app/_helpers/attachment.helper";
 import { ITestCase } from "@/app/_interface/test-case";
 import { isAdmin, verifySession } from "@/app/_lib/dal";
 import { IdFormat } from "@/app/_models/id-format.model";
+import { TestCycleAttachment } from "@/app/_models/test-cycle-attachment.model";
 import { TestCycle } from "@/app/_models/test-cycle.model";
 import {
   filterTestCyclesForAdmin,
   filterTestCyclesNotForAdmin,
 } from "@/app/_queries/search-test-cycle";
 import { testCycleSchema } from "@/app/_schemas/test-cycle.schema";
-import { serverSidePagination } from "@/app/_utils/common-server-side";
+import {
+  getFileMetaData,
+  serverSidePagination,
+} from "@/app/_utils/common-server-side";
 import { addCustomIds, replaceCustomId } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 
@@ -45,8 +52,21 @@ export async function POST(
       );
     }
 
-    const body = await req.json();
-    const response = testCycleSchema.safeParse(body);
+    const body = await req.formData();
+    const attachments = body.getAll("attachments");
+    const formData = {
+      title: body.get("title"),
+      projectId: body.get("projectId"),
+      description: body.get("description"),
+      startDate: body.get("startDate"),
+      endDate: body.get("endDate"),
+      testCaseResults: body.get("testCaseResults"),
+    };
+    const response = testCycleSchema.safeParse(formData);
+
+    if (!attachments) {
+      throw new Error(GENERIC_ERROR_MESSAGE);
+    }
 
     if (!response.success) {
       return Response.json(
@@ -63,6 +83,38 @@ export async function POST(
       userId: session.user._id,
     });
     const saveTestSuite = await newTestSuite.save();
+
+    const attachmentService = new AttachmentService();
+    const attachmentIds = await Promise.all(
+      attachments.map(async (file) => {
+        if (file) {
+          const { name, contentType } = await getFileMetaData(file);
+          const cloudId =
+            await attachmentService.uploadFileInGivenFolderInDrive(
+              file,
+              AttachmentFolder.TEST_CYCLE
+            );
+          const newAttachment = new TestCycleAttachment({
+            cloudId: cloudId,
+            name,
+            contentType,
+            testCycleId: saveTestSuite._id,
+          });
+
+          const savedAttachment = await newAttachment.save();
+          return savedAttachment._id;
+        }
+        return null;
+      })
+    );
+
+    const validAttachmentIds = attachmentIds.filter((id) => id !== null);
+
+    await TestCycle.findByIdAndUpdate(
+      saveTestSuite._id,
+      { $push: { attachments: { $each: validAttachmentIds } } },
+      { new: true }
+    );
 
     return Response.json({
       message: "Test cycle added successfully",

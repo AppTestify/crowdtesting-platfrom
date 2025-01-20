@@ -190,7 +190,7 @@ export default function Devices() {
     },
     onGlobalFilterChange: setGlobalFilter,
   });
- 
+
   useEffect(() => {
     getBrowsers();
   }, []);
@@ -201,6 +201,10 @@ export default function Devices() {
     }, 500);
     return () => clearTimeout(debounceFetch);
   }, [globalFilter, pageIndex, pageSize]);
+
+  useEffect(() => {
+    setPageIndex(1);
+  }, [globalFilter]);
 
   const getUser = async (data: IUserByAdmin) => {
     setUser(data as IUserByAdmin);

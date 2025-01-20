@@ -48,6 +48,8 @@ import ExpandableTable from "@/app/_components/expandable-table";
 import { checkProjectAdmin } from "@/app/_utils/common";
 import { NAME_NOT_SPECIFIED_ERROR_MESSAGE } from "@/app/_constants/errors";
 import { DBModels } from "@/app/_constants";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ISSUE_STATUS_LIST, IssueStatus, Priority, PRIORITY_LIST, PROJECT_ADMIN_ISSUE_STATUS_LIST, Severity, SEVERITY_LIST } from "@/app/_constants/issue";
 
 export default function Issues() {
   const [issues, setIssues] = useState<IIssueView[]>([]);
@@ -101,8 +103,8 @@ export default function Issues() {
             >
               <div
                 title={title}
-                className="capitalize hover:text-primary cursor-pointer">
-                {title.length > 30 ? `${title.substring(0, 30)}...` : title}
+                className="hover:text-primary cursor-pointer max-w-[500px] truncate">
+                {title.length > 55 ? `${title.substring(0, 55)}...` : title}
               </div>
             </Link>
           );
@@ -220,6 +222,9 @@ export default function Issues() {
   const [issue, setIssue] = useState<IIssue>();
   const [isViewOpen, setIsViewOpen] = useState<boolean>(false);
   const [totalPageCount, setTotalPageCount] = useState(0);
+  const [selectedSeverity, setSelectedSeverity] = useState<string>("");
+  const [selectedPriority, setSelectedPriority] = useState<string>("");
+  const [selectedStatus, setSelectedStatus] = useState<string>("");
   const [pageIndex, setPageIndex] = useState<number>(() => {
     const entity = localStorage.getItem("entity");
     if (entity === DBModels.ISSUE) {
@@ -258,7 +263,7 @@ export default function Issues() {
   const getIssues = async () => {
     setIsLoading(true);
     try {
-      const response = await getIssuesService(projectId, pageIndex, pageSize, globalFilter as unknown as string);
+      const response = await getIssuesService(projectId, pageIndex, pageSize, globalFilter as unknown as string, selectedSeverity, selectedPriority, selectedStatus);
       setIssues(response?.issues);
       setTotalPageCount(response?.total);
     } catch (error) {
@@ -368,6 +373,30 @@ export default function Issues() {
   };
   const hasData = table.getRowModel().rows?.length > 0;
 
+  const handleSeverityChange = (severity: Severity | "All") => {
+    if (severity == "All") {
+      setSelectedSeverity("");
+    } else {
+      setSelectedSeverity(severity);
+    }
+  };
+
+  const handlePriorityChange = (priority: Priority | "All") => {
+    if (priority == "All") {
+      setSelectedPriority("");
+    } else {
+      setSelectedPriority(priority);
+    }
+  };
+
+  const handleStatusChange = (priority: IssueStatus | "All") => {
+    if (priority == "All") {
+      setSelectedStatus("");
+    } else {
+      setSelectedStatus(priority);
+    }
+  };
+
   useEffect(() => {
     getProject();
   }, []);
@@ -377,7 +406,11 @@ export default function Issues() {
       getIssues();
     }, 500);
     return () => clearTimeout(debounceFetch);
-  }, [globalFilter, pageIndex, pageSize]);
+  }, [globalFilter, pageIndex, pageSize, selectedSeverity, selectedPriority, selectedStatus]);
+
+  useEffect(() => {
+    setPageIndex(1);
+  }, [globalFilter]);
 
   return (
     <main className="mx-4 mt-2">
@@ -394,7 +427,7 @@ export default function Issues() {
         </span>
       </div>
       <div className="w-full">
-        <div className="flex py-4 justify-between">
+        <div className="flex py-4 w-full justify-between">
           <Input
             placeholder="Filter Issues"
             value={(globalFilter as string) ?? ""}
@@ -403,7 +436,88 @@ export default function Issues() {
             }}
             className="max-w-sm"
           />
-          <div className="flex gap-2 ml-2">
+
+          <div className="gap-2 ml-2">
+            <Select
+              value={selectedSeverity || "All"}
+              onValueChange={(value) => {
+                handleSeverityChange(value as Severity);
+              }}
+            >
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder="Search by severity" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value="All" key="all-severity">
+                    All Severity
+                  </SelectItem>
+                  {SEVERITY_LIST.map((severity) => (
+                    <SelectItem value={severity} key={severity}>
+                      {severity}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="gap-2 ml-2">
+            <Select
+              value={selectedPriority || "All"}
+              onValueChange={(value) => {
+                handlePriorityChange(value as Priority);
+              }}
+            >
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder="Search by priority" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value="All" key="all-priority">
+                    All Priority
+                  </SelectItem>
+                  {PRIORITY_LIST.map((priority) => (
+                    <SelectItem value={priority} key={priority}>
+                      {priority}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="gap-2 ml-2">
+            <Select
+              value={selectedStatus || "All"}
+              onValueChange={(value) => {
+                handleStatusChange(value as IssueStatus);
+              }}
+            >
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder="Search by status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value="All" key="all-status">
+                    All Status
+                  </SelectItem>
+                  {
+                    (userData?.role === UserRoles.CLIENT
+                      ? ISSUE_STATUS_LIST.filter((status) => status !== IssueStatus.NEW)
+                      : ISSUE_STATUS_LIST
+                    ).map((status) => (
+                      <SelectItem value={status} key={status}>
+                        {status}
+                      </SelectItem>
+                    ))
+                  }
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex items-end justify-end gap-2 ml-auto">
             <div>{ExportExcelFile(generateExcel, hasData, isExcelLoading)}</div>
             {userData?.role !== UserRoles.CLIENT &&
               (project?.isActive === true ||
@@ -413,6 +527,7 @@ export default function Issues() {
               )}
           </div>
         </div>
+
         <div className="rounded-md border">
           <Table>
             <TableHeader>

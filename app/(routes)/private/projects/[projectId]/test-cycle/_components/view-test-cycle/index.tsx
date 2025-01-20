@@ -1,11 +1,11 @@
 import { formatDate, formatDateWithoutTime } from '@/app/_constants/date-formatter';
 import { ITestCycle } from '@/app/_interface/test-cycle';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetHeader } from '@/components/ui/sheet';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import React from 'react'
+import TestCycleAttachments from '../attachments/test-cycle-attachment';
 
 export default function TestCycleView({ sheetOpen, setSheetOpen, testCycle }:
     {
@@ -14,6 +14,7 @@ export default function TestCycleView({ sheetOpen, setSheetOpen, testCycle }:
         testCycle: ITestCycle;
     }
 ) {
+    const testCycleId = testCycle?.id;
     return (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
             <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto">
@@ -65,6 +66,14 @@ export default function TestCycleView({ sheetOpen, setSheetOpen, testCycle }:
                     <div className="text-sm">
                         {testCycle?.description}
                     </div>
+                </div>
+                <div className='mt-4'>
+                    <span className="text-[20px]">Attachments</span>
+                    <TestCycleAttachments
+                        testCycleId={testCycleId as string}
+                        isUpdate={false}
+                        isView={true}
+                    />
                 </div>
             </SheetContent>
         </Sheet>

@@ -6,8 +6,9 @@ import {
     CalendarIcon,
     Loader2,
     Plus,
+    Trash,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import toasterService from "@/app/_services/toaster-service";
 import {
@@ -37,20 +38,38 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
+import { Label } from "@/components/ui/label";
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
+import { ColumnDef } from "@tanstack/react-table";
+import { ITestCycleAttachment } from "@/app/_interface/test-cycle";
+import { DocumentName } from "@/app/_components/document-name";
 
 const testCycleSchema = z.object({
     title: z.string().min(1, "Required"),
     projectId: z.string().optional(),
     description: z.string().min(1, 'Required'),
+    attachments: z.array(z.instanceof(File)).optional(),
     startDate: z.date(),
     endDate: z.date(),
 });
 
 export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => void }) {
+    const columns: ColumnDef<ITestCycleAttachment[]>[] = [
+        {
+            accessorKey: "name",
+            cell: ({ row }) => (
+                <div>
+                    <DocumentName document={row.getValue("name")} />
+                </div>
+            ),
+        },
+    ];
 
     const [sheetOpen, setSheetOpen] = useState(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const { projectId } = useParams<{ projectId: string }>();
+    const [attachments, setAttachments] = useState<File[]>([]);
+    const inputRef = useRef<HTMLInputElement | null>(null);
 
     const form = useForm<z.infer<typeof testCycleSchema>>({
         resolver: zodResolver(testCycleSchema),
@@ -90,6 +109,44 @@ export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => voi
         form.reset();
     };
 
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            const newFiles = Array.from(e.target.files);
+
+            setAttachments((prevAttachments = []) => {
+                const uniqueAttachments = newFiles.filter(
+                    (file) =>
+                        !prevAttachments.some(
+                            (prevFile) => prevFile.name === file.name && prevFile.size === file.size
+                        )
+                );
+
+                const updatedAttachments = [...prevAttachments, ...uniqueAttachments];
+                form.setValue("attachments", updatedAttachments);
+
+                return updatedAttachments;
+            });
+
+        }
+    };
+
+    const handleRemoveFile = (index: number) => {
+        setAttachments((prevAttachments) => {
+            const updatedAttachments = prevAttachments?.filter((_, i) => i !== index);
+            form.setValue("attachments", updatedAttachments);
+            return updatedAttachments;
+        });
+
+        if (inputRef.current) {
+            inputRef.current.value = '';
+        }
+    };
+
+    useEffect(() => {
+        if (sheetOpen) {
+            setAttachments([]);
+        }
+    }, [sheetOpen])
 
     return (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
@@ -229,6 +286,65 @@ export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => voi
                                         </FormItem>
                                     )}
                                 />
+                            </div>
+
+                            <div className="grid grid-cols-1 gap-2 ">
+                                <div className="w-full mt-3">
+                                    <Label htmlFor="attachments">Attachments</Label>
+                                    <Input
+                                        className="mt-2 opacity-0 cursor-pointer absolute w-0 h-0"
+                                        id="attachments"
+                                        type="file"
+                                        multiple
+                                        ref={inputRef}
+                                        onChange={handleFileChange}
+                                    />
+                                    <label
+                                        htmlFor="attachments"
+                                        className="flex mt-2 h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors cursor-pointer"
+                                    >
+                                        Choose Files
+                                    </label>
+                                    {attachments?.length > 0 && (
+                                        <div className="mt-2">
+                                            New attachments
+                                            <div className="mt-4 rounded-md border">
+                                                <Table>
+                                                    <TableBody>
+                                                        {attachments?.length ? (
+                                                            attachments.map((attachment, index) => (
+                                                                <TableRow key={index}>
+                                                                    <TableCell>
+                                                                        <DocumentName document={attachment} />
+                                                                    </TableCell>
+                                                                    <TableCell className="flex justify-end items-end mr-6">
+                                                                        <Button
+                                                                            type="button"
+                                                                            onClick={() => handleRemoveFile(index)}
+                                                                            variant="ghost"
+                                                                            size="icon"
+                                                                        >
+                                                                            <Trash className="h-4 w-4 text-destructive" />
+                                                                        </Button>
+                                                                    </TableCell>
+                                                                </TableRow>
+                                                            ))
+                                                        ) : (
+                                                            <TableRow>
+                                                                <TableCell
+                                                                    colSpan={columns.length}
+                                                                    className="h-24 text-center"
+                                                                >
+                                                                    No attachments found
+                                                                </TableCell>
+                                                            </TableRow>
+                                                        )}
+                                                    </TableBody>
+                                                </Table>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
                             < div className="mt-6 w-full flex justify-end gap-2" >

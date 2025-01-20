@@ -154,14 +154,29 @@ export async function GET(
       );
     }
 
-    let response = null;
-
+    let response;
     const { projectId } = params;
+
+    let filter: any = { projectId: projectId };
     const url = new URL(req.url);
     const searchString = url.searchParams.get("searchString");
-
+    const severity = url.searchParams.get("severity");
+    const priority = url.searchParams.get("priority");
+    const status = url.searchParams.get("status");
     const customIDFormat = await IdFormat.findOne({ entity: DBModels.ISSUE });
     const { skip, limit } = serverSidePagination(req);
+
+    if (severity) {
+      filter.severity = severity;
+    }
+
+    if (priority) {
+      filter.priority = priority;
+    }
+
+    if (status) {
+      filter.status = status;
+    }
 
     if (searchString) {
       if (await isAdmin(session.user)) {
@@ -170,7 +185,10 @@ export async function GET(
           skip,
           limit,
           projectId,
-          customIDFormat
+          customIDFormat,
+          severity || undefined,
+          priority || undefined,
+          status || undefined
         );
         return Response.json({
           issues: addCustomIds(issues, customIDFormat?.idFormat),
@@ -182,7 +200,10 @@ export async function GET(
           skip,
           limit,
           projectId,
-          customIDFormat
+          customIDFormat,
+          severity || undefined,
+          priority || undefined,
+          status || undefined
         );
         return Response.json({
           issues: addCustomIds(issues, customIDFormat?.idFormat),
@@ -194,7 +215,10 @@ export async function GET(
           skip,
           limit,
           projectId,
-          customIDFormat
+          customIDFormat,
+          severity || undefined,
+          priority || undefined,
+          status || undefined
         );
         return Response.json({
           issues: addCustomIds(issues, customIDFormat?.idFormat),
@@ -203,16 +227,15 @@ export async function GET(
       }
     }
 
-    const totalIssues = await Issue.find({
-      projectId: projectId,
-    }).countDocuments();
-
-    let query = Issue.find({ projectId: projectId })
+    let totalIssues;
+    let query = Issue.find(filter)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(Number(limit));
 
     if (await isAdmin(session.user)) {
+      totalIssues = await Issue.find(filter).countDocuments();
+
       response = addCustomIds(
         await query
           .populate("userId", "firstName lastName")
@@ -232,9 +255,18 @@ export async function GET(
         customIDFormat.idFormat
       );
     } else if (await isClient(session.user)) {
+      totalIssues = await Issue.find({
+        status: { $nin: [IssueStatus.NEW] },
+      })
+        .find(filter)
+        .countDocuments();
+
       response = addCustomIds(
-        await query
-          .find({ status: { $nin: IssueStatus.NEW } })
+        await Issue.find({ status: { $nin: IssueStatus.NEW } })
+          .find(filter)
+          .sort({ createdAt: -1 })
+          .skip(skip)
+          .limit(Number(limit))
           .populate({
             path: "userId",
             select: "firstName lastName _id",
@@ -255,6 +287,7 @@ export async function GET(
         customIDFormat.idFormat
       );
     } else {
+      totalIssues = await Issue.find(filter).countDocuments();
       response = addCustomIds(
         await query
           .populate({

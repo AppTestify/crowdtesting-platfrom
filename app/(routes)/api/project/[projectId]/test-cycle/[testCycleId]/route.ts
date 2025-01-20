@@ -6,7 +6,9 @@ import {
 } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
+import AttachmentService from "@/app/_helpers/attachment.helper";
 import { verifySession } from "@/app/_lib/dal";
+import { TestCycleAttachment } from "@/app/_models/test-cycle-attachment.model";
 import { TestCycle } from "@/app/_models/test-cycle.model";
 import { testCycleSchema } from "@/app/_schemas/test-cycle.schema";
 import { errorHandler } from "@/app/_utils/error-handler";
@@ -36,6 +38,21 @@ export async function DELETE(
 
     const { testCycleId } = params;
     const response = await TestCycle.findByIdAndDelete(testCycleId);
+
+    const testCycleAttachment = await TestCycleAttachment.find({
+      testCycleId: testCycleId,
+    }).exec();
+    const issueAttachmentCloudIds = testCycleAttachment.map(
+      (attachment) => attachment.cloudId
+    );
+
+    const attachmentService = new AttachmentService();
+    for (const cloudId of issueAttachmentCloudIds) {
+      if (cloudId) {
+        await attachmentService.deleteFileFromDrive(cloudId);
+      }
+    }
+    await TestCycleAttachment.deleteMany({ testCycleId: testCycleId });
 
     if (!response) {
       throw new Error(GENERIC_ERROR_MESSAGE);

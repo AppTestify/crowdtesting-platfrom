@@ -88,22 +88,26 @@ export default function ClientDashboard() {
         />
       </div>
       <div className="grid gap-2 mt-1 sm:mt-2 grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
-        <DonutChart chartData={dashboard?.issueType} dataKey={"issueType"} />
-        <StatusBarChart
-          title="Issues by status"
-          description="Showing status priority levels"
-          chartData={dashboard?.status || {}}
-          dataKey="status"
-        />
-
+        <DonutChart chartData={dashboard?.issueType} dataKey={"issueType"} title={"Issue Type"}
+          description={"Showing issue type levels"}
+          headerTitle={"Issue by type"} />
+        <DonutChart chartData={dashboard?.task} dataKey={"issueType"} title={"Task"}
+          description={"Showing task status levels"}
+          headerTitle={"Task by status"} />
       </div>
 
-      <div className="w-full sm:w-[60%] flex justify-center mt-1 mb-2">
+      <div className="grid gap-2 mt-1 sm:mt-2 grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
         <DeviceChart
           title="Issues by device"
           description="Showing top 10 most devices"
           dataKey="device"
           chartData={dashboard?.topDevices || {}}
+        />
+        <StatusBarChart
+          title="Issues by status"
+          description="Showing status priority levels"
+          chartData={dashboard?.status || {}}
+          dataKey="status"
         />
       </div>
     </div>

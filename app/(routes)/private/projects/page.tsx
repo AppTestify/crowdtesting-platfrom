@@ -256,6 +256,10 @@ export default function Projects() {
     return () => clearTimeout(debounceFetch);
   }, [globalFilter, pageIndex, pageSize]);
 
+  useEffect(() => {
+    setPageIndex(1);
+  }, [globalFilter]);
+
   return (
     <main className="mx-4 mt-4">
       <ViewTesterIssue
