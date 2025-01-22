@@ -54,48 +54,54 @@ export function MailList({ items, isLoading }: { items: IMail[], isLoading: bool
         <ScrollArea className="h-screen">
             {!isLoading ? (
                 <div className="flex flex-col gap-2 p-4 pt-0">
-                    {items.map((item) => (
-                        <button
-                            key={item.id}
-                            className={cn(
-                                "w-full flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent",
-                                mail.selected === item.id && "bg-muted"
-                            )}
-                            onClick={() =>
-                                setMail({
-                                    ...mail,
-                                    selected: item.id,
-                                })
-                            }
-                        >
-                            <div className="flex w-full flex-col gap-1">
-                                <div className="flex items-center">
-                                    <div className="flex items-center gap-2">
-                                        <div className="font-semibold">{item?.userId?.firstName || ""} {item?.userId?.lastName || ""}</div>
+                    {items.length > 0 ? (
+                        items.map((item) => (
+                            <button
+                                key={item.id}
+                                className={cn(
+                                    "w-full flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent",
+                                    mail.selected === item.id && "bg-muted"
+                                )}
+                                onClick={() =>
+                                    setMail({
+                                        ...mail,
+                                        selected: item.id,
+                                    })
+                                }
+                            >
+                                <div className="flex w-full flex-col gap-1">
+                                    <div className="flex items-center">
+                                        <div className="flex items-center gap-2">
+                                            <div className="font-semibold">{item?.userId?.firstName || ""} {item?.userId?.lastName || ""}</div>
+                                        </div>
+                                        <div
+                                            className={cn(
+                                                "ml-auto text-xs",
+                                                mail.selected === item.id
+                                                    ? "text-foreground"
+                                                    : "text-muted-foreground"
+                                            )}
+                                        >
+                                            {formatDistanceToNow(item.createdAt, {
+                                                addSuffix: true,
+                                            })}
+                                        </div>
                                     </div>
-                                    <div
-                                        className={cn(
-                                            "ml-auto text-xs",
-                                            mail.selected === item.id
-                                                ? "text-foreground"
-                                                : "text-muted-foreground"
-                                        )}
-                                    >
-                                        {formatDistanceToNow(item.createdAt, {
-                                            addSuffix: true,
-                                        })}
-                                    </div>
+                                    <div className="text-xs font-medium">{item.subject}</div>
                                 </div>
-                                <div className="text-xs font-medium">{item.subject}</div>
-                            </div>
-                            <div
-                                className="line-clamp-2 text-xs text-muted-foreground"
-                                dangerouslySetInnerHTML={{
-                                    __html: item.body?.substring(0, 300) || "",
-                                }}
-                            />
-                        </button>
-                    ))}
+                                <div
+                                    className="line-clamp-2 text-xs text-muted-foreground"
+                                    dangerouslySetInnerHTML={{
+                                        __html: item.body?.substring(0, 300) || "",
+                                    }}
+                                />
+                            </button>
+                        ))) : (
+                        <div className="flex items-center justify-center p-4 text-sm text-muted-foreground">
+                            No data available
+                        </div>
+                    )
+                    }
                 </div>
             ) : (
                 <div className="flex flex-col gap-3 items-center">
