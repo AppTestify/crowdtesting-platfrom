@@ -52,13 +52,17 @@ import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
 import { getIssuesWithoutPaginationService } from "@/app/_services/issue.service";
 import { addTaskService } from "@/app/_services/task.service";
+import { getRequirementsWithoutPaginationService } from "@/app/_services/requirement.service";
+import { IRequirement } from "@/app/_interface/requirement";
+import { Label } from "@/components/ui/label";
+import { MultiSelect } from "@/components/ui/multi-select";
 
 const taskSchema = z.object({
     title: z.string().min(1, "Required"),
     priority: z.string().min(1, "Required"),
     status: z.string().min(1, "Required"),
     description: z.string().min(1, "Required"),
-    issueId: z.string().optional(),
+    issueId: z.string().nullable(),
     assignedTo: z.string().optional(),
 });
 
@@ -82,7 +86,10 @@ export function AddTask({ refreshTasks }: { refreshTasks: () => void }) {
     const [issues, setIssues] = useState<IIssue[]>([]);
     const [isViewLoading, setIsViewLoading] = useState<boolean>(false);
     const [isIssuesView, setIsIssuesView] = useState<boolean>(false);
+    const [requirements, setRequirements] = useState<IRequirement[]>([]);
+    const [selectedRequirements, setSelectedRequirements] = useState<string[]>([]);
     const [users, setUsers] = useState<IProjectUserDisplay[]>([]);
+    const [isRequirementLoading, setIsRequirementLoading] = useState<boolean>(false);
     const [userProjectRole, setUserProjectRole] =
         useState<ProjectUserRoles | null>(null);
 
@@ -110,7 +117,7 @@ export function AddTask({ refreshTasks }: { refreshTasks: () => void }) {
             priority: "",
             status: "",
             description: "",
-            issueId: "",
+            issueId: null,
             assignedTo: "",
         },
     });
@@ -126,6 +133,7 @@ export function AddTask({ refreshTasks }: { refreshTasks: () => void }) {
         try {
             const response = await addTaskService(projectId, {
                 ...values,
+                requirementIds: selectedRequirements
             });
             if (response) {
                 setIssueId(response.id);
@@ -148,6 +156,7 @@ export function AddTask({ refreshTasks }: { refreshTasks: () => void }) {
 
     const resetForm = () => {
         form.reset();
+        setSelectedRequirements([]);
     };
 
     const getIssues = async () => {
@@ -178,9 +187,24 @@ export function AddTask({ refreshTasks }: { refreshTasks: () => void }) {
         }
     };
 
+    const getRequirements = async () => {
+        setIsRequirementLoading(true);
+        try {
+            const response = await getRequirementsWithoutPaginationService(projectId);
+            if (response) {
+                setRequirements(response);
+            }
+        } catch (error) {
+            toasterService.error();
+        } finally {
+            setIsRequirementLoading(false);
+        }
+    };
+
     useEffect(() => {
         if (sheetOpen) {
             getProjectUsers();
+            getRequirements();
             getIssues();
         }
     }, [sheetOpen]);
@@ -231,7 +255,7 @@ export function AddTask({ refreshTasks }: { refreshTasks: () => void }) {
                                             <FormLabel>Priority</FormLabel>
                                             <Select
                                                 onValueChange={field.onChange}
-                                                value={field.value}
+                                                value={field.value ?? undefined}
                                             >
                                                 <SelectTrigger className="w-full">
                                                     <SelectValue />
@@ -264,7 +288,7 @@ export function AddTask({ refreshTasks }: { refreshTasks: () => void }) {
                                             <FormLabel>Issue</FormLabel>
                                             <Select
                                                 onValueChange={field.onChange}
-                                                value={field.value}
+                                                value={field.value ?? undefined}
                                             >
                                                 <SelectTrigger className="w-full">
                                                     <SelectValue />
@@ -297,7 +321,8 @@ export function AddTask({ refreshTasks }: { refreshTasks: () => void }) {
                                     )}
                                 />
                             </div>
-                            <div className="mt-3">
+                            <div className={`grid grid-cols-${userProjectRole === ProjectUserRoles.ADMIN ||
+                                userProjectRole === ProjectUserRoles.CLIENT ? 2 : 1} gap-2 mt-3`}>
                                 <FormField
                                     control={form.control}
                                     name="status"
@@ -331,48 +356,68 @@ export function AddTask({ refreshTasks }: { refreshTasks: () => void }) {
                                         </FormItem>
                                     )}
                                 />
+
+                                {userProjectRole === ProjectUserRoles.ADMIN ||
+                                    userProjectRole === ProjectUserRoles.CLIENT ? (
+                                    <div className="grid grid-cols-1 gap-2">
+                                        <FormField
+                                            control={form.control}
+                                            name="assignedTo"
+                                            render={({ field }) => (
+                                                <FormItem className="flex flex-col">
+                                                    <FormLabel>Assignee</FormLabel>
+                                                    <Select
+                                                        onValueChange={field.onChange}
+                                                        value={field.value}
+                                                    >
+                                                        <SelectTrigger className="w-full">
+                                                            <SelectValue>{getSelectedUser(field)}</SelectValue>
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectGroup>
+                                                                {users.length > 0 ? (
+                                                                    users.map((user) => (
+                                                                        <SelectItem
+                                                                            key={user._id}
+                                                                            value={user?.userId?._id as string}
+                                                                        >
+                                                                            {getUsernameWithUserId(user)}
+                                                                        </SelectItem>
+                                                                    ))
+                                                                ) : (
+                                                                    <div className="p-1 text-center text-gray-500">
+                                                                        Users not found
+                                                                    </div>
+                                                                )}
+                                                            </SelectGroup>
+                                                        </SelectContent>
+                                                    </Select>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                ) : null}
                             </div>
-                            {userProjectRole === ProjectUserRoles.ADMIN ||
-                                userProjectRole === ProjectUserRoles.CLIENT ? (
-                                <div className="grid grid-cols-1 gap-2 mt-4">
-                                    <FormField
-                                        control={form.control}
-                                        name="assignedTo"
-                                        render={({ field }) => (
-                                            <FormItem className="flex flex-col">
-                                                <FormLabel>Assignee</FormLabel>
-                                                <Select
-                                                    onValueChange={field.onChange}
-                                                    value={field.value}
-                                                >
-                                                    <SelectTrigger className="w-full">
-                                                        <SelectValue>{getSelectedUser(field)}</SelectValue>
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectGroup>
-                                                            {users.length > 0 ? (
-                                                                users.map((user) => (
-                                                                    <SelectItem
-                                                                        key={user._id}
-                                                                        value={user?.userId?._id as string}
-                                                                    >
-                                                                        {getUsernameWithUserId(user)}
-                                                                    </SelectItem>
-                                                                ))
-                                                            ) : (
-                                                                <div className="p-1 text-center text-gray-500">
-                                                                    Users not found
-                                                                </div>
-                                                            )}
-                                                        </SelectGroup>
-                                                    </SelectContent>
-                                                </Select>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-                            ) : null}
+                            <div className="grid grid-cols-1 gap-2 mt-4">
+                                <Label>
+                                    Requirements
+                                </Label>
+                                <MultiSelect
+                                    options={requirements?.map((requirement) => ({
+                                        label: typeof requirement?.title === "string" ? requirement.title : "",
+                                        value: typeof requirement?.id === "string" ? requirement.id : "",
+                                    }))}
+                                    onValueChange={setSelectedRequirements}
+                                    defaultValue={selectedRequirements}
+                                    placeholder={isRequirementLoading ? "Loading" : (requirements?.length === 0 ? "No requirements found" : "")}
+                                    disabled={requirements?.length === 0}
+                                    variant="secondary"
+                                    animation={2}
+                                    maxCount={3}
+                                    className="mt-2"
+                                />
+                            </div>
 
                             <div className="grid grid-cols-1 gap-2 mt-4">
                                 <FormField

@@ -5,6 +5,7 @@ export const TaskSchema = z.object({
   priority: z.string().min(1, "Priority is required"),
   status: z.string().min(1, "Status is required"),
   description: z.string().min(1, "description is required"),
-  issueId: z.string().optional(),
+  issueId: z.string().nullable(),
+  requirementIds: z.array(z.string()).optional(),
   assignedTo: z.string().optional(),
 });

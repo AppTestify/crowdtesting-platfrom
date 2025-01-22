@@ -217,7 +217,7 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
     });
 
     if (inputRef.current) {
-      inputRef.current.value = '';  
+      inputRef.current.value = '';
     }
   };
 
@@ -399,7 +399,6 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
                   variant="secondary"
                   animation={2}
                   maxCount={2}
-                  // isClear={clear}
                   className="w-full"
                 />
                 {isInvalidDevices ? (

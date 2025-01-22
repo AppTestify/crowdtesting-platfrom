@@ -38,6 +38,8 @@ import { TaskRowActions } from "./_components/row-actions";
 import { ITask } from "@/app/_interface/task";
 import ViewTask from "./_components/view-task";
 import { DBModels } from "@/app/_constants";
+import ExpandableTable from "@/app/_components/expandable-table";
+import { IRequirement } from "@/app/_interface/requirement";
 
 export default function Tasks() {
     const [issues, setTasks] = useState<ITask[]>([]);
@@ -85,15 +87,24 @@ export default function Tasks() {
             accessorKey: "issueId",
             header: "Issue",
             cell: ({ row }: { row: any }) => {
-                const issueTitle = row.getValue("title");
+                const issueTitle = row.original?.issueId?.title;
                 return (
                     <div title={issueTitle}
                         className="capitalize"
                     >
-                        {issueTitle.length > 30 ? `${issueTitle.substring(0, 30)}...` : issueTitle}
+                        {issueTitle?.length > 30 ? `${issueTitle?.substring(0, 30)}...` : issueTitle}
                     </div>
                 )
             },
+        },
+        {
+            accessorKey: "requirementIds",
+            header: "Requirement",
+            cell: ({ row }: { row: any }) => (
+                <div className="capitalize">
+                    <ExpandableTable row={row?.original?.requirementIds as IRequirement[]} />
+                </div>
+            ),
         },
         {
             accessorKey: "createdBy",

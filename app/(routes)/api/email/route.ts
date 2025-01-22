@@ -17,7 +17,7 @@ export async function POST(req: Request) {
       message: "Email sent successfully",
     });
   } catch (error: any) {
-    console.log(error)
+    console.log(error);
     return Response.json(
       { message: GENERIC_ERROR_MESSAGE },
       { status: HttpStatusCode.INTERNAL_SERVER_ERROR }

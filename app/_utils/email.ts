@@ -17,6 +17,8 @@ import { WELCOME_CLIENT_MESSAGE_TEMPLATE } from "@/email-templates/welcome-clien
 import { WELCOME_TESTER_MESSAGE_TEMPLATE } from "@/email-templates/welcome-tester.template";
 import { PARENT_EMAIL_TEMPLATE } from "@/email-templates/parent.template";
 import { TESTER_INFORMATION_TEMPLATE } from "@/email-templates/tester-information.template";
+import { IMailPayload } from "../_interface/mail";
+import { MAIL_TEMPLATE } from "@/email-templates/mail.template";
 
 interface IReplaceTemplateTags {
   tagValuesObject: any;
@@ -171,6 +173,18 @@ export const testerInformationMail = async (
     subject: EmailSubjects.TESTER_INFORMATION,
     body: replaceEmailTemplateTagsInternalService({
       emailBody: prepareEmailTemplate(TESTER_INFORMATION_TEMPLATE),
+      tagValuesObject: templateTags,
+    }),
+  });
+};
+
+export const customMail = async (templateTags: IMailPayload) => {
+  const emailService = new EmailService();
+  await emailService.sendEmail({
+    to: templateTags?.emails,
+    subject: templateTags?.subject,
+    body: replaceEmailTemplateTagsInternalService({
+      emailBody: prepareEmailTemplate(MAIL_TEMPLATE),
       tagValuesObject: templateTags,
     }),
   });

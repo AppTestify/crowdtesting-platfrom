@@ -63,7 +63,8 @@ export default function Issues() {
       (checkProjectRole && project?.isActive) ||
       (project?.isActive &&
         issue.userId?._id?.toString() === userData?._id?.toString()) ||
-      userData?.role !== UserRoles.TESTER
+      userData?.role !== UserRoles.TESTER ||
+      (issue?.assignedTo?._id?.toString() === userData?._id?.toString())
     );
   };
 
