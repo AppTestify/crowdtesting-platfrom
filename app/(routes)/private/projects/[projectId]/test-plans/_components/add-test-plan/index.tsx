@@ -114,10 +114,6 @@ export function AddTestPlan({ refreshTestPlans }: { refreshTestPlans: () => void
             >
                 <SheetHeader>
                     <SheetTitle className="text-left">Add new test plan</SheetTitle>
-                    <SheetDescription className="text-left">
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Perspiciatis,
-                        ut deleniti excepturi, quo nemo! Quisquam, saepe quo.
-                    </SheetDescription>
                 </SheetHeader>
 
                 <div className="mt-4">

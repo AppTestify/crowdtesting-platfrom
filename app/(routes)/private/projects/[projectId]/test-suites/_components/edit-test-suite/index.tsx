@@ -124,10 +124,6 @@ export function EditTestSuite({
             <SheetContent className="w-full !max-w-full md:w-[550px] md:!max-w-[550px] overflow-y-auto">
                 <SheetHeader>
                     <SheetTitle className="text-left">Edit test suite</SheetTitle>
-                    <SheetDescription className="text-left">
-                        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aperiam ipsam minima
-                        at modi, omnis minus eveniet quidem saepe sequi sed
-                    </SheetDescription>
                 </SheetHeader>
                 <div className="mt-4">
                     <Form {...form}>

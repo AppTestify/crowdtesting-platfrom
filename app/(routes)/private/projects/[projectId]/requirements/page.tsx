@@ -57,7 +57,7 @@ export default function Issues() {
       },
       cell: ({ row }) => (
         <div
-          className="hover:text-primary cursor-pointer ml-4"
+          className="text-primary cursor-pointer ml-4"
           onClick={() => getRequirement(row.original as IRequirement)}
         >
           {row.getValue("customId")}
@@ -90,7 +90,7 @@ export default function Issues() {
       : []),
     {
       accessorKey: "updatedAt",
-      header: "last update",
+      header: "Last updated",
       cell: ({ row }) => (
         <div className="capitalize">
           {formatDistanceToNow(new Date(row.getValue("updatedAt")), {
@@ -211,11 +211,6 @@ export default function Issues() {
       />
       <div className="">
         <h2 className="text-medium">Requirements</h2>
-        <span className="text-xs text-gray-600">
-          Lorem ipsum dolor sit, amet consectetur adipisicing elit. cumque vel
-          nesciunt sunt velit possimus sapiente tempore repudiandae fugit
-          fugiat.
-        </span>
       </div>
       <div className="w-full">
         <div className="flex py-4 justify-between">

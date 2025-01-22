@@ -50,7 +50,7 @@ export default function TestExecution() {
                 );
             },
             cell: ({ row }) => (
-                <div className="hover:text-primary cursor-pointer ml-4">
+                <div className="text-primary cursor-pointer ml-4">
                     {row.getValue("customId")}</div>
             ),
             sortingFn: "alphanumeric"
@@ -192,10 +192,6 @@ export default function TestExecution() {
         <main className="mx-4 mt-2">
             <div className="">
                 <h2 className="text-medium">Test execution</h2>
-                <span className="text-xs text-gray-600">
-                    Lorem ipsum dolor sit, amet consectetur adipisicing elit.
-                    cumque vel nesciunt sunt velit possimus sapiente tempore repudiandae fugit fugiat.
-                </span>
             </div>
             <div className="w-full">
                 <div className="flex py-4 justify-between">

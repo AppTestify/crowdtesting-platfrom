@@ -121,10 +121,6 @@ export function AddTestSuite({ refreshTestSuites }: { refreshTestSuites: () => v
             >
                 <SheetHeader>
                     <SheetTitle className="text-left">Add new test suite</SheetTitle>
-                    <SheetDescription className="text-left">
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Perspiciatis,
-                        ut deleniti excepturi, quo nemo! Quisquam, saepe quo.
-                    </SheetDescription>
                 </SheetHeader>
 
                 <div className="mt-4">

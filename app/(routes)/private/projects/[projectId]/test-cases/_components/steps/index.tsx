@@ -241,19 +241,6 @@ export function AddTestStep({ testCaseId }: { testCaseId: string }) {
             )
             }
             <div className="grid grid-cols-1 gap-2 mt-4">
-                {/* <Select disabled={selectedItem != ""} onOpenChange={(open) => setSelectOpen(open)} open={isSelectOpen}
-                    value={selectedItem} onValueChange={handleSelectChange}>
-                    <SelectTrigger className="w-full">
-                        <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectGroup>
-                            {testCaseAddList.map((addTestCase) => (
-                                <SelectItem value={addTestCase}>{addTestCase}</SelectItem>
-                            ))}
-                        </SelectGroup>
-                    </SelectContent>
-                </Select> */}
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button className="w-full" disabled={selectedItem !== ""}>

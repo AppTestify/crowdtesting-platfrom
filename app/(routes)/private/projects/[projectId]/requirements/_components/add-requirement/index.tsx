@@ -140,9 +140,6 @@ export function AddRequirement({ refreshRequirements }: { refreshRequirements: (
             >
                 <SheetHeader>
                     <SheetTitle className="text-left">Add new requirement</SheetTitle>
-                    <SheetDescription className="text-left">
-                        Lorem, ipsum dolor sit amet consectetur adipisicing elit. Accusantium magnam sequi iusto velit, deserunt, cum labore animi.
-                    </SheetDescription>
                 </SheetHeader>
 
                 <div className="mt-4">

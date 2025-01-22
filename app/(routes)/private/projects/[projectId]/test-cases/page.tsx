@@ -63,7 +63,7 @@ export default function TestCases() {
                 );
             },
             cell: ({ row }) => (
-                <div className="hover:text-primary cursor-pointer ml-4" onClick={() => getTestCase(row.original as unknown as ITestCase)}>
+                <div className="text-primary cursor-pointer ml-4" onClick={() => getTestCase(row.original as unknown as ITestCase)}>
                     {row.getValue("customId")}</div>
             ),
             sortingFn: "alphanumeric"
@@ -258,10 +258,6 @@ export default function TestCases() {
             />
             <div className="">
                 <h2 className="text-medium">Test cases</h2>
-                <span className="text-xs text-gray-600">
-                    Lorem ipsum dolor sit, amet consectetur adipisicing elit.
-                    cumque vel nesciunt sunt velit possimus sapiente tempore repudiandae fugit fugiat.
-                </span>
             </div>
             <div className="w-full">
                 <div className="flex py-4 items-center">

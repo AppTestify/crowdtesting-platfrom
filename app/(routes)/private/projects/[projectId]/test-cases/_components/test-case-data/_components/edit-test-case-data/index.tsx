@@ -108,9 +108,6 @@ export default function EditTestCaseData({ testCaseDataValue, isEditOpen, setIsE
                 <DialogContent className="sm:max-w-[500px]">
                     <DialogHeader>
                         <DialogTitle>Edit test case data</DialogTitle>
-                        <DialogDescription>
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Delectus, obcaecati.
-                        </DialogDescription>
                     </DialogHeader>
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} method="post">

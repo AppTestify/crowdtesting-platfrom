@@ -157,10 +157,6 @@ export function AddTestCase({ refreshTestCases, testSuites }: { refreshTestCases
             >
                 <SheetHeader>
                     <SheetTitle className="text-left">Add new test case</SheetTitle>
-                    <SheetDescription className="text-left">
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Perspiciatis,
-                        ut deleniti excepturi, quo nemo! Quisquam, saepe quo.
-                    </SheetDescription>
                 </SheetHeader>
 
                 <Tabs defaultValue="test-case" value={activeTab} onValueChange={setActiveTab} className="mt-4">

@@ -43,3 +43,7 @@ export interface IProjectUserDisplay {
   customId: string;
   tester?: ITester;
 }
+
+export interface IProjectDescription {
+  description: string;
+}

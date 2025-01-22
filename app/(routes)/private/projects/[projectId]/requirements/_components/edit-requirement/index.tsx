@@ -117,11 +117,6 @@ const EditRequirement = ({
             >
                 <SheetHeader>
                     <SheetTitle className="text-left">Edit requirement</SheetTitle>
-                    <SheetDescription className="text-left">
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor a
-                        totam blanditiis veniam laudantium dolores quidem id magni ut
-                        dignissimos.
-                    </SheetDescription>
                 </SheetHeader>
 
                 <div className="mt-4">

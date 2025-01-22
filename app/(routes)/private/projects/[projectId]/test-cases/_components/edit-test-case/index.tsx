@@ -135,10 +135,6 @@ export function EditTestCase({
             <SheetContent className="w-full !max-w-full md:w-[550px] md:!max-w-[550px] overflow-y-auto">
                 <SheetHeader>
                     <SheetTitle className="text-left">Edit test case</SheetTitle>
-                    <SheetDescription className="text-left">
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolore nam, assumenda at
-                        blanditiis facere aliquam ex repellat eius dolorum earum.
-                    </SheetDescription>
                 </SheetHeader>
                 <Tabs defaultValue="test-case" value={activeTab} onValueChange={setActiveTab} className="mt-4">
                     <TabsList>

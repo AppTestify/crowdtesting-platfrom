@@ -68,9 +68,6 @@ export default function EditTestCaseStep({ isEditOpen, closeDialog, testCaseStep
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Edit step</DialogTitle>
-            <DialogDescription>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Delectus, obcaecati.
-            </DialogDescription>
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} method="post">

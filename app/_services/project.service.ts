@@ -7,12 +7,14 @@ import {
 import {
   IProject,
   IProjectBulkDeletePayload,
+  IProjectDescription,
   IProjectPayload,
   IProjectUser,
 } from "../_interface/project";
 import {
   genericDelete,
   genericGet,
+  genericPatch,
   genericPost,
   genericPut,
 } from "./generic-api-methods";
@@ -175,6 +177,22 @@ export const getProjectsWithoutPaginationService = async (): Promise<any> => {
     return response || [];
   } catch (error) {
     console.error(`Error > getProjectUsersService:`, error);
+    throw error;
+  }
+};
+
+export const editProjectDescriptionService = async (
+  projectId: string,
+  body: IProjectDescription
+): Promise<any> => {
+  try {
+    const response = await genericPatch(
+      `${PROJECTS_ENDPOINT}/${projectId}/description`,
+      body
+    );
+    return response || {};
+  } catch (error) {
+    console.error(`Error > editProjectDescriptionService:`, error);
     throw error;
   }
 };
