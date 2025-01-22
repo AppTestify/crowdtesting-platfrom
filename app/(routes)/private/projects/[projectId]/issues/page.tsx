@@ -337,7 +337,7 @@ export default function Issues() {
           "Attachments",
         ];
 
-    const response = await getIssuesService(projectId, 1, totalPageCount, globalFilter as unknown as string);
+    const response = await getIssuesService(projectId, 1, totalPageCount, globalFilter as unknown as string, "", "", "");
     const data = response?.issues?.map((row: IIssue) => [
       row.customId,
       row.title,
