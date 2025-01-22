@@ -47,7 +47,7 @@ export default function AddPayment({ isOpen, closeDialog, userId, refreshPayment
 
     const getProjects = async () => {
         try {
-            const response = await getProjectsWithoutPaginationService();
+            const response = await getProjectsWithoutPaginationService(userId);
             if (response) {
                 setProjects(response);
             }

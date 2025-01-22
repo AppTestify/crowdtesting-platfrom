@@ -26,13 +26,13 @@ import { useSearchParams } from "next/navigation";
 
 const forgotPasswordSchema = z
   .object({
-    password: z.string().min(8, "password must be at least 8 characters"),
+    password: z.string().min(8, "Password must be at least 8 characters"),
     confirmedPassword: z
       .string()
-      .min(8, "confirmed password must be at least 8 characters"),
+      .min(8, "Confirm password must be at least 8 characters"),
   })
   .refine((data) => data.password === data.confirmedPassword, {
-    message: "Passwords must match",
+    message: "Password must match",
     path: ["confirmedPassword"],
   });
 
@@ -90,7 +90,7 @@ function ResetPasswordWrapper() {
               <div className="grid gap-2 text-center">
                 <h1 className="text-3xl font-bold">Change password</h1>
                 <p className="text-balance text-muted-foreground">
-                  Change your password to new
+                  Set a new password
                 </p>
               </div>
               <div className="grid gap-4">
@@ -115,7 +115,7 @@ function ResetPasswordWrapper() {
                   />
                 </div>
                 <div className="grid gap-2 mt-2">
-                  <Label htmlFor="confirmedPassword">Confirmed Password</Label>
+                  <Label htmlFor="confirmedPassword">Confirm Password</Label>
                   <FormField
                     control={form.control}
                     name="confirmedPassword"
@@ -152,7 +152,7 @@ function ResetPasswordWrapper() {
       <div className="mt-8 text-muted-foreground text-left md:text-center">
         By continuing you indicate that you read and{" "}
         <a href="#" className="underline cursor-pointer">
-          agreed to the Terms of Use
+          agree to the Terms of Use
         </a>
       </div>
     </div>

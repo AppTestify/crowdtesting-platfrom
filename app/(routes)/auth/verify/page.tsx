@@ -74,7 +74,7 @@ function VerifyWrapper() {
                   <div className="flex flex-col items-center gap-2 text-center">
                     <CheckCircle className="text-primary h-10 w-10" />
                     <span>
-                      Your account has been activate please{" "}
+                      Your account has been activated please{" "}
                       <Link
                         href="/auth/sign-in"
                         className="underline p-0 text-black"

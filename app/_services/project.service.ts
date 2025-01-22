@@ -169,10 +169,12 @@ export const editProjectUserService = async (
   }
 };
 
-export const getProjectsWithoutPaginationService = async (): Promise<any> => {
+export const getProjectsWithoutPaginationService = async (
+  userId: string
+): Promise<any> => {
   try {
     const response = await genericGet(
-      `${PROJECTS_ENDPOINT}/without-pagination`
+      `${PROJECTS_ENDPOINT}/without-pagination?userId=${userId}`
     );
     return response || [];
   } catch (error) {

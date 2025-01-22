@@ -62,7 +62,7 @@ export default function ForgotPassword() {
                             <div className="grid gap-2 text-center">
                                 <h1 className="text-3xl font-bold">Forgot password</h1>
                                 <p className="text-balance text-muted-foreground">
-                                    Enter your email below to restore passoword
+                                    Enter your email below to restore password
                                 </p>
                             </div>
                             <div className="grid gap-4">
@@ -93,7 +93,7 @@ export default function ForgotPassword() {
                                     {isLoading ? (
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                     ) : null}
-                                    {isLoading ? "Submitting" : "Submit"}
+                                    {isLoading ? "Sending" : "Send"}
                                 </Button>
                             </div>
                             <div className="flex justify-center mt-2">

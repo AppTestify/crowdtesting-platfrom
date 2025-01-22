@@ -16,9 +16,17 @@ export default function Payment({ userId }: { userId: string }) {
         {
             accessorKey: "description",
             header: "Description",
-            cell: ({ row }) => (
-                <div className="capitalize">{row.getValue("description")}</div>
-            ),
+            cell: ({ row }) => {
+                const description = row.getValue("description");
+                return (
+                    <div
+                        title={row.getValue("description")}
+                        className="capitalize"
+                    >
+                        {typeof description === 'string' && description.length > 30 ? `${description.substring(0, 30)}...` : description as string}
+                    </div>
+                )
+            },
         },
         {
             accessorKey: "amount",

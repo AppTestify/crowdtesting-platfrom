@@ -104,7 +104,7 @@ export function SignUpForm({ role, setIsGoogleSignInDisable }: { role: UserRoles
           Create an account
         </Button>
         <div className="text-center">
-          <span className="mr-0">Don't have an account?</span>
+          <span className="mr-0">Already have an account?</span>
           <Link href={'/auth/sign-in'}>
             <span className="text-primary ml-2">Sign in!</span>
           </Link>

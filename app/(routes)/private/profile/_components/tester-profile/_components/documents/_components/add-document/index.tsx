@@ -55,6 +55,14 @@ export default function AddDocument({
     const file = event.target.files?.[0];
 
     if (file) {
+      const maxSize = 15 * 1024 * 1024;
+
+      if (file.size > maxSize) {
+        setFile(null);
+        setValidationMessage("File size should be less than 15MB.");
+        return;
+      }
+
       setFile(file);
       setValidationMessage("");
     } else {

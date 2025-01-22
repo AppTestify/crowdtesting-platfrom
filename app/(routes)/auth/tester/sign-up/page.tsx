@@ -67,7 +67,7 @@ function SignUpWrapper() {
         </div>
       </div>
       <div className="mt-8 text-muted-foreground text-left md:text-center">
-        By continuing you indicate that you read and <a target="_blank" href="https://apptestify.com/legal/Tester-Terms-Conditions-Privacy.html" className="underline cursor-pointer">agreed to the Terms of Use</a>
+        By continuing you indicate that you read and <a target="_blank" href="https://apptestify.com/legal/Tester-Terms-Conditions-Privacy.html" className="underline cursor-pointer">agree to the Terms of Use</a>
       </div>
     </div>
   );

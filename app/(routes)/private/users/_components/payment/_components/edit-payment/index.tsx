@@ -53,7 +53,7 @@ export default function EditPayment({ isDialogOpen, dialogClose, payment, refres
 
     const getProjects = async () => {
         try {
-            const response = await getProjectsWithoutPaginationService();
+            const response = await getProjectsWithoutPaginationService(payment?.receiverId._id as string);
             if (response) {
                 setProjects(response);
             }

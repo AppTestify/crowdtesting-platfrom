@@ -52,7 +52,7 @@ export async function POST(req: Request) {
         await sendForgotPasswordLink(emailData);
 
         return Response.json({
-            message: "Forgot password link send to your mail",
+            message: "Forgot password link sent to your email",
         });
     } catch (error: any) {
         return Response.json(

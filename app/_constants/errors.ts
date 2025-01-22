@@ -16,7 +16,7 @@ export const GENERIC_ACCOUNT_VERIFICATION_ERROR_MESSAGE =
 export const LINKED_EXPIRED_ACCOUNT_VERIFICATION_ERROR_MESSAGE =
   "Your link has been expired,  please try resending the verification mail from your account";
 export const USER_INACTIVE_ERROR_MESSAGE =
-  "Your account has been not activated";
+  "Your account has been deactivated";
 export const EMAIL_NOT_FOUND_ERROR = "Email not found";
 export const TOKEN_EXPIRED_MESSAGE = "Your link has expired. Please request a new one.";
 export const FILE_UPLOAD_ERROR_MESSAGE = "Something went wrong while uploading file";
