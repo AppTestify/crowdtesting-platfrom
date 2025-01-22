@@ -6,8 +6,9 @@ export interface ITaskPayload {
   priority: string;
   status: string;
   description: string;
-  issueId?: string;
+  issueId?: string | null;
   assignedTo?: string;
+  requirementIds?: string[];
 }
 
 export interface ITask {
@@ -21,4 +22,5 @@ export interface ITask {
   id: string;
   userId: IUserByAdmin;
   createdAt: string;
+  requirementIds: string[];
 }

@@ -7,6 +7,7 @@ import {
   Users,
   Settings,
   Files,
+  Mail,
 } from "lucide-react";
 import { UserRoles } from "./user-roles";
 
@@ -46,32 +47,32 @@ export const getSidebarItems = (user: any) => {
     });
     return clientNavbar;
   }
-}
+};
 
 export const clientNavbar = [
   {
     title: "Dashboard",
     url: "/private/dashboard",
     icon: LayoutDashboardIcon,
-    disabled: false
+    disabled: false,
   },
   {
     title: "Projects",
     url: "/private/projects",
     icon: GalleryVerticalEnd,
-    disabled: false
+    disabled: false,
   },
   {
     title: "Devices",
     url: "/private/devices",
     icon: MonitorSmartphone,
-    disabled: false
+    disabled: false,
   },
   {
     title: "Profile",
     url: "/private/profile",
     icon: User,
-    disabled: false
+    disabled: false,
   },
 ];
 
@@ -80,25 +81,25 @@ export const navMain = [
     title: "Dashboard",
     url: "/private/dashboard",
     icon: LayoutDashboardIcon,
-    disabled: false
+    disabled: false,
   },
   {
     title: "Projects",
     url: "/private/projects",
     icon: GalleryVerticalEnd,
-    disabled: false
+    disabled: false,
   },
   {
     title: "Devices",
     url: "/private/devices",
     icon: MonitorSmartphone,
-    disabled: false
+    disabled: false,
   },
   {
     title: "Profile",
     url: "/private/profile",
     icon: User,
-    disabled: false
+    disabled: false,
   },
 ];
 
@@ -107,42 +108,48 @@ export const adminNavbar = [
     title: "Dashboard",
     url: "/private/dashboard",
     icon: LayoutDashboardIcon,
-    disabled: false
+    disabled: false,
   },
   {
     title: "Users",
     url: "/private/users",
     icon: Users,
-    disabled: false
+    disabled: false,
   },
   {
     title: "Projects",
     url: "/private/projects",
     icon: GalleryVerticalEnd,
-    disabled: false
+    disabled: false,
   },
   {
     title: "Devices",
     url: "/private/devices",
     icon: MonitorSmartphone,
-    disabled: false
+    disabled: false,
+  },
+  {
+    title: "Emails",
+    url: "/private/emails",
+    icon: Mail,
+    disabled: false,
   },
   {
     title: "Documents",
     url: "/private/documents",
     icon: Files,
-    disabled: false
+    disabled: false,
   },
   {
     title: "Profile",
     url: "/private/profile",
     icon: User,
-    disabled: false
+    disabled: false,
   },
   {
     title: "Setting",
     url: "/private/setting",
     icon: Settings,
-    disabled: false
+    disabled: false,
   },
 ];

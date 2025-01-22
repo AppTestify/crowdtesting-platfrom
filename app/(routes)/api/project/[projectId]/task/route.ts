@@ -118,6 +118,7 @@ export async function GET(
         .populate("userId", "firstName lastName")
         .populate("assignedTo", "firstName lastName")
         .populate("issueId", "title")
+        .populate("requirementIds", "title")
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(Number(limit))

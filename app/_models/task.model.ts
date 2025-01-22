@@ -6,8 +6,9 @@ export interface ITask extends Document {
   priority: string;
   status: string;
   description: string;
-  issueId: Types.ObjectId;
+  issueId?: Types.ObjectId;
   assignedTo?: Types.ObjectId;
+  requirementIds?: Types.ObjectId[];
   userId: Types.ObjectId;
   projectId: Types.ObjectId;
 }
@@ -23,6 +24,13 @@ const TaskSchema = new Schema<ITask>(
       ref: DBModels.ISSUE,
       required: false,
     },
+    requirementIds: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: DBModels.REQUIREMENT,
+        required: false,
+      },
+    ],
     assignedTo: {
       type: Schema.Types.ObjectId,
       ref: DBModels.USER,

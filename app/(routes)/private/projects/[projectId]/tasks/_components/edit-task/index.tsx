@@ -52,13 +52,17 @@ import { UserRoles } from "@/app/_constants/user-roles";
 import { getIssuesWithoutPaginationService } from "@/app/_services/issue.service";
 import { addTaskService, updateTaskService } from "@/app/_services/task.service";
 import { ITask, ITaskPayload } from "@/app/_interface/task";
+import { Label } from "@/components/ui/label";
+import { MultiSelect } from "@/components/ui/multi-select";
+import { IRequirement } from "@/app/_interface/requirement";
+import { getRequirementsWithoutPaginationService } from "@/app/_services/requirement.service";
 
 const taskSchema = z.object({
     title: z.string().min(1, "Required"),
     priority: z.string().min(1, "Required"),
     status: z.string().min(1, "Required"),
     description: z.string().min(1, "Required"),
-    issueId: z.string().optional(),
+    issueId: z.string().nullable(),
     assignedTo: z.string().optional(),
 });
 
@@ -72,6 +76,7 @@ export function EditTask({
     setSheetOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
     const taskId = task.id;
+    const requirementsData = task.requirementIds;
     const { data } = useSession();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const { projectId } = useParams<{ projectId: string }>();
@@ -80,6 +85,9 @@ export function EditTask({
     const [users, setUsers] = useState<IProjectUserDisplay[]>([]);
     const [userProjectRole, setUserProjectRole] =
         useState<ProjectUserRoles | null>(null);
+    const [requirements, setRequirements] = useState<IRequirement[]>([]);
+    const [selectedRequirements, setSelectedRequirements] = useState<string[]>(requirementsData);
+    const [isRequirementLoading, setIsRequirementLoading] = useState<boolean>(false);
 
     useEffect(() => {
         if (data && users?.length) {
@@ -105,7 +113,7 @@ export function EditTask({
             priority: task?.priority || "",
             status: task?.status || "",
             description: task?.description || "",
-            issueId: task?.issueId?._id || "",
+            issueId: task?.issueId?._id || null,
             assignedTo: task?.assignedTo?._id || "",
         },
     });
@@ -115,9 +123,11 @@ export function EditTask({
         try {
             const response = await updateTaskService(projectId, taskId, {
                 ...values,
+                requirementIds: selectedRequirements,
             });
             if (response) {
                 refreshTasks();
+                resetForm();
                 toasterService.success(response.message);
             }
         } catch (error) {
@@ -127,6 +137,11 @@ export function EditTask({
             setSheetOpen(false);
         }
     }
+
+    const resetForm = () => {
+        form.reset();
+        setSelectedRequirements([]);
+    };
 
     const validateTask = () => {
         if (form.formState.isValid) {
@@ -162,10 +177,25 @@ export function EditTask({
         }
     };
 
+    const getRequirements = async () => {
+        setIsRequirementLoading(true);
+        try {
+            const response = await getRequirementsWithoutPaginationService(projectId);
+            if (response) {
+                setRequirements(response);
+            }
+        } catch (error) {
+            toasterService.error();
+        } finally {
+            setIsRequirementLoading(false);
+        }
+    };
+
     useEffect(() => {
         if (sheetOpen) {
             getProjectUsers();
             getIssues();
+            getRequirements();
         }
     }, [sheetOpen]);
 
@@ -210,7 +240,7 @@ export function EditTask({
                                             <FormLabel>Priority</FormLabel>
                                             <Select
                                                 onValueChange={field.onChange}
-                                                value={field.value}
+                                                value={field.value ?? undefined}
                                             >
                                                 <SelectTrigger className="w-full">
                                                     <SelectValue />
@@ -243,7 +273,7 @@ export function EditTask({
                                             <FormLabel>Issue</FormLabel>
                                             <Select
                                                 onValueChange={field.onChange}
-                                                value={field.value}
+                                                value={field.value ?? undefined}
                                             >
                                                 <SelectTrigger className="w-full">
                                                     <SelectValue />
@@ -276,7 +306,8 @@ export function EditTask({
                                     )}
                                 />
                             </div>
-                            <div className="mt-3">
+                            <div className={`grid grid-cols-${userProjectRole === ProjectUserRoles.ADMIN ||
+                                userProjectRole === ProjectUserRoles.CLIENT ? 2 : 1} gap-2 mt-3`}>
                                 <FormField
                                     control={form.control}
                                     name="status"
@@ -310,48 +341,71 @@ export function EditTask({
                                         </FormItem>
                                     )}
                                 />
+
+                                {userProjectRole === ProjectUserRoles.ADMIN ||
+                                    userProjectRole === ProjectUserRoles.CLIENT ? (
+                                    <div className="grid grid-cols-1 gap-2">
+                                        <FormField
+                                            control={form.control}
+                                            name="assignedTo"
+                                            render={({ field }) => (
+                                                <FormItem className="flex flex-col">
+                                                    <FormLabel>Assignee</FormLabel>
+                                                    <Select
+                                                        onValueChange={field.onChange}
+                                                        value={field.value}
+                                                    >
+                                                        <SelectTrigger className="w-full">
+                                                            <SelectValue>{getSelectedUser(field)}</SelectValue>
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectGroup>
+                                                                {users.length > 0 ? (
+                                                                    users.map((user) => (
+                                                                        <SelectItem
+                                                                            key={user._id}
+                                                                            value={user?.userId?._id as string}
+                                                                        >
+                                                                            {getUsernameWithUserId(user)}
+                                                                        </SelectItem>
+                                                                    ))
+                                                                ) : (
+                                                                    <div className="p-1 text-center text-gray-500">
+                                                                        Users not found
+                                                                    </div>
+                                                                )}
+                                                            </SelectGroup>
+                                                        </SelectContent>
+                                                    </Select>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                ) : null}
                             </div>
-                            {userProjectRole === ProjectUserRoles.ADMIN ||
-                                userProjectRole === ProjectUserRoles.CLIENT ? (
-                                <div className="grid grid-cols-1 gap-2 mt-4">
-                                    <FormField
-                                        control={form.control}
-                                        name="assignedTo"
-                                        render={({ field }) => (
-                                            <FormItem className="flex flex-col">
-                                                <FormLabel>Assignee</FormLabel>
-                                                <Select
-                                                    onValueChange={field.onChange}
-                                                    value={field.value}
-                                                >
-                                                    <SelectTrigger className="w-full">
-                                                        <SelectValue>{getSelectedUser(field)}</SelectValue>
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectGroup>
-                                                            {users.length > 0 ? (
-                                                                users.map((user) => (
-                                                                    <SelectItem
-                                                                        key={user._id}
-                                                                        value={user?.userId?._id as string}
-                                                                    >
-                                                                        {getUsernameWithUserId(user)}
-                                                                    </SelectItem>
-                                                                ))
-                                                            ) : (
-                                                                <div className="p-1 text-center text-gray-500">
-                                                                    Users not found
-                                                                </div>
-                                                            )}
-                                                        </SelectGroup>
-                                                    </SelectContent>
-                                                </Select>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-                            ) : null}
+
+                            <div className="grid grid-cols-1 gap-2 mt-4">
+                                <Label>
+                                    Requirements
+                                </Label>
+                                <MultiSelect
+                                    options={requirements?.map((requirement) => ({
+                                        label: typeof requirement?.title === "string" ? requirement.title : "",
+                                        value: typeof requirement?.id === "string" ? requirement.id : "",
+                                    }))}
+                                    onValueChange={(selectedValues) => {
+                                        setSelectedRequirements(selectedValues);
+                                    }}
+                                    defaultValue={selectedRequirements}
+                                    placeholder={isRequirementLoading ? "Loading" : (requirements?.length === 0 ? "No requirements found" : "")}
+                                    disabled={requirements?.length === 0}
+                                    variant="secondary"
+                                    animation={2}
+                                    maxCount={3}
+                                    className="mt-2"
+                                />
+                            </div>
 
                             <div className="grid grid-cols-1 gap-2 mt-4">
                                 <FormField

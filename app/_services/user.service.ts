@@ -206,3 +206,15 @@ export const getUsersWithoutPaginationService = async (
     throw error;
   }
 };
+
+export const getAllUsersService = async (): Promise<any> => {
+  try {
+    const response = await genericGet(
+      `${USERS_ENDPOINT}/without-pagination`
+    );
+    return response || [];
+  } catch (error) {
+    console.error(`Error > getAllUsersService:`, error);
+    throw error;
+  }
+};

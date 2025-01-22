@@ -126,8 +126,8 @@ export default function ProjectUsers() {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [globalFilter, setGlobalFilter] = useState<unknown>([]);
     const [projectUsers, setProjectUsers] = useState<IProjectUserDisplay[]>([]);
-    const [pageIndex, setPageIndex] = useState(0);
-    const [pageSize, setPageSize] = useState(7);
+    // const [pageIndex, setPageIndex] = useState(0);
+    // const [pageSize, setPageSize] = useState(7);
     const { data } = useSession();
 
     useEffect(() => {
@@ -170,20 +170,20 @@ export default function ProjectUsers() {
             globalFilter,
             columnVisibility,
             rowSelection,
-            pagination: {
-                pageIndex,
-                pageSize,
-            },
+            // pagination: {
+            //     pageIndex,
+            //     pageSize,
+            // },
         },
         onGlobalFilterChange: setGlobalFilter,
-        onPaginationChange: (updater) => {
-            const newPagination =
-                typeof updater === "function"
-                    ? updater({ pageIndex, pageSize })
-                    : updater;
-            setPageIndex(newPagination.pageIndex);
-            setPageSize(newPagination.pageSize);
-        },
+        // onPaginationChange: (updater) => {
+        //     const newPagination =
+        //         typeof updater === "function"
+        //             ? updater({ pageIndex, pageSize })
+        //             : updater;
+        //     setPageIndex(newPagination.pageIndex);
+        //     setPageSize(newPagination.pageSize);
+        // },
     });
 
     return (
@@ -207,7 +207,7 @@ export default function ProjectUsers() {
                         </div>
                     }
                 </div>
-                <div className="rounded-md border">
+                <div className="rounded-md border mb-2">
                     <Table>
                         <TableHeader>
                             {table.getHeaderGroups().map((headerGroup) => (
