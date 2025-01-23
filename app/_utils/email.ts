@@ -19,6 +19,9 @@ import { PARENT_EMAIL_TEMPLATE } from "@/email-templates/parent.template";
 import { TESTER_INFORMATION_TEMPLATE } from "@/email-templates/tester-information.template";
 import { IMailPayload } from "../_interface/mail";
 import { MAIL_TEMPLATE } from "@/email-templates/mail.template";
+import { IIssueAssignMailPayload } from "../_interface/issue";
+import { ISSUE_ASSIGN_TEMPLATE } from "@/email-templates/issue-assign.template";
+import { TASK_ASSIGN_TEMPLATE } from "@/email-templates/task-assign.template";
 
 interface IReplaceTemplateTags {
   tagValuesObject: any;
@@ -181,10 +184,37 @@ export const testerInformationMail = async (
 export const customMail = async (templateTags: IMailPayload) => {
   const emailService = new EmailService();
   await emailService.sendEmail({
-    to: templateTags?.emails,
+    to: [process.env.SMTP_USERNAME as string],
     subject: templateTags?.subject,
     body: replaceEmailTemplateTagsInternalService({
       emailBody: prepareEmailTemplate(MAIL_TEMPLATE),
+      tagValuesObject: templateTags,
+    }),
+    bcc: templateTags?.emails,
+  });
+};
+
+export const issueAssignMail = async (
+  templateTags: IIssueAssignMailPayload
+) => {
+  const emailService = new EmailService();
+  await emailService.sendEmail({
+    to: templateTags?.email,
+    subject: templateTags?.subject,
+    body: replaceEmailTemplateTagsInternalService({
+      emailBody: prepareEmailTemplate(ISSUE_ASSIGN_TEMPLATE),
+      tagValuesObject: templateTags,
+    }),
+  });
+};
+
+export const taskAssignMail = async (templateTags: IIssueAssignMailPayload) => {
+  const emailService = new EmailService();
+  await emailService.sendEmail({
+    to: templateTags?.email,
+    subject: templateTags?.subject,
+    body: replaceEmailTemplateTagsInternalService({
+      emailBody: prepareEmailTemplate(TASK_ASSIGN_TEMPLATE),
       tagValuesObject: templateTags,
     }),
   });

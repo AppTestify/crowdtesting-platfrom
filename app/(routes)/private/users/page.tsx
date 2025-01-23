@@ -211,7 +211,9 @@ export default function Users() {
     }, [globalFilter, pageIndex, pageSize, selectedStatus, selectedRole]);
 
     useEffect(() => {
-        setPageIndex(1);
+        if ((Array.isArray(globalFilter) && globalFilter.length > 0) || (typeof globalFilter === 'string' && globalFilter.trim() !== "")) {
+            setPageIndex(1);
+        }
     }, [globalFilter]);
 
     const refreshUsers = () => {

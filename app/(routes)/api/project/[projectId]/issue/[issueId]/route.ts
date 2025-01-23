@@ -13,8 +13,10 @@ import { verifySession } from "@/app/_lib/dal";
 import { IdFormat } from "@/app/_models/id-format.model";
 import { IssueAttachment } from "@/app/_models/issue-attachment.model";
 import { Issue } from "@/app/_models/issue.model";
+import { User } from "@/app/_models/user.model";
 import { issueSchema } from "@/app/_schemas/issue.schema";
 import { replaceCustomId } from "@/app/_utils/data-formatters";
+import { issueAssignMail } from "@/app/_utils/email";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function PUT(
@@ -57,8 +59,35 @@ export async function PUT(
 
     const updatedIssue = {
       ...response.data,
-      assignedTo: response.data.assignedTo || null
+      assignedTo: response.data.assignedTo || null,
+    };
+
+    // Check and send email if assignedTo is updated
+    const previousAssignedUser = await Issue.findById(issueId).select(
+      "assignedTo"
+    );
+
+    if (
+      response.data.assignedTo &&
+      previousAssignedUser?.assignedTo?.toString() !==
+        response?.data?.assignedTo?.toString()
+    ) {
+      const assignUser = await User.findById(response.data.assignedTo).select(
+        "email firstName lastName"
+      );
+      const payload = {
+        subject: `Issue Assigned to You - ${response.data.title} - [${response?.data?.status}]`,
+        name: response.data.title,
+        status: response.data.status || "",
+        email: assignUser?.email,
+        fullName: `${assignUser?.firstName} ${assignUser?.lastName}` || "",
+        description: response.data.description,
+        assignedBy: `${session.user.firstName} ${session.user.lastName}` || "",
+        priority: response.data.priority,
+      };
+      await issueAssignMail(payload);
     }
+
     const updateResponse = await Issue.findByIdAndUpdate(
       issueId,
       {
@@ -165,7 +194,7 @@ export async function GET(
       .populate({
         path: "assignedTo",
         select: "firstName lastName _id",
-        strictPopulate: false
+        strictPopulate: false,
       })
       .populate({ path: "testCycle", strictPopulate: false })
       .lean()) as IIssue | null;

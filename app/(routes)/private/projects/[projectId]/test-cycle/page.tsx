@@ -127,7 +127,9 @@ export default function TestPlan() {
     }, [globalFilter, pageIndex, pageSize]);
 
     useEffect(() => {
-        setPageIndex(1);
+        if ((Array.isArray(globalFilter) && globalFilter.length > 0) || (typeof globalFilter === 'string' && globalFilter.trim() !== "")) {
+            setPageIndex(1);
+        }
     }, [globalFilter]);
 
     useEffect(() => {

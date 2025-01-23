@@ -8,6 +8,7 @@ import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
 import { isAdmin, verifySession } from "@/app/_lib/dal";
 import { Mail } from "@/app/_models/mail.model";
+import { filterMails } from "@/app/_queries/search-mail";
 import { MailSchema } from "@/app/_schemas/mail.schema";
 import { normaliseIds } from "@/app/_utils/data-formatters";
 import { customMail } from "@/app/_utils/email";
@@ -102,6 +103,14 @@ export async function GET(req: Request) {
         },
         { status: HttpStatusCode.INTERNAL_SERVER_ERROR }
       );
+    }
+
+    const url = new URL(req.url);
+    const searchString = url.searchParams.get("searchString");
+
+    if (searchString) {
+      const { mails } = await filterMails(searchString);
+      return Response.json(normaliseIds(mails));
     }
 
     const response = normaliseIds(

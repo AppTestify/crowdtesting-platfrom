@@ -8,7 +8,9 @@ import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
 import { verifySession } from "@/app/_lib/dal";
 import { Task } from "@/app/_models/task.model";
+import { User } from "@/app/_models/user.model";
 import { TaskSchema } from "@/app/_schemas/task.schema";
+import { taskAssignMail } from "@/app/_utils/email";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function DELETE(
@@ -84,6 +86,34 @@ export async function PUT(
     }
 
     const { taskId } = params;
+
+    const previousAssignedUser = await Task.findById(taskId).select(
+      "assignedTo"
+    );
+
+    if (
+      response.data.assignedTo &&
+      previousAssignedUser?.assignedTo?.toString() !==
+        response?.data?.assignedTo?.toString()
+    ) {
+      if (response.data.assignedTo) {
+        const assignUser = await User.findById(response.data.assignedTo).select(
+          "email firstName lastName"
+        );
+        const payload = {
+          subject: `Task assigned to You - ${response.data.title} - [${response?.data?.status}]`,
+          name: response.data.title,
+          status: response.data.status || "",
+          email: assignUser?.email,
+          fullName: `${assignUser?.firstName} ${assignUser?.lastName}` || "",
+          description: response.data.description,
+          assignedBy:
+            `${session.user.firstName} ${session.user.lastName}` || "",
+          priority: response.data.priority,
+        };
+        await taskAssignMail(payload);
+      }
+    }
 
     const updatedIssue = {
       ...response.data,

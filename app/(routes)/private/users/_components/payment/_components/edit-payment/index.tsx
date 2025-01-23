@@ -42,8 +42,8 @@ export default function EditPayment({ isDialogOpen, dialogClose, payment, refres
     const form = useForm<z.infer<typeof paymentSchema>>({
         resolver: zodResolver(paymentSchema),
         defaultValues: {
-            receiverId: payment?.receiverId._id || "",
-            senderId: payment?.senderId._id || "",
+            receiverId: payment?.receiverId?._id || "",
+            senderId: payment?.senderId?._id || "",
             amount: payment?.amount?.$numberDecimal || 0,
             projectId: payment?.projectId || "",
             description: payment?.description || "",

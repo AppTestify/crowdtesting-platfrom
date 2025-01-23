@@ -226,8 +226,10 @@ export default function Report() {
     }, [globalFilter, pageIndex, pageSize]);
 
     useEffect(() => {
-        setPageIndex(1);
-    }, [globalFilter]);
+        if ((Array.isArray(globalFilter) && globalFilter.length > 0) || (typeof globalFilter === 'string' && globalFilter.trim() !== "")) {
+          setPageIndex(1);
+        }
+      }, [globalFilter]);
 
     useEffect(() => {
         localStorage.setItem("currentPage", pageIndex.toString());

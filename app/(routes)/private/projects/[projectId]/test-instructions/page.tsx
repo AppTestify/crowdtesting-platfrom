@@ -12,7 +12,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import TextEditor from '../../_components/text-editor';
 import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
+import { Edit, Loader2 } from 'lucide-react';
 
 const projectSchema = z.object({
     description: z.string().min(1, "Description is required"),
@@ -130,13 +130,19 @@ export default function TestInstruction() {
                             </Form>
                         </div>
                     ) : (
-                        <div
-                            className="text-sm leading-relaxed text-gray-700 space-y-2 rich-description"
-                            onDoubleClick={handleDoubleClick}
-                            dangerouslySetInnerHTML={{
-                                __html: project?.description || "",
-                            }}
-                        />
+                        <div className='flex justify-between space-x-2'>
+                            <div
+                                className="text-sm leading-relaxed text-gray-700 hover:bg-gray-100 w-full hover:rounded-sm p-2 space-y-2 rich-description"
+                                onClick={handleDoubleClick}
+                                dangerouslySetInnerHTML={{
+                                    __html: project?.description || "",
+                                }}
+                            />
+                            <Button className='flex items-center justify-center' type='button' onClick={() => setIsEditing(true)}>
+                                <Edit />
+                                Edit
+                            </Button>
+                        </div>
                     )}
                 </div>
             ) : (

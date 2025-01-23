@@ -410,7 +410,9 @@ export default function Issues() {
   }, [globalFilter, pageIndex, pageSize, selectedSeverity, selectedPriority, selectedStatus]);
 
   useEffect(() => {
-    setPageIndex(1);
+    if ((Array.isArray(globalFilter) && globalFilter.length > 0) || (typeof globalFilter === 'string' && globalFilter.trim() !== "")) {
+      setPageIndex(1);
+    }
   }, [globalFilter]);
 
   return (

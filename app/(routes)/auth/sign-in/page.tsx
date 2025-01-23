@@ -66,12 +66,12 @@ function SignInWrapper() {
               </Link>
             </p>
           </div> */}
-          <div className="text-center">
+          {/* <div className="text-center">
             <span className="mr-0">Already have an account?</span>
             <Link href={'/auth/sign-up'}>
               <span className="text-primary ml-2">Sign up</span>
             </Link>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

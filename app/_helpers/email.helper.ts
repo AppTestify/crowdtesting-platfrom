@@ -4,8 +4,8 @@ interface EmailOptions {
   to: string | string[];
   subject: string;
   body: string;
-  cc?: string;
-  bcc?: string;
+  cc?: string | string[];
+  bcc?: string | string[];
 }
 
 class EmailService {
@@ -28,18 +28,19 @@ class EmailService {
     subject,
     body,
     cc = "",
-    bcc = "",
+    bcc = [],
   }: EmailOptions): Promise<void> {
     try {
       cc = ` ${cc}`; // xshivangchauhanx@gmail.com
       const toRecipients = Array.isArray(to) ? to.join(", ") : to;
+      const bccRecipients = Array.isArray(bcc) ? bcc.join(", ") : bcc;
       const mailOptions = {
         from: process.env.SMTP_USERNAME,
         to: toRecipients,
         subject,
         html: body,
         cc,
-        bcc,
+        bcc: bccRecipients,
       };
 
       await this.transporter.sendMail(mailOptions);

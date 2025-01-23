@@ -15,6 +15,7 @@ import { isAdmin, isClient, verifySession } from "@/app/_lib/dal";
 import { IdFormat } from "@/app/_models/id-format.model";
 import { IssueAttachment } from "@/app/_models/issue-attachment.model";
 import { Issue } from "@/app/_models/issue.model";
+import { User } from "@/app/_models/user.model";
 import {
   filterIssuesForAdmin,
   filterIssuesForClient,
@@ -26,6 +27,7 @@ import {
   serverSidePagination,
 } from "@/app/_utils/common-server-side";
 import { addCustomIds, normaliseIds } from "@/app/_utils/data-formatters";
+import { issueAssignMail } from "@/app/_utils/email";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function POST(
@@ -89,6 +91,23 @@ export async function POST(
     });
 
     const savedIssue = await newIssue.save();
+
+    if (response.data.assignedTo) {
+      const assignUser = await User.findById(response.data.assignedTo).select(
+        "email firstName lastName"
+      );
+      const payload = {
+        subject: `Issue assigned to You - ${response.data.title} - [${response?.data?.status}]`,
+        name: response.data.title,
+        status: response.data.status || "",
+        email: assignUser?.email,
+        fullName: `${assignUser?.firstName} ${assignUser?.lastName}` || "",
+        description: response.data.description,
+        assignedBy: `${session.user.firstName} ${session.user.lastName}` || "",
+        priority: response.data.priority,
+      };
+      await issueAssignMail(payload);
+    }
 
     const attachmentService = new AttachmentService();
     const attachmentIds = await Promise.all(

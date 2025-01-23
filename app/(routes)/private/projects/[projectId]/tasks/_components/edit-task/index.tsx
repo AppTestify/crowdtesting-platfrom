@@ -86,8 +86,15 @@ export function EditTask({
     const [userProjectRole, setUserProjectRole] =
         useState<ProjectUserRoles | null>(null);
     const [requirements, setRequirements] = useState<IRequirement[]>([]);
-    const [selectedRequirements, setSelectedRequirements] = useState<string[]>(requirementsData);
+    const [selectedRequirements, setSelectedRequirements] = useState<string[]>([]);
     const [isRequirementLoading, setIsRequirementLoading] = useState<boolean>(false);
+
+    useEffect(() => {
+        const initialSelectedRequirements = requirementsData?.map((req: any) =>
+            req._id ? req._id : ""
+        );
+        setSelectedRequirements(initialSelectedRequirements);
+    }, [requirementsData]);
 
     useEffect(() => {
         if (data && users?.length) {

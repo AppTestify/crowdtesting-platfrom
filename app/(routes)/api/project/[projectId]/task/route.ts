@@ -8,10 +8,12 @@ import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
 import { verifySession } from "@/app/_lib/dal";
 import { Task } from "@/app/_models/task.model";
+import { User } from "@/app/_models/user.model";
 import { filterTasks } from "@/app/_queries/search-task";
 import { TaskSchema } from "@/app/_schemas/task.schema";
 import { serverSidePagination } from "@/app/_utils/common-server-side";
 import { addCustomIds, normaliseIds } from "@/app/_utils/data-formatters";
+import { taskAssignMail } from "@/app/_utils/email";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function POST(
@@ -59,6 +61,23 @@ export async function POST(
       projectId: projectId,
     });
     const savedTask = await newTask.save();
+
+    if (response.data.assignedTo) {
+      const assignUser = await User.findById(response.data.assignedTo).select(
+        "email firstName lastName"
+      );
+      const payload = {
+        subject: `Task assigned to You - ${response.data.title} - [${response?.data?.status}]`,
+        name: response.data.title,
+        status: response.data.status || "",
+        email: assignUser?.email,
+        fullName: `${assignUser?.firstName} ${assignUser?.lastName}` || "",
+        description: response.data.description,
+        assignedBy: `${session.user.firstName} ${session.user.lastName}` || "",
+        priority: response.data.priority,
+      };
+      await taskAssignMail(payload);
+    }
 
     return Response.json({
       message: "Task added successfully",

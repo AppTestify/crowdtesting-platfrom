@@ -62,9 +62,12 @@ export const PARENT_EMAIL_TEMPLATE = `<!doctype html>
     }
 
     .logo {
-      width: 150px;
-      height: auto;
-    }
+  max-width: 150px; /* Constrain the maximum width */
+  width: 100%; /* Make the logo responsive */
+  height: auto; /* Maintain aspect ratio */
+  display: block; /* Ensure the image behaves as a block element */
+}
+
     /* -------------------------------------
     HEADER, FOOTER, MAIN
     ------------------------------------- */
@@ -177,6 +180,13 @@ export const PARENT_EMAIL_TEMPLATE = `<!doctype html>
         border-color: #419641 !important;
       }
     }
+
+    @media only screen and (max-width: 640px) {
+  .logo {
+    max-width: 120px; /* Smaller size for mobile */
+  }
+}
+
     
     /* -------------------------------------
     OTHER STYLES THAT MIGHT BE USEFUL
@@ -339,7 +349,7 @@ export const PARENT_EMAIL_TEMPLATE = `<!doctype html>
             </div>
             <!-- START FOOTER -->
             <div class="footer">
-              &copy; 2024 Crowd Testing. All Rights Reserved.
+              &copy; APPTESTIFY GLOBAL SERVICES PRIVATE LIMITED | Corporate Identity Number: U74999DL2021PTC382674
             </div>
             <!-- END FOOTER -->
         </td>

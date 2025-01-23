@@ -15,13 +15,11 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { Loader2 } from "lucide-react";
+import { EyeIcon, EyeOffIcon, Loader2 } from "lucide-react";
 import {
-  forgotPasswordService,
   resetPasswordService,
 } from "@/app/_services/auth-service";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
-import { useRouter } from "next/router";
 import { useSearchParams } from "next/navigation";
 
 const forgotPasswordSchema = z
@@ -39,6 +37,8 @@ const forgotPasswordSchema = z
 function ResetPasswordWrapper() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const searchParams = useSearchParams();
+  const [isVisible, setIsVisible] = useState<boolean>(false);
+  const [isConfirmVisible, setIsConfirmVisible] = useState<boolean>(false);
   const [token, setToken] = useState<string>("");
   const form = useForm<z.infer<typeof forgotPasswordSchema>>({
     resolver: zodResolver(forgotPasswordSchema),
@@ -100,17 +100,34 @@ function ResetPasswordWrapper() {
                     control={form.control}
                     name="password"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            id="password"
-                            type="password"
-                            required
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+                      <>
+                        <FormItem>
+                          <FormControl>
+                            <div className="relative">
+                              <Input
+                                {...field}
+                                id="password"
+                                type={isVisible ? 'text' : 'password'}
+                                required
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setIsVisible(!isVisible)}
+                                className="absolute right-3 top-1/2 transform -translate-y-1/2 z-10"
+                              >
+                                <span>
+                                  {isVisible ? (
+                                    <EyeOffIcon className="h-5 w-5 text-gray-500" />
+                                  ) : (
+                                    <EyeIcon className="h-5 w-5 text-gray-500" />
+                                  )}
+                                </span>
+                              </button>
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      </>
                     )}
                   />
                 </div>
@@ -120,17 +137,34 @@ function ResetPasswordWrapper() {
                     control={form.control}
                     name="confirmedPassword"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            id="confirmedPassword"
-                            type="password"
-                            required
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+                      <>
+                        <FormItem>
+                          <FormControl>
+                            <div className="relative">
+                              <Input
+                                {...field}
+                                id="confirmedPassword"
+                                type={isConfirmVisible ? 'text' : 'password'}
+                                required
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setIsConfirmVisible(!isConfirmVisible)}
+                                className="absolute right-3 top-1/2 transform -translate-y-1/2 z-10"
+                              >
+                                <span>
+                                  {isConfirmVisible ? (
+                                    <EyeOffIcon className="h-5 w-5 text-gray-500" />
+                                  ) : (
+                                    <EyeIcon className="h-5 w-5 text-gray-500" />
+                                  )}
+                                </span>
+                              </button>
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      </>
                     )}
                   />
                 </div>

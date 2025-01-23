@@ -45,7 +45,7 @@ export default function Payment({ userId }: { userId: string }) {
             accessorKey: "createdBy",
             header: "Created By",
             cell: ({ row }: { row: any }) => (
-                <div className="">{`${row.original?.senderId?.firstName} ${row.original?.senderId?.lastName}`}</div>
+                <div className="">{`${row.original?.senderId?.firstName || ""} ${row.original?.senderId?.lastName || ""}`}</div>
             ),
         },
         {

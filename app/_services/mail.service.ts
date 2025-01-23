@@ -12,9 +12,9 @@ export const addMailService = async (body: IMailPayload): Promise<any> => {
   }
 };
 
-export const getMailService = async (): Promise<any> => {
+export const getMailService = async (subject?: string): Promise<any> => {
   try {
-    const response = await genericGet(MAIL_ENDPOINT);
+    const response = await genericGet(`${MAIL_ENDPOINT}?searchString=${subject}`);
     return response || {};
   } catch (error) {
     console.error(`Error > getMailService:`, error);

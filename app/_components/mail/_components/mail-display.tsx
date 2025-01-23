@@ -35,8 +35,8 @@ import { addMailService } from "@/app/_services/mail.service";
 import { IMail } from "@/app/_interface/mail";
 import { format } from "date-fns";
 import TextEditor from "@/app/(routes)/private/projects/_components/text-editor";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getAvatarFallbackText, getFormattedBase64ForSrc } from "@/app/_utils/string-formatters";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { getAvatarFallbackText } from "@/app/_utils/string-formatters";
 
 const mailSchema = z.object({
     emails: z.array(z.string()).min(1, "At least one user is required").max(20, "Maximum 20 users allowed"),
@@ -80,7 +80,7 @@ export function MailDisplay({ refreshMails, mails }: { refreshMails: () => void,
         };
     }, []);
 
-    const inputHeight = Math.max(40, 30 + Math.ceil(userData.length / itemsPerRow) * 30);
+    const inputHeight = Math.max(40, 30 + Math.ceil(userData?.length / itemsPerRow) * 30);
     const defaultUsers = useMemo(() => users.map((user) => user.email), [users]);
 
     const shouldShowAddButton = useMemo(() => {
@@ -116,11 +116,6 @@ export function MailDisplay({ refreshMails, mails }: { refreshMails: () => void,
 
     const reset = () => {
         form.reset();
-        form.watch((value, { name }) => {
-            if (name === "body" && value.body === "") {
-                form.setValue("body", "");
-            }
-        });
     }
 
     const onSubmit = async (data: z.infer<typeof mailSchema>) => {
@@ -128,7 +123,7 @@ export function MailDisplay({ refreshMails, mails }: { refreshMails: () => void,
         try {
             const response = await addMailService(data);
             if (response) {
-                toasterService.success("Mail sent successfully");
+                toasterService.success(response.message);
                 refreshMails();
                 reset();
             }
@@ -140,7 +135,7 @@ export function MailDisplay({ refreshMails, mails }: { refreshMails: () => void,
     };
 
     useEffect(() => {
-        if (userData.length <= 20) {
+        if (userData?.length <= 20) {
             form.clearErrors('emails');
         }
     }, [userData]);
@@ -271,7 +266,7 @@ export function MailDisplay({ refreshMails, mails }: { refreshMails: () => void,
                                         >
                                             {/* User Tags */}
                                             <div className="flex flex-wrap gap-2 overflow-hidden max-w-full">
-                                                {userData.map((user, index) => (
+                                                {userData?.map((user, index) => (
                                                     <div
                                                         key={index}
                                                         className="flex items-center gap-2 bg-gray-200 px-2 py-1 rounded-full"
@@ -284,7 +279,7 @@ export function MailDisplay({ refreshMails, mails }: { refreshMails: () => void,
                                                 ))}
                                             </div>
 
-                                            {userData.length === 0 && <span className="text-start">Select Users</span>}
+                                            {userData?.length === 0 && <span className="text-start">Select Users</span>}
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent className="p-0 w-full" side="bottom" align="start" sideOffset={4}>
@@ -319,7 +314,7 @@ export function MailDisplay({ refreshMails, mails }: { refreshMails: () => void,
                                                                 <CheckIcon
                                                                     className={cn(
                                                                         "ml-auto h-4 w-4",
-                                                                        userData.includes(user) ? "opacity-100" : "opacity-0"
+                                                                        userData?.includes(user) ? "opacity-100" : "opacity-0"
                                                                     )}
                                                                 />
                                                             </CommandItem>

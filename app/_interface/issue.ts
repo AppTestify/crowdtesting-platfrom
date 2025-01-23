@@ -90,3 +90,14 @@ export interface IIssueAttachmentDisplay {
   };
   base64: any;
 }
+
+export interface IIssueAssignMailPayload {
+  subject: string;
+  name: string;
+  status: string;
+  email: string;
+  fullName?: string;
+  description: string;
+  assignedBy?: string;
+  priority: string;
+}

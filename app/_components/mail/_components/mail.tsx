@@ -29,11 +29,12 @@ export function Mail({
 }: MailProps) {
     const [mails, setMails] = React.useState<IMail[]>([]);
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
+    const [text, setText] = React.useState<string>("");
 
     const displayMails = async () => {
         setIsLoading(true);
         try {
-            const response = await getMailService();
+            const response = await getMailService(text);
             setMails(response);
         } catch (error) {
             toasterService.error();
@@ -47,8 +48,11 @@ export function Mail({
     }
 
     React.useEffect(() => {
-        displayMails();
-    }, []);
+        const debounceFetch = setTimeout(() => {
+            displayMails();
+        }, 500);
+        return () => clearTimeout(debounceFetch);
+    }, [text]);
 
 
 
@@ -68,7 +72,7 @@ export function Mail({
                             <form>
                                 <div className="relative">
                                     <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                                    <Input placeholder="Search" className="pl-8" />
+                                    <Input onChange={(e) => setText(e.target.value)} placeholder="Search" className="pl-8" />
                                 </div>
                             </form>
                         </div>
