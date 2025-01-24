@@ -179,10 +179,6 @@ const ViewIssue = () => {
                 </div>
               }
 
-              <Comments />
-
-
-
             </div>
             <div className="border rounded-md p-4 h-fit">
               {/* Severity */}
@@ -212,6 +208,10 @@ const ViewIssue = () => {
                 <span className=" font-semibold">Device:</span>
                 <span className="ml-2">{issueData?.device?.[0]?.name}</span>
               </div>
+            </div>
+
+            <div className="">
+              <Comments />
             </div>
           </div>
         </main>
