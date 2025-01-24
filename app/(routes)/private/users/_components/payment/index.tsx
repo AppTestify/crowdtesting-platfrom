@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { PaymentRowActions } from './_components/row-actions';
 import { paymentStatusBadge } from '@/app/_utils/common-functionality';
+import { PaymentCurrency } from '@/app/_constants/payment';
 
 export default function Payment({ userId }: { userId: string }) {
 
@@ -33,10 +34,11 @@ export default function Payment({ userId }: { userId: string }) {
             header: "Amount",
             cell: ({ row }) => {
                 const amount = row.original?.amount as any;
+                const currency = row.original?.currency as string;
                 return (
                     <div className="capitalize" >
-                        {amount?.$numberDecimal ? parseFloat(amount.$numberDecimal) : "0"
-                        }
+                        <span className='ml-1 mr-1'>{currency || PaymentCurrency.USD}</span>
+                        {amount?.$numberDecimal ? parseFloat(amount.$numberDecimal) : "0"}
                     </div >
                 );
             },

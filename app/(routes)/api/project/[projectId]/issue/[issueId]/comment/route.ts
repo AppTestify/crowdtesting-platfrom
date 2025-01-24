@@ -10,6 +10,7 @@ import AttachmentService from "@/app/_helpers/attachment.helper";
 import { verifySession } from "@/app/_lib/dal";
 import { Comment } from "@/app/_models/comment.model";
 import { CommentSchema } from "@/app/_schemas/comment.schema";
+import { serverSidePagination } from "@/app/_utils/common-server-side";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function POST(
@@ -88,10 +89,13 @@ export async function GET(
     }
 
     const { issueId } = params;
-    const response = await Comment.find({
-      isDelete: false,
-      entityId: issueId,
-    })
+    const url = new URL(req.url);
+    const limit = parseInt(url.searchParams.get("limit") || "10", 10);
+    const find = { entityId: issueId, isDelete: false };
+
+    const totalComments = await Comment.find(find).countDocuments();
+    const response = await Comment.find(find)
+      .limit(Number(limit))
       .populate({
         path: "commentedBy",
         populate: {
@@ -122,7 +126,7 @@ export async function GET(
       })
     );
 
-    return Response.json(data);
+    return Response.json({ comments: data, total: totalComments });
   } catch (error: any) {
     return errorHandler(error);
   }

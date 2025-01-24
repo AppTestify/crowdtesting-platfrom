@@ -17,3 +17,10 @@ export const PaymentStatusList = [
   PaymentStatus.DECLINED,
   PaymentStatus.PENDING,
 ];
+
+export const enum PaymentCurrency {
+  USD = "$",
+  INR = "₹",
+}
+
+export const PaymentCurrencyList = [PaymentCurrency.USD, PaymentCurrency.INR];

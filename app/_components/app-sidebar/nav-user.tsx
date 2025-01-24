@@ -37,12 +37,14 @@ import {
 
 export function NavUser({
   user,
+  profile
 }: {
   user: {
     name: string;
     email: string;
     profilePicture?: any;
   } | null;
+  profile: any;
 }) {
   const { isMobile } = useSidebar();
   const router = useRouter();
@@ -65,7 +67,7 @@ export function NavUser({
             >
               <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarImage
-                  src={getFormattedBase64ForSrc(user?.profilePicture)}
+                  src={getFormattedBase64ForSrc(profile)}
                   alt="@profilePicture"
                 />
 

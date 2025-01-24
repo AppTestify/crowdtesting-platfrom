@@ -8,7 +8,7 @@ import React, { useEffect, useState } from "react";
 import UploadProfilePicture from "./_components/upload-profile-picture";
 import { ConfirmationDialog } from "@/app/_components/confirmation-dialog";
 import toasterService from "@/app/_services/toaster-service";
-import { deleteProfilePictureService } from "@/app/_services/user.service";
+import { deleteProfilePictureService, getProfilePictureService } from "@/app/_services/user.service";
 import { useSession } from "next-auth/react";
 
 export default function EditProfilePicture({ user }: { user: any }) {
@@ -20,10 +20,23 @@ export default function EditProfilePicture({ user }: { user: any }) {
   const [isUploadProfilePictureOpen, setIsUploadProfilePictureOpen] =
     useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [profile, setProfile] = useState<any>();
 
   const refreshProfilePicture = () => {
     update();
+    getProfile();
   };
+
+  const getProfile = async () => {
+    try {
+      const response = await getProfilePictureService();
+      if (response) {
+        setProfile(response);
+      }
+    } catch (error) {
+      toasterService.error();
+    }
+  }
 
   const deleteProfilePicture = async () => {
     try {
@@ -42,6 +55,10 @@ export default function EditProfilePicture({ user }: { user: any }) {
       setIsDeleteProfilePictureOpen(false);
     }
   };
+
+  useEffect(() => {
+    getProfile();
+  }, []);
 
   useEffect(() => {
     setUserState(user);
@@ -71,15 +88,14 @@ export default function EditProfilePicture({ user }: { user: any }) {
         <div className="flex gap-4 items-center">
           <Avatar className="h-20 w-20">
             <AvatarImage
-              src={getFormattedBase64ForSrc(userState?.profilePicture)}
+              src={getFormattedBase64ForSrc(profile)}
               alt="@profilePicture"
             />
             <AvatarFallback>
               {getAvatarFallbackText({
                 ...userState,
-                name: `${userState?.firstName || ""} ${
-                  userState?.lastName || ""
-                }`,
+                name: `${userState?.firstName || ""} ${userState?.lastName || ""
+                  }`,
               })}
             </AvatarFallback>
           </Avatar>

@@ -92,46 +92,46 @@ export default function UploadProfilePicture({
   if (isDesktop) {
     return (
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Upload profile picture</DialogTitle>
-          <DialogDescription>
-            Profile picture are used to personalize your profile.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="flex items-center space-x-2">
-          <div className="grid flex-1 gap-2">
-            <Label
-              htmlFor="link"
-              className={`${validationMessage ? "text-destructive" : ""}`}
-            >
-              Profile picture
-            </Label>
-            <Input id="picture" type="file" onChange={handleFileChange} />
-            {validationMessage ? (
-              <span className="text-[0.8rem] font-medium text-destructive">
-                {validationMessage}
-              </span>
-            ) : null}
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Upload profile picture</DialogTitle>
+            <DialogDescription>
+              Profile picture are used to personalize your profile.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex items-center space-x-2">
+            <div className="grid flex-1 gap-2">
+              <Label
+                htmlFor="link"
+                className={`${validationMessage ? "text-destructive" : ""}`}
+              >
+                Profile picture
+              </Label>
+              <Input id="picture" type="file" onChange={handleFileChange} />
+              {validationMessage ? (
+                <span className="text-[0.8rem] font-medium text-destructive">
+                  {validationMessage}
+                </span>
+              ) : null}
+            </div>
           </div>
-        </div>
-        <DialogFooter>
-          <Button variant={"outline"} onClick={() => setIsOpen(false)}>
-            Cancel
-          </Button>
-          <Button
-            disabled={!avatar || isLoading}
-            onClick={() => handleFileUpdate()}
-            className="w-full md:w-fit"
-          >
-            {isLoading ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : null}
-            {isLoading ? "Uploading" : "Upload"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          <DialogFooter>
+            <Button variant={"outline"} onClick={() => setIsOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              disabled={!avatar || isLoading}
+              onClick={() => handleFileUpdate()}
+              className="w-full md:w-fit"
+            >
+              {isLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : null}
+              {isLoading ? "Uploading" : "Upload"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     );
   }
 
@@ -140,7 +140,7 @@ export default function UploadProfilePicture({
       <DrawerContent>
         <DrawerHeader className="text-left">
           <DrawerTitle>Upload profile picture</DrawerTitle>
-           <DrawerDescription>Profile picture are used to personalize your profile.</DrawerDescription>
+          <DrawerDescription>Profile picture are used to personalize your profile.</DrawerDescription>
         </DrawerHeader>
 
         <div className="flex items-center space-x-2 px-4">

@@ -215,11 +215,8 @@ const EditIssue = ({
   const validateIssue = async () => {
     if (!selectedDevices.length) {
       setIsInvalidDevices(true);
-    }
-
-    if (!isInvalidDevices && form.formState.isValid) {
-      const values = form.getValues();
-      await onSubmit(values);
+    } else {
+      form.handleSubmit(onSubmit)();
     }
   };
 
@@ -503,7 +500,7 @@ const EditIssue = ({
                   options={devices?.map((device) => ({
                     label:
                       typeof device?.name === "string"
-                        ? `${device?.name} / ${device?.os} / ${device?.network}`
+                        ? `${device?.name} / ${device?.os} / ${device?.version}`
                         : "",
                     value: typeof device?.id === "string" ? device.id : "",
                   }))}
@@ -688,7 +685,7 @@ const EditIssue = ({
                 </SheetClose>
                 <Button
                   disabled={isLoading}
-                  type="submit"
+                  type="button"
                   size="lg"
                   className="w-full md:w-fit"
                   onClick={handleSubmit}

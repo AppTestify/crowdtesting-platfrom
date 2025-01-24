@@ -1,4 +1,4 @@
-import { PaymentStatus, PaymentStatusList } from '@/app/_constants/payment';
+import { PaymentCurrency, PaymentCurrencyList, PaymentStatus, PaymentStatusList } from '@/app/_constants/payment';
 import { IProject } from '@/app/_interface/project';
 import { addPaymentsService } from '@/app/_services/payment.service';
 import { getProjectsWithoutPaginationService } from '@/app/_services/project.service';
@@ -20,6 +20,7 @@ const paymentSchema = z.object({
     projectId: z.string().optional(),
     status: z.string().optional(),
     description: z.string().optional(),
+    currency: z.string().min(1, 'Required'),
     amount: z
         .preprocess(
             (value) => (value === null || value === undefined ? undefined : parseFloat(value as string)),
@@ -41,7 +42,8 @@ export default function AddPayment({ isOpen, closeDialog, userId, refreshPayment
         resolver: zodResolver(paymentSchema),
         defaultValues: {
             receiverId: userId || "",
-            status: PaymentStatus.COMPLETED
+            status: PaymentStatus.COMPLETED,
+            currency: PaymentCurrency.USD,
         },
     });
 
@@ -122,25 +124,54 @@ export default function AddPayment({ isOpen, closeDialog, userId, refreshPayment
                                     )}
                                 />
 
-                                {/* <div className='grid grid-cols-2'> */}
-                                <FormField
-                                    control={form.control}
-                                    name="amount"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Amount</FormLabel>
-                                            <FormControl>
-                                                <Input
-                                                    type={"number"}
-                                                    {...field}
-                                                />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+                                <div className='grid grid-cols-[30%,70%] gap-2'>
+                                    <FormField
+                                        control={form.control}
+                                        name="currency"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Currency</FormLabel>
+                                                <Select
+                                                    onValueChange={field.onChange}
+                                                    value={field.value}
+                                                >
+                                                    <SelectTrigger className="w-full">
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectGroup>
+                                                            {PaymentCurrencyList.map((currency) => (
+                                                                <SelectItem value={currency as string}>
+                                                                    <div className="flex items-center">
+                                                                        {currency}
+                                                                    </div>
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectGroup>
+                                                    </SelectContent>
+                                                </Select>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
 
-                                {/* </div> */}
+                                    <FormField
+                                        control={form.control}
+                                        name="amount"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Amount</FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        type={"number"}
+                                                        {...field}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
 
                                 <FormField
                                     control={form.control}

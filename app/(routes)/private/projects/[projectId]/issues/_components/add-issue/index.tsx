@@ -167,9 +167,7 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
   const validateIssue = () => {
     if (!selectedDevices.length) {
       setIsInvalidDevices(true);
-    }
-
-    if (!isInvalidDevices && form.formState.isValid) {
+    } else {
       form.handleSubmit(onSubmit)();
     }
   };
@@ -388,7 +386,7 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
                   options={devices?.map((device) => ({
                     label:
                       typeof device?.name === "string"
-                        ? `${device?.name} / ${device?.os} / ${device?.network}`
+                        ? `${device?.name} / ${device?.os} / ${device?.version}`
                         : "",
                     value: typeof device?.id === "string" ? device.id : "",
                   }))}
@@ -612,7 +610,7 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
                 </SheetClose>
                 <Button
                   disabled={isLoading}
-                  type="submit"
+                  type="button"
                   size="lg"
                   onClick={() => validateIssue()}
                   className="w-full md:w-fit"

@@ -20,7 +20,7 @@ import {
   resetPasswordService,
 } from "@/app/_services/auth-service";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const forgotPasswordSchema = z
   .object({
@@ -35,8 +35,9 @@ const forgotPasswordSchema = z
   });
 
 function ResetPasswordWrapper() {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const [isConfirmVisible, setIsConfirmVisible] = useState<boolean>(false);
   const [token, setToken] = useState<string>("");
@@ -63,6 +64,7 @@ function ResetPasswordWrapper() {
           return;
         }
         toasterService.success(response?.message);
+        router.push(`${process.env.NEXTAUTH_URL}/auth/sign-in`);
       }
     } catch (error) {
       toasterService.error();
@@ -172,6 +174,7 @@ function ResetPasswordWrapper() {
                   type="submit"
                   onClick={() => validateUser()}
                   className="w-full mt-3"
+                  disabled={isLoading}
                 >
                   {isLoading ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -195,7 +198,7 @@ function ResetPasswordWrapper() {
 
 export default function ResetPassword() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<div>Loading</div>}>
       <ResetPasswordWrapper />
     </Suspense>
   );

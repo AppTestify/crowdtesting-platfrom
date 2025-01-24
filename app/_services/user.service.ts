@@ -64,6 +64,16 @@ export const deleteProfilePictureService = async (): Promise<any> => {
   }
 };
 
+export const getProfilePictureService = async (): Promise<any> => {
+  try {
+    const response = await genericGet(PROFILE_PICTURE_ENDPOINT);
+    return response || {};
+  } catch (error) {
+    console.error(`Error > getProfilePictureService:`, error);
+    throw error;
+  }
+};
+
 export const updatePaymentService = async (
   payment: IPaymentPayload
 ): Promise<any> => {
@@ -209,9 +219,7 @@ export const getUsersWithoutPaginationService = async (
 
 export const getAllUsersService = async (): Promise<any> => {
   try {
-    const response = await genericGet(
-      `${USERS_ENDPOINT}/without-pagination`
-    );
+    const response = await genericGet(`${USERS_ENDPOINT}/without-pagination`);
     return response || [];
   } catch (error) {
     console.error(`Error > getAllUsersService:`, error);

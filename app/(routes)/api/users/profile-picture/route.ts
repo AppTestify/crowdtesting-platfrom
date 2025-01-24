@@ -125,12 +125,26 @@ export async function GET(req: Request) {
     }
 
     let response = null;
+    response = await ProfilePicture.findOne({ userId: session.user._id })
+      .sort({ createdAt: -1 })
+      .lean();
 
-    response = normaliseIds(
-      await ProfilePicture.find({ userId: session.user._id })
-        .sort({ createdAt: -1 })
-        .lean()
-    );
+    // Profile picture if exists
+    const attachmentService = new AttachmentService();
+    if (Array.isArray(response)) {
+      response = response[0];
+    }
+
+    if (response?.cloudId) {
+      try {
+        const fileResponse = await attachmentService.fetchFileAsBase64(
+          response?.cloudId
+        );
+        response.data = fileResponse;
+      } catch (error) {
+        response.data = null;
+      }
+    }
 
     return Response.json(response);
   } catch (error: any) {

@@ -114,7 +114,10 @@ export async function GET(req: Request) {
     }
 
     const response = normaliseIds(
-      await Mail.find({}).populate("userId", "firstName lastName email").lean()
+      await Mail.find({})
+        .populate("userId", "firstName lastName email")
+        .sort({ _id: -1 })
+        .lean()
     );
 
     return Response.json(response);

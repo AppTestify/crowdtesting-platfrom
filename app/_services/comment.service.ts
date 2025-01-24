@@ -1,4 +1,7 @@
-import { COMMENT_ENDPOINT } from "../_constants/api-endpoints";
+import {
+  COMMENT_ENDPOINT,
+  PAGINATION_QUERY_ENDPOINT,
+} from "../_constants/api-endpoints";
 import { ICommentPayload } from "../_interface/comment";
 import {
   genericDelete,
@@ -9,10 +12,13 @@ import {
 
 export const getCommentsService = async (
   projectId: string,
-  issueId: string
+  issueId: string,
+  pageSize: Number
 ): Promise<any> => {
   try {
-    const response = await genericGet(COMMENT_ENDPOINT(projectId, issueId));
+    const response = await genericGet(
+      `${COMMENT_ENDPOINT(projectId, issueId)}?limit=${pageSize}`
+    );
     return response || [];
   } catch (error) {
     console.error(`Error > getCommentsService:`, error);

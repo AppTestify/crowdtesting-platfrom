@@ -18,6 +18,9 @@ import { UserRoles } from '@/app/_constants/user-roles';
 import { Loader2 } from 'lucide-react';
 import { ConfirmationDialog } from '@/app/_components/confirmation-dialog';
 import { Skeleton } from '@/components/ui/skeleton';
+import { getProfilePictureService } from '@/app/_services/user.service';
+import { PAGINATION_LIMIT } from '@/app/_constants/pagination-limit';
+import { Separator } from '@/components/ui/separator';
 
 const commentSchema = z.object({
     entityId: z.string().min(1, "Required"),
@@ -36,6 +39,9 @@ export default function Comments() {
     const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false);
     const [isEditOpen, setIsEditOpen] = useState<boolean>(false);
     const [commentId, setCommentId] = useState<string>("");
+    const [profile, setProfile] = useState<any>();
+    const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
+    const [totalComments, setTotalComments] = useState<number>(0);
     const { data } = useSession();
 
     const form = useForm<z.infer<typeof commentSchema>>({
@@ -106,12 +112,24 @@ export default function Comments() {
     const getComments = async () => {
         setIsViewLoading(true);
         try {
-            const response = await getCommentsService(projectId, issueId);
-            setComments(response);
+            const response = await getCommentsService(projectId, issueId, pageSize);
+            setComments(response?.comments);
+            setTotalComments(response?.total);
         } catch (error) {
             toasterService.error();
         } finally {
             setIsViewLoading(false);
+        }
+    }
+
+    const getProfile = async () => {
+        try {
+            const response = await getProfilePictureService();
+            if (response) {
+                setProfile(response);
+            }
+        } catch (error) {
+            toasterService.error();
         }
     }
 
@@ -141,7 +159,11 @@ export default function Comments() {
 
     useEffect(() => {
         getComments();
-    }, [projectId, issueId]);
+    }, [projectId, issueId, pageSize]);
+
+    useEffect(() => {
+        getProfile();
+    }, []);
 
     const handleDelete = (id: string) => {
         setIsDeleteOpen(true);
@@ -180,7 +202,7 @@ export default function Comments() {
                                             <div className={`flex ${!isEdit ? 'items-center' : ''}`}>
                                                 <Avatar className="h-10 w-10">
                                                     <AvatarImage
-                                                        src={getFormattedBase64ForSrc(user?.profilePicture)}
+                                                        src={getFormattedBase64ForSrc(profile)}
                                                         alt="@profilePicture"
                                                     />
                                                     <AvatarFallback>
@@ -234,7 +256,7 @@ export default function Comments() {
                 </div>
                 {!isViewLoading ? (
                     <div className="mt-5">
-                        {comments.map((comment, index) => (
+                        {comments?.map((comment, index) => (
                             <div
                                 key={index}
                                 className="flex mb-3"
@@ -265,16 +287,8 @@ export default function Comments() {
                                         </span>
                                     </div>
 
-                                    {!isEditOpen ?
+                                    {isEditOpen && commentId === comment?._id ?
                                         (
-                                            <div className="mt-2 text-sm text-gray-800">
-                                                <div
-                                                    dangerouslySetInnerHTML={{
-                                                        __html: comment?.content || "",
-                                                    }}
-                                                />
-                                            </div>
-                                        ) : (
                                             <div className="mt-2">
                                                 <Form {...editForm}>
                                                     <form onSubmit={editForm.handleSubmit(onEdit)} method="post">
@@ -327,6 +341,15 @@ export default function Comments() {
                                                 </Form>
                                             </div>
 
+                                        ) :
+                                        (
+                                            <div className="mt-2 text-sm text-gray-800">
+                                                <div
+                                                    dangerouslySetInnerHTML={{
+                                                        __html: comment?.content || "",
+                                                    }}
+                                                />
+                                            </div>
                                         )}
 
                                     <div className="mt-2">
@@ -341,13 +364,28 @@ export default function Comments() {
                                 </div>
                             </div>
                         ))}
+                        {totalComments > comments.length && (
+                            <div>
+                                <Separator className="" />
+                                <div className='mt-4 text-sm text-gray-800 cursor-pointer' onClick={() => setPageSize(pageSize + PAGINATION_LIMIT)}>
+                                    See more comments
+                                </div>
+                            </div>
+                        )}
                     </div>
                 ) : (
-                    <div className='flex flex-col gap-2 mb-2'>
-                        <Skeleton className="h-[80px] bg-gray-200 w-full rounded-xl" />
-                        <Skeleton className="h-[80px] bg-gray-200 w-full rounded-xl" />
-                        <Skeleton className="h-[80px] bg-gray-200 w-full rounded-xl" />
-                    </div>
+                    [...Array(3)].map((_, index) => (
+                        <div key={index} className="flex flex-col gap-2 mb-2 w-full">
+                            <div className="flex items-center space-x-4">
+                                <Skeleton className="bg-gray-200 h-12 w-12 rounded-full" />
+                                <div className="flex flex-col space-y-2 w-full">
+                                    <Skeleton className="bg-gray-200 h-4 w-full" />
+                                    <Skeleton className="bg-gray-200 h-4 w-[80%]" />
+                                </div>
+                            </div>
+                        </div>
+                    ))
+
                 )}
             </div>
         </>

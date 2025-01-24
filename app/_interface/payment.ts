@@ -10,6 +10,7 @@ export interface IPaymentPayload {
 }
 
 export interface IPayment {
+  currency: string;
   receiverId: IUserByAdmin;
   _id?: string;
   id?: string;

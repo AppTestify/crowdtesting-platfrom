@@ -62,11 +62,12 @@ export const PARENT_EMAIL_TEMPLATE = `<!doctype html>
     }
 
     .logo {
-  max-width: 150px; /* Constrain the maximum width */
-  width: 100%; /* Make the logo responsive */
-  height: auto; /* Maintain aspect ratio */
-  display: block; /* Ensure the image behaves as a block element */
+  max-width: 150px; /* Default size */
+  width: 100%;
+  height: auto;
+  display: block;
 }
+
 
     /* -------------------------------------
     HEADER, FOOTER, MAIN
@@ -183,9 +184,12 @@ export const PARENT_EMAIL_TEMPLATE = `<!doctype html>
 
     @media only screen and (max-width: 640px) {
   .logo {
-    max-width: 120px; /* Smaller size for mobile */
+    max-width: 100px;
+    width: auto;
+    height: auto;
   }
 }
+
 
     
     /* -------------------------------------
@@ -278,10 +282,14 @@ export const PARENT_EMAIL_TEMPLATE = `<!doctype html>
         padding: 12px 16px !important; /* Adjust button padding for touch targets */
         width: 100% !important;
       }
-      .logo {
-        max-width: 100%;
-        height: auto;
-      }
+     @media only screen and (max-width: 640px) {
+  .logo {
+    max-width: 100px; /* Smaller size for mobile */
+    width: auto; /* Adjust to maintain aspect ratio */
+    height: auto; /* Maintain the image's aspect ratio */
+    display: block; /* Ensure the image is treated as a block element */
+  }
+}
       .footer {
         padding-top: 16px;
       }

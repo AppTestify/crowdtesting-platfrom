@@ -108,5 +108,7 @@ export const PROJECT_ADMIN_ISSUE_STATUS_LIST = [
 export const ISSUE_TESTER_STATUS_LIST = [
   IssueStatus.RETESTING,
   IssueStatus.VERIFIED,
-  IssueStatus.OPEN,
+  IssueStatus.REOPENED,
+  IssueStatus.CANNOT_REPRODUCE,
+  IssueStatus.BLOCKED,
 ];

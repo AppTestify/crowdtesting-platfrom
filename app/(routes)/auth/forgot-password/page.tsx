@@ -89,6 +89,7 @@ export default function ForgotPassword() {
                                 </div>
                                 <Button type="submit"
                                     onClick={() => validateUser()}
+                                    disabled={isLoading}
                                     className="w-full mt-3">
                                     {isLoading ? (
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
