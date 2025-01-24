@@ -14,14 +14,12 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { ChevronRight, Edit, SendHorizontal, UserCircle, UserCircle2Icon, UserIcon } from "lucide-react";
+import { ChevronRight, Edit, UserCircle2Icon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { addCommentService } from "@/app/_services/comment.service";
 import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import MediaRenderer from "@/app/_components/media-renderer";
 import { getIssueAttachmentsService } from "@/app/_services/issue-attachment.service";
 import EditIssue from "@/app/(routes)/private/projects/[projectId]/issues/_components/edit-issue";
@@ -32,6 +30,7 @@ import { checkProjectAdmin } from "@/app/_utils/common";
 import ViewDevice from "./_components/view-device";
 import { IDevice } from "@/app/_interface/device";
 import { NAME_NOT_SPECIFIED_ERROR_MESSAGE } from "@/app/_constants/errors";
+import Comments from "@/app/(routes)/private/projects/[projectId]/issues/_components/comments";
 
 const commentSchema = z.object({
   entityId: z.string().min(1, "Required"),
@@ -54,20 +53,6 @@ const ViewIssue = () => {
   const [project, setProject] = useState<IProject>();
   const [userData, setUserData] = useState<any>();
   const checkProjectRole = checkProjectAdmin(project as IProject, userData);
-
-  const form = useForm<z.infer<typeof commentSchema>>({
-    resolver: zodResolver(commentSchema),
-    defaultValues: {
-      entityId: issueId,
-      content: "",
-    },
-  });
-
-  useEffect(() => {
-    if (data && data?.user) {
-      setUser(data.user);
-    }
-  }, [data]);
 
   const getIssueById = async () => {
     try {
@@ -103,22 +88,6 @@ const ViewIssue = () => {
     await getIssueAttachments();
   };
 
-  async function onSubmit(values: z.infer<typeof commentSchema>) {
-    try {
-      const response = await addCommentService(projectId, issueId, values);
-      if (response) {
-        // getComments();
-        reset();
-      }
-    } catch (error) {
-      toasterService.error();
-    }
-  }
-
-  const reset = () => {
-    form.reset();
-  };
-
   const getProject = async () => {
     setIsViewLoading(true);
     try {
@@ -135,7 +104,6 @@ const ViewIssue = () => {
     getIssueById();
     getIssueAttachments();
     getProject();
-    // getComments();
   }, [projectId, issueId]);
 
   useEffect(() => {
@@ -280,6 +248,10 @@ const ViewIssue = () => {
                 )}
               </div>
             </div>
+
+            <div className="">
+              <Comments />
+            </div>
           </div>
         </main>
       ) : (
@@ -293,13 +265,12 @@ const ViewIssue = () => {
               <Skeleton className="h-12 w-[300px] bg-gray-200 ml-4" />
               <Skeleton className="h-24 w-[300px] bg-gray-200 ml-4" />
               <Skeleton className="h-24 w-[300px] bg-gray-200 ml-4" />
-              {/* <Skeleton className="h-12 w-[300px] bg-gray-200 ml-4" />
-              <Skeleton className="h-12 w-[300px] bg-gray-200 ml-4" /> */}
             </div>
           </div>
         </div>
-      )}
-    </div>
+      )
+      }
+    </div >
   );
 };
 

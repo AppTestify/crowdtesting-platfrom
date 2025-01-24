@@ -9,6 +9,7 @@ export interface ICommentPayload {
 }
 
 export interface IComment {
+  _id: string;
   entityId: string;
   commentedBy?: IUserByAdmin;
   updatedBy?: string[];
