@@ -70,7 +70,7 @@ export default function TestPlan() {
             testPlans.some((item) => item.userId?._id) ?
                 [{
                     accessorKey: "createdBy",
-                    header: "created By",
+                    header: "Created By",
                     cell: ({ row }: { row: any }) => (
                         <div className="">{`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}</div>
                     ),

@@ -64,7 +64,7 @@ function ResetPasswordWrapper() {
           return;
         }
         toasterService.success(response?.message);
-        router.push(`${process.env.NEXTAUTH_URL}/auth/sign-in`);
+        router.push(`${process.env.NEXT_PUBLIC_URL}/auth/sign-in`);
       }
     } catch (error) {
       toasterService.error();
