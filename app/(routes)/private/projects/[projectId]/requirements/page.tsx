@@ -140,8 +140,11 @@ export default function Issues() {
   }, [data]);
 
   useEffect(() => {
-    getRequirements();
-  }, [pageIndex, pageSize]);
+    const debounceFetch = setTimeout(() => {
+      getRequirements();
+    }, 500);
+    return () => clearTimeout(debounceFetch);
+  }, [pageIndex, pageSize, globalFilter]);
 
   const getRequirement = async (data: IRequirement) => {
     setRequirement(data as IRequirement);
@@ -153,7 +156,8 @@ export default function Issues() {
     const response = await getRequirementsService(
       projectId,
       pageIndex,
-      pageSize
+      pageSize,
+      globalFilter as unknown as string
     );
     setRequirements(response?.requirements);
     setTotalPageCount(response?.total);
@@ -178,7 +182,7 @@ export default function Issues() {
     globalFilterFn: "includesString",
     state: {
       sorting,
-      globalFilter,
+      // globalFilter,
       columnVisibility,
       rowSelection,
     },

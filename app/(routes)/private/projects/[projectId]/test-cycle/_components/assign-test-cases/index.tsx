@@ -363,10 +363,7 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
                         <span className="text-primary">{row.original?.customId}:</span>
                         <span className="ml-2 capitalize">{row.original?.title}</span>
                     </SheetTitle>
-                    <SheetDescription className="text-left">
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Beatae laboriosam quas
-                        cum expedita quidem sit qui quaerat, ipsa animi nobis
-                    </SheetDescription>
+
                 </SheetHeader>
                 <Tabs defaultValue="un-assigned" value={activeTab} onValueChange={setActiveTab} className="mt-4">
                     <TabsList>

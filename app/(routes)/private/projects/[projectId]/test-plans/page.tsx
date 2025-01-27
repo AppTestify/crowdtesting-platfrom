@@ -113,8 +113,11 @@ export default function TestPlan() {
     const { projectId } = useParams<{ projectId: string }>();
 
     useEffect(() => {
-        getTestPlans();
-    }, [pageIndex, pageSize]);
+        const debounceFetch = setTimeout(() => {
+            getTestPlans();
+        }, 500);
+        return () => clearTimeout(debounceFetch);
+    }, [pageIndex, pageSize, globalFilter]);
 
     useEffect(() => {
         localStorage.setItem("currentPage", pageIndex.toString());
@@ -123,7 +126,7 @@ export default function TestPlan() {
 
     const getTestPlans = async () => {
         setIsLoading(true);
-        const response = await getTestPlanService(projectId, pageIndex, pageSize);
+        const response = await getTestPlanService(projectId, pageIndex, pageSize, globalFilter as unknown as string);
         setTestPlans(response?.testPlans);
         setTotalPageCount(response?.total);
         setIsLoading(false);
@@ -152,7 +155,7 @@ export default function TestPlan() {
         globalFilterFn: "includesString",
         state: {
             sorting,
-            globalFilter,
+            // globalFilter,
             columnVisibility,
             rowSelection,
         },

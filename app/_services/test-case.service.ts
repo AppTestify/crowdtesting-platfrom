@@ -1,62 +1,93 @@
-import { PAGINATION_QUERY_ENDPOINT, TEST_CASE_ENPOINT, TEST_CYCLE_ENPOINT } from "../_constants/api-endpoints";
+import {
+  PAGINATION_QUERY_ENDPOINT,
+  TEST_CASE_ENPOINT,
+  TEST_CYCLE_ENPOINT,
+} from "../_constants/api-endpoints";
 import { ITestCasePayload } from "../_interface/test-case";
-import { genericDelete, genericGet, genericPost, genericPut } from "./generic-api-methods";
+import {
+  genericDelete,
+  genericGet,
+  genericPost,
+  genericPut,
+} from "./generic-api-methods";
 
-export const getTestCaseService = async (projectId: string, index: Number, pageSize: Number, requirement: string):
-    Promise<any> => {
-    try {
-        const response = await genericGet(`${TEST_CASE_ENPOINT(projectId)}${PAGINATION_QUERY_ENDPOINT(index, pageSize)}&requirement=${requirement}`);
-        return response || [];
-    } catch (error) {
-        console.error(`Error > getTestCaseService:`, error);
-        throw error;
-    }
+export const getTestCaseService = async (
+  projectId: string,
+  index: Number,
+  pageSize: Number,
+  requirement: string,
+  globalFilter: string
+): Promise<any> => {
+  try {
+    const response = await genericGet(
+      `${TEST_CASE_ENPOINT(projectId)}${PAGINATION_QUERY_ENDPOINT(
+        index,
+        pageSize
+      )}&requirement=${requirement}&searchString=${globalFilter}`
+    );
+    return response || [];
+  } catch (error) {
+    console.error(`Error > getTestCaseService:`, error);
+    throw error;
+  }
 };
 
-export const addTestCaseService = async (projectId: string, body: ITestCasePayload): Promise<any> => {
-    try {
-        const response = await genericPost(`${TEST_CASE_ENPOINT(projectId)}`, body);
-        return response || {};
-    } catch (error) {
-        console.error(`Error > addTestCaseService:`, error);
-        throw error;
-    }
+export const addTestCaseService = async (
+  projectId: string,
+  body: ITestCasePayload
+): Promise<any> => {
+  try {
+    const response = await genericPost(`${TEST_CASE_ENPOINT(projectId)}`, body);
+    return response || {};
+  } catch (error) {
+    console.error(`Error > addTestCaseService:`, error);
+    throw error;
+  }
 };
 
 export const deleteTestCaseService = async (
-    projectId: string,
-    testCaseId: string
+  projectId: string,
+  testCaseId: string
 ): Promise<any> => {
-    try {
-        const response = await genericDelete(`${TEST_CASE_ENPOINT(projectId)}/${testCaseId}`);
-        return response || {};
-    } catch (error) {
-        console.error(`Error > deleteTestCaseService:`, error);
-        throw error;
-    }
+  try {
+    const response = await genericDelete(
+      `${TEST_CASE_ENPOINT(projectId)}/${testCaseId}`
+    );
+    return response || {};
+  } catch (error) {
+    console.error(`Error > deleteTestCaseService:`, error);
+    throw error;
+  }
 };
 
 export const updateTestCaseService = async (
-    projectId: string,
-    testSuiteId: string,
-    body: ITestCasePayload
+  projectId: string,
+  testSuiteId: string,
+  body: ITestCasePayload
 ): Promise<any> => {
-    try {
-        const response = await genericPut(`${TEST_CASE_ENPOINT(projectId)}/${testSuiteId}`, body);
-        return response || {};
-    } catch (error) {
-        console.error(`Error > updateTestCaseService:`, error);
-        throw error;
-    }
+  try {
+    const response = await genericPut(
+      `${TEST_CASE_ENPOINT(projectId)}/${testSuiteId}`,
+      body
+    );
+    return response || {};
+  } catch (error) {
+    console.error(`Error > updateTestCaseService:`, error);
+    throw error;
+  }
 };
 
-export const getTestCaseWithoutPaginationService = async (projectId: string, testCycleId: string):
-    Promise<any> => {
-    try {
-        const response = await genericGet(`${TEST_CYCLE_ENPOINT(projectId)}/${testCycleId}/without-pagination`);
-        return response || [];
-    } catch (error) {
-        console.error(`Error > getTestCaseWithoutPaginationService:`, error);
-        throw error;
-    }
+export const getTestCaseWithoutPaginationService = async (
+  projectId: string,
+  testCycleId: string
+): Promise<any> => {
+  try {
+    const response = await genericGet(
+      `${TEST_CYCLE_ENPOINT(projectId)}/${testCycleId}/without-pagination`
+    );
+    return response || [];
+  } catch (error) {
+    console.error(`Error > getTestCaseWithoutPaginationService:`, error);
+    throw error;
+  }
 };

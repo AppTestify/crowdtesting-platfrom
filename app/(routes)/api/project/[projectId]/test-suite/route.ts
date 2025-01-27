@@ -11,6 +11,10 @@ import { IRequirement } from "@/app/_interface/requirement";
 import { isAdmin, verifySession } from "@/app/_lib/dal";
 import { IdFormat } from "@/app/_models/id-format.model";
 import { TestSuite } from "@/app/_models/test-suite.model";
+import {
+  filterTestSuiteForAdmin,
+  filterTestSuiteNotForAdmin,
+} from "@/app/_queries/search-test-suite";
 import { testSuiteSchema } from "@/app/_schemas/test-suite.schema";
 import { serverSidePagination } from "@/app/_utils/common-server-side";
 import {
@@ -97,16 +101,47 @@ export async function GET(
 
     let response = null;
     const { projectId } = params;
+    const url = new URL(req.url);
+    const searchString = url.searchParams.get("searchString");
     const totalTestSuites = await TestSuite.find({
       projectId: projectId,
     }).countDocuments();
     const { skip, limit } = serverSidePagination(req);
-    const userIdFormat = await IdFormat.findOne({
+    const testSuiteIdFormat = await IdFormat.findOne({
       entity: DBModels.TEST_SUITE,
     });
     const requirementUserIdFormat = await IdFormat.findOne({
       entity: DBModels.REQUIREMENT,
     });
+
+    if (searchString) {
+      if (!(await isAdmin(session.user))) {
+        const { testSuites, totalTestSuites } =
+          await filterTestSuiteNotForAdmin(
+            searchString,
+            skip,
+            limit,
+            projectId,
+            testSuiteIdFormat
+          );
+        return Response.json({
+          testSuites: addCustomIds(testSuites, testSuiteIdFormat?.idFormat),
+          total: totalTestSuites,
+        });
+      } else {
+        const { testSuites, totalTestSuites } = await filterTestSuiteForAdmin(
+          searchString,
+          skip,
+          limit,
+          projectId,
+          testSuiteIdFormat
+        );
+        return Response.json({
+          testSuites: addCustomIds(testSuites, testSuiteIdFormat?.idFormat),
+          total: totalTestSuites,
+        });
+      }
+    }
 
     if (!(await isAdmin(session.user))) {
       response = addCustomIds(
@@ -116,7 +151,7 @@ export async function GET(
           .skip(skip)
           .limit(Number(limit))
           .lean(),
-        userIdFormat.idFormat
+        testSuiteIdFormat.idFormat
       );
     } else {
       response = addCustomIds(
@@ -127,7 +162,7 @@ export async function GET(
           .skip(skip)
           .limit(Number(limit))
           .lean(),
-        userIdFormat.idFormat
+        testSuiteIdFormat.idFormat
       );
     }
 

@@ -162,12 +162,15 @@ export default function TestCases() {
     }, [data]);
 
     useEffect(() => {
-        getTestCases();
-    }, [pageIndex, pageSize, selectedRequirement]);
+        const debounceFetch = setTimeout(() => {
+            getTestCases();
+        }, 500);
+        return () => clearTimeout(debounceFetch);
+    }, [pageIndex, pageSize, selectedRequirement, globalFilter]);
 
     const getTestCases = async () => {
         setIsLoading(true);
-        const response = await getTestCaseService(projectId, pageIndex, pageSize, selectedRequirement);
+        const response = await getTestCaseService(projectId, pageIndex, pageSize, selectedRequirement, globalFilter as unknown as string);
         setTestCases(response?.testCases);
         setTotalPageCount(response?.total);
         setIsLoading(false);
@@ -225,7 +228,7 @@ export default function TestCases() {
         globalFilterFn: "includesString",
         state: {
             sorting,
-            globalFilter,
+            // globalFilter,
             columnVisibility,
             rowSelection,
         },

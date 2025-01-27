@@ -1,8 +1,8 @@
-import { Requirement } from "../_models/requirement.model";
+import { TestPlan } from "../_models/test-plan.model";
 import { customIdForSearch } from "../_utils/common-server-side";
 import { ObjectId } from "mongodb";
 
-export async function filterRequirementsNotForAdmin(
+export async function filterTestPlanNotForAdmin(
   searchString: string,
   skip: number,
   limit: number,
@@ -12,7 +12,7 @@ export async function filterRequirementsNotForAdmin(
   const regex = new RegExp(searchString, "i");
   searchString = customIdForSearch(idObject, searchString);
 
-  const requirementsPipeline = [
+  const testPlanPipeline = [
     {
       $match: {
         projectId: new ObjectId(projectId),
@@ -31,24 +31,24 @@ export async function filterRequirementsNotForAdmin(
     },
   ];
 
-  const totalRequirements = await Requirement.aggregate([
-    ...requirementsPipeline,
+  const totalTestPlans = await TestPlan.aggregate([
+    ...testPlanPipeline,
     { $count: "total" },
   ]);
 
-  const requirements = await Requirement.aggregate([
-    ...requirementsPipeline,
+  const testPlans = await TestPlan.aggregate([
+    ...testPlanPipeline,
     { $skip: skip },
     { $limit: limit },
   ]);
 
   return {
-    requirements,
-    totalRequirements: totalRequirements[0]?.total || 0,
+    testPlans,
+    totalTestPlans: totalTestPlans[0]?.total || 0,
   };
 }
 
-export async function filterRequirementsForAdmin(
+export async function filterTestPlanForAdmin(
   searchString: string,
   skip: number,
   limit: number,
@@ -58,7 +58,7 @@ export async function filterRequirementsForAdmin(
   const regex = new RegExp(searchString, "i");
   searchString = customIdForSearch(idObject, searchString);
 
-  const requirementsPipeline = [
+  const testPlanPipeline = [
     {
       $match: {
         projectId: new ObjectId(projectId),
@@ -102,19 +102,19 @@ export async function filterRequirementsForAdmin(
     },
   ];
 
-  const totalRequirements = await Requirement.aggregate([
-    ...requirementsPipeline,
+  const totalTestPlans = await TestPlan.aggregate([
+    ...testPlanPipeline,
     { $count: "total" },
   ]);
 
-  const requirements = await Requirement.aggregate([
-    ...requirementsPipeline,
+  const testPlans = await TestPlan.aggregate([
+    ...testPlanPipeline,
     { $skip: skip },
     { $limit: limit },
   ]);
 
   return {
-    requirements,
-    totalRequirements: totalRequirements[0]?.total || 0,
+    testPlans,
+    totalTestPlans: totalTestPlans[0]?.total || 0,
   };
 }

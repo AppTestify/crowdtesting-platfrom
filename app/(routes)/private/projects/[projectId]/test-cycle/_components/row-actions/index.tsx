@@ -90,15 +90,15 @@ export function TestCycleRowActions({
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                    {/* <DropdownMenuItem
+                    <DropdownMenuItem
                         className="mb-1"
                         onClick={() => {
                             setIsActionOpen(true);
                         }}
                     >
                         <ChartNoAxesGantt className="h-2 w-2" /> Test cases
-                    </DropdownMenuItem> */}
-                    {/* <DropdownMenuSeparator className="border-b" /> */}
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator className="border-b" />
                     <DropdownMenuItem
                         className="mb-1"
                         onClick={() => {

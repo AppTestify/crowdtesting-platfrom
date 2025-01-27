@@ -129,8 +129,11 @@ export default function TestSuite() {
     }, [data]);
 
     useEffect(() => {
-        getTestSuites();
-    }, [pageIndex, pageSize]);
+        const debounceFetch = setTimeout(() => {
+            getTestSuites();
+        }, 500);
+        return () => clearTimeout(debounceFetch);
+    }, [pageIndex, pageSize, globalFilter]);
 
     useEffect(() => {
         localStorage.setItem("currentPage", pageIndex.toString());
@@ -139,7 +142,7 @@ export default function TestSuite() {
 
     const getTestSuites = async () => {
         setIsLoading(true);
-        const response = await getTestSuiteService(projectId, pageIndex, pageSize);
+        const response = await getTestSuiteService(projectId, pageIndex, pageSize, globalFilter as unknown as string);
         setTestSuite(response?.testSuites);
         setTotalPageCount(response?.total);
         setIsLoading(false);
@@ -168,7 +171,7 @@ export default function TestSuite() {
         globalFilterFn: "includesString",
         state: {
             sorting,
-            globalFilter,
+            // globalFilter,
             columnVisibility,
             rowSelection,
         },
