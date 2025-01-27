@@ -16,6 +16,7 @@ import ViewTesterIssue from '../../../users/_components/view-user';
 import { DocumentBulkNonVerified } from '../bulk-non-verify';
 import { PAGINATION_LIMIT } from '@/app/_constants/pagination-limit';
 import { Button } from '@/components/ui/button';
+import { DBModels } from '@/app/_constants';
 
 export default function NonVerifiedDocument() {
     const [documents, setDocuments] = useState<IDocument[]>([]);
@@ -100,9 +101,7 @@ export default function NonVerifiedDocument() {
     const [user, setUser] = useState<IUserByAdmin>();
     const [isViewOpen, setIsViewOpen] = useState(false);
     const [totalPageCount, setTotalPageCount] = useState(0);
-    const [pageIndex, setPageIndex] = useState<number>(() => {
-        return Number(localStorage.getItem("currentPage")) || 1;
-    });
+    const [pageIndex, setPageIndex] = useState<number>(1);
     const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
 
     const table = useReactTable({
