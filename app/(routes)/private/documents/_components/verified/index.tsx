@@ -25,9 +25,7 @@ export default function VerifiedDocuments() {
     const searchParams = useSearchParams();
     const [isViewOpen, setIsViewOpen] = useState(false);
     const [totalPageCount, setTotalPageCount] = useState(0);
-    const [pageIndex, setPageIndex] = useState<number>(() => {
-        return Number(localStorage.getItem("currentPage")) || 1;
-    });
+    const [pageIndex, setPageIndex] = useState<number>(1);
     const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
     const user = searchParams.get('user');
 
