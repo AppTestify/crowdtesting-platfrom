@@ -84,12 +84,11 @@ export const sendCredentialsEmail = async (
   templateTags: IUserCredentialsEmail
 ) => {
   const emailService = new EmailService();
-
   await emailService.sendEmail({
     to: templateTags?.email,
     subject: EmailSubjects.SEND_CREDENTIALS,
     body: replaceEmailTemplateTagsInternalService({
-      emailBody: SEND_CREDENTIALS_TEMPLATE,
+      emailBody: prepareEmailTemplate(SEND_CREDENTIALS_TEMPLATE),
       tagValuesObject: templateTags,
     }),
   });
@@ -133,7 +132,7 @@ export const sendDocumentApprovalMail = async (
     to: templateTags?.emails,
     subject: EmailSubjects.DOCUMENT_APPROVAL,
     body: replaceEmailTemplateTagsInternalService({
-      emailBody: DOCUMENT_APPROVAL_TEMPLATE,
+      emailBody: prepareEmailTemplate(DOCUMENT_APPROVAL_TEMPLATE),
       tagValuesObject: templateTags,
     }),
   });

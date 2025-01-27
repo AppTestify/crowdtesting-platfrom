@@ -123,14 +123,8 @@ export default function VerifiedDocuments() {
         try {
             const response = await getApprovalFilesService(false, pageIndex, pageSize, globalFilter as unknown as string);
             if (response) {
-                // if (user) {
-                //     const filterDocuments = response.filter((document: any) => {
-                //         return document.userId?._id === user
-                //     });
-                //     setDocuments(filterDocuments)
-                // } else {
-                // }
                 setTotalPageCount(response?.total);
+                setRowSelection({});
                 setDocuments(response?.documents);
             }
         } catch (error) {

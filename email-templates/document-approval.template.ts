@@ -12,14 +12,6 @@ export const DOCUMENT_APPROVAL_TEMPLATE = `
             margin: 0;
             padding: 0;
         }
-        .container {
-            background-color: #ffffff;
-            padding: 30px;
-            margin: 50px auto;
-            max-width: 600px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
         h1 {
             color: #333;
             font-size: 24px;
@@ -45,7 +37,8 @@ export const DOCUMENT_APPROVAL_TEMPLATE = `
             text-decoration: none;
             border-radius: 4px;
             font-size: 16px;
-            margin-top: 20px;
+            margin-top: 10px;
+            margin-bottom: 10px;
         }
         .approve-button:hover {
             background-color: #45a049;

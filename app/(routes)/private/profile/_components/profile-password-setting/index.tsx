@@ -109,7 +109,7 @@ export default function PasswordSetting() {
                     </div>
                     <div className="grid grid-cols-3 gap-2 mt-4">
                         <PasswordField label="Old Password" name="oldPassword" control={form.control} />
-                        <PasswordField label="Password" name="password" control={form.control} />
+                        <PasswordField label="New Password" name="password" control={form.control} />
                         <PasswordField label="Confirm Password" name="confirmedPassword" control={form.control} />
                     </div>
                     <div className="mt-10 w-full flex justify-end gap-2">

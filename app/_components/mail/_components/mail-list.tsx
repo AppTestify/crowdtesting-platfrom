@@ -92,7 +92,7 @@ export function MailList({ items, isLoading }: { items: IMail[], isLoading: bool
                                 <div
                                     className="line-clamp-2 text-xs text-muted-foreground"
                                     dangerouslySetInnerHTML={{
-                                        __html: item.body?.substring(0, 300) || "",
+                                        __html: item.body?.substring(0, 200) + "..." || "",
                                     }}
                                 />
                             </button>

@@ -98,26 +98,36 @@ export async function GET(
       .limit(Number(limit))
       .populate({
         path: "commentedBy",
+        select: "profilePicture role email firstName lastName",
         populate: {
           path: "profilePicture",
+          select: "name contentType cloudId",
         },
       })
       .sort({ createdAt: -1 });
 
+    const cache = new Map();  
+
     const data = await Promise.all(
       response.map(async (comment) => {
-        if (comment.commentedBy.profilePicture.cloudId) {
-          const attachmentService = new AttachmentService();
-          const fileResponse = await attachmentService.fetchFileAsBase64(
-            comment.commentedBy.profilePicture.cloudId
-          );
+        const profilePicture = comment.commentedBy?.profilePicture;
+        if (profilePicture?.cloudId) {
+          if (!cache.has(profilePicture.cloudId)) {
+            const attachmentService = new AttachmentService();
+            const fileResponse = await attachmentService.fetchFileAsBase64(
+              profilePicture.cloudId
+            );
+            cache.set(profilePicture.cloudId, fileResponse);  
+          }
+          const cachedFileResponse = cache.get(profilePicture.cloudId);
+
           comment = {
             ...comment.toObject(),
             commentedBy: {
               ...comment.commentedBy.toObject(),
               profilePicture: {
                 ...comment.commentedBy.profilePicture.toObject(),
-                data: fileResponse,
+                data: cachedFileResponse,
               },
             },
           };

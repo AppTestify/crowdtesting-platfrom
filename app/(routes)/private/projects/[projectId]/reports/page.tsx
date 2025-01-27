@@ -120,7 +120,7 @@ export default function Report() {
                 <TooltipProvider>
                     <Tooltip delayDuration={50}>
                         <TooltipTrigger asChild>
-                            <Button disabled={isDownloadLoading} variant={'outline'} size={'icon'} onClick={() => downloadAttachmentZip(row.original._id)}>
+                            <Button disabled={isDownloadLoading} variant={'outline'} size={'icon'} onClick={() => downloadAttachmentZip(row.original._id, row.original.title)}>
                                 {isDownloadLoading && currentReportId === row.original._id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="w-5 h-5" />}
                             </Button>
                         </TooltipTrigger>
@@ -142,7 +142,7 @@ export default function Report() {
     ];
 
     // download zip file
-    const downloadAttachmentZip = async (reportId: string) => {
+    const downloadAttachmentZip = async (reportId: string, title: string) => {
         setCurrentReportId(reportId);
         setIsDownloadLoading(true);
         try {
@@ -160,7 +160,7 @@ export default function Report() {
                 const blob = await response.blob();
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
-                link.download = 'images.zip';
+                link.download = `${title}.zip`;
                 link.click();
             } else {
                 console.error('Failed to download the file, status:', response.status);
@@ -227,9 +227,9 @@ export default function Report() {
 
     useEffect(() => {
         if ((Array.isArray(globalFilter) && globalFilter.length > 0) || (typeof globalFilter === 'string' && globalFilter.trim() !== "")) {
-          setPageIndex(1);
+            setPageIndex(1);
         }
-      }, [globalFilter]);
+    }, [globalFilter]);
 
     useEffect(() => {
         localStorage.setItem("currentPage", pageIndex.toString());

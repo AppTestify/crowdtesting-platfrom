@@ -63,6 +63,14 @@ export default function AddDocument({
         return;
       }
 
+      if (file.type !== "image/png" && file.type !== "image/jpeg" &&
+        file.type !== "application/pdf" && file.type != "application/msword" &&
+        file.type != "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+        setFile(null);
+        setValidationMessage("Invalid file type. Only PNG, JPEG, PDF, DOC, DOCX formats are accepted.");
+        return;
+      }
+
       setFile(file);
       setValidationMessage("");
     } else {
@@ -93,6 +101,7 @@ export default function AddDocument({
 
   const resetForm = () => {
     setIsLoading(false);
+    setValidationMessage("");
     setFileType("");
     setFile(null);
   };
@@ -110,7 +119,7 @@ export default function AddDocument({
           <DialogHeader>
             <DialogTitle>Upload document</DialogTitle>
             <DialogDescription>
-              Please make sure the file is below 15MB
+              Please make sure the file size is below 15MB
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-center space-y-3 flex-col">
@@ -175,7 +184,7 @@ export default function AddDocument({
         <DrawerHeader className="text-left">
           <DrawerTitle>Upload document</DrawerTitle>
           <DrawerDescription>
-            Please make sure the file is below 15MB
+            Please make sure the file size is below 15MB
           </DrawerDescription>
         </DrawerHeader>
         <div className="flex justify-center space-y-3 flex-col px-4">

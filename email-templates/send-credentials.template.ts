@@ -12,15 +12,11 @@ export const SEND_CREDENTIALS_TEMPLATE = `
             margin: 0;
             padding: 0;
         }
-        .container {
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
-            background-color: #ffffff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
+       
+             .highlight { 
+            color: #4CAF50; 
+            font-weight: bold; 
+        } 
         h1 {
             color: #333333;
             font-size: 24px;
@@ -40,22 +36,26 @@ export const SEND_CREDENTIALS_TEMPLATE = `
             border: 1px solid #ddd;
         }
         .footer {
-            font-size: 14px;
+            font-size: 14px; 
             color: #888888;
             text-align: center;
             margin-top: 20px;
         }
-        .button {
-            background-color: #4CAF50;
-            color: #ffffff;
-            padding: 10px 20px;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
-        }
-        .button:hover {
-            background-color: #45a049;
-        }
+        .button { 
+            display: inline-block; 
+            padding: 12px 25px; 
+            background-color: #4CAF50; 
+            color: white !important; 
+            text-decoration: none; 
+            border-radius: 4px; 
+            font-size: 16px; 
+            margin-top: 20px; 
+            margin-bottom: 10px;
+        } 
+        .button:hover { 
+            background-color: #45a049; 
+            cusror: pointer;
+        } 
     </style>
 </head>
 <body>
@@ -67,11 +67,13 @@ export const SEND_CREDENTIALS_TEMPLATE = `
         <div class="credentials">
             <strong>Email:</strong> {email} <br>
             <strong>Password:</strong> {password} <br>
+            <strong>Role:</strong> {role} <br>
         </div>
 
+        <a href="{link}" class="button">Log in to AppTestify</a> 
         <p class="content">Please keep your credentials safe and secure. If you have any questions or need further assistance, feel free to reach out to our support team.</p>
 
-        <p class="footer">Best regards, <br> CrowdTesting</p>
+        <p class="">The AppTestify Team</p> 
     </div>
 </body>
 </html>

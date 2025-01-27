@@ -19,14 +19,22 @@ const paymentSchema = z.object({
     receiverId: z.string().min(1, "Required"),
     projectId: z.string().optional(),
     status: z.string().optional(),
-    description: z.string().optional(),
+    description: z.string()
+        .refine(
+            (value) => {
+                if (!value) return true;
+                const wordCount = value.trim().split(/\s+/).length;
+                return wordCount <= 500;
+            },
+            { message: "Description must be less than 500 words" }
+        )
+        .optional(),
     currency: z.string().min(1, 'Required'),
     amount: z
         .preprocess(
             (value) => (value === null || value === undefined ? undefined : parseFloat(value as string)),
             z.number({ required_error: "Required" }).positive("Amount must be a positive number")
         ),
-
 });
 
 export default function AddPayment({ isOpen, closeDialog, userId, refreshPayment }: {
@@ -37,6 +45,7 @@ export default function AddPayment({ isOpen, closeDialog, userId, refreshPayment
 }) {
     const [projects, setProjects] = useState<IProject[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [wordCount, setWordCount] = useState(0);
 
     const form = useForm<z.infer<typeof paymentSchema>>({
         resolver: zodResolver(paymentSchema),
@@ -46,6 +55,11 @@ export default function AddPayment({ isOpen, closeDialog, userId, refreshPayment
             currency: PaymentCurrency.USD,
         },
     });
+
+    const handleWordCount = (value: any) => {
+        const count = value?.trim().split(/\s+/).filter(Boolean).length;
+        setWordCount(count);
+    };
 
     const getProjects = async () => {
         try {
@@ -81,6 +95,7 @@ export default function AddPayment({ isOpen, closeDialog, userId, refreshPayment
     useEffect(() => {
         if (isOpen) {
             form.reset();
+            setWordCount(0);
         }
     }, [isOpen]);
 
@@ -181,6 +196,7 @@ export default function AddPayment({ isOpen, closeDialog, userId, refreshPayment
                                             <FormLabel>Description</FormLabel>
                                             <FormControl>
                                                 <Textarea
+                                                    onChangeCapture={(e) => handleWordCount((e.target as HTMLTextAreaElement).value)}
                                                     {...field}
                                                 />
                                             </FormControl>
@@ -188,6 +204,11 @@ export default function AddPayment({ isOpen, closeDialog, userId, refreshPayment
                                         </FormItem>
                                     )}
                                 />
+                                <div className='flex justify-end'>
+                                    <span>
+                                        {wordCount}/500
+                                    </span>
+                                </div>
 
                                 <FormField
                                     control={form.control}

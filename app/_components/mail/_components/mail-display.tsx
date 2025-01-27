@@ -272,7 +272,11 @@ export function MailDisplay({ refreshMails, mails }: { refreshMails: () => void,
                                                         className="flex items-center gap-2 bg-gray-200 px-2 py-1 rounded-full"
                                                     >
                                                         <span className="text-xs text-black">{user}</span>
-                                                        <div className="p-1 cursor-pointer" onClick={() => handleRemoveUser(index)}>
+                                                        <div className="p-1 cursor-pointer"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleRemoveUser(index)
+                                                            }}>
                                                             <Trash size={8} className="text-destructive" />
                                                         </div>
                                                     </div>

@@ -1,5 +1,5 @@
 import { ChevronDown, ChevronUp, Equal, FileSpreadsheet, Loader2 } from "lucide-react";
-import { IssueStatus, Priority, TaskStatus } from "../_constants/issue";
+import { IssueStatus, IssueType, Priority, TaskStatus } from "../_constants/issue";
 import { Badge } from "@/components/ui/badge";
 import { UserRoles } from "../_constants/user-roles";
 import { ProjectUserRoles } from "../_constants/project-user-roles";

@@ -147,7 +147,7 @@ export const adminNavbar = [
     disabled: false,
   },
   {
-    title: "Setting",
+    title: "Settings",
     url: "/private/setting",
     icon: Settings,
     disabled: false,

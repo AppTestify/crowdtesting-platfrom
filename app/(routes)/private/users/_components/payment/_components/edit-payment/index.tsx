@@ -38,6 +38,7 @@ export default function EditPayment({ isDialogOpen, dialogClose, payment, refres
 }) {
     const [projects, setProjects] = useState<IProject[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [wordCount, setWordCount] = useState(0);
     const paymentId = payment?._id as string;
 
     const form = useForm<z.infer<typeof paymentSchema>>({
@@ -52,6 +53,11 @@ export default function EditPayment({ isDialogOpen, dialogClose, payment, refres
             currency: payment?.currency || PaymentCurrency.USD,
         },
     });
+
+    const handleWordCount = (value: any) => {
+        const count = value.trim().split(/\s+/).filter(Boolean).length;
+        setWordCount(count);
+    };
 
     const getProjects = async () => {
         try {
@@ -85,6 +91,7 @@ export default function EditPayment({ isDialogOpen, dialogClose, payment, refres
         if (isDialogOpen) {
             form.reset();
             getProjects();
+            handleWordCount(payment?.description || "");
         }
     }, [isDialogOpen]);
 
@@ -185,6 +192,7 @@ export default function EditPayment({ isDialogOpen, dialogClose, payment, refres
                                             <FormLabel>Description</FormLabel>
                                             <FormControl>
                                                 <Textarea
+                                                    onChangeCapture={(e) => handleWordCount((e.target as HTMLTextAreaElement).value)}
                                                     {...field}
                                                 />
                                             </FormControl>
@@ -192,6 +200,11 @@ export default function EditPayment({ isDialogOpen, dialogClose, payment, refres
                                         </FormItem>
                                     )}
                                 />
+                                <div className='flex justify-end'>
+                                    <span>
+                                        {wordCount}/500
+                                    </span>
+                                </div>
 
                                 <FormField
                                     control={form.control}

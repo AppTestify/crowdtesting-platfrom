@@ -217,6 +217,14 @@ const ViewIssue = () => {
                   <span className="text-sm">{statusBadge(issueData?.status)}</span>
                 </div>
 
+                {/* Issue type */}
+                <div className="flex items-center gap-[20px]">
+                  <span className="text-gray-500 min-w-[70px] text-sm">Issue type</span>
+                  <span className="ml-1 font-medium">
+                    {issueData?.issueType}
+                  </span>
+                </div>
+
                 <div className="flex items-center gap-[20px]">
                   <span className="text-gray-500 min-w-[70px] text-sm">Assignee</span>
                   <span className="text-sm flex items-center">
@@ -249,9 +257,9 @@ const ViewIssue = () => {
               </div>
             </div>
 
-            <div className="">
+            {/* <div className="">
               <Comments />
-            </div>
+            </div> */}
           </div>
         </main>
       ) : (

@@ -131,6 +131,7 @@ export default function NonVerifiedDocument() {
             const response = await getApprovalFilesService(true, pageIndex, pageSize, globalFilter as unknown as string);
             if (response) {
                 setDocuments(response.documents);
+                setRowSelection({});
                 setTotalPageCount(response?.total);
             }
         } catch (error) {
