@@ -21,6 +21,11 @@ export const PaymentStatusList = [
 export const enum PaymentCurrency {
   USD = "$",
   INR = "₹",
+  EURO = "€",
 }
 
-export const PaymentCurrencyList = [PaymentCurrency.USD, PaymentCurrency.INR];
+export const PaymentCurrencyList = [
+  PaymentCurrency.USD,
+  PaymentCurrency.INR,
+  PaymentCurrency.EURO,
+];
