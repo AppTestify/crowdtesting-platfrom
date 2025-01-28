@@ -170,4 +170,21 @@ export const paymentStatusBadge = (status: string | undefined) => {
         default:
             return null;
     }
-} 
+}
+
+export const displayRTMStatus = (status: string) => {
+    switch (status) {
+        case "New":
+            return <div className="font-semibold text-blue-400 hover:text-blue-400" >{status}</div>;
+        case TestCaseExecutionResult.PASSED:
+            return <div className="font-semibold text-primary hover:text-primary" >{TestCaseExecutionResult.PASSED}</div>;
+        case TestCaseExecutionResult.FAILED:
+            return <div className="font-semibold text-destructive hover:text-destructive" >{TestCaseExecutionResult.FAILED}</div>;
+        case TestCaseExecutionResult.CAUTION:
+            return <div className="font-semibold text-yellow-500 hover:text-yellow-500" >{TestCaseExecutionResult.CAUTION}</div>;
+        case TestCaseExecutionResult.BLOCKED:
+            return <div className="font-semibold text-gray-400 hover:text-gray-400" >{TestCaseExecutionResult.BLOCKED}</div>;
+        default:
+            return null;
+    }
+};

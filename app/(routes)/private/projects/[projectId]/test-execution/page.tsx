@@ -144,7 +144,7 @@ export default function TestExecution() {
 
     const getTestCycle = async () => {
         setIsLoading(true);
-        const response = await getTestCycleService(projectId, pageIndex, pageSize);
+        const response = await getTestCycleService(projectId, pageIndex, pageSize, "");
         setTestCycle(response?.testCycles);
         setTotalPageCount(response?.total);
         setIsLoading(false);

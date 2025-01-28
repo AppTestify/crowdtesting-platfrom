@@ -16,6 +16,7 @@ export const getProjectTabs = (user: any) => {
         "tasks",
         "test cycle",
         "reports",
+        // "RTM"
       ];
     case UserRoles.TESTER:
       return [
