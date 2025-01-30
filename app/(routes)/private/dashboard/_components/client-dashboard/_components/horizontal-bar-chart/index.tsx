@@ -1,7 +1,10 @@
-import { Priority, Severity } from '@/app/_constants/issue';
+import { ISSUE_STATUS_LIST, Priority, Severity } from '@/app/_constants/issue';
+import { getTesterPriorityDashboardService, getTesterSeverityDashboardService } from '@/app/_services/dashboard.service';
+import toasterService from '@/app/_services/toaster-service';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import React from 'react';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import React, { useEffect, useState } from 'react';
 import { Bar, BarChart, CartesianGrid, Cell, LabelList, XAxis } from 'recharts';
 
 const chartConfig = {
@@ -59,22 +62,79 @@ interface HorizontalBarChartProps {
     description: string;
     dataKey: string;
     chartData: Record<string, number>;
+    projectId?: string;
+    entity?: string;
 }
 
-export default function HorizontalBarChart({ title, description, dataKey, chartData }: HorizontalBarChartProps) {
-    const formattedData = chartData
-        ? Object.entries(chartData).map(([key, value]) => ({
-            level: key.charAt(0).toUpperCase() + key.slice(1),
-            [dataKey]: value,
-            color: getColorForPriority(key),
-        }))
-        : [];
+export default function HorizontalBarChart({ title, description, dataKey, chartData, projectId, entity }: HorizontalBarChartProps) {
+    const [status, setStatus] = useState<string>("");
+    const [severity, setSeverity] = useState([]);
+
+    const formattedData = status
+        ? severity && typeof severity === 'object' && !Array.isArray(severity)
+            ? Object.entries(severity).map(([key, value]) => ({
+                level: key.charAt(0).toUpperCase() + key.slice(1),
+                [dataKey]: value,
+                color: getColorForPriority(key),
+            }))
+            : []
+        : chartData && typeof chartData === 'object' && !Array.isArray(chartData)
+            ? Object.entries(chartData).map(([key, value]) => ({
+                level: key.charAt(0).toUpperCase() + key.slice(1),
+                [dataKey]: value,
+                color: getColorForPriority(key),
+            }))
+            : [];
+
+
+    const getSeverityByStatus = async () => {
+        try {
+            const response = entity === "Severity" ? await getTesterSeverityDashboardService(projectId, status === "All" ? "" : status)
+                : await getTesterPriorityDashboardService(projectId, status === "All" ? "" : status);
+            setSeverity(response && typeof response === 'object' ? response : {});
+        } catch (error) {
+            toasterService.error();
+        }
+    }
+
+    useEffect(() => {
+        if (status) {
+            getSeverityByStatus();
+        }
+    }, [status]);
 
     return (
         <Card className="mt-2 w-full shadow-none">
-            <CardHeader>
-                <CardTitle>{title}</CardTitle>
-                <CardDescription>{description}</CardDescription>
+            <CardHeader className='flex-row items-start space-y-0 pb-0'>
+                <div className='grid gap-1'>
+                    <CardTitle>{title}</CardTitle>
+                    <CardDescription>{description}</CardDescription>
+                </div>
+
+                <Select
+                    onValueChange={(value) => setStatus(value)}
+                >
+                    <SelectTrigger
+                        className="ml-auto h-7 w-[150px] rounded-lg "
+                        aria-label="Status"
+                    >
+                        <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectGroup>
+                            <SelectItem value="All">
+                                <div className="flex items-center">All status</div>
+                            </SelectItem>
+                            {ISSUE_STATUS_LIST.map((role) => (
+                                <SelectItem value={role} >
+                                    <div className="flex items-center">
+                                        {role}
+                                    </div>
+                                </SelectItem>
+                            ))}
+                        </SelectGroup>
+                    </SelectContent>
+                </Select>
             </CardHeader>
             <CardContent>
                 <ChartContainer config={chartConfig}>
@@ -125,7 +185,7 @@ export default function HorizontalBarChart({ title, description, dataKey, chartD
                                 className="fill-foreground"
                                 fontSize={12}
                             />
-                            {formattedData.map((entry, index) => (
+                            {formattedData?.map((entry, index) => (
                                 <Cell key={`cell-${index}`} fill={entry.color} />
                             ))}
                         </Bar>

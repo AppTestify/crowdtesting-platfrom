@@ -68,12 +68,16 @@ export default function ProjectAdminDashboard() {
                             description="Showing issue severity levels"
                             dataKey="severity"
                             chartData={dashboard?.severity || {}}
+                            projectId={projectId}
+                            entity={"Severity"}
                         />
                         <HorizontalBarChart
                             title="Issues by priority"
                             description="Showing issue priority levels"
                             dataKey="priority"
                             chartData={dashboard?.priority || {}}
+                            projectId={projectId}
+                            entity={"Priority"}
                         />
                         <DonutChart chartData={dashboard?.issueType} dataKey={"issueType"} title={"Issue Type"}
                             description={"Showing issue type levels"}

@@ -23,10 +23,9 @@ const paymentSchema = z.object({
         .refine(
             (value) => {
                 if (!value) return true;
-                const wordCount = value.trim().split(/\s+/).length;
-                return wordCount <= 500;
+                return value.length <= 500;
             },
-            { message: "Description must be less than 500 words" }
+            { message: "Description must be less than 500 characters" }
         )
         .optional(),
     currency: z.string().min(1, 'Required'),
@@ -56,8 +55,8 @@ export default function AddPayment({ isOpen, closeDialog, userId, refreshPayment
         },
     });
 
-    const handleWordCount = (value: any) => {
-        const count = value?.trim().split(/\s+/).filter(Boolean).length;
+    const handleCharacterCount = (value: any) => {
+        const count = value?.length || 0;
         setWordCount(count);
     };
 
@@ -196,7 +195,8 @@ export default function AddPayment({ isOpen, closeDialog, userId, refreshPayment
                                             <FormLabel>Description</FormLabel>
                                             <FormControl>
                                                 <Textarea
-                                                    onChangeCapture={(e) => handleWordCount((e.target as HTMLTextAreaElement).value)}
+                                                    maxLength={500}
+                                                    onChangeCapture={(e) => handleCharacterCount((e.target as HTMLTextAreaElement).value)}
                                                     {...field}
                                                 />
                                             </FormControl>
@@ -215,7 +215,7 @@ export default function AddPayment({ isOpen, closeDialog, userId, refreshPayment
                                     name="status"
                                     render={({ field }) => (
                                         <FormItem className="flex flex-col">
-                                            <FormLabel>status</FormLabel>
+                                            <FormLabel>Status</FormLabel>
                                             <Select
                                                 onValueChange={field.onChange}
                                                 value={field.value}

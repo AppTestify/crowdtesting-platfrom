@@ -20,7 +20,15 @@ const paymentSchema = z.object({
     receiverId: z.string().min(1, "Required"),
     projectId: z.string().optional(),
     status: z.string().optional(),
-    description: z.string().optional(),
+    description: z.string()
+        .refine(
+            (value) => {
+                if (!value) return true;
+                return value.length <= 500;
+            },
+            { message: "Description must be less than 500 characters" }
+        )
+        .optional(),
     currency: z.string().min(1, 'Required'),
     amount: z
         .preprocess(
@@ -54,8 +62,8 @@ export default function EditPayment({ isDialogOpen, dialogClose, payment, refres
         },
     });
 
-    const handleWordCount = (value: any) => {
-        const count = value.trim().split(/\s+/).filter(Boolean).length;
+    const handleCharacterCount = (value: any) => {
+        const count = value?.length || 0;
         setWordCount(count);
     };
 
@@ -91,7 +99,7 @@ export default function EditPayment({ isDialogOpen, dialogClose, payment, refres
         if (isDialogOpen) {
             form.reset();
             getProjects();
-            handleWordCount(payment?.description || "");
+            handleCharacterCount(payment?.description || "");
         }
     }, [isDialogOpen]);
 
@@ -192,7 +200,8 @@ export default function EditPayment({ isDialogOpen, dialogClose, payment, refres
                                             <FormLabel>Description</FormLabel>
                                             <FormControl>
                                                 <Textarea
-                                                    onChangeCapture={(e) => handleWordCount((e.target as HTMLTextAreaElement).value)}
+                                                    maxLength={500}
+                                                    onChangeCapture={(e) => handleCharacterCount((e.target as HTMLTextAreaElement).value)}
                                                     {...field}
                                                 />
                                             </FormControl>
@@ -211,7 +220,7 @@ export default function EditPayment({ isDialogOpen, dialogClose, payment, refres
                                     name="status"
                                     render={({ field }) => (
                                         <FormItem className="flex flex-col">
-                                            <FormLabel>status</FormLabel>
+                                            <FormLabel>Status</FormLabel>
                                             <Select
                                                 onValueChange={field.onChange}
                                                 value={field.value}

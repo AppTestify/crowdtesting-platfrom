@@ -1,7 +1,9 @@
 import { DBModels } from "@/app/_constants";
+import { publicEmailDomains } from "@/app/_constants/constant-server-side";
 import {
   DB_CONNECTION_ERROR_MESSAGE,
   INVALID_INPUT_ERROR_MESSAGE,
+  ONLY_BUSSINESS_EMAIL_ALLOWED,
   USER_EXISTS_ERROR_MESSAGE,
   USER_UNAUTHORIZED_ERROR_MESSAGE,
 } from "@/app/_constants/errors";
@@ -149,12 +151,26 @@ export async function POST(req: Request) {
     const emailCredentials = new SendCredentials();
     const existingUser = await User.findOne({ email });
 
+    // Check existing user
     if (existingUser) {
       return Response.json({
         message: USER_EXISTS_ERROR_MESSAGE,
         status: HttpStatusCode.BAD_REQUEST,
       });
     }
+
+    // Check bussiness mail
+    if (role === UserRoles.CLIENT) {
+      const emailDomain = email.split("@")[1];
+
+      if (publicEmailDomains.includes(emailDomain)) {
+        return Response.json({
+          message: ONLY_BUSSINESS_EMAIL_ALLOWED,
+          status: HttpStatusCode.BAD_REQUEST,
+        });
+      }
+    }
+
     const hashedPassword = await emailCredentials.sendEmailCredentials({
       email,
       role,
@@ -170,6 +186,7 @@ export async function POST(req: Request) {
       sendCredentials: sendCredentials,
       credentialsSentAt: sendCredentials ? new Date() : "",
       accountActivationMailSentAt: new Date(),
+      isVerified: true,
     });
     await newUser.save();
 

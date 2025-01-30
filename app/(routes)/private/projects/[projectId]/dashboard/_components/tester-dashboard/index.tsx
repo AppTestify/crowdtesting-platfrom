@@ -65,6 +65,8 @@ export default function ProjectTesterDashboard() {
                     description="Showing issue severity levels"
                     dataKey="severity"
                     chartData={dashboard?.severity || {}}
+                    projectId={projectId}
+                    entity={"Severity"}
                 />
                 <StatusBarChart
                     title="Issues by status"

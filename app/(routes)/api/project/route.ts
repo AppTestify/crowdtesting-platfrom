@@ -154,7 +154,10 @@ export async function GET(req: Request) {
       response = addCustomIds(
         await Project.find({
           deletedAt: { $exists: false },
-          userId: session.user._id,
+          $or: [
+            { "users.userId": session.user._id }, 
+            { userId: session.user._id }, 
+          ],
         })
           .sort({ createdAt: -1 })
           .skip(skip)

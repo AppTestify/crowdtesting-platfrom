@@ -40,6 +40,7 @@ import { IUserByAdmin } from "@/app/_interface/user";
 import { PROJECT_USER_ROLE_LIST } from "@/app/_constants/project-user-roles";
 import { addProjectUserService } from "@/app/_services/project.service";
 import { getUsernameWithUserId } from "@/app/_utils/common";
+import { AddUser } from "@/app/(routes)/private/users/_components/add-user";
 
 const projectSchema = z.object({
     userId: z.string().min(1, "User is required"),
@@ -52,6 +53,7 @@ export function AddProjectUser({ refreshProjectUsers }: { refreshProjectUsers: (
     const [isViewLoading, setIsViewLoading] = useState<boolean>(false);
     const [users, setUsers] = useState<IUserByAdmin[]>([]);
     const { projectId } = useParams<{ projectId: string }>();
+    const storedUserId = localStorage.getItem("userId") || "";
 
     const form = useForm<z.infer<typeof projectSchema>>({
         resolver: zodResolver(projectSchema),
@@ -74,6 +76,7 @@ export function AddProjectUser({ refreshProjectUsers }: { refreshProjectUsers: (
         } finally {
             setIsLoading(false);
             setSheetOpen(false);
+            localStorage.removeItem("userId");
         }
     }
 
@@ -107,7 +110,7 @@ export function AddProjectUser({ refreshProjectUsers }: { refreshProjectUsers: (
         const selectedUser = users?.find(user => user?.id === field.value);
         return getUsernameWithUserId(selectedUser)
     }
-    
+
 
     useEffect(() => {
         if (projectId && sheetOpen) {
@@ -115,16 +118,35 @@ export function AddProjectUser({ refreshProjectUsers }: { refreshProjectUsers: (
         }
     }, [projectId, sheetOpen]);
 
+    const refreshUsers = () => {
+        getUsers();
+    };
+
+    useEffect(() => {
+        if (!sheetOpen) {
+            localStorage.removeItem("userId");
+        }
+    }, [sheetOpen])
+
+    useEffect(() => {
+        form.setValue("userId", storedUserId);
+    }, [storedUserId]);
+
     return (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
             <SheetTrigger asChild>
                 <Button onClick={() => resetForm()}>
-                    <Plus /> Add user
+                    <Plus /> Assign user
                 </Button>
             </SheetTrigger>
             <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto">
                 <SheetHeader>
-                    <SheetTitle className="text-left">Add new user</SheetTitle>
+                    <div className="flex justify-between w-full">
+                        <SheetTitle className="text-left">Assign new user</SheetTitle>
+                        <div className="flex items-center mr-6">
+                            <AddUser refreshUsers={refreshUsers} />
+                        </div>
+                    </div>
                 </SheetHeader>
 
                 <div>
@@ -139,10 +161,16 @@ export function AddProjectUser({ refreshProjectUsers }: { refreshProjectUsers: (
                                             <FormLabel>Select user</FormLabel>
                                             <Select
                                                 onValueChange={field.onChange}
-                                                value={field.value}
+                                                value={field.value || storedUserId}
                                             >
                                                 <SelectTrigger className="w-full">
-                                                    <SelectValue>{getSelectedUser(field)}</SelectValue>
+                                                    <SelectValue>
+                                                        {
+                                                            users
+                                                                .filter(user => user.id === (field.value || storedUserId))
+                                                                .map(user => getUsernameWithUserId(user))[0] || "Select user"
+                                                        }
+                                                    </SelectValue>
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     {!isViewLoading ? (

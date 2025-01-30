@@ -81,10 +81,10 @@ export function MailDisplay({ refreshMails, mails }: { refreshMails: () => void,
     }, []);
 
     const inputHeight = Math.max(40, 30 + Math.ceil(userData?.length / itemsPerRow) * 30);
-    const defaultUsers = useMemo(() => users.map((user) => user.email), [users]);
+    const defaultUsers = useMemo(() => users.map((user) => user), [users]);
 
     const shouldShowAddButton = useMemo(() => {
-        return searchString && !defaultUsers.includes(searchString);
+        return searchString && !defaultUsers.some(user => user.email.includes(searchString));
     }, [searchString, defaultUsers]);
 
     const addCustomUser = () => {
@@ -306,19 +306,19 @@ export function MailDisplay({ refreshMails, mails }: { refreshMails: () => void,
                                                     )}
                                                     {defaultUsers
                                                         .filter((user) =>
-                                                            user.toLowerCase().includes(searchString.toLowerCase())
+                                                            user.email?.toLowerCase().includes(searchString.toLowerCase())
                                                         )
                                                         .map((user) => (
                                                             <CommandItem
-                                                                key={user}
-                                                                value={user}
-                                                                onSelect={() => handleSelectUser(user)}
+                                                                key={user.id}
+                                                                value={user.email}
+                                                                onSelect={() => handleSelectUser(user.email)}
                                                             >
-                                                                {user}
+                                                                {user.customId} - {user.email}
                                                                 <CheckIcon
                                                                     className={cn(
                                                                         "ml-auto h-4 w-4",
-                                                                        userData?.includes(user) ? "opacity-100" : "opacity-0"
+                                                                        userData?.includes(user.email) ? "opacity-100" : "opacity-0"
                                                                     )}
                                                                 />
                                                             </CommandItem>

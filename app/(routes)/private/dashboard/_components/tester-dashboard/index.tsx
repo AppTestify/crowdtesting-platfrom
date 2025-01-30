@@ -93,6 +93,8 @@ export default function TesterDashboard() {
               description="Showing issue severity levels"
               dataKey="severity"
               chartData={dashboard?.severity || {}}
+              projectId={""}
+              entity={"Severity"}
             />
             <StatusBarChart
               title="Status Chart"

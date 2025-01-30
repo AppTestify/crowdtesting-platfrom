@@ -188,3 +188,11 @@ export const displayRTMStatus = (status: string) => {
             return null;
     }
 };
+
+export const statusColors: { [key: string]: { font: { color: { rgb: string } } } } = {
+    "New": { font: { color: { rgb: "1D4ED8" } } },  // Blue
+    "Passed": { font: { color: { rgb: "16A34A" } } },  // Green
+    "Failed": { font: { color: { rgb: "DC2626" } } },  // Red
+    "Caution": { font: { color: { rgb: "F59E0B" } } },  // Yellow
+    "Blocked": { font: { color: { rgb: "6B7280" } } },  // Gray
+};

@@ -13,16 +13,20 @@ import { z } from 'zod';
 import TextEditor from '../../_components/text-editor';
 import { Button } from '@/components/ui/button';
 import { Edit, Loader2 } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import { UserRoles } from '@/app/_constants/user-roles';
 
 const projectSchema = z.object({
     description: z.string().min(1, "Description is required"),
 });
 
 export default function TestInstruction() {
+    const { data } = useSession();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [isUpdateLoading, setIsUpdateLoading] = useState<boolean>(false);
     const [project, setProject] = useState<IProject>();
+    const [userData, setUserData] = useState<any>();
     const { projectId } = useParams<{ projectId: string }>();
     const form = useForm<z.infer<typeof projectSchema>>({
         resolver: zodResolver(projectSchema),
@@ -69,6 +73,13 @@ export default function TestInstruction() {
     useEffect(() => {
         getProject();
     }, [projectId]);
+
+    useEffect(() => {
+        if (data) {
+            const { user } = data;
+            setUserData(user);
+        }
+    }, [data]);
 
     const handleDoubleClick = () => {
         setIsEditing(true);
@@ -132,16 +143,18 @@ export default function TestInstruction() {
                     ) : (
                         <div className='flex justify-between space-x-2'>
                             <div
-                                className="text-sm leading-relaxed text-gray-700 hover:bg-gray-100 w-full hover:rounded-sm p-2 space-y-2 rich-description"
-                                onClick={handleDoubleClick}
+                                className={`text-sm leading-relaxed text-gray-700 ${userData?.role !== UserRoles.TESTER ? "hover:bg-gray-100 hover:rounded-sm" : ""} w-full p-2 space-y-2 rich-description`}
+                                onClick={userData?.role !== UserRoles.TESTER ? handleDoubleClick : undefined}
                                 dangerouslySetInnerHTML={{
                                     __html: project?.description || "",
                                 }}
                             />
-                            <Button className='flex items-center justify-center' type='button' onClick={() => setIsEditing(true)}>
-                                <Edit />
-                                Edit
-                            </Button>
+                            {userData?.role !== UserRoles.TESTER &&
+                                <Button className='flex items-center justify-center' type='button' onClick={() => setIsEditing(true)}>
+                                    <Edit />
+                                    Edit
+                                </Button>
+                            }
                         </div>
                     )}
                 </div>

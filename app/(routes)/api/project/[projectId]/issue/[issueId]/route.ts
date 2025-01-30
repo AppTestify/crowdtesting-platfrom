@@ -186,7 +186,7 @@ export async function GET(
     const { issueId } = params;
     const userIdFormat = await IdFormat.findOne({ entity: DBModels.ISSUE });
     const issue = (await Issue.findById(issueId)
-      .populate("device", "_id name os network")
+      .populate("device", "_id name os network version")
       .populate({
         path: "userId",
         select: "firstName lastName _id",

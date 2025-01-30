@@ -27,3 +27,11 @@ export const enum AttachmentFolder {
   PROFILE_PICTURES = "profile-pictures",
   TEST_CYCLE = "test-cycle",
 }
+
+export const publicEmailDomains = [
+  "gmail.com",
+  "yahoo.com",
+  "outlook.com",
+  "hotmail.com",
+  "icloud.com",
+];

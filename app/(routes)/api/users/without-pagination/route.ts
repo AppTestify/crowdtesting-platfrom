@@ -1,3 +1,4 @@
+import { DBModels } from "@/app/_constants";
 import {
   DB_CONNECTION_ERROR_MESSAGE,
   USER_UNAUTHORIZED_ERROR_MESSAGE,
@@ -5,7 +6,9 @@ import {
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
 import { isAdmin, verifySession } from "@/app/_lib/dal";
+import { IdFormat } from "@/app/_models/id-format.model";
 import { User } from "@/app/_models/user.model";
+import { addCustomIds } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function GET(req: Request) {
@@ -36,7 +39,13 @@ export async function GET(req: Request) {
       );
     }
 
-    const users = await User.find({}).select("firstName lastName email role");
+    const userIdFormat = await IdFormat.findOne({ entity: DBModels.USER });
+    const users = addCustomIds(
+      await User.find({})
+        .select("firstName lastName email role customId")
+        .lean(),
+      userIdFormat?.idFormat
+    );
     return Response.json(users);
   } catch (error: any) {
     return errorHandler(error);

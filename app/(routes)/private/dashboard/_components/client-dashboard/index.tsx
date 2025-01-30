@@ -73,12 +73,16 @@ export default function ClientDashboard() {
           description="Showing issue severity levels"
           dataKey="severity"
           chartData={dashboard?.severity || {}}
+          projectId={""}
+          entity={"Severity"}
         />
         <HorizontalBarChart
           title="Issues by priority"
           description="Showing issue priority levels"
           dataKey="priority"
           chartData={dashboard?.priority || {}}
+          projectId={""}
+          entity={"Priority"}
         />
         <PieCharts
           title="Project status"

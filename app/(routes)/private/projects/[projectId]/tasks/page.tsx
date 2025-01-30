@@ -40,6 +40,7 @@ import ViewTask from "./_components/view-task";
 import { DBModels } from "@/app/_constants";
 import ExpandableTable from "@/app/_components/expandable-table";
 import { IRequirement } from "@/app/_interface/requirement";
+import { UserRoles } from "@/app/_constants/user-roles";
 
 export default function Tasks() {
     const [issues, setTasks] = useState<ITask[]>([]);
@@ -139,15 +140,18 @@ export default function Tasks() {
                 </div>
             ),
         },
-        {
-            id: "actions",
-            enableHiding: false,
-            cell: ({ row }: { row: any }) => (
-                <>
-                    <TaskRowActions row={row} refreshTasks={refreshTasks} />
-                </>
-            ),
-        },
+        ...(
+            userData?.role != UserRoles.TESTER ?
+                [{
+                    id: "actions",
+                    enableHiding: false,
+                    cell: ({ row }: { row: any }) => (
+                        <>
+                            <TaskRowActions row={row} refreshTasks={refreshTasks} />
+                        </>
+                    ),
+                }] : []
+        )
     ];
 
     const [sorting, setSorting] = useState<SortingState>([]);
@@ -268,7 +272,9 @@ export default function Tasks() {
                         }}
                         className="max-w-sm"
                     />
-                    <AddTask refreshTasks={refreshTasks} />
+                    {userData?.role !== UserRoles.TESTER &&
+                        < AddTask refreshTasks={refreshTasks} />
+                    }
                 </div>
                 <div className="rounded-md border">
                     <Table>

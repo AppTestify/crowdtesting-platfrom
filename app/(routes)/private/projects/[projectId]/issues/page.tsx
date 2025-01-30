@@ -188,7 +188,6 @@ export default function Issues() {
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          // className="mr-8"
           >
             Status
             <ArrowUpDown />

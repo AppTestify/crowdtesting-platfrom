@@ -68,6 +68,7 @@ export function AddUser({ refreshUsers }: { refreshUsers: () => void; }) {
                     toasterService.error(response?.message);
                     return;
                 }
+                localStorage.setItem("userId", response?.user?._id);
                 refreshUsers();
                 toasterService.success(response?.message);
             }

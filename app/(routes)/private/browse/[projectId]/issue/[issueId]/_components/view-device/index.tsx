@@ -39,11 +39,11 @@ export default function ViewDevice({ devices }: { devices: IDevice[] }) {
             ),
         },
         {
-            accessorKey: "network",
-            header: "Network",
+            accessorKey: "version",
+            header: "Version",
             cell: ({ row }) => (
                 <div>
-                    {row.getValue('network')}
+                    {row.getValue('version')}
                 </div>
             ),
         },

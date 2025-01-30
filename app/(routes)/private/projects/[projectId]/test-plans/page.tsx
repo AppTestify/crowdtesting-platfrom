@@ -33,9 +33,12 @@ import ViewTestPlan from "./_components/view-test-plan";
 import { ArrowUpDown } from "lucide-react";
 import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
 import { DBModels } from "@/app/_constants";
+import { useSession } from "next-auth/react";
+import { UserRoles } from "@/app/_constants/user-roles";
 
 export default function TestPlan() {
     const [testPlans, setTestPlans] = useState<ITestPlanPayload[]>([]);
+    const [userData, setUserData] = useState<any>();
 
     const columns: ColumnDef<ITestPlanPayload>[] = [
         {
@@ -94,6 +97,7 @@ export default function TestPlan() {
         },
     ];
 
+    const { data } = useSession();
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
     const [rowSelection, setRowSelection] = useState({});
@@ -174,6 +178,13 @@ export default function TestPlan() {
         }
     };
 
+    useEffect(() => {
+        if (data) {
+            const { user } = data;
+            setUserData(user);
+        }
+    }, [data]);
+
     return (
         <main className="mx-4 mt-2">
             <ViewTestPlan
@@ -194,9 +205,11 @@ export default function TestPlan() {
                         }}
                         className="max-w-sm"
                     />
-                    <div className="flex gap-2 ml-2">
-                        <AddTestPlan refreshTestPlans={refreshTestPlans} />
-                    </div>
+                    {userData?.role !== UserRoles.TESTER &&
+                        <div className="flex gap-2 ml-2">
+                            <AddTestPlan refreshTestPlans={refreshTestPlans} />
+                        </div>
+                    }
                 </div>
                 <div className="rounded-md border">
                     <Table>
