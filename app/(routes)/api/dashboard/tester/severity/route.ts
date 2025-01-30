@@ -40,6 +40,7 @@ export async function GET(req: Request) {
       projects = await Project.find({ _id: project });
     } else if (UserRoles.CLIENT) {
       projects = await Project.find({
+        deletedAt: { $exists: false },
         $or: [
           { "users.userId": session.user._id },
           { userId: session.user._id },

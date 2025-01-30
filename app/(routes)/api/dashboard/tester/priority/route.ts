@@ -39,13 +39,14 @@ export async function GET(req: Request) {
     if (
       project &&
       project !== "undefined" &&
-      project !== "" 
-    //   &&
-    //   !UserRoles.CLIENT
+      project !== ""
+      //   &&
+      //   !UserRoles.CLIENT
     ) {
       projects = await Project.find({ _id: project });
     } else if (UserRoles.CLIENT) {
       projects = await Project.find({
+        deletedAt: null,
         $or: [
           { "users.userId": session.user._id },
           { userId: session.user._id },
