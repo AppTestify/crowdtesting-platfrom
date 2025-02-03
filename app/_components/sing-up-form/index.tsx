@@ -27,29 +27,50 @@ import { ErrorCode } from "@/app/_constants/error-codes"
 import { Loader2 } from "lucide-react"
 import { useState } from "react"
 import Link from "next/link"
-
-const formSchema = z.object({
-  email: z.string().email({ message: "Invalid email address" }),
-  password: z.string().min(8, { message: "Password must be at least 8 characters" }),
-})
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { countries, ICountry } from "@/app/_constants/countries"
 
 export function SignUpForm({ role, setIsGoogleSignInDisable }: { role: UserRoles, setIsGoogleSignInDisable: (value: boolean) => void; }) {
+  const formSchema = z.object({
+    email: z.string().email({ message: "Invalid email address" }),
+    password: z.string().min(8, { message: "Password must be at least 8 characters" }),
+  }).extend(
+    role === UserRoles.TESTER ?
+      {
+        firstName: z.string().min(1, { message: "First name is required" }),
+        lastName: z.string().min(1, { message: "Last name is required" }),
+        country: z.string().min(1, { message: "Country is required" }),
+      } : {}
+  );
+
   const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
+  const defaultValues = role === UserRoles.CLIENT ?
+    {
       email: "",
       password: "",
-    },
+      firstName: "",
+      lastName: "",
+      country: ""
+    } :
+    {
+      email: "",
+      password: "",
+    }
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: defaultValues,
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     startLoading()
 
     Cookies.set(CookieKey.ROLE, role);
-    const response = await signIn(NextAuthProviders.CREDENTIALS, { email: values.email, password: values.password, authIntent: AuthIntent.SIGN_UP_CREDS, redirect: false, callbackUrl: `/auth/sign-up?e=${ErrorCode.ERR_SIGN_UP}` });
+    const response = await signIn(NextAuthProviders.CREDENTIALS, {
+      email: values.email, password: values.password, firstName: values.firstName, lastName: values.lastName, country: values.country
+      , authIntent: AuthIntent.SIGN_UP_CREDS, redirect: false, callbackUrl: `/auth/sign-up?e=${ErrorCode.ERR_SIGN_UP}`
+    });
 
     if (response?.error) {
       stopLoading();
@@ -71,7 +92,75 @@ export function SignUpForm({ role, setIsGoogleSignInDisable }: { role: UserRoles
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4 mt-5 mb-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4 mt-4 mb-4">
+
+        {role === UserRoles.TESTER &&
+          (
+            <>
+              <div className="grid grid-cols-1 xs:grid-cols-2 gap-2">
+                <FormField
+                  control={form.control}
+                  name="firstName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>First name</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="lastName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Last name</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="country"
+                render={({ field }) => (
+                  <FormItem className={"flex-[2]"}>
+                    <FormLabel>Country</FormLabel>
+                    <FormControl>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <SelectTrigger>
+                          {field.value}
+                          {!field.value ? <SelectValue /> : null}
+                        </SelectTrigger>
+                        <SelectContent>
+                          {countries.map((country: ICountry) => (
+                            <SelectItem
+                              key={country.description}
+                              value={country.description}
+                            >
+                              {country.description}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </>)
+        }
+
         <FormField
           control={form.control}
           name="email"
