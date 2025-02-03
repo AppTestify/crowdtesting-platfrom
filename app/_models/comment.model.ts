@@ -9,6 +9,7 @@ export interface IComment extends Document {
   updatedBy: Types.ObjectId;
   deletedBy: Types.ObjectId;
   isDelete: boolean;
+  isVerify: boolean;
 }
 
 const commentSchema = new Schema<IComment>(
@@ -20,6 +21,7 @@ const commentSchema = new Schema<IComment>(
     updatedBy: { type: Schema.Types.ObjectId, ref: DBModels.USER },
     deletedBy: { type: Schema.Types.ObjectId, ref: DBModels.USER },
     isDelete: { type: Boolean, required: false, default: false },
+    isVerify: { type: Boolean, default: false },
   },
   {
     timestamps: true,

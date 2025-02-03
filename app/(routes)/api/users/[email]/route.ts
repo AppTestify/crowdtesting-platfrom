@@ -28,7 +28,7 @@ export async function GET(
       "profilePicture",
       "data contentType cloudId"
     );
-    
+
     if (!existingUser) {
       return Response.json(
         { message: USER_NOT_FOUND_ERROR_MESSAGE },

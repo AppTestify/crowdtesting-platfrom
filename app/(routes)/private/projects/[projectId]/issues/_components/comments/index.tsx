@@ -1,5 +1,5 @@
 import { IComment } from '@/app/_interface/comment';
-import { addCommentService, deleteCommentService, getCommentsService, updateCommentService } from '@/app/_services/comment.service';
+import { addCommentService, deleteCommentService, getCommentsService, updateCommentService, verifyCommentService } from '@/app/_services/comment.service';
 import toasterService from '@/app/_services/toaster-service';
 import { getAvatarFallbackText, getFormattedBase64ForSrc } from '@/app/_utils/string-formatters';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -21,13 +21,16 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { getProfilePictureService } from '@/app/_services/user.service';
 import { PAGINATION_LIMIT } from '@/app/_constants/pagination-limit';
 import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
+import { checkProjectAdmin } from '@/app/_utils/common';
+import { IProject } from '@/app/_interface/project';
 
 const commentSchema = z.object({
     entityId: z.string().min(1, "Required"),
     content: z.string().min(1, "Required"),
 });
 
-export default function Comments() {
+export default function Comments({ project }: { project: IProject }) {
     const { issueId } = useParams<{ issueId: string }>();
     const { projectId } = useParams<{ projectId: string }>();
     const [comments, setComments] = useState<IComment[]>([]);
@@ -38,10 +41,14 @@ export default function Comments() {
     const [isDeleteLoading, setIsDeleteLoading] = useState<boolean>(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false);
     const [isEditOpen, setIsEditOpen] = useState<boolean>(false);
+    const [isVerifyOpen, setIsVerifyOpen] = useState<boolean>(false);
     const [commentId, setCommentId] = useState<string>("");
+    const [isVerifyLoading, setIsVerifyLoading] = useState<boolean>(false);
+    const [isVerify, setIsVerify] = useState<boolean>(false);
     const [profile, setProfile] = useState<any>();
     const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
     const [totalComments, setTotalComments] = useState<number>(0);
+    const checkProjectRole = checkProjectAdmin(project as IProject, user);
     const { data } = useSession();
 
     const form = useForm<z.infer<typeof commentSchema>>({
@@ -82,7 +89,10 @@ export default function Comments() {
     async function onSubmit(values: z.infer<typeof commentSchema>) {
         setIsLoading(true);
         try {
-            const response = await addCommentService(projectId, issueId, values);
+            const response = await addCommentService(projectId, issueId, {
+                ...values,
+                isVerify: user?.role === UserRoles.CLIENT && true
+            });
             if (response) {
                 getComments();
                 reset();
@@ -148,6 +158,21 @@ export default function Comments() {
         }
     }
 
+    const verifyComment = async () => {
+        setIsVerifyLoading(true);
+        try {
+            const response = await verifyCommentService(commentId, projectId, issueId, { isVerify: isVerify ? false : true });
+            if (response) {
+                getComments();
+                setIsVerifyOpen(false);
+            }
+        } catch (error) {
+            toasterService.error();
+        } finally {
+            setIsVerifyLoading(false);
+        }
+    }
+
     const reset = () => {
         form.reset();
         setIsEdit(false);
@@ -175,6 +200,12 @@ export default function Comments() {
         setCommentId(id);
     }
 
+    const handleVerify = (id: string, isVerify: boolean) => {
+        setIsVerifyOpen(true);
+        setCommentId(id);
+        setIsVerify(isVerify);
+    }
+
     return (
         <>
             <ConfirmationDialog
@@ -187,6 +218,18 @@ export default function Comments() {
                 successLabel="Delete"
                 successLoadingLabel="Deleting"
                 successVariant={"destructive"}
+            />
+
+            <ConfirmationDialog
+                isOpen={isVerifyOpen}
+                setIsOpen={setIsVerifyOpen}
+                title={`${isVerify ? "Unverify" : "Verify"} comment`}
+                description={`Are you sure you want to ${isVerify ? "un verify" : "verify"} this comment?`}
+                isLoading={isVerifyLoading}
+                successAction={verifyComment}
+                successLabel={`${isVerify ? "Unverify" : "Verify"}`}
+                successLoadingLabel={`${isVerify ? "Unverifing" : "Verifing"}`}
+                successVariant={"default"}
             />
             <div className="mt-3 mb-8">
                 <div className="text-sm ">Comments</div>
@@ -245,15 +288,16 @@ export default function Comments() {
                                                         </div>
                                                     </div>
                                                 )}
-                                            </div>
-                                        </FormControl>
+                                            </div >
+                                        </FormControl >
                                         <FormMessage />
-                                    </FormItem>
-                                )}
+                                    </FormItem >
+                                )
+                                }
                             />
-                        </form>
-                    </Form>
-                </div>
+                        </form >
+                    </Form >
+                </div >
                 {!isViewLoading ? (
                     <div className="mt-5">
                         {comments?.map((comment, index) => (
@@ -281,6 +325,13 @@ export default function Comments() {
                                     <div className="flex justify-between items-center">
                                         <span className="text-sm font-semibold text-gray-700">
                                             {`${comment?.commentedBy?.firstName} ${comment?.commentedBy?.lastName}`}
+                                            {user?.role === UserRoles.ADMIN &&
+                                                <span className='ml-2 xs:ml-4'>
+                                                    <Badge className={`${comment?.isVerify ? "bg-primary" : "bg-red-400"}`}>
+                                                        {comment?.isVerify ? "Verified" : "Un verified"}
+                                                    </Badge>
+                                                </span>
+                                            }
                                         </span>
                                         <span className="text-xs text-gray-500">
                                             {formatDistanceToNow(new Date(comment?.createdAt || new Date()), { addSuffix: true })}
@@ -353,10 +404,15 @@ export default function Comments() {
                                         )}
 
                                     <div className="mt-2">
-                                        {(user?._id === comment?.commentedBy?._id || user?.role === UserRoles.ADMIN) && !isEditOpen && (
+                                        {(user?._id === comment?.commentedBy?._id || user?.role === UserRoles.ADMIN || checkProjectRole) && !isEditOpen && (
                                             <div className="flex space-x-4 text-sm text-gray-600">
                                                 <button className="hover:underline" onClick={() => handleEdit(comment?._id)}>Edit</button>
                                                 <button className="hover:underline" onClick={() => handleDelete(comment?._id)}>Delete</button>
+                                                {user?.role === UserRoles.ADMIN &&
+                                                    <button className="hover:underline" onClick={() => handleVerify(comment?._id, comment?.isVerify)}>
+                                                        {comment?.isVerify ? 'Unverify' : 'Verify'}
+                                                    </button>
+                                                }
                                             </div>
                                         )}
                                     </div>
@@ -387,7 +443,7 @@ export default function Comments() {
                     ))
 
                 )}
-            </div>
+            </div >
         </>
     )
 }

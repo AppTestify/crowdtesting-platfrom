@@ -32,10 +32,7 @@ import { IDevice } from "@/app/_interface/device";
 import { NAME_NOT_SPECIFIED_ERROR_MESSAGE } from "@/app/_constants/errors";
 import Comments from "@/app/(routes)/private/projects/[projectId]/issues/_components/comments";
 
-const commentSchema = z.object({
-  entityId: z.string().min(1, "Required"),
-  content: z.string().min(1, "Required"),
-});
+
 
 const ViewIssue = () => {
   const [isViewLoading, setIsViewLoading] = useState<boolean>(false);
@@ -257,9 +254,9 @@ const ViewIssue = () => {
               </div>
             </div>
 
-            {/* <div className="">
-              <Comments />
-            </div> */}
+            <div className="">
+              <Comments project={project as IProject} />
+            </div>
           </div>
         </main>
       ) : (

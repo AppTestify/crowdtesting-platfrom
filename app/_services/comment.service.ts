@@ -2,10 +2,11 @@ import {
   COMMENT_ENDPOINT,
   PAGINATION_QUERY_ENDPOINT,
 } from "../_constants/api-endpoints";
-import { ICommentPayload } from "../_interface/comment";
+import { ICommentPayload, ICommentVerifyPayload } from "../_interface/comment";
 import {
   genericDelete,
   genericGet,
+  genericPatch,
   genericPost,
   genericPut,
 } from "./generic-api-methods";
@@ -73,6 +74,24 @@ export const updateCommentService = async (
     return response || {};
   } catch (error) {
     console.error(`Error > updateCommentService:`, error);
+    throw error;
+  }
+};
+
+export const verifyCommentService = async (
+  id: string,
+  projectId: string,
+  issueId: string,
+  body: ICommentVerifyPayload
+): Promise<any> => {
+  try {
+    const response = await genericPatch(
+      `${COMMENT_ENDPOINT(projectId, issueId)}/${id}/verify`,
+      body
+    );
+    return response || {};
+  } catch (error) {
+    console.error(`Error > verifyCommentService:`, error);
     throw error;
   }
 };

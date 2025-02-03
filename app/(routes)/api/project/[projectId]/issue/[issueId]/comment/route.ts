@@ -7,7 +7,7 @@ import {
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
 import AttachmentService from "@/app/_helpers/attachment.helper";
-import { verifySession } from "@/app/_lib/dal";
+import { isAdmin, isClient, verifySession } from "@/app/_lib/dal";
 import { Comment } from "@/app/_models/comment.model";
 import { CommentSchema } from "@/app/_schemas/comment.schema";
 import { serverSidePagination } from "@/app/_utils/common-server-side";
@@ -92,21 +92,43 @@ export async function GET(
     const url = new URL(req.url);
     const limit = parseInt(url.searchParams.get("limit") || "10", 10);
     const find = { entityId: issueId, isDelete: false };
+    let totalComments, response;
 
-    const totalComments = await Comment.find(find).countDocuments();
-    const response = await Comment.find(find)
-      .limit(Number(limit))
-      .populate({
-        path: "commentedBy",
-        select: "profilePicture role email firstName lastName",
-        populate: {
-          path: "profilePicture",
-          select: "name contentType cloudId",
-        },
+    if (!(await isClient(session.user))) {
+      totalComments = await Comment.find(find).countDocuments();
+      response = await Comment.find(find)
+        .limit(Number(limit))
+        .populate({
+          path: "commentedBy",
+          select: "profilePicture role email firstName lastName",
+          populate: {
+            path: "profilePicture",
+            select: "name contentType cloudId",
+          },
+        })
+        .sort({ createdAt: -1 });
+    } else {
+      totalComments = await Comment.find({
+        ...find,
+        isVerify: true,
+      }).countDocuments();
+      response = await Comment.find({
+        ...find,
+        isVerify: true,
       })
-      .sort({ createdAt: -1 });
+        .limit(Number(limit))
+        .populate({
+          path: "commentedBy",
+          select: "profilePicture role email firstName lastName",
+          populate: {
+            path: "profilePicture",
+            select: "name contentType cloudId",
+          },
+        })
+        .sort({ createdAt: -1 });
+    }
 
-    const cache = new Map();  
+    const cache = new Map();
 
     const data = await Promise.all(
       response.map(async (comment) => {
@@ -117,7 +139,7 @@ export async function GET(
             const fileResponse = await attachmentService.fetchFileAsBase64(
               profilePicture.cloudId
             );
-            cache.set(profilePicture.cloudId, fileResponse);  
+            cache.set(profilePicture.cloudId, fileResponse);
           }
           const cachedFileResponse = cache.get(profilePicture.cloudId);
 

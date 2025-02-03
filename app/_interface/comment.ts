@@ -6,6 +6,11 @@ export interface ICommentPayload {
   updatedBy?: string[];
   deletedBy?: string;
   isDelete?: string;
+  isVerify?: boolean;
+}
+
+export interface ICommentVerifyPayload {
+  isVerify: boolean;
 }
 
 export interface IComment {
@@ -17,4 +22,5 @@ export interface IComment {
   isDelete?: string;
   content: string;
   createdAt?: Date;
+  isVerify: boolean;
 }
