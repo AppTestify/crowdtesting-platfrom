@@ -27,7 +27,9 @@ export const generateAuthKeyForUnprotectedRoutes = (
 ): string => {
   const currentDateTimeUTC = new Date().toISOString();
   return encodeToBase64(
-    `${entityId.toString()}${Delimeters.PIPE}${currentDateTimeUTC}${Delimeters.PIPE}${role}`
+    `${entityId.toString()}${Delimeters.PIPE}${currentDateTimeUTC}${
+      Delimeters.PIPE
+    }${role}`
   );
 };
 
@@ -136,4 +138,8 @@ export const customIdForSearch = (idObject: any, searchString: string) => {
   }
 
   return searchString;
+};
+
+export const normalizePassword = (password: string) => {
+  return password.normalize("NFKC").trim();
 };

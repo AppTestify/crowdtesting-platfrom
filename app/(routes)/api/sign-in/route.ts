@@ -11,6 +11,7 @@ import { connectDatabase } from "@/app/_db";
 import { createSession } from "@/app/_lib/session";
 import { User } from "@/app/_models/user.model";
 import { signInSchema } from "@/app/_schemas/auth.schema";
+import { normalizePassword } from "@/app/_utils/common-server-side";
 import bcrypt from "bcryptjs";
 
 export async function POST(req: Request) {
@@ -53,11 +54,11 @@ export async function POST(req: Request) {
       );
     }
 
+    const normalizedPassword = normalizePassword(password);
     const isPasswordValid = await bcrypt.compare(
-      password,
+      normalizedPassword,
       existingUser.password
     );
-
 
     if (!isPasswordValid) {
       return Response.json(
