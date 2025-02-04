@@ -86,7 +86,7 @@ export default function Issues() {
           header: "Reporter",
           cell: ({ row }: { row: any }) => (
             <div className="">
-              {`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}
+              {`${row.original?.userId?.firstName || ""} ${row.original?.userId?.lastName || ""}`}
             </div>
           ),
         },
