@@ -41,7 +41,7 @@ const ViewTesterIssue = ({
     const [devices, setDevices] = useState<IDevice[]>([]);
     const [isPaypalVisible, setIsPaypalVisible] = useState<boolean>(false);
     const [open, setOpen] = useState(false);
-    const userId = user?.id as string;
+    const userId = user?.id || user?._id as string;
     const { data } = useSession();
 
     useEffect(() => {

@@ -197,6 +197,9 @@ const handleAuthorization = async (credentials: any) => {
     const response = await signUpService({
       email: credentials?.email || "",
       password: credentials?.password || "",
+      firstName: credentials?.firstName || "",
+      lastName: credentials?.lastName || "",
+      country: credentials?.country || "",
       role: role,
     });
     if (response?.user) {

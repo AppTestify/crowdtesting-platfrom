@@ -48,8 +48,11 @@ export async function GET(req: Request) {
       projects = await Project.find({ _id: project });
     } else {
       projects = await Project.find({
-        userId: session.user._id,
         deletedAt: { $exists: false },
+        $or: [
+          { "users.userId": session.user._id },
+          { userId: session.user._id },
+        ],
       });
     }
     const issues = await Issue.find({

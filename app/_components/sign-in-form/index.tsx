@@ -8,14 +8,12 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { signInService } from "@/app/_services/auth-service";
 import toasterService from "@/app/_services/toaster-service";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
@@ -24,8 +22,7 @@ import Cookies from 'js-cookie';
 import { CookieKey } from "@/app/_constants/cookie-keys";
 import { AuthIntent } from "@/app/_constants";
 import { useState } from "react";
-import { Loader2 } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
+import { EyeIcon, EyeOffIcon, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 const formSchema = z.object({
@@ -40,6 +37,7 @@ export function SignInForm({ setIsGoogleSignInDisable }: { setIsGoogleSignInDisa
   const router = useRouter();
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isVisible, setIsVisible] = useState<boolean>(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -79,6 +77,10 @@ export function SignInForm({ setIsGoogleSignInDisable }: { setIsGoogleSignInDisa
     setIsGoogleSignInDisable(false);
   }
 
+  const handlePasswordVisibility = () => {
+    setIsVisible((prev) => !prev);
+  };
+
   return (
     <Form {...form}>
       <form
@@ -105,7 +107,22 @@ export function SignInForm({ setIsGoogleSignInDisable }: { setIsGoogleSignInDisa
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input type="password" {...field} />
+                <div className="relative">
+                  <Input type={isVisible ? "text" : "password"} {...field} />
+                  <button
+                    type="button"
+                    onClick={handlePasswordVisibility}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 z-10"
+                  >
+                    <span>
+                      {isVisible ? (
+                        <EyeOffIcon className="h-5 w-5 text-gray-500" />
+                      ) : (
+                        <EyeIcon className="h-5 w-5 text-gray-500" />
+                      )}
+                    </span>
+                  </button>
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>

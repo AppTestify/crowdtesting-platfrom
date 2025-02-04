@@ -183,7 +183,7 @@ export function DonutChart({
             </CardHeader>
             <CardContent className="flex flex-1 justify-center pb-0">
                 {isEmpty ? (
-                    <div className='flex justify-center items-center h-full'>
+                    <div className='flex justify-center items-center h-60'>
                         <div className="text-center text-xl text-gray-500">No data found</div>
                     </div>
                 ) : (

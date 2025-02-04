@@ -100,7 +100,7 @@ export default function ClientDashboard() {
           headerTitle={"Task by status"} />
       </div>
 
-      <div className="grid gap-2 mt-1 sm:mt-2 grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
+      <div className="grid gap-2 mt-1 sm:mt-2 grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 mb-4">
         <DeviceChart
           title="Issues by device"
           description="Showing top 10 most devices"

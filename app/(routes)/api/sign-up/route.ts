@@ -4,17 +4,21 @@ import {
   JWT_SECRET,
   JWT_TOKEN_EXPIRE_LIMIT,
 } from "@/app/_constants";
+import { publicEmailDomains } from "@/app/_constants/constant-server-side";
 import {
   DB_CONNECTION_ERROR_MESSAGE,
   EMAIL_REQUIRED_ERROR_MESSAGE,
   GENERIC_ERROR_MESSAGE,
   INVALID_INPUT_ERROR_MESSAGE,
+  ONLY_BUSSINESS_EMAIL_ALLOWED,
   USER_EXISTS_ERROR_MESSAGE,
 } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
+import { UserRoles } from "@/app/_constants/user-roles";
 import { connectDatabase } from "@/app/_db";
 import { createSession } from "@/app/_lib/session";
 import { Counter } from "@/app/_models/counter.model";
+import { Tester } from "@/app/_models/tester.model";
 import { User } from "@/app/_models/user.model";
 import { signUpSchema } from "@/app/_schemas/auth.schema";
 import { sendVerificationEmail } from "@/app/_utils/email";
@@ -45,7 +49,8 @@ export async function POST(req: Request) {
       );
     }
 
-    const { email, password, role } = response.data;
+    const { email, password, role, firstName, lastName, country } =
+      response.data;
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
@@ -57,7 +62,22 @@ export async function POST(req: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    if (role === UserRoles.CLIENT) {
+      const emailDomain = email.split("@")[1];
+
+      if (publicEmailDomains.includes(emailDomain)) {
+        return Response.json(
+          { message: ONLY_BUSSINESS_EMAIL_ALLOWED },
+          { status: HttpStatusCode.BAD_REQUEST }
+        );
+      }
+    }
+
     const newUser = new User({
+      ...(role === UserRoles.TESTER && {
+        firstName: firstName,
+        lastName: lastName,
+      }),
       email,
       password: hashedPassword,
       role,
@@ -65,6 +85,14 @@ export async function POST(req: Request) {
       isActive: true,
     });
     await newUser.save();
+
+    if (role === UserRoles.TESTER) {
+      const newTesterCountry = new Tester({
+        "address.country": country,
+        user: newUser._id,
+      });
+      await newTesterCountry.save();
+    }
 
     const { password: _, ...userWithoutPassword } = newUser.toObject();
     const token = jwt.sign(

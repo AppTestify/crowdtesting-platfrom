@@ -374,6 +374,7 @@ export default function Issues() {
   const hasData = table.getRowModel().rows?.length > 0;
 
   const handleSeverityChange = (severity: Severity | "All") => {
+    setPageIndex(1);
     if (severity == "All") {
       setSelectedSeverity("");
     } else {
@@ -382,6 +383,7 @@ export default function Issues() {
   };
 
   const handlePriorityChange = (priority: Priority | "All") => {
+    setPageIndex(1);
     if (priority == "All") {
       setSelectedPriority("");
     } else {
@@ -390,6 +392,7 @@ export default function Issues() {
   };
 
   const handleStatusChange = (priority: IssueStatus | "All") => {
+    setPageIndex(1);
     if (priority == "All") {
       setSelectedStatus("");
     } else {
