@@ -327,7 +327,7 @@ export default function Comments({ project }: { project: IProject }) {
                                             {`${comment?.commentedBy?.firstName} ${comment?.commentedBy?.lastName}`}
                                             {user?.role === UserRoles.ADMIN &&
                                                 <span className='ml-2 xs:ml-4'>
-                                                    <Badge className={`${comment?.isVerify ? "bg-primary" : "bg-red-400"}`}>
+                                                    <Badge className={`${comment?.isVerify ? "bg-primary" : "bg-red-400 hover:bg-red-400 hover:opacity-90"}`}>
                                                         {comment?.isVerify ? "Verified" : "Un verified"}
                                                     </Badge>
                                                 </span>
