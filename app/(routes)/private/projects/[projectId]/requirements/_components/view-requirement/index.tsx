@@ -4,6 +4,8 @@ import RequirementAttachments from "../attachments/requirement-attachment";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { RequirementTabs } from "@/app/_constants/project";
 import { formatDistanceToNow } from "date-fns";
+import { UserCircle2Icon } from "lucide-react";
+import { NAME_NOT_SPECIFIED_ERROR_MESSAGE } from "@/app/_constants/errors";
 
 const ViewRequirement = ({
   requirement,
@@ -68,6 +70,20 @@ const ViewRequirement = ({
                 className="w-full"
               >
                 <div className="mt-4">
+                  {/* Assigned */}
+                  {/* <div className="flex items-center gap-[10px]">
+                    <span className="text-gray-500 min-w-[40px] text-sm">Assignee</span>
+                    <span className="text-sm flex items-center">
+                      <UserCircle2Icon className="text-gray-600 h-4 w-4 mr-1" />
+                      {requirement?.assignedTo?._id ? (
+                        `${requirement?.assignedTo?.firstName ||
+                        NAME_NOT_SPECIFIED_ERROR_MESSAGE
+                        } ${requirement?.assignedTo?.lastName || ""}`
+                      ) : (
+                        <span className="text-gray-400">Unassigned</span>
+                      )}
+                    </span>
+                  </div> */}
                   <div
                     className="text-sm leading-relaxed text-gray-700 rich-description"
                     dangerouslySetInnerHTML={{

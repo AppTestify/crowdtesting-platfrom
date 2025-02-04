@@ -27,6 +27,12 @@ import { ITestPlan } from "@/app/_interface/test-plan";
 import { updateTestPlanService } from "@/app/_services/test-plan.service";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TESTING_LIST } from "@/app/_constants/test-plan";
+import { ProjectUserRoles } from "@/app/_constants/project-user-roles";
+import { UserRoles } from "@/app/_constants/user-roles";
+import { useSession } from "next-auth/react";
+import { IProjectUserDisplay } from "@/app/_interface/project";
+import { getUsernameWithUserId } from "@/app/_utils/common";
+import { getProjectUsersService } from "@/app/_services/project.service";
 
 const testPlanSchema = z.object({
     title: z.string().min(1, "Required"),
@@ -35,6 +41,7 @@ const testPlanSchema = z.object({
         parameter: z.string().min(1, 'Required'),
         description: z.string().min(1, 'Required')
     })),
+    assignedTo: z.string().nullable().optional(),
 });
 
 export function EditTestPlan({
@@ -49,14 +56,20 @@ export function EditTestPlan({
     refreshTestPlans: () => void;
 }) {
     const testSuiteId = testPlan.id;
+    const { data } = useSession();
     const { title, projectId, parameters } = testPlan;
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [userProjectRole, setUserProjectRole] =
+        useState<ProjectUserRoles | null>(null);
+    const [users, setUsers] = useState<IProjectUserDisplay[]>([]);
+
     const form = useForm<z.infer<typeof testPlanSchema>>({
         resolver: zodResolver(testPlanSchema),
         defaultValues: {
             title: title || "",
             projectId: projectId || "",
             parameters: parameters || [],
+            assignedTo: testPlan?.assignedTo?._id || ""
         },
     });
     const { fields, append, remove } = useFieldArray({
@@ -75,6 +88,7 @@ export function EditTestPlan({
         try {
             const response = await updateTestPlanService(projectId, testSuiteId, {
                 ...values,
+                assignedTo: values.assignedTo || undefined,
             });
             if (response) {
                 refreshTestPlans();
@@ -92,15 +106,52 @@ export function EditTestPlan({
         form.reset({
             title: title || "",
             projectId: projectId || "",
-            parameters: parameters || []
+            parameters: parameters || [],
+            assignedTo: testPlan?.assignedTo?._id || ""
         });
+    };
+
+    const getSelectedUser = (field: any) => {
+        const selectedUser = users?.find(
+            (user) => user?.userId?._id === field.value
+        );
+        return getUsernameWithUserId(selectedUser);
+    };
+
+    const getProjectUsers = async () => {
+        try {
+            const projectUsers = await getProjectUsersService(projectId as unknown as string);
+            if (projectUsers?.users?.length) {
+                setUsers(projectUsers.users);
+            }
+        } catch (error) {
+            toasterService.error();
+        }
     };
 
     useEffect(() => {
         if (sheetOpen) {
             resetForm();
+            getProjectUsers();
         }
     }, [sheetOpen]);
+
+    useEffect(() => {
+        if (data && users?.length) {
+            const { user } = data;
+            const userObj: any = { ...user };
+            if (userObj.role === UserRoles.ADMIN) {
+                setUserProjectRole(ProjectUserRoles.ADMIN);
+            } else if (userObj.role === UserRoles.CLIENT) {
+                setUserProjectRole(ProjectUserRoles.CLIENT);
+            } else {
+                setUserProjectRole(
+                    (users.find((userEl) => userEl.userId?._id === userObj._id)
+                        ?.role as ProjectUserRoles) || ProjectUserRoles.TESTER
+                );
+            }
+        }
+    }, [data, users]);
 
     return (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
@@ -126,6 +177,48 @@ export function EditTestPlan({
                                     )}
                                 />
                             </div>
+
+                            {userProjectRole === ProjectUserRoles.ADMIN ||
+                                userProjectRole === ProjectUserRoles.CLIENT ? (
+                                <div className="grid grid-cols-1 gap-2 mt-4">
+                                    <FormField
+                                        control={form.control}
+                                        name="assignedTo"
+                                        render={({ field }) => (
+                                            <FormItem className="flex flex-col">
+                                                <FormLabel>Assignee</FormLabel>
+                                                <Select
+                                                    onValueChange={field.onChange}
+                                                    value={field.value ?? undefined}
+                                                >
+                                                    <SelectTrigger className="w-full">
+                                                        <SelectValue>{getSelectedUser(field)}</SelectValue>
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectGroup>
+                                                            {users.length > 0 ? (
+                                                                users.map((user) => (
+                                                                    <SelectItem
+                                                                        key={user._id}
+                                                                        value={user?.userId?._id as string}
+                                                                    >
+                                                                        {getUsernameWithUserId(user)}
+                                                                    </SelectItem>
+                                                                ))
+                                                            ) : (
+                                                                <div className="p-1 text-center text-gray-500">
+                                                                    Users not found
+                                                                </div>
+                                                            )}
+                                                        </SelectGroup>
+                                                    </SelectContent>
+                                                </Select>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                            ) : null}
 
                             <div className="flex flex-col gap-4 mt-4">
                                 {fields.map((field, index) => (

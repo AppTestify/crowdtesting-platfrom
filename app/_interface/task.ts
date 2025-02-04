@@ -24,3 +24,9 @@ export interface ITask {
   createdAt: string;
   requirementIds: string[];
 }
+
+export interface ITaskStatusPayload {
+  status: string;
+  id?: string;
+  _id?: string;
+}

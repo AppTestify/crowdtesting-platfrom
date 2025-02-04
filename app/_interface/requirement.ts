@@ -6,6 +6,8 @@ export interface IRequirementPayload {
   description?: string;
   projectId?: string;
   attachments?: File[];
+  assignedTo?: string;
+  status: string;
 }
 
 export interface IRequirement {
@@ -18,6 +20,8 @@ export interface IRequirement {
   customId: string;
   createdAt: string;
   updatedAt: string;
+  assignedTo: IUserByAdmin;
+  status: string;
 }
 
 export interface IRequirementAttachmentDisplay {

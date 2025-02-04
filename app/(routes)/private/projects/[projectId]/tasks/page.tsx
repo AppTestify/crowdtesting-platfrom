@@ -43,9 +43,18 @@ import { IRequirement } from "@/app/_interface/requirement";
 import { UserRoles } from "@/app/_constants/user-roles";
 
 export default function Tasks() {
-    const [issues, setTasks] = useState<ITask[]>([]);
+    const [tasks, setTasks] = useState<ITask[]>([]);
     const [userData, setUserData] = useState<any>();
     const { projectId } = useParams<{ projectId: string }>();
+
+    const showTaskRowActions = (task: ITask) => {
+        return (
+            (task.userId?._id?.toString() === userData?._id?.toString()) ||
+            userData?.role !== UserRoles.TESTER ||
+            (task?.assignedTo?._id?.toString() === userData?._id?.toString())
+        );
+    };
+
 
     const columns: ColumnDef<ITask>[] = [
         {
@@ -140,18 +149,18 @@ export default function Tasks() {
                 </div>
             ),
         },
-        ...(
-            userData?.role != UserRoles.TESTER ?
-                [{
-                    id: "actions",
-                    enableHiding: false,
-                    cell: ({ row }: { row: any }) => (
-                        <>
-                            <TaskRowActions row={row} refreshTasks={refreshTasks} />
-                        </>
-                    ),
-                }] : []
-        )
+        {
+            id: "actions",
+            enableHiding: false,
+            cell: ({ row }: { row: any }) => (
+                <>
+                    {showTaskRowActions(row.original) ? (
+                        <TaskRowActions row={row} refreshTasks={refreshTasks} userData={userData} />
+                    ) : null}
+                </>
+            ),
+        }
+
     ];
 
     const [sorting, setSorting] = useState<SortingState>([]);
@@ -203,7 +212,7 @@ export default function Tasks() {
     };
 
     const table = useReactTable({
-        data: issues,
+        data: tasks,
         columns,
         onSortingChange: setSorting,
         getCoreRowModel: getCoreRowModel(),
@@ -272,9 +281,9 @@ export default function Tasks() {
                         }}
                         className="max-w-sm"
                     />
-                    {userData?.role !== UserRoles.TESTER &&
-                        < AddTask refreshTasks={refreshTasks} />
-                    }
+                    {/* {userData?.role !== UserRoles.TESTER && */}
+                    <AddTask refreshTasks={refreshTasks} />
+                    {/* // } */}
                 </div>
                 <div className="rounded-md border">
                     <Table>

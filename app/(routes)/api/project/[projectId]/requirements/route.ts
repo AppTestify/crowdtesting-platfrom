@@ -55,6 +55,8 @@ export async function POST(
       title: body.get("title"),
       description: body.get("description"),
       projectId: body.get("projectId"),
+      assignedTo: body.get("assignedTo") || null,
+      status: body.get("status"),
     };
     const response = requirementSchema.safeParse(formData);
 
@@ -190,7 +192,8 @@ export async function GET(
     if (!(await isAdmin(session.user))) {
       response = addCustomIds(
         await Requirement.find({ projectId: projectId })
-          //   .populate("attachments")
+          .populate("userId", "firstName lastName")
+          .populate("assignedTo", "firstName lastName")
           .sort({ createdAt: -1 })
           .skip(skip)
           .limit(Number(limit))
@@ -200,7 +203,8 @@ export async function GET(
     } else {
       response = addCustomIds(
         await Requirement.find({ projectId: projectId })
-          .populate("userId")
+          .populate("userId", "firstName lastName")
+          .populate("assignedTo", "firstName lastName")
           .sort({ createdAt: -1 })
           .skip(skip)
           .limit(Number(limit))

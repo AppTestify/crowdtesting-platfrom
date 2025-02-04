@@ -35,6 +35,8 @@ import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
 import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
 import { DBModels } from "@/app/_constants";
+import { NAME_NOT_SPECIFIED_ERROR_MESSAGE } from "@/app/_constants/errors";
+import { taskStatusBadge } from "@/app/_utils/common-functionality";
 
 export default function Issues() {
   const [requirements, setRequirements] = useState<IRequirement[]>([]);
@@ -77,13 +79,34 @@ export default function Issues() {
         </div>
       ),
     },
-    ...(requirements.some((item) => item.userId?._id)
+    ...(userData?.role !== UserRoles.CLIENT
       ? [
         {
           accessorKey: "createdBy",
-          header: "Created By",
+          header: "Reporter",
           cell: ({ row }: { row: any }) => (
-            <div className="">{`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}</div>
+            <div className="">
+              {`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}
+            </div>
+          ),
+        },
+      ]
+      : []),
+    ...(requirements.some((item) => item.assignedTo?._id)
+      ? [
+        {
+          accessorKey: "assignedTo",
+          header: "Assignee",
+          cell: ({ row }: { row: any }) => (
+            <div>
+              {row.original?.assignedTo?._id ? (
+                `${row.original?.assignedTo?.firstName ||
+                NAME_NOT_SPECIFIED_ERROR_MESSAGE
+                } ${row.original?.assignedTo?.lastName || ""}`
+              ) : (
+                <span className="text-gray-400">Unassigned</span>
+              )}
+            </div>
           ),
         },
       ]
@@ -96,6 +119,15 @@ export default function Issues() {
           {formatDistanceToNow(new Date(row.getValue("updatedAt")), {
             addSuffix: true,
           })}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "status",
+      header: ({ column }) => <div className="ml-1">Status</div>,
+      cell: ({ row }) => (
+        <div className="capitalize max-w-[200px] truncate">
+          {taskStatusBadge(row.getValue("status"))}
         </div>
       ),
     },

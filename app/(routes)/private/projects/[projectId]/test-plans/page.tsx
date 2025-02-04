@@ -35,6 +35,7 @@ import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
 import { DBModels } from "@/app/_constants";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
+import { NAME_NOT_SPECIFIED_ERROR_MESSAGE } from "@/app/_constants/errors";
 
 export default function TestPlan() {
     const [testPlans, setTestPlans] = useState<ITestPlanPayload[]>([]);
@@ -69,16 +70,48 @@ export default function TestPlan() {
                     {row.getValue("title")}</div>
             ),
         },
-        ...(
-            testPlans.some((item) => item.userId?._id) ?
-                [{
+        // ...(
+        //     testPlans.some((item) => item.userId?._id) ?
+        //         [{
+        //             accessorKey: "createdBy",
+        //             header: "Created By",
+        //             cell: ({ row }: { row: any }) => (
+        //                 <div className="">{`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}</div>
+        //             ),
+        //         }] : []
+        // ),
+        ...(userData?.role !== UserRoles.CLIENT
+            ? [
+                {
                     accessorKey: "createdBy",
-                    header: "Created By",
+                    header: "Reporter",
                     cell: ({ row }: { row: any }) => (
-                        <div className="">{`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}</div>
+                        <div className="">
+                            {`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}
+                        </div>
                     ),
-                }] : []
-        ),
+                },
+            ]
+            : []),
+        ...(testPlans.some((item) => item.assignedTo?._id)
+            ? [
+                {
+                    accessorKey: "assignedTo",
+                    header: "Assignee",
+                    cell: ({ row }: { row: any }) => (
+                        <div>
+                            {row.original?.assignedTo?._id ? (
+                                `${row.original?.assignedTo?.firstName ||
+                                NAME_NOT_SPECIFIED_ERROR_MESSAGE
+                                } ${row.original?.assignedTo?.lastName || ""}`
+                            ) : (
+                                <span className="text-gray-400">Unassigned</span>
+                            )}
+                        </div>
+                    ),
+                },
+            ]
+            : []),
         {
             accessorKey: "createdAt",
             header: "Created On",
@@ -207,7 +240,7 @@ export default function TestPlan() {
                     />
                     {userData?.role !== UserRoles.TESTER &&
                         <div className="flex gap-2 ml-2">
-                            <AddTestPlan refreshTestPlans={refreshTestPlans} />
+                            <AddTestPlan refreshTestPlans={refreshTestPlans} userData={userData} />
                         </div>
                     }
                 </div>

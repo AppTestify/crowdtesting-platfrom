@@ -71,7 +71,6 @@ const projectSchema = z.object({
   issueType: z.string().min(1, "Required"),
   attachments: z.array(z.instanceof(File)).optional(),
   device: z.array(z.string()),
-  // .min(1, "Required"),
   testCycle: z.string().min(1, "Required"),
   assignedTo: z.string().optional(),
 });

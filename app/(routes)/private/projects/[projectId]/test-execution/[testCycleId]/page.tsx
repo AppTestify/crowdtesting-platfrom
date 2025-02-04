@@ -22,8 +22,11 @@ import ModerateView from './_components/view-moderate';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TestCaseExecutionResult, TestCaseExecutionResultList } from '@/app/_constants/test-case';
 import { PAGINATION_LIMIT } from '@/app/_constants/pagination-limit';
+import { useSession } from 'next-auth/react';
+import { UserRoles } from '@/app/_constants/user-roles';
 
 export default function TestCasesInTestExecution() {
+    const { data } = useSession();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [testExecution, setTestExecution] = useState<ITestCaseResult[]>([]);
     const { projectId } = useParams<{ projectId: string }>();
@@ -39,6 +42,7 @@ export default function TestCasesInTestExecution() {
     const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
     const [isViewOpen, setIsViewOpen] = useState<boolean>(false);
     const [selectedResult, setSelectedResult] = useState<TestCaseExecutionResult | any>("");
+    const [userData, setUserData] = useState<any>();
 
     const handleStatusChange = (status: TestCaseExecutionResult) => {
         setSelectedResult(status);
@@ -126,11 +130,11 @@ export default function TestCasesInTestExecution() {
                 </div>
             ),
         },
-        {
+        ...(userData?.role !== UserRoles.CLIENT ? [{
             header: "",
             id: "actions",
             enableHiding: false,
-            cell: ({ row }) => (
+            cell: ({ row }: { row: any }) => (
                 <div>
                     {!row.original?.result &&
                         <>
@@ -146,7 +150,7 @@ export default function TestCasesInTestExecution() {
                     }
                 </div>
             ),
-        },
+        }] : []),
     ];
 
     const showView = (row: ITestCaseResult) => {
@@ -199,6 +203,13 @@ export default function TestCasesInTestExecution() {
     useEffect(() => {
         getTestExecution();
     }, [pageIndex, pageSize, selectedResult]);
+
+    useEffect(() => {
+        if (data) {
+            const { user } = data;
+            setUserData(user);
+        }
+    }, [data]);
 
     const handlePreviousPage = () => {
         if (pageIndex > 1) {

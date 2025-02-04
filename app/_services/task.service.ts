@@ -1,11 +1,14 @@
 import {
+  GET_ISSUE_ENPOINT,
   GET_TASK_ENPOINT,
   PAGINATION_QUERY_ENDPOINT,
 } from "../_constants/api-endpoints";
-import { ITaskPayload } from "../_interface/task";
+import { IIssueStatusPayload } from "../_interface/issue";
+import { ITaskPayload, ITaskStatusPayload } from "../_interface/task";
 import {
   genericDelete,
   genericGet,
+  genericPatch,
   genericPost,
   genericPut,
 } from "./generic-api-methods";
@@ -71,6 +74,23 @@ export const updateTaskService = async (
     return response || {};
   } catch (error) {
     console.error(`Error > updateTaskService:`, error);
+    throw error;
+  }
+};
+
+export const updateTaskStatusService = async (
+  projectId: string,
+  taskId: string,
+  body: ITaskStatusPayload
+): Promise<any> => {
+  try {
+    const response = await genericPatch(
+      `${GET_TASK_ENPOINT(projectId)}/${taskId}/status`,
+      body
+    );
+    return response || {};
+  } catch (error) {
+    console.error(`Error > updateTaskStatusService:`, error);
     throw error;
   }
 };

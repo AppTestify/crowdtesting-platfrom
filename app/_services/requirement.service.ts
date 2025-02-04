@@ -19,6 +19,8 @@ export const addRequirementService = async (
     formData.append("title", body?.title);
     formData.append("description", body?.description || "");
     formData.append("projectId", body?.projectId || "");
+    formData.append("status", body?.status || "");
+    formData.append("assignedTo", body?.assignedTo || "");
     body?.attachments?.forEach((file) => {
       formData.append("attachments", file);
     });

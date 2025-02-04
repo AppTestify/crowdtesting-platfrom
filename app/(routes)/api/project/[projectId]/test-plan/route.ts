@@ -10,10 +10,7 @@ import { connectDatabase } from "@/app/_db";
 import { isAdmin, verifySession } from "@/app/_lib/dal";
 import { IdFormat } from "@/app/_models/id-format.model";
 import { TestPlan } from "@/app/_models/test-plan.model";
-import {
-  filterTestPlanForAdmin,
-  filterTestPlanNotForAdmin,
-} from "@/app/_queries/search-test-plan";
+import { filterTestPlan } from "@/app/_queries/search-test-plan";
 import { testPlanSchema } from "@/app/_schemas/test-plan.schema";
 import { serverSidePagination } from "@/app/_utils/common-server-side";
 import { addCustomIds } from "@/app/_utils/data-formatters";
@@ -108,7 +105,7 @@ export async function GET(
 
     if (searchString) {
       if (!(await isAdmin(session.user))) {
-        const { testPlans, totalTestPlans } = await filterTestPlanNotForAdmin(
+        const { testPlans, totalTestPlans } = await filterTestPlan(
           searchString,
           skip,
           limit,
@@ -120,7 +117,7 @@ export async function GET(
           total: totalTestPlans,
         });
       } else {
-        const { testPlans, totalTestPlans } = await filterTestPlanForAdmin(
+        const { testPlans, totalTestPlans } = await filterTestPlan(
           searchString,
           skip,
           limit,
@@ -137,6 +134,8 @@ export async function GET(
     if (!(await isAdmin(session.user))) {
       response = addCustomIds(
         await TestPlan.find({ projectId: projectId })
+          .populate("userId", "id firstName lastName")
+          .populate("assignedTo", "firstName lastName")
           .sort({ createdAt: -1 })
           .skip(skip)
           .limit(Number(limit))
@@ -146,7 +145,8 @@ export async function GET(
     } else {
       response = addCustomIds(
         await TestPlan.find({ projectId: projectId })
-          .populate("userId", "id firstName lastName")
+          .populate("userId", "firstName lastName")
+          .populate("assignedTo", "firstName lastName")
           .sort({ createdAt: -1 })
           .skip(skip)
           .limit(Number(limit))

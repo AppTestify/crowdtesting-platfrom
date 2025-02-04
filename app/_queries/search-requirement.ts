@@ -19,11 +19,35 @@ export async function filterRequirementsNotForAdmin(
       },
     },
     {
-      $match: {
-        $or: [{ customId: parseInt(searchString) }, { title: regex }],
+      $lookup: {
+        from: "users",
+        localField: "userId",
+        foreignField: "_id",
+        as: "user",
       },
     },
-
+    { $unwind: "$user" },
+    {
+      $addFields: {
+        fullName: { $concat: ["$user.firstName", " ", "$user.lastName"] },
+        address: "$user.address",
+      },
+    },
+    {
+      $match: {
+        $or: [
+          { customId: parseInt(searchString) },
+          { title: regex },
+          { "user.firstName": regex },
+          { "user.lastName": regex },
+        ],
+      },
+    },
+    {
+      $addFields: {
+        userId: "$user",
+      },
+    },
     {
       $project: {
         user: 0,
@@ -80,12 +104,33 @@ export async function filterRequirementsForAdmin(
       },
     },
     {
+      $lookup: {
+        from: "users",
+        localField: "assignedTo",
+        foreignField: "_id",
+        as: "assignedTo",
+      },
+    },
+    { $unwind: { path: "$assignedTo", preserveNullAndEmptyArrays: true } },
+    {
+      $addFields: {
+        firstName: "$assignedTo.firstName",
+        lastName: "$assignedTo.lastName",
+        AssigedfullName: {
+          $concat: ["$assignedTo.firstName", " ", "$assignedTo.lastName"],
+        },
+        address: "$address",
+      },
+    },
+    {
       $match: {
         $or: [
           { customId: parseInt(searchString) },
           { title: regex },
           { "user.firstName": regex },
           { "user.lastName": regex },
+          { "assignedTo.firstName": regex },
+          { "assignedTo.lastName": regex },
           { fullName: regex },
         ],
       },

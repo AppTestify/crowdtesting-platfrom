@@ -9,3 +9,7 @@ export const TaskSchema = z.object({
   requirementIds: z.array(z.string()).optional(),
   assignedTo: z.string().optional(),
 });
+
+export const taskStatusSchema = z.object({
+  status: z.string().min(1, "Status is required"),
+});

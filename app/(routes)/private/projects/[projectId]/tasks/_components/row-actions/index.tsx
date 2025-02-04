@@ -16,15 +16,20 @@ import { useState } from "react";
 import { EditTask } from "../edit-task";
 import { ITask } from "@/app/_interface/task";
 import ViewTask from "../view-task";
+import { UserRoles } from "@/app/_constants/user-roles";
+import EditTaskStatus from "../edit-task-status";
 
 export function TaskRowActions({
     row,
     refreshTasks,
+    userData
 }: {
     row: Row<ITask>;
     refreshTasks: () => void;
+    userData: any;
 }) {
     const [isEditOpen, setIsEditOpen] = useState(false);
+    const [isEditStatusOpen, setIsEditStatusOpen] = useState(false);
     const [isViewOpen, setIsViewOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -51,6 +56,13 @@ export function TaskRowActions({
 
     return (
         <>
+            <EditTaskStatus
+                task={row.original as ITask}
+                refreshTasks={refreshTasks}
+                sheetOpen={isEditStatusOpen}
+                setSheetOpen={setIsEditStatusOpen}
+            />
+
             <EditTask
                 refreshTasks={refreshTasks}
                 task={row.original as ITask}
@@ -92,7 +104,30 @@ export function TaskRowActions({
                     >
                         <Eye className="h-2 w-2" /> View
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator className="border-b" />
+                    {row?.original?.assignedTo?._id === userData._id ?
+                        <>
+                            <DropdownMenuSeparator className="border-b" />
+                            <DropdownMenuItem
+                                className="mb-1"
+                                onClick={() => {
+                                    setIsEditStatusOpen(true);
+                                }}
+                            >
+                                <Edit className="h-2 w-2" /> Edit
+                            </DropdownMenuItem>
+                        </> : <>
+                            <DropdownMenuSeparator className="border-b" />
+                            <DropdownMenuItem
+                                className="mb-1"
+                                onClick={() => {
+                                    setIsEditOpen(true);
+                                }}
+                            >
+                                <Edit className="h-2 w-2" /> Edit
+                            </DropdownMenuItem>
+                        </>
+                    }
+                    {/* <DropdownMenuSeparator className="border-b" />
                     <DropdownMenuItem
                         className="mb-1"
                         onClick={() => {
@@ -100,18 +135,22 @@ export function TaskRowActions({
                         }}
                     >
                         <Edit className="h-2 w-2" /> Edit
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator className="border-b" />
-                    <DropdownMenuItem
-                        className="my-1"
-                        onClick={() => {
-                            setIsDeleteOpen(true);
-                            setIsLoading(false);
-                        }}
-                    >
-                        <Trash className="h-2 w-2 text-destructive" />{" "}
-                        <span className="text-destructive">Delete</span>
-                    </DropdownMenuItem>
+                    </DropdownMenuItem> */}
+                    {userData?.role != UserRoles.TESTER &&
+                        <>
+                            <DropdownMenuSeparator className="border-b" />
+                            <DropdownMenuItem
+                                className="my-1"
+                                onClick={() => {
+                                    setIsDeleteOpen(true);
+                                    setIsLoading(false);
+                                }}
+                            >
+                                <Trash className="h-2 w-2 text-destructive" />{" "}
+                                <span className="text-destructive">Delete</span>
+                            </DropdownMenuItem>
+                        </>
+                    }
                 </DropdownMenuContent>
             </DropdownMenu>
         </>
