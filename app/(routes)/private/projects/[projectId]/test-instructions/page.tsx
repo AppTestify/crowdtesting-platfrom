@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Edit, Loader2 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { UserRoles } from '@/app/_constants/user-roles';
+import { checkProjectActiveRole } from '@/app/_utils/common-functionality';
 
 const projectSchema = z.object({
     description: z.string().min(1, "Description is required"),
@@ -85,6 +86,10 @@ export default function TestInstruction() {
         setIsEditing(true);
     };
 
+    const commonProjectRoleCheck = () => {
+        return userData?.role !== UserRoles.TESTER && checkProjectActiveRole(project?.isActive ?? false, userData);
+    }
+
     return (
         <div className="mt-2 mx-4">
             {!isLoading ? (
@@ -143,13 +148,13 @@ export default function TestInstruction() {
                     ) : (
                         <div className='flex justify-between space-x-2'>
                             <div
-                                className={`text-sm leading-relaxed text-gray-700 ${userData?.role !== UserRoles.TESTER ? "hover:bg-gray-100 hover:rounded-sm" : ""} w-full p-2 space-y-2 rich-description`}
-                                onClick={userData?.role !== UserRoles.TESTER ? handleDoubleClick : undefined}
+                                className={`text-sm leading-relaxed text-gray-700 ${commonProjectRoleCheck() ? "hover:bg-gray-100 hover:rounded-sm" : ""} w-full p-2 space-y-2 rich-description`}
+                                onClick={commonProjectRoleCheck() ? handleDoubleClick : undefined}
                                 dangerouslySetInnerHTML={{
                                     __html: project?.description || "",
                                 }}
                             />
-                            {userData?.role !== UserRoles.TESTER &&
+                            {commonProjectRoleCheck() &&
                                 <Button className='flex items-center justify-center' type='button' onClick={() => setIsEditing(true)}>
                                     <Edit />
                                     Edit

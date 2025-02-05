@@ -7,9 +7,10 @@ import React, { useEffect, useRef, useState } from "react";
 interface TextEditorProps {
   markup: string;
   onChange: (value: string) => void;
+  placeholder?: string
 }
 
-const TextEditor: React.FC<TextEditorProps> = ({ markup, onChange }) => {
+const TextEditor: React.FC<TextEditorProps> = ({ markup, onChange, placeholder }) => {
   const [value, setValue] = useState<string>();
   const [content, setContent] = React.useState(markup);
 
@@ -37,7 +38,7 @@ const TextEditor: React.FC<TextEditorProps> = ({ markup, onChange }) => {
         className={cn("h-full min-h-56 w-full rounded-lg")}
         editorContentClassName="overflow-auto h-full"
         output="html"
-        placeholder="Type your description here..."
+        placeholder={`${placeholder ? placeholder : "Type your description here..."}`}
         editable={true}
         editorClassName="focus:outline-none px-5 py-4 h-full"
         value={content}

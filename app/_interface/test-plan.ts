@@ -1,3 +1,4 @@
+import { IProject } from "./project";
 import { IUserByAdmin } from "./user";
 
 export interface ITestPlanParameter {
@@ -16,7 +17,7 @@ export interface ITestPlanPayload {
 export interface ITestPlan {
   id: string;
   title: string;
-  projectId: string;
+  projectId: IProject;
   parameters?: ITestPlanParameter[];
   customId?: string;
   userId?: IUserByAdmin;

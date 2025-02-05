@@ -135,7 +135,7 @@ const EditIssue = ({
   }, [data, users]);
 
   useEffect(() => {
-    const initialSelectedDevices = device.map((deviceItem: any) =>
+    const initialSelectedDevices = device?.map((deviceItem: any) =>
       deviceItem._id ? deviceItem._id : deviceItem?.name
     );
 
@@ -291,7 +291,7 @@ const EditIssue = ({
   }, [sheetOpen]);
 
   useEffect(() => {
-    if (selectedDevices.length) {
+    if (selectedDevices?.length) {
       setIsInvalidDevices(false);
     }
   }, [selectedDevices]);

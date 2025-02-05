@@ -1,9 +1,11 @@
 export const enum RequirementTabs {
   DESCRIPTION = "DESCRIPTION",
   ATTACHMENTS = "ATTACHMENTS",
+  COMMENTS = "COMMENTS",
 }
 
 export const enum TestSuiteTabs {
   DESCRIPTION = "DESCRIPTION",
   REQUIREMENTS = "REQUIREMENTS",
+  COMMENTS = "COMMENTS",
 }

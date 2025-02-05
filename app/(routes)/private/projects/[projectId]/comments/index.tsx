@@ -10,12 +10,12 @@ import { useParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import TextEditor from '../../../../_components/text-editor';
+import TextEditor from '../../_components/text-editor';
 import { Button } from '@/components/ui/button';
 import { useSession } from 'next-auth/react';
 import { formatDistanceToNow } from 'date-fns';
 import { UserRoles } from '@/app/_constants/user-roles';
-import { Loader2 } from 'lucide-react';
+import { Check, CircleAlert, Loader2 } from 'lucide-react';
 import { ConfirmationDialog } from '@/app/_components/confirmation-dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getProfilePictureService } from '@/app/_services/user.service';
@@ -24,14 +24,14 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { checkProjectAdmin } from '@/app/_utils/common';
 import { IProject } from '@/app/_interface/project';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const commentSchema = z.object({
     entityId: z.string().min(1, "Required"),
     content: z.string().min(1, "Required"),
 });
 
-export default function Comments({ project }: { project: IProject }) {
-    const { issueId } = useParams<{ issueId: string }>();
+export default function DefaultComments({ project, entityId, entityName }: { project: IProject, entityId: string, entityName: string }) {
     const { projectId } = useParams<{ projectId: string }>();
     const [comments, setComments] = useState<IComment[]>([]);
     const [isEdit, setIsEdit] = useState<boolean>(false);
@@ -54,7 +54,7 @@ export default function Comments({ project }: { project: IProject }) {
     const form = useForm<z.infer<typeof commentSchema>>({
         resolver: zodResolver(commentSchema),
         defaultValues: {
-            entityId: issueId,
+            entityId: entityId,
             content: "",
         },
     });
@@ -68,10 +68,14 @@ export default function Comments({ project }: { project: IProject }) {
     const editForm = useForm<z.infer<typeof commentSchema>>({
         resolver: zodResolver(commentSchema),
         defaultValues: {
-            entityId: issueId,
+            entityId: entityId,
             content: "",
         },
     });
+
+    const formatEntityName = (entityName: string) => {
+        return entityName.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+    }
 
     // Update the edit form when commentId or comments change
     useEffect(() => {
@@ -79,7 +83,7 @@ export default function Comments({ project }: { project: IProject }) {
             const currentComment = comments.find((comment) => comment._id === commentId);
             if (currentComment) {
                 editForm.reset({
-                    entityId: issueId,
+                    entityId: entityId,
                     content: currentComment.content || "",
                 });
             }
@@ -89,13 +93,14 @@ export default function Comments({ project }: { project: IProject }) {
     async function onSubmit(values: z.infer<typeof commentSchema>) {
         setIsLoading(true);
         try {
-            const response = await addCommentService(projectId, issueId, {
+            const response = await addCommentService(projectId, formatEntityName(entityName), entityId, {
                 ...values,
-                isVerify: user?.role === UserRoles.CLIENT && true
+                isVerify: user?.role === UserRoles.CLIENT && true,
+                entityType: entityName
             });
             if (response) {
-                getComments();
                 reset();
+                getComments();
             }
         } catch (error) {
             toasterService.error();
@@ -107,7 +112,7 @@ export default function Comments({ project }: { project: IProject }) {
     async function onEdit(values: z.infer<typeof commentSchema>) {
         setIsLoading(true);
         try {
-            const response = await updateCommentService(commentId, projectId, issueId, values);
+            const response = await updateCommentService(commentId, projectId, formatEntityName(entityName), entityId, values);
             if (response) {
                 getComments();
                 setIsEditOpen(false);
@@ -122,7 +127,7 @@ export default function Comments({ project }: { project: IProject }) {
     const getComments = async () => {
         setIsViewLoading(true);
         try {
-            const response = await getCommentsService(projectId, issueId, pageSize);
+            const response = await getCommentsService(projectId, formatEntityName(entityName), entityId, pageSize);
             setComments(response?.comments);
             setTotalComments(response?.total);
         } catch (error) {
@@ -146,7 +151,7 @@ export default function Comments({ project }: { project: IProject }) {
     const deleteComment = async () => {
         setIsDeleteLoading(true);
         try {
-            const response = await deleteCommentService(projectId, issueId, commentId);
+            const response = await deleteCommentService(projectId, formatEntityName(entityName), entityId, commentId);
             if (response) {
                 getComments();
                 setIsDeleteOpen(false);
@@ -161,7 +166,7 @@ export default function Comments({ project }: { project: IProject }) {
     const verifyComment = async () => {
         setIsVerifyLoading(true);
         try {
-            const response = await verifyCommentService(commentId, projectId, issueId, { isVerify: isVerify ? false : true });
+            const response = await verifyCommentService(commentId, projectId, formatEntityName(entityName), entityId, { isVerify: isVerify ? false : true });
             if (response) {
                 getComments();
                 setIsVerifyOpen(false);
@@ -184,11 +189,17 @@ export default function Comments({ project }: { project: IProject }) {
 
     useEffect(() => {
         getComments();
-    }, [projectId, issueId, pageSize]);
+    }, [projectId, entityId, pageSize]);
 
     useEffect(() => {
         getProfile();
     }, []);
+
+    useEffect(() => {
+        if (isEdit) {
+            form.reset();
+        }
+    }, [isEdit]);
 
     const handleDelete = (id: string) => {
         setIsDeleteOpen(true);
@@ -224,7 +235,7 @@ export default function Comments({ project }: { project: IProject }) {
                 isOpen={isVerifyOpen}
                 setIsOpen={setIsVerifyOpen}
                 title={`${isVerify ? "Unverify" : "Verify"} comment`}
-                description={`Are you sure you want to ${isVerify ? "un verify" : "verify"} this comment?`}
+                description={`Are you sure you want to ${isVerify ? "unVerify" : "verify"} this comment?`}
                 isLoading={isVerifyLoading}
                 successAction={verifyComment}
                 successLabel={`${isVerify ? "Unverify" : "Verify"}`}
@@ -261,7 +272,6 @@ export default function Comments({ project }: { project: IProject }) {
                                                         type="text"
                                                         className="ml-3 rounded-sm border border-gray-300 "
                                                         placeholder="Add a comment"
-                                                        {...field}
                                                         onClick={() => setIsEdit(true)}
                                                         readOnly={true}
                                                     />
@@ -269,6 +279,7 @@ export default function Comments({ project }: { project: IProject }) {
                                                     <div className="w-full ml-3">
                                                         <TextEditor
                                                             markup={field.value || ""}
+                                                            placeholder={"Type your comment here..."}
                                                             onChange={(value) => {
                                                                 form.setValue(field.name, value);
                                                                 form.trigger(field.name);
@@ -323,14 +334,38 @@ export default function Comments({ project }: { project: IProject }) {
 
                                 <div className="flex flex-col w-full">
                                     <div className="flex justify-between items-center">
-                                        <span className="text-sm font-semibold text-gray-700">
+                                        <span className="text-sm font-semibold text-gray-700 flex items-center">
                                             {`${comment?.commentedBy?.firstName} ${comment?.commentedBy?.lastName}`}
                                             {user?.role === UserRoles.ADMIN &&
-                                                <span className='ml-2 xs:ml-4'>
-                                                    <Badge className={`${comment?.isVerify ? "bg-primary" : "bg-red-400 hover:bg-red-400 hover:opacity-90"}`}>
-                                                        {comment?.isVerify ? "Verified" : "Un verified"}
-                                                    </Badge>
-                                                </span>
+                                                <>
+                                                    <TooltipProvider delayDuration={10}>
+                                                        {comment?.isVerify ? (
+                                                            <Tooltip>
+                                                                <TooltipTrigger asChild>
+                                                                    <span className="ml-2 xs:ml-4 bg-primary border border-primary text-white rounded-full p-1 flex items-center justify-center w-6 h-6">
+                                                                        <Check className="h-5 w-5" />
+                                                                    </span>
+                                                                </TooltipTrigger>
+                                                                <TooltipContent className='px-2 py-1'>
+                                                                    <p>Verified</p>
+                                                                </TooltipContent>
+                                                            </Tooltip>
+                                                        ) :
+                                                            (
+                                                                <Tooltip>
+                                                                    <TooltipTrigger className='bg-destructive' asChild>
+                                                                        <span className="ml-2 xs:ml-4 bg-destructive border border-destructive text-white rounded-full p-1 flex items-center justify-center w-6 h-6">
+                                                                            <CircleAlert className="h-6 w-6" />
+                                                                        </span>
+                                                                    </TooltipTrigger>
+                                                                    <TooltipContent className='bg-destructive px-2 py-1'>
+                                                                        <p>Unverified</p>
+                                                                    </TooltipContent>
+                                                                </Tooltip>
+                                                            )
+                                                        }
+                                                    </TooltipProvider>
+                                                </>
                                             }
                                         </span>
                                         <span className="text-xs text-gray-500">
@@ -352,6 +387,7 @@ export default function Comments({ project }: { project: IProject }) {
                                                                         <div className="w-full">
                                                                             <TextEditor
                                                                                 markup={field.value || ""}
+                                                                                placeholder={"Type your comment here..."}
                                                                                 onChange={(value) => {
                                                                                     editForm.setValue(field.name, value);
                                                                                     editForm.trigger(field.name);
@@ -441,7 +477,6 @@ export default function Comments({ project }: { project: IProject }) {
                             </div>
                         </div>
                     ))
-
                 )}
             </div >
         </>

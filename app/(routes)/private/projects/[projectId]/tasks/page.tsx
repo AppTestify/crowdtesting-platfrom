@@ -36,11 +36,12 @@ import { AddTask } from "./_components/add-task";
 import { getTaskService } from "@/app/_services/task.service";
 import { TaskRowActions } from "./_components/row-actions";
 import { ITask } from "@/app/_interface/task";
-import ViewTask from "./_components/view-task";
 import { DBModels } from "@/app/_constants";
 import ExpandableTable from "@/app/_components/expandable-table";
 import { IRequirement } from "@/app/_interface/requirement";
 import { UserRoles } from "@/app/_constants/user-roles";
+import ViewTask from "../../../browse/[projectId]/task/[taskId]/page";
+import Link from "next/link";
 
 export default function Tasks() {
     const [tasks, setTasks] = useState<ITask[]>([]);
@@ -64,11 +65,14 @@ export default function Tasks() {
                 const title = row.getValue("title");
                 if (typeof title === "string") {
                     return (
-                        <div
-                            title={title}
-                            onClick={() => getTask(row.original)} className="capitalize hover:text-primary cursor-pointer">
-                            {title.length > 30 ? `${title.substring(0, 30)}...` : title}
-                        </div>
+                        <Link href={`/private/browse/${projectId}/task/${row.original?.id}`}>
+                            <div
+                                title={title}
+                                // onClick={() => getTask(row.original)}
+                                className="capitalize hover:text-primary cursor-pointer">
+                                {title.length > 30 ? `${title.substring(0, 30)}...` : title}
+                            </div>
+                        </Link>
                     );
                 }
             },
@@ -263,11 +267,6 @@ export default function Tasks() {
 
     return (
         <main className="mx-4 mt-2">
-            <ViewTask
-                task={task as ITask}
-                sheetOpen={isViewOpen}
-                setSheetOpen={setIsViewOpen}
-            />
             <div className="">
                 <h2 className="text-medium">Tasks</h2>
             </div>

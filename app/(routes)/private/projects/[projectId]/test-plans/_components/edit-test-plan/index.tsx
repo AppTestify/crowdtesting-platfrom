@@ -67,7 +67,7 @@ export function EditTestPlan({
         resolver: zodResolver(testPlanSchema),
         defaultValues: {
             title: title || "",
-            projectId: projectId || "",
+            projectId: projectId?._id || "",
             parameters: parameters || [],
             assignedTo: testPlan?.assignedTo?._id || ""
         },
@@ -86,7 +86,7 @@ export function EditTestPlan({
     async function onSubmit(values: z.infer<typeof testPlanSchema>) {
         setIsLoading(true);
         try {
-            const response = await updateTestPlanService(projectId, testSuiteId, {
+            const response = await updateTestPlanService(projectId?._id as string, testSuiteId, {
                 ...values,
                 assignedTo: values.assignedTo || undefined,
             });
@@ -105,7 +105,7 @@ export function EditTestPlan({
     const resetForm = () => {
         form.reset({
             title: title || "",
-            projectId: projectId || "",
+            projectId: projectId?._id || "",
             parameters: parameters || [],
             assignedTo: testPlan?.assignedTo?._id || ""
         });

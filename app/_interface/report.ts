@@ -1,9 +1,10 @@
+import { IProject } from "./project";
 import { IUserByAdmin } from "./user";
 
 export interface IReport {
   description: string;
   title: string;
-  projectId: string;
+  projectId: IProject;
   _id: string;
   userId: IUserByAdmin;
   createdAt: string;

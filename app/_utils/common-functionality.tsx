@@ -196,3 +196,7 @@ export const statusColors: { [key: string]: { font: { color: { rgb: string } } }
     "Caution": { font: { color: { rgb: "F59E0B" } } },  // Yellow
     "Blocked": { font: { color: { rgb: "6B7280" } } },  // Gray
 };
+
+export const checkProjectActiveRole = (isActive: boolean, userData: any) => {
+    return isActive || userData?.role === UserRoles.ADMIN
+}

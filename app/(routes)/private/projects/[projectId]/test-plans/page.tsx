@@ -57,7 +57,7 @@ export default function TestPlan() {
                 );
             },
             cell: ({ row }) => (
-                <div className="text-primary cursor-pointer ml-4" onClick={() => getTestPlan(row.original as ITestPlan)}>
+                <div className="text-primary cursor-pointer ml-4" onClick={() => getTestPlan(row.original as unknown as ITestPlan)}>
                     {row.getValue("customId")}</div>
             ),
             sortingFn: "alphanumeric"
@@ -66,7 +66,7 @@ export default function TestPlan() {
             accessorKey: "title",
             header: "Title",
             cell: ({ row }) => (
-                <div className="capitalize hover:text-primary cursor-pointer" onClick={() => getTestPlan(row.original as ITestPlan)}>
+                <div className="capitalize hover:text-primary cursor-pointer" onClick={() => getTestPlan(row.original as unknown as ITestPlan)}>
                     {row.getValue("title")}</div>
             ),
         },
@@ -121,13 +121,13 @@ export default function TestPlan() {
                 </div>
             ),
         },
-        {
+        ...(userData?.role !== UserRoles.TESTER ? [{
             id: "actions",
             enableHiding: false,
-            cell: ({ row }) => (
+            cell: ({ row }: { row: any }) => (
                 <TestPlansRowActions row={row as Row<ITestPlan>} refreshTestPlans={refreshTestPlans} />
             ),
-        },
+        }] : []),
     ];
 
     const { data } = useSession();

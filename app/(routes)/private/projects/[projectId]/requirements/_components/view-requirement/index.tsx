@@ -4,8 +4,9 @@ import RequirementAttachments from "../attachments/requirement-attachment";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { RequirementTabs } from "@/app/_constants/project";
 import { formatDistanceToNow } from "date-fns";
-import { UserCircle2Icon } from "lucide-react";
-import { NAME_NOT_SPECIFIED_ERROR_MESSAGE } from "@/app/_constants/errors";
+import DefaultComments from "../../../comments";
+import { DBModels } from "@/app/_constants";
+import { Separator } from "@/components/ui/separator";
 
 const ViewRequirement = ({
   requirement,
@@ -90,6 +91,11 @@ const ViewRequirement = ({
                       __html: requirement?.description || "",
                     }}
                   />
+
+                  <div className="mt-3">
+                    <Separator />
+                    <DefaultComments project={requirement?.projectId} entityId={requirement?.id} entityName={DBModels.REQUIREMENT} />
+                  </div>
                 </div>
               </TabsContent>
               <TabsContent

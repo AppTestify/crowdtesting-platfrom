@@ -2,7 +2,9 @@ import { Sheet, SheetContent, SheetHeader } from "@/components/ui/sheet";
 import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { ITestPlan } from "@/app/_interface/test-plan";
 import { formatDate } from "@/app/_constants/date-formatter";
-import { formatDistanceToNow } from "date-fns";
+import { Separator } from "@/components/ui/separator";
+import DefaultComments from "../../../comments";
+import { DBModels } from "@/app/_constants";
 
 const ViewTestPlan = ({
   testPlan,
@@ -55,6 +57,11 @@ const ViewTestPlan = ({
               </div>
             ))}
           </div>
+        </div>
+
+        <div className="mt-3">
+          <Separator />
+          <DefaultComments project={testPlan?.projectId} entityId={testPlan?.id} entityName={DBModels.TEST_PLAN} />
         </div>
       </SheetContent>
     </Sheet>

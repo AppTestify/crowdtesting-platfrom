@@ -94,3 +94,18 @@ export const updateTaskStatusService = async (
     throw error;
   }
 };
+
+export const getTaskByIdService = async (
+  projectId: string,
+  taskId: string
+): Promise<any> => {
+  try {
+    const response = await genericGet(
+      `${GET_TASK_ENPOINT(projectId)}/${taskId}`
+    );
+    return response || [];
+  } catch (error) {
+    console.error(`Error > getTaskService:`, error);
+    throw error;
+  }
+};

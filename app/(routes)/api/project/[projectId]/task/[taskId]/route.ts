@@ -10,6 +10,7 @@ import { verifySession } from "@/app/_lib/dal";
 import { Task } from "@/app/_models/task.model";
 import { User } from "@/app/_models/user.model";
 import { TaskSchema } from "@/app/_schemas/task.schema";
+import { normaliseIds } from "@/app/_utils/data-formatters";
 import { taskAssignMail } from "@/app/_utils/email";
 import { errorHandler } from "@/app/_utils/error-handler";
 
@@ -134,6 +135,45 @@ export async function PUT(
     return Response.json({
       message: "Task updated successfully",
     });
+  } catch (error: any) {
+    return errorHandler(error);
+  }
+}
+
+export async function GET(
+  req: Request,
+  { params }: { params: { projectId: string; taskId: string } }
+) {
+  try {
+    const session = await verifySession();
+    if (!session || !session.isAuth) {
+      return Response.json(
+        { message: USER_UNAUTHORIZED_SERVER_ERROR_MESSAGE },
+        { status: HttpStatusCode.UNAUTHORIZED }
+      );
+    }
+
+    const isDBConnected = await connectDatabase();
+    if (!isDBConnected) {
+      return Response.json(
+        {
+          message: DB_CONNECTION_ERROR_MESSAGE,
+        },
+        { status: HttpStatusCode.INTERNAL_SERVER_ERROR }
+      );
+    }
+
+    const { taskId } = params;
+
+    const response = await Task.findById(taskId)
+      .populate("userId", "firstName lastName")
+      .populate("assignedTo", "firstName lastName")
+      .populate("issueId", "title")
+      .populate("requirementIds", "title")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return Response.json(response);
   } catch (error: any) {
     return errorHandler(error);
   }

@@ -172,7 +172,7 @@ const MediaRenderer = ({
     ) {
       return (
         <Card className="h-fit shadow-none rounded-md" key={index}>
-          <CardContent className="p-0 group relative">
+          <CardContent className="p-0 group relative overflow-hidden">
             <div className="h-[92px] w-[155px] relative bg-gray-100" >
               <video
                 width={155}

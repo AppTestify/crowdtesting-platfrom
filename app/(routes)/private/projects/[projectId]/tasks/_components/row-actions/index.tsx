@@ -15,9 +15,9 @@ import { Edit, Eye, MoreHorizontal, Trash } from "lucide-react";
 import { useState } from "react";
 import { EditTask } from "../edit-task";
 import { ITask } from "@/app/_interface/task";
-import ViewTask from "../view-task";
 import { UserRoles } from "@/app/_constants/user-roles";
 import EditTaskStatus from "../edit-task-status";
+import Link from "next/link";
 
 export function TaskRowActions({
     row,
@@ -70,12 +70,6 @@ export function TaskRowActions({
                 setSheetOpen={setIsEditOpen}
             />
 
-            <ViewTask
-                task={row.original}
-                sheetOpen={isViewOpen}
-                setSheetOpen={setIsViewOpen}
-            />
-
             <ConfirmationDialog
                 isOpen={isDeleteOpen}
                 setIsOpen={setIsDeleteOpen}
@@ -96,15 +90,17 @@ export function TaskRowActions({
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                    <DropdownMenuItem
-                        className="mb-1"
-                        onClick={() => {
-                            setIsViewOpen(true);
-                        }}
-                    >
-                        <Eye className="h-2 w-2" /> View
-                    </DropdownMenuItem>
-                    {row?.original?.assignedTo?._id === userData._id ?
+                    <Link href={`/private/browse/${projectId}/task/${row.original?.id}`}>
+                        <DropdownMenuItem
+                            className="mb-1"
+                            onClick={() => {
+                                setIsViewOpen(true);
+                            }}
+                        >
+                            <Eye className="h-2 w-2" /> View
+                        </DropdownMenuItem>
+                    </Link>
+                    {row?.original?.assignedTo?._id === userData?._id ?
                         <>
                             <DropdownMenuSeparator className="border-b" />
                             <DropdownMenuItem

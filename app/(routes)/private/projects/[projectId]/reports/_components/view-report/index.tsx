@@ -4,6 +4,9 @@ import { DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetHeader } from '@/components/ui/sheet';
 import React from 'react'
 import ReportAttachments from '../attachments/report-attachment';
+import { Separator } from '@/components/ui/separator';
+import DefaultComments from '../../../comments';
+import { DBModels } from '@/app/_constants';
 
 export default function ViewReport({ sheetOpen, setSheetOpen, report }:
     {
@@ -45,6 +48,11 @@ export default function ViewReport({ sheetOpen, setSheetOpen, report }:
                 <div className='mt-2'>
                     <span className="font-semibold text-lg">Attachments</span>
                     <ReportAttachments reportId={report?._id} isUpdate={false} isView={true} />
+                </div>
+
+                <div className='mt-3'>
+                    <Separator />
+                    <DefaultComments project={report?.projectId} entityId={report?._id} entityName={DBModels.REPORT} />
                 </div>
             </SheetContent>
         </Sheet>

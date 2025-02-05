@@ -1,4 +1,5 @@
 import { IIssue } from "./issue";
+import { IRequirement } from "./requirement";
 import { IUserByAdmin } from "./user";
 
 export interface ITaskPayload {
@@ -12,6 +13,7 @@ export interface ITaskPayload {
 }
 
 export interface ITask {
+  _id?: string;
   title: string;
   priority: string;
   status: string;
@@ -22,7 +24,7 @@ export interface ITask {
   id: string;
   userId: IUserByAdmin;
   createdAt: string;
-  requirementIds: string[];
+  requirementIds: IRequirement[];
 }
 
 export interface ITaskStatusPayload {

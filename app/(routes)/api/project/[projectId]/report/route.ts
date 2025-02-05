@@ -12,7 +12,10 @@ import AttachmentService from "@/app/_helpers/attachment.helper";
 import { isAdmin, verifySession } from "@/app/_lib/dal";
 import { ReportAttachment } from "@/app/_models/report-attachment.model";
 import { Report } from "@/app/_models/report.model";
-import { filterReportsForAdmin, filterReportsNotForAdmin } from "@/app/_queries/search-report";
+import {
+  filterReportsForAdmin,
+  filterReportsNotForAdmin,
+} from "@/app/_queries/search-report";
 import { ReportSchema } from "@/app/_schemas/report.schema";
 import {
   getFileMetaData,
@@ -176,6 +179,7 @@ export async function GET(
 
     if (!(await isAdmin(session.user))) {
       response = await Report.find({ projectId: projectId })
+        .populate("projectId", "_id")
         .populate("attachments")
         .sort({ createdAt: -1 })
         .skip(skip)
@@ -183,6 +187,7 @@ export async function GET(
         .lean();
     } else {
       response = await Report.find({ projectId: projectId })
+        .populate("projectId", "_id")
         .populate("userId", "id firstName lastName")
         .populate("attachments")
         .sort({ createdAt: -1 })

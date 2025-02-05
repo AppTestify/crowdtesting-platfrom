@@ -18,8 +18,6 @@ import { ChevronRight, Edit, UserCircle2Icon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
-import { addCommentService } from "@/app/_services/comment.service";
-import { z } from "zod";
 import MediaRenderer from "@/app/_components/media-renderer";
 import { getIssueAttachmentsService } from "@/app/_services/issue-attachment.service";
 import EditIssue from "@/app/(routes)/private/projects/[projectId]/issues/_components/edit-issue";
@@ -30,9 +28,8 @@ import { checkProjectAdmin } from "@/app/_utils/common";
 import ViewDevice from "./_components/view-device";
 import { IDevice } from "@/app/_interface/device";
 import { NAME_NOT_SPECIFIED_ERROR_MESSAGE } from "@/app/_constants/errors";
-import Comments from "@/app/(routes)/private/projects/[projectId]/issues/_components/comments";
-
-
+import DefaultComments from "@/app/(routes)/private/projects/[projectId]/comments";
+import { DBModels } from "@/app/_constants";
 
 const ViewIssue = () => {
   const [isViewLoading, setIsViewLoading] = useState<boolean>(false);
@@ -42,7 +39,6 @@ const ViewIssue = () => {
   const { issueId } = useParams<{ issueId: string }>();
   const { projectId } = useParams<{ projectId: string }>();
   const { data } = useSession();
-  const [user, setUser] = useState<any | null>();
   const [issueAttachments, setIssueAttachments] = useState<IIssueAttachment[]>(
     []
   );
@@ -255,7 +251,7 @@ const ViewIssue = () => {
             </div>
 
             <div className="">
-              <Comments project={project as IProject} />
+              <DefaultComments project={project as IProject} entityId={issueId} entityName={DBModels.ISSUE} />
             </div>
           </div>
         </main>

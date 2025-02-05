@@ -58,14 +58,12 @@ export function Mail({
 
     return (
         <TooltipProvider delayDuration={0}>
-            <div
-                className="h-full max-h-[800px] items-stretch flex flex-row"
-            >
-                <div className="flex flex-col w-[70%]">
+            <div className="h-full max-h-[800px] flex flex-col md:flex-row items-stretch">
+                {/* MailList (Appears First on Mobile) */}
+                <div className="flex flex-col w-full md:w-[40%]">
                     <Tabs defaultValue="all">
                         <div className="flex items-center px-4 py-2">
                             <h1 className="text-xl font-bold">Email</h1>
-
                         </div>
                         <Separator />
                         <div className="bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -76,13 +74,18 @@ export function Mail({
                                 </div>
                             </form>
                         </div>
-                        <TabsContent value="all" className=" m-0">
+                        <TabsContent value="all" className="m-0">
                             <MailList items={mails} isLoading={isLoading} />
                         </TabsContent>
                     </Tabs>
                 </div>
-                <MailDisplay refreshMails={refreshMails} mails={mails} />
+
+                {/* MailDisplay (Moves Below on Mobile) */}
+                <div className="w-full md:w-[60%]">
+                    <MailDisplay refreshMails={refreshMails} mails={mails} />
+                </div>
             </div>
         </TooltipProvider>
+
     )
 }

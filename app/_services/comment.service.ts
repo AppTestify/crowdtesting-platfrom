@@ -1,7 +1,4 @@
-import {
-  COMMENT_ENDPOINT,
-  PAGINATION_QUERY_ENDPOINT,
-} from "../_constants/api-endpoints";
+import { COMMENT_ENDPOINT } from "../_constants/api-endpoints";
 import { ICommentPayload, ICommentVerifyPayload } from "../_interface/comment";
 import {
   genericDelete,
@@ -13,12 +10,13 @@ import {
 
 export const getCommentsService = async (
   projectId: string,
-  issueId: string,
+  entityName: string,
+  entityId: string,
   pageSize: Number
 ): Promise<any> => {
   try {
     const response = await genericGet(
-      `${COMMENT_ENDPOINT(projectId, issueId)}?limit=${pageSize}`
+      `${COMMENT_ENDPOINT(projectId, entityName, entityId)}?limit=${pageSize}`
     );
     return response || [];
   } catch (error) {
@@ -29,12 +27,13 @@ export const getCommentsService = async (
 
 export const addCommentService = async (
   projectId: string,
-  issueId: string,
+  entityName: string,
+  entityId: string,
   body: ICommentPayload
 ): Promise<any> => {
   try {
     const response = await genericPost(
-      COMMENT_ENDPOINT(projectId, issueId),
+      COMMENT_ENDPOINT(projectId, entityName, entityId),
       body
     );
     return response || {};
@@ -46,12 +45,13 @@ export const addCommentService = async (
 
 export const deleteCommentService = async (
   projectId: string,
-  issueId: string,
+  entityName: string,
+  entityId: string,
   id: string
 ): Promise<any> => {
   try {
     const response = await genericDelete(
-      `${COMMENT_ENDPOINT(projectId, issueId)}/${id}`
+      `${COMMENT_ENDPOINT(projectId, entityName, entityId)}/${id}`
     );
     return response || {};
   } catch (error) {
@@ -63,12 +63,13 @@ export const deleteCommentService = async (
 export const updateCommentService = async (
   id: string,
   projectId: string,
-  issueId: string,
+  entityName: string,
+  entityId: string,
   body: ICommentPayload
 ): Promise<any> => {
   try {
     const response = await genericPut(
-      `${COMMENT_ENDPOINT(projectId, issueId)}/${id}`,
+      `${COMMENT_ENDPOINT(projectId, entityName, entityId)}/${id}`,
       body
     );
     return response || {};
@@ -81,12 +82,13 @@ export const updateCommentService = async (
 export const verifyCommentService = async (
   id: string,
   projectId: string,
-  issueId: string,
+  entityName: string,
+  entityId: string,
   body: ICommentVerifyPayload
 ): Promise<any> => {
   try {
     const response = await genericPatch(
-      `${COMMENT_ENDPOINT(projectId, issueId)}/${id}/verify`,
+      `${COMMENT_ENDPOINT(projectId, entityName, entityId)}/${id}/verify`,
       body
     );
     return response || {};

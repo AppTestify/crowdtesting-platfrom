@@ -7,10 +7,9 @@ import {
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
 import AttachmentService from "@/app/_helpers/attachment.helper";
-import { isAdmin, isClient, verifySession } from "@/app/_lib/dal";
+import { isClient, verifySession } from "@/app/_lib/dal";
 import { Comment } from "@/app/_models/comment.model";
 import { CommentSchema } from "@/app/_schemas/comment.schema";
-import { serverSidePagination } from "@/app/_utils/common-server-side";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function POST(
@@ -67,7 +66,7 @@ export async function POST(
 
 export async function GET(
   req: Request,
-  { params }: { params: { issueId: string } }
+  { params }: { params: { entityId: string } }
 ) {
   try {
     const session = await verifySession();
@@ -88,10 +87,10 @@ export async function GET(
       );
     }
 
-    const { issueId } = params;
+    const { entityId } = params;
     const url = new URL(req.url);
     const limit = parseInt(url.searchParams.get("limit") || "10", 10);
-    const find = { entityId: issueId, isDelete: false };
+    const find = { entityId: entityId, isDelete: false };
     let totalComments, response;
 
     if (!(await isClient(session.user))) {

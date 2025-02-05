@@ -34,8 +34,12 @@ export const ID_FORMAT_ENDPOINT = "/api/setting/id-format";
 export const DOWNLOAD_FILE_ENDPOINT = "/api/attachment/";
 export const MAIL_ENDPOINT = "/api/mail";
 
-export const COMMENT_ENDPOINT = (projectId: string, issueId: string) => {
-  return `${GET_ISSUE_ENPOINT(projectId, issueId)}/comment`;
+export const COMMENT_ENDPOINT = (
+  projectId: string,
+  entityName: string,
+  entityId: string
+) => {
+  return `/api/project/${projectId}/${entityName}/${entityId}/comment`;
 };
 
 export const GET_USER_ENDPOINT = (email: string) => {

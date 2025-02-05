@@ -146,6 +146,7 @@ export async function GET(
     if (!(await isAdmin(session.user))) {
       response = addCustomIds(
         await TestSuite.find({ projectId: projectId })
+          .populate("projectId", "_id")
           .populate("requirements")
           .sort({ createdAt: -1 })
           .skip(skip)
@@ -156,6 +157,7 @@ export async function GET(
     } else {
       response = addCustomIds(
         await TestSuite.find({ projectId: projectId })
+          .populate("projectId", "_id")
           .populate("userId", "id firstName lastName")
           .populate("requirements")
           .sort({ createdAt: -1 })
