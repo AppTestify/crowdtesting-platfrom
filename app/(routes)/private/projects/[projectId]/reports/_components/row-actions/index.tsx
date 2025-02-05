@@ -32,7 +32,7 @@ export function ReportRowActions({
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [userData, setUserData] = useState<any>();
-    const projectId = row.original.projectId as string;
+    const projectId = row.original.projectId as unknown as string;
     const reportId = row.original._id as string;
     const { data } = useSession();
 

@@ -60,7 +60,7 @@ export function EditReport({
     async function onSubmit(values: z.infer<typeof ReportSchema>) {
         setIsLoading(true);
         try {
-            const response = await updateReportService(projectId as string, ReportId, {
+            const response = await updateReportService(projectId as unknown as string, ReportId, {
                 ...values,
             });
             if (response) {
@@ -79,7 +79,7 @@ export function EditReport({
     const uploadAttachment = async () => {
         setIsLoading(true);
         try {
-            await addReportAttachmentsService(projectId as string, ReportId, { attachments });
+            await addReportAttachmentsService(projectId as unknown as string, ReportId, { attachments });
         } catch (error) {
             toasterService.error();
         } finally {

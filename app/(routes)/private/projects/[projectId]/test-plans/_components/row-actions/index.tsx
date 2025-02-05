@@ -28,7 +28,7 @@ export function TestPlansRowActions({
     const [isViewOpen, setIsViewOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const projectId = row.original.projectId as string;
+    const projectId = row.original.projectId as unknown as string;
     const testPlanId = row.original.id as string;
 
     const deleteTestPlan = async () => {

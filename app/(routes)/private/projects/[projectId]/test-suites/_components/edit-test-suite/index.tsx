@@ -33,6 +33,7 @@ import TextEditor from "../../../../_components/text-editor";
 import { getRequirementsWithoutPaginationService } from "@/app/_services/requirement.service";
 import { IRequirement } from "@/app/_interface/requirement";
 import { updateTestSuiteService } from "@/app/_services/test-suite.service";
+import { useParams } from "next/navigation";
 
 const deviceSchema = z.object({
     title: z.string().min(1, "Required"),
@@ -55,7 +56,8 @@ export function EditTestSuite({
     const [selectedRequirements, setSelectedRequirements] = useState<string[]>(
         testSuite?.requirements?.map((requirement) => requirement._id) as string[]
     );
-    const { title, description, projectId } = testSuite;
+    const { title, description } = testSuite;
+    const { projectId } = useParams<{ projectId: string }>();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isRequirementLoading, setIsRequirementLoading] = useState<boolean>(false);
     const [requirments, setRequirements] = useState<IRequirement[]>([]);
