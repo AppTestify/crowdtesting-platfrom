@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
 import { useParams } from 'next/navigation';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -34,6 +34,14 @@ export default function EditTaskStatus({
             status: task?.status || "",
         },
     });
+
+    useEffect(() => {
+        if (task) {
+            form.reset({
+                status: task.status || "",
+            });
+        }
+    }, [task, form.reset]);
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const { projectId } = useParams<{ projectId: string }>();

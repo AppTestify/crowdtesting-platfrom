@@ -36,10 +36,15 @@ import { DBModels } from "@/app/_constants";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
 import { NAME_NOT_SPECIFIED_ERROR_MESSAGE } from "@/app/_constants/errors";
+import { checkProjectActiveRole } from "@/app/_utils/common-functionality";
+import { getProjectService } from "@/app/_services/project.service";
+import toasterService from "@/app/_services/toaster-service";
+import { IProject } from "@/app/_interface/project";
 
 export default function TestPlan() {
     const [testPlans, setTestPlans] = useState<ITestPlanPayload[]>([]);
     const [userData, setUserData] = useState<any>();
+    const [project, setProject] = useState<IProject>();
 
     const columns: ColumnDef<ITestPlanPayload>[] = [
         {
@@ -70,17 +75,7 @@ export default function TestPlan() {
                     {row.getValue("title")}</div>
             ),
         },
-        // ...(
-        //     testPlans.some((item) => item.userId?._id) ?
-        //         [{
-        //             accessorKey: "createdBy",
-        //             header: "Created By",
-        //             cell: ({ row }: { row: any }) => (
-        //                 <div className="">{`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}</div>
-        //             ),
-        //         }] : []
-        // ),
-        ...(userData?.role !== UserRoles.CLIENT
+        ...(userData?.role === UserRoles.ADMIN
             ? [
                 {
                     accessorKey: "createdBy",
@@ -121,7 +116,7 @@ export default function TestPlan() {
                 </div>
             ),
         },
-        ...(userData?.role !== UserRoles.TESTER ? [{
+        ...(userData?.role !== UserRoles.TESTER && checkProjectActiveRole(project?.isActive ?? false, userData) ? [{
             id: "actions",
             enableHiding: false,
             cell: ({ row }: { row: any }) => (
@@ -179,6 +174,20 @@ export default function TestPlan() {
         setIsViewOpen(true);
     };
 
+    const getProject = async () => {
+        setIsLoading(true);
+        try {
+            const response = await getProjectService(projectId);
+            if (response) {
+                setProject(response);
+            }
+        } catch (error) {
+            toasterService.error();
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const table = useReactTable({
         data: testPlans,
         columns,
@@ -192,7 +201,6 @@ export default function TestPlan() {
         globalFilterFn: "includesString",
         state: {
             sorting,
-            // globalFilter,
             columnVisibility,
             rowSelection,
         },
@@ -210,6 +218,10 @@ export default function TestPlan() {
             setPageIndex(pageIndex + 1);
         }
     };
+
+    useEffect(() => {
+        getProject();
+    }, []);
 
     useEffect(() => {
         if (data) {
@@ -238,7 +250,7 @@ export default function TestPlan() {
                         }}
                         className="max-w-sm"
                     />
-                    {userData?.role !== UserRoles.TESTER &&
+                    {userData?.role !== UserRoles.TESTER && checkProjectActiveRole(project?.isActive ?? false, userData) &&
                         <div className="flex gap-2 ml-2">
                             <AddTestPlan refreshTestPlans={refreshTestPlans} userData={userData} />
                         </div>

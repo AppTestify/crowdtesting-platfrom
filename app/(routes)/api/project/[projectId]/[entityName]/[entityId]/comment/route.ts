@@ -1,3 +1,4 @@
+import { DBModels } from "@/app/_constants";
 import {
   DB_CONNECTION_ERROR_MESSAGE,
   INVALID_INPUT_ERROR_MESSAGE,
@@ -7,9 +8,11 @@ import {
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
 import AttachmentService from "@/app/_helpers/attachment.helper";
-import { isClient, verifySession } from "@/app/_lib/dal";
+import { isAdmin, isClient, verifySession } from "@/app/_lib/dal";
 import { Comment } from "@/app/_models/comment.model";
+import { IdFormat } from "@/app/_models/id-format.model";
 import { CommentSchema } from "@/app/_schemas/comment.schema";
+import { replaceCustomId } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function POST(
@@ -91,22 +94,23 @@ export async function GET(
     const url = new URL(req.url);
     const limit = parseInt(url.searchParams.get("limit") || "10", 10);
     const find = { entityId: entityId, isDelete: false };
+    const userIdFormat = await IdFormat.findOne({ entity: DBModels.USER });
     let totalComments, response;
 
-    if (!(await isClient(session.user))) {
+    if (await isAdmin(session.user)) {
       totalComments = await Comment.find(find).countDocuments();
       response = await Comment.find(find)
         .limit(Number(limit))
         .populate({
           path: "commentedBy",
-          select: "profilePicture role email firstName lastName",
+          select: "profilePicture role email firstName lastName customId",
           populate: {
             path: "profilePicture",
             select: "name contentType cloudId",
           },
         })
         .sort({ createdAt: -1 });
-    } else {
+    } else if (await isClient(session.user)) {
       totalComments = await Comment.find({
         ...find,
         isVerify: true,
@@ -118,7 +122,32 @@ export async function GET(
         .limit(Number(limit))
         .populate({
           path: "commentedBy",
-          select: "profilePicture role email firstName lastName",
+          select: "profilePicture role email firstName lastName customId",
+          populate: {
+            path: "profilePicture",
+            select: "name contentType cloudId",
+          },
+        })
+        .sort({ createdAt: -1 });
+    } else {
+      totalComments = await Comment.find({
+        ...find,
+        $or: [
+          { commentedBy: session?.user?._id, isVerify: false },
+          { commentedBy: { $ne: session?.user?._id }, isVerify: true },
+        ],
+      }).countDocuments();
+      response = await Comment.find({
+        ...find,
+        $or: [
+          { commentedBy: session?.user?._id, isVerify: false },
+          { commentedBy: { $ne: session?.user?._id }, isVerify: true },
+        ],
+      })
+        .limit(Number(limit))
+        .populate({
+          path: "commentedBy",
+          select: "profilePicture role email firstName lastName customId",
           populate: {
             path: "profilePicture",
             select: "name contentType cloudId",
@@ -146,6 +175,10 @@ export async function GET(
             ...comment.toObject(),
             commentedBy: {
               ...comment.commentedBy.toObject(),
+              customId: replaceCustomId(
+                userIdFormat.idFormat,
+                comment.commentedBy.customId
+              ),
               profilePicture: {
                 ...comment.commentedBy.profilePicture.toObject(),
                 data: cachedFileResponse,

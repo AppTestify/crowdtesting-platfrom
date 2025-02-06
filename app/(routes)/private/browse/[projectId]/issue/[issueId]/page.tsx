@@ -210,6 +210,14 @@ const ViewIssue = () => {
                   <span className="text-sm">{statusBadge(issueData?.status)}</span>
                 </div>
 
+                {/* Test cycle */}
+                <div className="flex items-center gap-[20px]">
+                  <span className="text-gray-500 min-w-[70px] text-sm">Test cycle</span>
+                  <span className="ml-1 font-medium">
+                    {issueData?.testCycle?.title}
+                  </span>
+                </div>
+
                 {/* Issue type */}
                 <div className="flex items-center gap-[20px]">
                   <span className="text-gray-500 min-w-[70px] text-sm">Issue type</span>

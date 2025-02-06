@@ -12,7 +12,7 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { ChevronRight, UserCircle2Icon } from "lucide-react";
+import { ChevronRight, Edit, UserCircle2Icon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSession } from "next-auth/react";
 import { getProjectService } from "@/app/_services/project.service";
@@ -24,6 +24,9 @@ import { ITask } from "@/app/_interface/task";
 import { Badge } from "@/components/ui/badge";
 import DefaultComments from "@/app/(routes)/private/projects/[projectId]/comments";
 import { DBModels } from "@/app/_constants";
+import { Button } from "@/components/ui/button";
+import EditTaskStatus from "@/app/(routes)/private/projects/[projectId]/tasks/_components/edit-task-status";
+import { EditTask } from "@/app/(routes)/private/projects/[projectId]/tasks/_components/edit-task";
 
 const ViewTask = () => {
     const [isViewLoading, setIsViewLoading] = useState<boolean>(false);
@@ -33,8 +36,10 @@ const ViewTask = () => {
     const { data } = useSession();
     const [project, setProject] = useState<IProject>();
     const [userData, setUserData] = useState<any>();
+    const [isEditOpen, setIsEditOpen] = useState(false);
+    const [isEditStatusOpen, setIsEditStatusOpen] = useState(false);
 
-    const getIssueById = async () => {
+    const getTaskById = async () => {
         try {
             setIsViewLoading(true);
             const response = await getTaskByIdService(projectId, taskId);
@@ -58,8 +63,14 @@ const ViewTask = () => {
         }
     };
 
+    const refreshTasks = () => {
+        getTaskById();
+        setIsEditStatusOpen(false);
+        setIsEditOpen(false);
+    }
+
     useEffect(() => {
-        getIssueById();
+        getTaskById();
         getProject();
     }, [projectId, taskId]);
 
@@ -72,6 +83,19 @@ const ViewTask = () => {
 
     return (
         <div className="pb-0 mt-2 w-full">
+            <EditTaskStatus
+                task={taskData as ITask}
+                refreshTasks={refreshTasks}
+                sheetOpen={isEditStatusOpen}
+                setSheetOpen={setIsEditStatusOpen}
+            />
+
+            <EditTask
+                refreshTasks={refreshTasks}
+                task={taskData as ITask}
+                sheetOpen={isEditOpen}
+                setSheetOpen={setIsEditOpen}
+            />
             {!isViewLoading ? (
                 <main className="mx-4">
                     <div className="flex justify-between mb-2">
@@ -96,6 +120,17 @@ const ViewTask = () => {
                                     </BreadcrumbItem>
                                 </BreadcrumbList>
                             </Breadcrumb>
+                        </div>
+                        <div>
+                            {userData?.role !== UserRoles.TESTER || taskData?.userId?._id === userData?._id ? (
+                                <Button size={"sm"} onClick={() => setIsEditOpen(true)}>
+                                    <Edit className="h-2 w-2" /> Edit
+                                </Button>
+                            ) : taskData?.assignedTo?._id === userData?._id ? (
+                                <Button size={"sm"} onClick={() => setIsEditStatusOpen(true)}>
+                                    <Edit className="h-2 w-2" /> Edit
+                                </Button>
+                            ) : null}
                         </div>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-[2fr_1fr] gap-4">

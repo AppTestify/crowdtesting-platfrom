@@ -21,7 +21,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { getProfilePictureService } from '@/app/_services/user.service';
 import { PAGINATION_LIMIT } from '@/app/_constants/pagination-limit';
 import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
 import { checkProjectAdmin } from '@/app/_utils/common';
 import { IProject } from '@/app/_interface/project';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -95,7 +94,7 @@ export default function DefaultComments({ project, entityId, entityName }: { pro
         try {
             const response = await addCommentService(projectId, formatEntityName(entityName), entityId, {
                 ...values,
-                isVerify: user?.role === UserRoles.CLIENT && true,
+                isVerify: user?.role === UserRoles.TESTER ? false : true,
                 entityType: entityName
             });
             if (response) {
@@ -276,7 +275,7 @@ export default function DefaultComments({ project, entityId, entityName }: { pro
                                                         readOnly={true}
                                                     />
                                                 ) : (
-                                                    <div className="w-full ml-3">
+                                                    <div className="w-[90%] sm:w-full ml-3 pr-2">
                                                         <TextEditor
                                                             markup={field.value || ""}
                                                             placeholder={"Type your comment here..."}
@@ -335,7 +334,12 @@ export default function DefaultComments({ project, entityId, entityName }: { pro
                                 <div className="flex flex-col w-full">
                                     <div className="flex justify-between items-center">
                                         <span className="text-sm font-semibold text-gray-700 flex items-center">
-                                            {`${comment?.commentedBy?.firstName} ${comment?.commentedBy?.lastName}`}
+                                            {/* For client cannot see user name */}
+                                            {user?.role === UserRoles.CLIENT ?
+                                                user?._id === comment?.commentedBy?._id ?
+                                                    `${comment?.commentedBy?.firstName || ""} ${comment?.commentedBy?.lastName || ""}` : comment?.commentedBy?.customId
+                                                : `${comment?.commentedBy?.firstName || ""} ${comment?.commentedBy?.lastName || ""}`
+                                            }
                                             {user?.role === UserRoles.ADMIN &&
                                                 <>
                                                     <TooltipProvider delayDuration={10}>

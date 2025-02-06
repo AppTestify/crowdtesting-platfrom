@@ -24,6 +24,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
 import {
+    checkProjectActiveRole,
     displayIcon,
     taskStatusBadge,
 } from "@/app/_utils/common-functionality";
@@ -42,11 +43,14 @@ import { IRequirement } from "@/app/_interface/requirement";
 import { UserRoles } from "@/app/_constants/user-roles";
 import ViewTask from "../../../browse/[projectId]/task/[taskId]/page";
 import Link from "next/link";
+import { IProject } from "@/app/_interface/project";
+import { getProjectService } from "@/app/_services/project.service";
 
 export default function Tasks() {
     const [tasks, setTasks] = useState<ITask[]>([]);
     const [userData, setUserData] = useState<any>();
     const { projectId } = useParams<{ projectId: string }>();
+    const [project, setProject] = useState<IProject>();
 
     const showTaskRowActions = (task: ITask) => {
         return (
@@ -120,15 +124,18 @@ export default function Tasks() {
                 </div>
             ),
         },
-        {
-            accessorKey: "createdBy",
-            header: "Reporter",
-            cell: ({ row }: { row: any }) => (
-                <div className="">
-                    {`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}
-                </div>
-            ),
-        },
+        ...(userData?.role === UserRoles.ADMIN
+            ? [
+                {
+                    accessorKey: "createdBy",
+                    header: "Reporter",
+                    cell: ({ row }: { row: any }) => (
+                        <div className="">
+                            {`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}
+                        </div>
+                    ),
+                }] : []
+        ),
         {
             accessorKey: "assignedTo",
             header: "Assignee",
@@ -158,7 +165,7 @@ export default function Tasks() {
             enableHiding: false,
             cell: ({ row }: { row: any }) => (
                 <>
-                    {showTaskRowActions(row.original) ? (
+                    {showTaskRowActions(row.original) && checkProjectActiveRole(project?.isActive ?? false, userData) ? (
                         <TaskRowActions row={row} refreshTasks={refreshTasks} userData={userData} />
                     ) : null}
                 </>
@@ -247,6 +254,22 @@ export default function Tasks() {
         }
     };
 
+    const getProject = async () => {
+        setIsLoading(true);
+        try {
+            const response = await getProjectService(projectId);
+            setProject(response);
+        } catch (error) {
+            toasterService.error();
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        getProject();
+    }, []);
+
     useEffect(() => {
         localStorage.setItem("currentPage", pageIndex.toString());
         localStorage.setItem("entity", DBModels.TASK);
@@ -281,7 +304,9 @@ export default function Tasks() {
                         className="max-w-sm"
                     />
                     {/* {userData?.role !== UserRoles.TESTER && */}
-                    <AddTask refreshTasks={refreshTasks} />
+                    {checkProjectActiveRole(project?.isActive ?? false, userData) &&
+                        <AddTask refreshTasks={refreshTasks} />
+                    }
                     {/* // } */}
                 </div>
                 <div className="rounded-md border">

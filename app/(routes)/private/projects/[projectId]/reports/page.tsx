@@ -40,6 +40,7 @@ import ExpandableTable from "@/app/_components/expandable-table";
 import { Download, Loader2 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { DBModels } from "@/app/_constants";
+import { checkProjectActiveRole } from "@/app/_utils/common-functionality";
 
 export default function Report() {
     const [reports, setReports] = useState<IReport[]>([]);
@@ -132,13 +133,13 @@ export default function Report() {
 
             ),
         },
-        {
+        ...(checkProjectActiveRole(project?.isActive ?? false, userData) ? [{
             id: "actions",
             enableHiding: false,
             cell: ({ row }: { row: any }) => (
                 <ReportRowActions row={row as Row<IReport>} refreshReports={refreshReports} />
             ),
-        },
+        }] : []),
     ];
 
     // download zip file
@@ -307,7 +308,7 @@ export default function Report() {
                         }}
                         className="max-w-sm"
                     />
-                    {(project?.isActive === true || userData?.role === UserRoles.ADMIN) &&
+                    {(project?.isActive === true || userData?.role !== UserRoles.CLIENT) && checkProjectActiveRole(project?.isActive ?? false, userData) &&
                         <div className="flex gap-2 ml-2">
                             <AddReport refreshReports={refreshReports} />
                         </div>

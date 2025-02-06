@@ -42,10 +42,14 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { getRequirementsWithoutPaginationService } from "@/app/_services/requirement.service";
 import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
 import { DBModels } from "@/app/_constants";
+import { checkProjectActiveRole } from "@/app/_utils/common-functionality";
+import { getProjectService } from "@/app/_services/project.service";
+import { IProject } from "@/app/_interface/project";
 
 export default function TestCases() {
     const [testCases, setTestCases] = useState<ITestCase[]>([]);
     const [userData, setUserData] = useState<any>();
+    const [project, setProject] = useState<IProject>();
 
     const columns: ColumnDef<ITestCase>[] = [
         {
@@ -117,7 +121,7 @@ export default function TestCases() {
             ),
         },
         ...(
-            userData?.role != UserRoles.TESTER ?
+            userData?.role != UserRoles.TESTER && checkProjectActiveRole(project?.isActive ?? false, userData) ?
                 [{
                     id: "actions",
                     enableHiding: false,
@@ -180,7 +184,22 @@ export default function TestCases() {
         setSelectedRequirment(requirment);
     };
 
+    const getProject = async () => {
+        setIsLoading(true);
+        try {
+            const response = await getProjectService(projectId);
+            if (response) {
+                setProject(response);
+            }
+        } catch (error) {
+            toasterService.error();
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     useEffect(() => {
+        getProject();
         getTestSuites();
         getRequirements();
     }, []);
@@ -304,7 +323,7 @@ export default function TestCases() {
                         : null
                     }
                     {
-                        userData?.role != UserRoles.TESTER &&
+                        userData?.role != UserRoles.TESTER && checkProjectActiveRole(project?.isActive ?? false, userData) &&
                         <div className="flex gap-2 ml-auto">
                             <AddTestCase refreshTestCases={refreshTestCases} testSuites={testSuites} />
                         </div>

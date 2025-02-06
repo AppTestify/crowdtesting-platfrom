@@ -23,11 +23,11 @@ const PasswordField = ({ label, name, control }: { label: string; name: string; 
     const [isVisible, setIsVisible] = useState<boolean>(false);
 
     return (
-        <div>
+        <div className='w-full  '>
             <FormItem>
                 <FormLabel>{label}</FormLabel>
                 <FormControl>
-                    <div className="relative">
+                    <div className="relative w-full">
                         <Controller
                             name={name}
                             control={control}
@@ -36,11 +36,12 @@ const PasswordField = ({ label, name, control }: { label: string; name: string; 
                                     <Input
                                         {...field}
                                         type={isVisible ? 'text' : 'password'}
+                                        className='w-full '
                                     />
                                     <button
                                         type="button"
                                         onClick={() => setIsVisible(!isVisible)}
-                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 z-10"
+                                        className="absolute right-3 top-2 transform  z-10"
                                     >
                                         {isVisible ? (
                                             <EyeOffIcon className="h-5 w-5 text-gray-500" />
@@ -50,7 +51,7 @@ const PasswordField = ({ label, name, control }: { label: string; name: string; 
                                     </button>
 
                                     {fieldState?.error && (
-                                        <div className="absolute text-red-500 text-xs mt-1">
+                                        <div className="  text-red-500 text-xs mt-1">
                                             <FormMessage>{fieldState?.error.message}</FormMessage>
                                         </div>
                                     )}
@@ -107,11 +108,12 @@ export default function PasswordSetting() {
                     <div>
                         Change Password
                     </div>
-                    <div className="grid grid-cols-3 gap-2 mt-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mt-4">
                         <PasswordField label="Old Password" name="oldPassword" control={form.control} />
                         <PasswordField label="New Password" name="password" control={form.control} />
                         <PasswordField label="Confirm Password" name="confirmedPassword" control={form.control} />
                     </div>
+
                     <div className="mt-10 w-full flex justify-end gap-2">
                         <Button
                             disabled={isLoading}

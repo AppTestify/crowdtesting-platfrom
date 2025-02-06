@@ -36,11 +36,15 @@ import { UserRoles } from "@/app/_constants/user-roles";
 import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
 import { DBModels } from "@/app/_constants";
 import { NAME_NOT_SPECIFIED_ERROR_MESSAGE } from "@/app/_constants/errors";
-import { taskStatusBadge } from "@/app/_utils/common-functionality";
+import { checkProjectActiveRole, taskStatusBadge } from "@/app/_utils/common-functionality";
+import { IProject } from "@/app/_interface/project";
+import { getProjectService } from "@/app/_services/project.service";
+import toasterService from "@/app/_services/toaster-service";
 
 export default function Issues() {
   const [requirements, setRequirements] = useState<IRequirement[]>([]);
   const [userData, setUserData] = useState<any>();
+  const [project, setProject] = useState<IProject>();
 
   const columns: ColumnDef<IRequirement>[] = [
     {
@@ -79,7 +83,7 @@ export default function Issues() {
         </div>
       ),
     },
-    ...(userData?.role !== UserRoles.CLIENT
+    ...(userData?.role === UserRoles.ADMIN
       ? [
         {
           accessorKey: "createdBy",
@@ -132,7 +136,7 @@ export default function Issues() {
       ),
     },
     ...(
-      userData?.role != UserRoles.TESTER ?
+      userData?.role != UserRoles.TESTER && checkProjectActiveRole(project?.isActive ?? false, userData) ?
         [{
           id: "actions",
           enableHiding: false,
@@ -178,9 +182,27 @@ export default function Issues() {
     return () => clearTimeout(debounceFetch);
   }, [pageIndex, pageSize, globalFilter]);
 
+  useEffect(() => {
+    getProject();
+  }, []);
+
   const getRequirement = async (data: IRequirement) => {
     setRequirement(data as IRequirement);
     setIsViewOpen(true);
+  };
+
+  const getProject = async () => {
+    setIsLoading(true);
+    try {
+      const response = await getProjectService(projectId);
+      if (response) {
+        setProject(response);
+      }
+    } catch (error) {
+      toasterService.error();
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const getRequirements = async () => {
@@ -258,7 +280,7 @@ export default function Issues() {
             }}
             className="max-w-sm"
           />
-          {userData?.role != UserRoles.TESTER &&
+          {userData?.role != UserRoles.TESTER && checkProjectActiveRole(project?.isActive ?? false, userData) &&
             <div className="flex gap-2 ml-2">
               <AddRequirement refreshRequirements={refreshRequirements} />
             </div>

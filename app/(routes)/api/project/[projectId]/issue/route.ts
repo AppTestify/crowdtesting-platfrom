@@ -182,6 +182,7 @@ export async function GET(
     const severity = url.searchParams.get("severity");
     const priority = url.searchParams.get("priority");
     const status = url.searchParams.get("status");
+    const testCycle = url.searchParams.get("testCycle");
     const customIDFormat = await IdFormat.findOne({ entity: DBModels.ISSUE });
     const { skip, limit } = serverSidePagination(req);
 
@@ -197,6 +198,10 @@ export async function GET(
       filter.status = status;
     }
 
+    if (testCycle) {
+      filter.testCycle = testCycle;
+    }
+
     if (searchString) {
       if (await isAdmin(session.user)) {
         const { issues, totalIssues } = await filterIssuesForAdmin(
@@ -207,7 +212,8 @@ export async function GET(
           customIDFormat,
           severity || undefined,
           priority || undefined,
-          status || undefined
+          status || undefined,
+          testCycle || undefined
         );
         return Response.json({
           issues: addCustomIds(issues, customIDFormat?.idFormat),
@@ -222,7 +228,8 @@ export async function GET(
           customIDFormat,
           severity || undefined,
           priority || undefined,
-          status || undefined
+          status || undefined,
+          testCycle || undefined
         );
         return Response.json({
           issues: addCustomIds(issues, customIDFormat?.idFormat),
@@ -237,7 +244,8 @@ export async function GET(
           customIDFormat,
           severity || undefined,
           priority || undefined,
-          status || undefined
+          status || undefined,
+          testCycle || undefined
         );
         return Response.json({
           issues: addCustomIds(issues, customIDFormat?.idFormat),

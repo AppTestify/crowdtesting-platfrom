@@ -12,7 +12,8 @@ export async function filterIssuesForAdmin(
   idObject: any,
   severity?: string,
   priority?: string,
-  status?: string
+  status?: string,
+  testCycle?: string
 ) {
   const regex = new RegExp(searchString, "i");
   searchString = customIdForSearch(idObject, searchString);
@@ -46,6 +47,15 @@ export async function filterIssuesForAdmin(
           {
             $match: {
               status: status,
+            },
+          },
+        ]
+      : []),
+    ...(testCycle
+      ? [
+          {
+            $match: {
+              testCycle: testCycle,
             },
           },
         ]
@@ -136,7 +146,7 @@ export async function filterIssuesForAdmin(
           { status: regex },
           { issueType: regex },
           { "device.name": regex },
-          { "testCycle.name": regex },
+          { "testCycle.title": regex },
           { "assignedTo.firstName": regex },
           { "assignedTo.lastName": regex },
           { AssigedfullName: regex },
@@ -182,7 +192,8 @@ export async function filterIssuesForClient(
   idObject: any,
   severity?: string,
   priority?: string,
-  status?: string
+  status?: string,
+  testCycle?: string
 ) {
   const regex = new RegExp(searchString, "i");
   searchString = customIdForSearch(idObject, searchString);
@@ -217,6 +228,15 @@ export async function filterIssuesForClient(
           {
             $match: {
               status: status,
+            },
+          },
+        ]
+      : []),
+    ...(testCycle
+      ? [
+          {
+            $match: {
+              testCycle: testCycle,
             },
           },
         ]
@@ -304,7 +324,7 @@ export async function filterIssuesForClient(
           { status: regex },
           { issueType: regex },
           { "device.name": regex },
-          { "testCycle.name": regex },
+          { "testCycle.title": regex },
           { "user.firstName": regex },
           { "user.lastName": regex },
           { fullName: regex },
@@ -346,7 +366,8 @@ export async function filterIssuesForTester(
   idObject: any,
   severity?: string,
   priority?: string,
-  status?: string
+  status?: string,
+  testCycle?: string
 ) {
   const regex = new RegExp(searchString, "i");
   searchString = customIdForSearch(idObject, searchString);
@@ -384,6 +405,15 @@ export async function filterIssuesForTester(
           },
         ]
       : []),
+    ...(testCycle
+      ? [
+          {
+            $match: {
+              testCycle: testCycle,
+            },
+          },
+        ]
+      : []),
     {
       $lookup: {
         from: "devices",
@@ -417,27 +447,12 @@ export async function filterIssuesForTester(
     {
       $lookup: {
         from: "users",
-        localField: "userId",
-        foreignField: "_id",
-        as: "user",
-      },
-    },
-    { $unwind: "$user" },
-    {
-      $lookup: {
-        from: "users", // Lookup for assignedTo field
         localField: "assignedTo",
         foreignField: "_id",
         as: "assignedTo",
       },
     },
     { $unwind: { path: "$assignedTo", preserveNullAndEmptyArrays: true } },
-    {
-      $addFields: {
-        fullName: { $concat: ["$firstName", " ", "$lastName"] },
-        address: "$address",
-      },
-    },
     {
       $addFields: {
         AssigedfullName: {
@@ -466,9 +481,7 @@ export async function filterIssuesForTester(
           { status: regex },
           { issueType: regex },
           { "device.name": regex },
-          { "user.firstName": regex },
-          { "user.lastName": regex },
-          { "testCycle.name": regex },
+          { "testCycle.title": regex },
           { fullName: regex },
           { "assignedTo.firstName": regex },
           { "assignedTo.lastName": regex },

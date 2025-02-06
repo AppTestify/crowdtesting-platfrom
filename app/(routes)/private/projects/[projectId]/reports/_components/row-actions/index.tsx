@@ -18,7 +18,6 @@ import { EditReport } from "../edit-report";
 import ViewReport from "../view-report";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export function ReportRowActions({
     row,

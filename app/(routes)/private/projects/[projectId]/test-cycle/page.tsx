@@ -34,10 +34,15 @@ import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
 import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
 import { DBModels } from "@/app/_constants";
+import { checkProjectActiveRole } from "@/app/_utils/common-functionality";
+import { IProject } from "@/app/_interface/project";
+import { getProjectService } from "@/app/_services/project.service";
+import toasterService from "@/app/_services/toaster-service";
 
 export default function TestPlan() {
     const [testCycle, setTestCycle] = useState<ITestCycle[]>([]);
     const [userData, setUserData] = useState<any>();
+    const [project, setProject] = useState<IProject>();
 
     const columns: ColumnDef<ITestCycle>[] = [
         {
@@ -82,7 +87,7 @@ export default function TestPlan() {
                 }] : []
         ),
         ...(
-            userData?.role != UserRoles.TESTER ?
+            userData?.role != UserRoles.TESTER && checkProjectActiveRole(project?.isActive ?? false, userData) ?
                 [{
                     id: "actions",
                     enableHiding: false,
@@ -188,6 +193,24 @@ export default function TestPlan() {
         }
     };
 
+    const getProject = async () => {
+        setIsLoading(true);
+        try {
+            const response = await getProjectService(projectId);
+            if (response) {
+                setProject(response);
+            }
+        } catch (error) {
+            toasterService.error();
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        getProject();
+    }, []);
+
     return (
         <main className="mx-4 mt-2">
             <TestCycleView
@@ -212,7 +235,7 @@ export default function TestPlan() {
                         }}
                         className="max-w-sm"
                     />
-                    {userData?.role != UserRoles.TESTER &&
+                    {userData?.role != UserRoles.TESTER && checkProjectActiveRole(project?.isActive ?? false, userData) &&
                         <div className="flex gap-2 ml-2">
                             <AddTestCycle refreshTestCycle={refreshTestCycle} />
                         </div>

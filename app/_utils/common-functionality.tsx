@@ -138,7 +138,7 @@ export const showTestCaseResultStatusBadge = (role: string) => {
     }
 }
 
-export const ExportExcelFile = (excel: () => void, hasData: boolean, isLoading: boolean) => {
+export const ExportExcelFile = (excel: () => void, hasData: boolean, isLoading: boolean, isText: boolean = true) => {
     return (
         <Button
             type={"button"}
@@ -146,8 +146,8 @@ export const ExportExcelFile = (excel: () => void, hasData: boolean, isLoading: 
             disabled={!hasData || isLoading}
             onClick={excel}
         >
-            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileSpreadsheet />}
-            Export
+            {isLoading ? <Loader2 className={`${isText ? "mr-2" : ""} h-4 w-4 animate-spin`} /> : <FileSpreadsheet />}
+            {isText && "Export"}
         </Button>
     )
 }

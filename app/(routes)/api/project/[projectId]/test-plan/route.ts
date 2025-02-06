@@ -10,7 +10,10 @@ import { connectDatabase } from "@/app/_db";
 import { isAdmin, verifySession } from "@/app/_lib/dal";
 import { IdFormat } from "@/app/_models/id-format.model";
 import { TestPlan } from "@/app/_models/test-plan.model";
-import { filterTestPlan } from "@/app/_queries/search-test-plan";
+import {
+  filterTestPlanForAdmin,
+  filterTestPlanNotForAdmin,
+} from "@/app/_queries/search-test-plan";
 import { testPlanSchema } from "@/app/_schemas/test-plan.schema";
 import { serverSidePagination } from "@/app/_utils/common-server-side";
 import { addCustomIds } from "@/app/_utils/data-formatters";
@@ -105,7 +108,7 @@ export async function GET(
 
     if (searchString) {
       if (!(await isAdmin(session.user))) {
-        const { testPlans, totalTestPlans } = await filterTestPlan(
+        const { testPlans, totalTestPlans } = await filterTestPlanNotForAdmin(
           searchString,
           skip,
           limit,
@@ -117,7 +120,7 @@ export async function GET(
           total: totalTestPlans,
         });
       } else {
-        const { testPlans, totalTestPlans } = await filterTestPlan(
+        const { testPlans, totalTestPlans } = await filterTestPlanForAdmin(
           searchString,
           skip,
           limit,

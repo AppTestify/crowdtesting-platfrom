@@ -241,7 +241,21 @@ export default function StatusBarChart({ title, description, chartData, dataKey 
                                 }
                             />
                             <Bar
-                                dataKey="status" layout="vertical" radius={5} />
+                                dataKey={dataKey}
+                                layout="vertical"
+                                radius={5}
+                                label={({ value, x, y, width }) => (
+                                    <text
+                                        x={x + width + 5}
+                                        y={y + 15}
+                                        fill="#000"
+                                        fontSize={12}
+                                        textAnchor="start"
+                                    >
+                                        {value}
+                                    </text>
+                                )}
+                            />
                         </BarChart>
                     </ChartContainer>
                 )}

@@ -2,9 +2,8 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Plus } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
-
 import toasterService from "@/app/_services/toaster-service";
 import {
     Form,
@@ -20,7 +19,6 @@ import {
     SheetContent,
     SheetHeader,
     SheetTitle,
-    SheetTrigger,
 } from "@/components/ui/sheet";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -40,9 +38,7 @@ import {
 import { useParams } from "next/navigation";
 import { displayIcon } from "@/app/_utils/common-functionality";
 import TextEditor from "@/app/(routes)/private/projects/_components/text-editor";
-import { ColumnDef } from "@tanstack/react-table";
-import { IIssue, IIssueAttachmentDisplay } from "@/app/_interface/issue";
-import { DocumentName } from "@/app/_components/document-name";
+import { IIssue } from "@/app/_interface/issue";
 import { IProjectUserDisplay } from "@/app/_interface/project";
 import { getProjectUsersService } from "@/app/_services/project.service";
 import { getUsernameWithUserId } from "@/app/_utils/common";
@@ -50,8 +46,8 @@ import { ProjectUserRoles } from "@/app/_constants/project-user-roles";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
 import { getIssuesWithoutPaginationService } from "@/app/_services/issue.service";
-import { addTaskService, updateTaskService } from "@/app/_services/task.service";
-import { ITask, ITaskPayload } from "@/app/_interface/task";
+import { updateTaskService } from "@/app/_services/task.service";
+import { ITask } from "@/app/_interface/task";
 import { Label } from "@/components/ui/label";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { IRequirement } from "@/app/_interface/requirement";
@@ -75,8 +71,8 @@ export function EditTask({
     refreshTasks: () => void, task: ITask, sheetOpen: boolean;
     setSheetOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
-    const taskId = task.id;
-    const requirementsData = task.requirementIds;
+    const taskId = task?.id;
+    const requirementsData = task?.requirementIds;
     const { data } = useSession();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const { projectId } = useParams<{ projectId: string }>();
@@ -124,6 +120,19 @@ export function EditTask({
             assignedTo: task?.assignedTo?._id || "",
         },
     });
+
+    useEffect(() => {
+        if (task) {
+            form.reset({
+                title: task.title || "",
+                priority: task.priority || "",
+                status: task.status || "",
+                description: task.description || "",
+                issueId: task?.issueId?._id || null,
+                assignedTo: task.assignedTo?._id || "",
+            });
+        }
+    }, [task, form.reset]);
 
     async function onSubmit(values: z.infer<typeof taskSchema>) {
         setIsLoading(true);

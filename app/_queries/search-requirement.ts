@@ -21,16 +21,20 @@ export async function filterRequirementsNotForAdmin(
     {
       $lookup: {
         from: "users",
-        localField: "userId",
+        localField: "assignedTo",
         foreignField: "_id",
-        as: "user",
+        as: "assignedTo",
       },
     },
-    { $unwind: "$user" },
+    { $unwind: { path: "$assignedTo", preserveNullAndEmptyArrays: true } },
     {
       $addFields: {
-        fullName: { $concat: ["$user.firstName", " ", "$user.lastName"] },
-        address: "$user.address",
+        firstName: "$assignedTo.firstName",
+        lastName: "$assignedTo.lastName",
+        AssigedfullName: {
+          $concat: ["$assignedTo.firstName", " ", "$assignedTo.lastName"],
+        },
+        address: "$address",
       },
     },
     {
@@ -38,14 +42,9 @@ export async function filterRequirementsNotForAdmin(
         $or: [
           { customId: parseInt(searchString) },
           { title: regex },
-          { "user.firstName": regex },
-          { "user.lastName": regex },
+          { "assignedTo.firstName": regex },
+          { "assignedTo.lastName": regex },
         ],
-      },
-    },
-    {
-      $addFields: {
-        userId: "$user",
       },
     },
     {

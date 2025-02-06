@@ -30,6 +30,7 @@ import { AddIssue } from "./_components/add-issue";
 import { IssueRowActions } from "./_components/row-actions";
 import { useParams } from "next/navigation";
 import {
+  checkProjectActiveRole,
   displayIcon,
   ExportExcelFile,
   statusBadge,
@@ -44,12 +45,13 @@ import { IProject } from "@/app/_interface/project";
 import Link from "next/link";
 import { generateExcelFile } from "@/app/_helpers/generate-excel.helper";
 import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
-import ExpandableTable from "@/app/_components/expandable-table";
 import { checkProjectAdmin } from "@/app/_utils/common";
 import { NAME_NOT_SPECIFIED_ERROR_MESSAGE } from "@/app/_constants/errors";
 import { DBModels } from "@/app/_constants";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ISSUE_STATUS_LIST, IssueStatus, Priority, PRIORITY_LIST, PROJECT_ADMIN_ISSUE_STATUS_LIST, Severity, SEVERITY_LIST } from "@/app/_constants/issue";
+import { ISSUE_STATUS_LIST, IssueStatus, Priority, PRIORITY_LIST, Severity, SEVERITY_LIST } from "@/app/_constants/issue";
+import { getTestCycleListService } from "@/app/_services/test-cycle.service";
+import { ITestCycle } from "@/app/_interface/test-cycle";
 
 export default function Issues() {
   const [issues, setIssues] = useState<IIssueView[]>([]);
@@ -140,23 +142,23 @@ export default function Issues() {
       ),
     },
     {
-      accessorFn: (row) => row.device?.[0]?.name || "",
-      accessorKey: "Device Name",
-      header: "Device",
-      cell: ({ row }) => (
-        <div className="capitalize">
-          <ExpandableTable row={row?.original?.device} />
-        </div>
-      ),
+      accessorKey: "Test Cycle",
+      header: "Test cycle",
+      cell: ({ row }) => {
+        const testCycle = row.original?.testCycle?.title;
+        return (<div className="capitalize" title={testCycle}>
+          {testCycle.length > 30 ? `${testCycle.substring(0, 30)}...` : testCycle}
+        </div>)
+      },
     },
-    ...(userData?.role !== UserRoles.CLIENT
+    ...(userData?.role === UserRoles.ADMIN
       ? [
         {
           accessorKey: "createdBy",
           header: "Reporter",
           cell: ({ row }: { row: any }) => (
             <div className="">
-              {`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}
+              {`${row.original?.userId?.firstName || ""} ${row.original?.userId?.lastName || ""}`}
             </div>
           ),
         },
@@ -206,7 +208,7 @@ export default function Issues() {
       enableHiding: false,
       cell: ({ row }: { row: any }) => (
         <>
-          {showIssueRowActions(row.original) ? (
+          {showIssueRowActions(row.original) && checkProjectActiveRole(project?.isActive ?? false, userData) ? (
             <IssueRowActions row={row} refreshIssues={refreshIssues} />
           ) : null}
         </>
@@ -225,6 +227,8 @@ export default function Issues() {
   const [selectedSeverity, setSelectedSeverity] = useState<string>("");
   const [selectedPriority, setSelectedPriority] = useState<string>("");
   const [selectedStatus, setSelectedStatus] = useState<string>("");
+  const [selectedTestCycle, setSelectedTestCycle] = useState<string>("");
+  const [testCycles, setTestCycles] = useState<ITestCycle[]>([]);
   const [pageIndex, setPageIndex] = useState<number>(() => {
     const entity = localStorage.getItem("entity");
     if (entity === DBModels.ISSUE) {
@@ -263,7 +267,7 @@ export default function Issues() {
   const getIssues = async () => {
     setIsLoading(true);
     try {
-      const response = await getIssuesService(projectId, pageIndex, pageSize, globalFilter as unknown as string, selectedSeverity, selectedPriority, selectedStatus);
+      const response = await getIssuesService(projectId, pageIndex, pageSize, globalFilter as unknown as string, selectedSeverity, selectedPriority, selectedStatus, selectedTestCycle);
       setIssues(response?.issues);
       setTotalPageCount(response?.total);
     } catch (error) {
@@ -391,6 +395,15 @@ export default function Issues() {
     }
   };
 
+  const handleTestCycleChange = (TestCycle: string | "All") => {
+    setPageIndex(1);
+    if (TestCycle == "All") {
+      setSelectedTestCycle("");
+    } else {
+      setSelectedTestCycle(TestCycle || "");
+    }
+  };
+
   const handleStatusChange = (priority: IssueStatus | "All") => {
     setPageIndex(1);
     if (priority == "All") {
@@ -400,8 +413,18 @@ export default function Issues() {
     }
   };
 
+  const getTestCycle = async () => {
+    try {
+      const response = await getTestCycleListService(projectId);
+      setTestCycles(response);
+    } catch (error) {
+      toasterService.error();
+    }
+  }
+
   useEffect(() => {
     getProject();
+    getTestCycle();
   }, []);
 
   useEffect(() => {
@@ -409,7 +432,7 @@ export default function Issues() {
       getIssues();
     }, 500);
     return () => clearTimeout(debounceFetch);
-  }, [globalFilter, pageIndex, pageSize, selectedSeverity, selectedPriority, selectedStatus]);
+  }, [globalFilter, pageIndex, pageSize, selectedSeverity, selectedPriority, selectedStatus, selectedTestCycle]);
 
   useEffect(() => {
     if ((Array.isArray(globalFilter) && globalFilter.length > 0) || (typeof globalFilter === 'string' && globalFilter.trim() !== "")) {
@@ -439,7 +462,7 @@ export default function Issues() {
             onChange={(event) => {
               setGlobalFilter(event.target.value);
             }}
-            className="max-w-sm"
+            className="max-w-xs"
           />
 
           <div className="gap-2 ml-2">
@@ -522,9 +545,34 @@ export default function Issues() {
             </Select>
           </div>
 
+          <div className="gap-2 ml-2">
+            <Select
+              value={selectedTestCycle || "All"}
+              onValueChange={(value) => {
+                handleTestCycleChange(value as string);
+              }}
+            >
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder="Search by test cycle" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value="All" key="all-testCycle">
+                    All Test Cycle
+                  </SelectItem>
+                  {testCycles.map((testCycle) => (
+                    <SelectItem value={testCycle?._id || ""} key={testCycle?._id}>
+                      {testCycle?.title}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+
           <div className="flex items-end justify-end gap-2 ml-auto">
-            <div>{ExportExcelFile(generateExcel, hasData, isExcelLoading)}</div>
-            {userData?.role !== UserRoles.CLIENT &&
+            <div>{ExportExcelFile(generateExcel, hasData, isExcelLoading, false)}</div>
+            {userData?.role !== UserRoles.CLIENT && checkProjectActiveRole(project?.isActive ?? false, userData) &&
               (project?.isActive === true ||
                 userData?.role === UserRoles.ADMIN ||
                 userData?.role === UserRoles.TESTER) && (
