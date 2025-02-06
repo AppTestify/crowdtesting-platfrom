@@ -51,7 +51,7 @@ export function MailList({ items, isLoading }: { items: IMail[], isLoading: bool
     }, []);
 
     return (
-        <ScrollArea className="h-full">
+        <ScrollArea className="h-full max-h-screen overflow-y-auto scroll-smooth">
             {!isLoading ? (
                 <div className="flex flex-col gap-2 p-4 pt-0">
                     {items.length > 0 ? (
