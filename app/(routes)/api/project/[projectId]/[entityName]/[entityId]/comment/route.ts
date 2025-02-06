@@ -160,6 +160,18 @@ export async function GET(
 
     const data = await Promise.all(
       response.map(async (comment) => {
+        // Ensure customId is replaced regardless of profilePicture
+        comment = {
+          ...comment.toObject(),
+          commentedBy: {
+            ...comment.commentedBy.toObject(),
+            customId: replaceCustomId(
+              userIdFormat.idFormat,
+              String(comment?.commentedBy?.customId)
+            ),
+          },
+        };
+
         const profilePicture = comment.commentedBy?.profilePicture;
         if (profilePicture?.cloudId) {
           if (!cache.has(profilePicture.cloudId)) {
@@ -172,24 +184,21 @@ export async function GET(
           const cachedFileResponse = cache.get(profilePicture.cloudId);
 
           comment = {
-            ...comment.toObject(),
+            ...comment,
             commentedBy: {
-              ...comment.commentedBy.toObject(),
-              customId: replaceCustomId(
-                userIdFormat.idFormat,
-                comment.commentedBy.customId
-              ),
+              ...comment.commentedBy,
               profilePicture: {
-                ...comment.commentedBy.profilePicture.toObject(),
+                ...profilePicture,
                 data: cachedFileResponse,
               },
             },
           };
         }
+
         return comment;
       })
     );
-
+    // console.log("data", data);
     return Response.json({ comments: data, total: totalComments });
   } catch (error: any) {
     return errorHandler(error);
