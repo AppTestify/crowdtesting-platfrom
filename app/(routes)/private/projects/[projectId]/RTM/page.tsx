@@ -16,7 +16,7 @@ import { z } from 'zod';
 import RtmTable from './_components/rtm-table';
 import { getRequirementsWithoutPaginationService } from '@/app/_services/requirement.service';
 import { IRequirement } from '@/app/_interface/requirement';
-import { displayRTMStatus, ExportExcelFile, statusColors } from '@/app/_utils/common-functionality';
+import { statusColors } from '@/app/_utils/common-functionality';
 import * as XLSX from "sheetjs-style";
 import { Button } from '@/components/ui/button';
 import { FileSpreadsheet, Loader2 } from 'lucide-react';
@@ -89,6 +89,7 @@ export default function RTM() {
     };
 
     useEffect(() => {
+        localStorage.setItem("entity", "RTM");
         getTestCycles();
         getTestSuites();
         getRequirements();
@@ -206,8 +207,8 @@ export default function RTM() {
             });
 
             rows.slice(5).forEach((row, rowIndex) => {
-                const testCaseStatus = row[1];  
-                const cellRef = XLSX.utils.encode_cell({ r: rowIndex + 5, c: 1 });   
+                const testCaseStatus = row[1];
+                const cellRef = XLSX.utils.encode_cell({ r: rowIndex + 5, c: 1 });
 
                 if (statusColors[testCaseStatus]) {
                     ws[cellRef].s = {

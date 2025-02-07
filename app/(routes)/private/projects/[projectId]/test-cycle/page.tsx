@@ -38,11 +38,14 @@ import { checkProjectActiveRole } from "@/app/_utils/common-functionality";
 import { IProject } from "@/app/_interface/project";
 import { getProjectService } from "@/app/_services/project.service";
 import toasterService from "@/app/_services/toaster-service";
+import AssignTestCase from "./_components/assign-test-cases";
+import { ITestCase } from "@/app/_interface/test-case";
 
 export default function TestPlan() {
     const [testCycle, setTestCycle] = useState<ITestCycle[]>([]);
     const [userData, setUserData] = useState<any>();
     const [project, setProject] = useState<IProject>();
+    const [testCase, setTestCase] = useState<Row<ITestCycle>>();
 
     const columns: ColumnDef<ITestCycle>[] = [
         {
@@ -86,6 +89,15 @@ export default function TestPlan() {
                     ),
                 }] : []
         ),
+        // {
+        //     accessorKey: "Assign",
+        //     header: "Assign",
+        //     cell: ({ row }) => (
+        //         <Button variant={"secondary"} size={"sm"} onClick={() => setTestCase(row)}>
+        //             Assign
+        //         </Button>
+        //     ),
+        // },
         ...(
             userData?.role != UserRoles.TESTER && checkProjectActiveRole(project?.isActive ?? false, userData) ?
                 [{
@@ -115,6 +127,7 @@ export default function TestPlan() {
     const [testCycleData, setTestCycleData] = useState<ITestCycle>();
     const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
     const { projectId } = useParams<{ projectId: string }>();
+    const [isAssignOpen, setIsAssignOpen] = useState<boolean>(false);
     const { data } = useSession();
 
     useEffect(() => {
@@ -218,6 +231,14 @@ export default function TestPlan() {
                 setSheetOpen={setIsViewOpen}
                 testCycle={testCycleData as ITestCycle}
             />
+
+            {testCase &&
+                <AssignTestCase
+                    sheetOpen={isAssignOpen}
+                    setSheetOpen={setIsAssignOpen}
+                    row={testCase as Row<ITestCycle>}
+                />
+            }
             <div className="">
                 <h2 className="text-medium">Test cycle</h2>
                 <span className="text-xs text-gray-600">

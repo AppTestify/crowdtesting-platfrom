@@ -60,7 +60,7 @@ export async function PUT(
         const updateResponse = await TestCaseResult.findByIdAndUpdate(testCaseExecutionId, {
             ...response.data,
             issueId: response.data.isIssue ? newIssue._id : null,
-            updatedBy: `${session.user.firstName} ${session.user.lastName}`,
+            updatedBy: session.user._id,
             updatedAt: Date.now()
         }, { new: true });
 

@@ -28,7 +28,6 @@ import { getProjectsService } from "@/app/_services/project.service";
 import { formatDateWithoutTime } from "@/app/_constants/date-formatter";
 import { RowActions } from "./_components/row-actions";
 import { BulkDelete } from "./_components/bulk-delete";
-import ProjectStatus from "./_components/project-status";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
@@ -37,6 +36,10 @@ import { ArrowUpDown } from "lucide-react";
 import { IUserByAdmin } from "@/app/_interface/user";
 import ViewTesterIssue from "../users/_components/view-user";
 import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
+import { DBModels } from "@/app/_constants";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ProjectStatusData, projectStatusList } from "@/app/_constants/project";
+import ProjectStatus from "./_components/project-status";
 
 export default function Projects() {
   const [userData, setUserData] = useState<any>();
@@ -143,6 +146,7 @@ export default function Projects() {
   const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
   const [totalPageCount, setTotalPageCount] = useState(0);
   const [isViewOpen, setIsViewOpen] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState<string>("");
   const [user, setUser] = useState<IUserByAdmin>();
   const { data } = useSession();
 
@@ -189,7 +193,7 @@ export default function Projects() {
 
   const getProjects = async () => {
     setIsLoading(true);
-    const response = await getProjectsService(pageIndex, pageSize, globalFilter as unknown as string);
+    const response = await getProjectsService(pageIndex, pageSize, globalFilter as unknown as string, selectedStatus);
     const formattedProjects = response?.projects?.map((project: any) => ({
       ...project,
       startDate: project?.startDate,
@@ -242,6 +246,15 @@ export default function Projects() {
     }
   };
 
+  const handleStatusChange = (status: ProjectStatusData | "All") => {
+    setPageIndex(1);
+    if (status == "All") {
+      setSelectedStatus("");
+    } else {
+      setSelectedStatus(status);
+    }
+  };
+
   useEffect(() => {
     if (data) {
       const { user } = data;
@@ -254,13 +267,19 @@ export default function Projects() {
       getProjects();
     }, 500);
     return () => clearTimeout(debounceFetch);
-  }, [globalFilter, pageIndex, pageSize]);
+  }, [globalFilter, pageIndex, pageSize, selectedStatus]);
 
   useEffect(() => {
     if ((Array.isArray(globalFilter) && globalFilter.length > 0) || (typeof globalFilter === 'string' && globalFilter.trim() !== "")) {
       setPageIndex(1);
     }
   }, [globalFilter]);
+
+  useEffect(() => {
+    if (pageIndex) {
+      localStorage.setItem("entity", DBModels.PROJECT);
+    }
+  }, [pageIndex]);
 
   return (
     <main className="mx-4 mt-4">
@@ -273,7 +292,7 @@ export default function Projects() {
         <h2 className="font-medium text-xl text-primary">Projects</h2>
       </div>
       <div className="w-full">
-        <div className="flex items-center py-4 justify-between">
+        <div className="flex py-4 w-full justify-between">
           <Input
             placeholder="Filter projects"
             value={(globalFilter as string) ?? ""}
@@ -282,7 +301,33 @@ export default function Projects() {
             }}
             className="max-w-sm"
           />
-          <div className="flex gap-2 ml-2">
+
+          <div className="gap-2 mx-2">
+            <Select
+              value={selectedStatus || "All"}
+              onValueChange={(value) => {
+                handleStatusChange(value as ProjectStatusData);
+              }}
+            >
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder="Search by status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value="All" key="all-status">
+                    All Status
+                  </SelectItem>
+                  {projectStatusList.map((status) => (
+                    <SelectItem value={status === ProjectStatusData.ACTIVE ? "true" : "false"} key={status}>
+                      {status}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex items-end justify-end gap-2 ml-auto">
             {getSelectedRows().length ? (
               <BulkDelete
                 ids={getSelectedRows() as string[]}

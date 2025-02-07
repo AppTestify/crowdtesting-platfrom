@@ -198,7 +198,6 @@ export async function GET(
         return comment;
       })
     );
-    // console.log("data", data);
     return Response.json({ comments: data, total: totalComments });
   } catch (error: any) {
     return errorHandler(error);

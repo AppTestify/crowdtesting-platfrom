@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import {
     ColumnDef,
-    Row,
     SortingState,
     VisibilityState,
     flexRender,
@@ -25,7 +24,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
 import { getTestCycleService } from "@/app/_services/test-cycle.service";
-import { ITestCycle, ITestCyclePayload } from "@/app/_interface/test-cycle";
+import { ITestCyclePayload } from "@/app/_interface/test-cycle";
 import { ArrowUpDown, ChartNoAxesGantt } from "lucide-react";
 import Link from "next/link";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -150,12 +149,6 @@ export default function TestExecution() {
         setIsLoading(false);
     };
 
-
-    const refreshTestCycle = () => {
-        getTestCycle();
-        setRowSelection({});
-    };
-
     const table = useReactTable({
         data: testCycle,
         columns,
@@ -187,6 +180,12 @@ export default function TestExecution() {
             setPageIndex(pageIndex + 1);
         }
     };
+
+    useEffect(() => {
+        if (pageIndex) {
+            localStorage.setItem("entity", "TestExecution");
+        }
+    }, [pageIndex]);
 
     return (
         <main className="mx-4 mt-2">

@@ -91,12 +91,22 @@ export async function GET(req: Request) {
 
     let response = null;
     let totalProjects;
+    let filter: any = { deletedAt: { $exists: false } };
     const url = new URL(req.url);
+
+    // Take a status and convert into boolean
+    const statusParam = url.searchParams.get("status");
+    const status = statusParam === "true";
+
     const searchString = url.searchParams.get("searchString");
     const { skip, limit } = serverSidePagination(req);
     const projectIdFormat = await IdFormat.findOne({
       entity: DBModels.PROJECT,
     });
+
+    if (statusParam !== null && statusParam !== "") {
+      filter.isActive = status;
+    }
 
     if (searchString) {
       if (await isAdmin(session.user)) {
@@ -104,7 +114,8 @@ export async function GET(req: Request) {
           searchString,
           skip,
           limit,
-          projectIdFormat
+          projectIdFormat,
+          status || undefined
         );
         return Response.json({
           projects: addCustomIds(projects, projectIdFormat?.idFormat),
@@ -116,7 +127,8 @@ export async function GET(req: Request) {
           skip,
           limit,
           projectIdFormat,
-          session.user
+          session.user,
+          status || undefined
         );
         return Response.json({
           projects: addCustomIds(projects, projectIdFormat?.idFormat),
@@ -128,7 +140,8 @@ export async function GET(req: Request) {
           skip,
           limit,
           projectIdFormat,
-          session.user
+          session.user,
+          status || undefined
         );
         return Response.json({
           projects: addCustomIds(projects, projectIdFormat?.idFormat),
@@ -139,7 +152,7 @@ export async function GET(req: Request) {
 
     if (await isAdmin(session.user)) {
       response = addCustomIds(
-        await Project.find({ deletedAt: { $exists: false } })
+        await Project.find(filter)
           .populate("userId")
           .sort({ createdAt: -1 })
           .skip(skip)
@@ -147,44 +160,47 @@ export async function GET(req: Request) {
           .lean(),
         projectIdFormat.idFormat
       );
-      totalProjects = await Project.find({
-        deletedAt: { $exists: false },
-      }).countDocuments();
+      totalProjects = await Project.find(filter).countDocuments();
     } else if (await isClient(session.user)) {
       response = addCustomIds(
-        await Project.find({
-          deletedAt: { $exists: false },
-          $or: [
-            { "users.userId": session.user._id }, 
-            { userId: session.user._id }, 
-          ],
-        })
+        await Project.find(filter)
+          .find({
+            $or: [
+              { "users.userId": session.user._id },
+              { userId: session.user._id },
+            ],
+          })
           .sort({ createdAt: -1 })
           .skip(skip)
           .limit(Number(limit))
           .lean(),
         projectIdFormat.idFormat
       );
-      totalProjects = await Project.find({
-        deletedAt: { $exists: false },
-        userId: session.user._id,
+      totalProjects = await Project.find(filter)
+      .find({
+        // filter,
+        $or: [
+          { "users.userId": session.user._id },
+          { userId: session.user._id },
+        ],
       }).countDocuments();
     } else {
       response = addCustomIds(
-        await Project.find({
-          "users.userId": session.user._id,
-          deletedAt: { $exists: false },
-        })
+        await Project.find(filter)
+          .find({
+            "users.userId": session.user._id,
+          })
           .sort({ createdAt: -1 })
           .skip(skip)
           .limit(Number(limit))
           .lean(),
         projectIdFormat.idFormat
       );
-      totalProjects = await Project.find({
-        "users.userId": session.user._id,
-        deletedAt: { $exists: false },
-      }).countDocuments();
+      totalProjects = await Project.find(filter)
+        .find({
+          "users.userId": session.user._id,
+        })
+        .countDocuments();
     }
     return Response.json({ projects: response, total: totalProjects });
   } catch (error: any) {

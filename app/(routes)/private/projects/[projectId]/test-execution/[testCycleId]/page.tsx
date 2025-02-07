@@ -10,7 +10,7 @@ import {
     ColumnDef, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel,
     getSortedRowModel, SortingState, useReactTable, VisibilityState
 } from '@tanstack/react-table';
-import { ArrowUpDown, ChevronRight, Eye, MoreHorizontal, Play, X } from 'lucide-react';
+import { ArrowUpDown, ChevronRight, Play, X } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 import Moderate from './_components/moderate';
@@ -50,7 +50,6 @@ export default function TestCasesInTestExecution() {
 
     const resetFilter = () => {
         setSelectedResult("");
-        // setFilteredUsers(users);
     }
 
     const columns: ColumnDef<ITestCaseResult>[] = [
@@ -97,24 +96,34 @@ export default function TestCasesInTestExecution() {
         {
             accessorKey: "actualResult",
             header: "Actual Result",
-            cell: ({ row }) => (
-                <div className="capitalize">
-                    {row.original?.actualResult}
-                </div>
-            ),
+            cell: ({ row }) => {
+                const actualResult = row.original?.actualResult;
+                return (
+                    <div className="capitalize" title={actualResult}>
+                        {actualResult && actualResult.length > 40 ? `${actualResult.substring(0, 40)}...` : actualResult}
+                    </div>
+                )
+            },
         },
         {
             accessorKey: "moderatedBy",
-            header: "Moderated By",
-            cell: ({ row }) => (
-                <div className="capitalize">
-                    {row.original?.updatedBy}
-                </div>
-            ),
+            header: "Updated By",
+            cell: ({ row }) => {
+                const updatedBy = row.original?.updatedBy;
+                return (
+                    <div className="capitalize">
+                        {userData?.role === UserRoles.ADMIN ?
+                            `${updatedBy?.firstName || ""} ${updatedBy?.lastName || ""}`
+                            :
+                            `${updatedBy?.customId && updatedBy?.firstName ? updatedBy.customId : updatedBy?.firstName || ''}`
+                        }
+                    </div>
+                )
+            },
         },
         {
             accessorKey: "moderatedOn",
-            header: "Moderated On",
+            header: "Updated On",
             cell: ({ row }) => (
                 <div className="capitalize ">
                     {row.original?.updatedAt && formatDate(row.original?.updatedAt as string)}

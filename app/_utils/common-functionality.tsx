@@ -6,6 +6,7 @@ import { ProjectUserRoles } from "../_constants/project-user-roles";
 import { TestCaseExecutionResult } from "../_constants/test-case";
 import { Button } from "@/components/ui/button";
 import { PaymentStatus } from "../_constants/payment";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export const displayIcon = (priority: string) => {
     switch (priority) {
@@ -140,15 +141,27 @@ export const showTestCaseResultStatusBadge = (role: string) => {
 
 export const ExportExcelFile = (excel: () => void, hasData: boolean, isLoading: boolean, isText: boolean = true) => {
     return (
-        <Button
-            type={"button"}
-            variant={"outline"}
-            disabled={!hasData || isLoading}
-            onClick={excel}
-        >
-            {isLoading ? <Loader2 className={`${isText ? "mr-2" : ""} h-4 w-4 animate-spin`} /> : <FileSpreadsheet />}
-            {isText && "Export"}
-        </Button>
+        <TooltipProvider>
+            <Tooltip delayDuration={10}>
+                <TooltipTrigger asChild>
+                    <Button
+                        type={"button"}
+                        variant={"outline"}
+                        disabled={!hasData || isLoading}
+                        onClick={excel}
+                    >
+                        {isLoading ? <Loader2 className={`${isText ? "mr-2" : ""} h-4 w-4 animate-spin`} /> : <FileSpreadsheet />}
+                        {isText && "Export"}
+                    </Button>
+                </TooltipTrigger>
+                {!isText &&
+                    <TooltipContent>
+                        <p>Export</p>
+                    </TooltipContent>
+                }
+            </Tooltip>
+        </TooltipProvider>
+
     )
 }
 export const paymentStatusBadge = (status: string | undefined) => {

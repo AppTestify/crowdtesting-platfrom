@@ -6,7 +6,7 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Download,
   Eye,
@@ -109,6 +109,15 @@ const MediaRenderer = ({
     const { contentType, name, createdAt } = file.attachment;
     const base64Src = `data:${contentType};base64,${file.base64}`;
     const closeModal = () => setOpenAttachmentId(null);
+
+    useEffect(() => {
+      if (openAttachmentId !== null) {
+        document.body.classList.add("overflow-hidden");
+      } else {
+        document.body.classList.remove("overflow-hidden");
+      }
+      return () => document.body.classList.remove("overflow-hidden");
+    }, [openAttachmentId]);
 
     if (
       [ContentType.PNG, ContentType.JPEG, ContentType.JPG].includes(contentType)

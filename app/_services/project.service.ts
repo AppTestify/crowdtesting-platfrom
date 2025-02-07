@@ -22,14 +22,15 @@ import {
 export const getProjectsService = async (
   index: Number,
   pageSize: Number,
-  searchString?: string
+  searchString?: string,
+  selectedStatus?: string
 ): Promise<any> => {
   try {
     const response = await genericGet(
       `${PROJECTS_ENDPOINT}${PAGINATION_QUERY_ENDPOINT(
         index,
         pageSize
-      )}&searchString=${searchString}`
+      )}&searchString=${searchString}&status=${selectedStatus}`
     );
     return response || [];
   } catch (error) {
@@ -118,6 +119,26 @@ export const getProjectUsersService = async (
     return response || [];
   } catch (error) {
     console.error(`Error > getProjectUsersService:`, error);
+    throw error;
+  }
+};
+
+export const getProjectUsersPaginationService = async (
+  projectId: string,
+  index: Number,
+  pageSize: Number,
+  // globalFilter?: string
+): Promise<any> => {
+  try {
+    const response = await genericGet(
+      `${PROJECT_USER_ENPOINT(projectId)}${PAGINATION_QUERY_ENDPOINT(
+        index,
+        pageSize
+      )}`
+    );
+    return response || [];
+  } catch (error) {
+    console.error(`Error > getProjectUsersPaginationService:`, error);
     throw error;
   }
 };

@@ -147,7 +147,7 @@ export default function Issues() {
       cell: ({ row }) => {
         const testCycle = row.original?.testCycle?.title;
         return (<div className="capitalize" title={testCycle}>
-          {testCycle.length > 30 ? `${testCycle.substring(0, 30)}...` : testCycle}
+          {testCycle?.length > 30 ? `${testCycle?.substring(0, 30)}...` : testCycle}
         </div>)
       },
     },
@@ -341,7 +341,7 @@ export default function Issues() {
           "Attachments",
         ];
 
-    const response = await getIssuesService(projectId, 1, totalPageCount, globalFilter as unknown as string, "", "", "");
+    const response = await getIssuesService(projectId, 1, totalPageCount, globalFilter as unknown as string, "", "", "", "");
     const data = response?.issues?.map((row: IIssue) => [
       row.customId,
       row.title,

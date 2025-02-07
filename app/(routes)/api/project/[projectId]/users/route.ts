@@ -13,8 +13,11 @@ import { Counter } from "@/app/_models/counter.model";
 import { IdFormat } from "@/app/_models/id-format.model";
 import { Project } from "@/app/_models/project.model";
 import { Tester } from "@/app/_models/tester.model";
+import { User } from "@/app/_models/user.model";
+import { filterProjectUsers } from "@/app/_queries/search-project-users";
 import { projectUserSchema } from "@/app/_schemas/project.schema";
-import { replaceCustomId } from "@/app/_utils/data-formatters";
+import { serverSidePagination } from "@/app/_utils/common-server-side";
+import { addCustomIds, replaceCustomId } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function GET(
@@ -41,25 +44,66 @@ export async function GET(
       );
     }
 
+    const url = new URL(req.url);
     const { projectId } = params;
+    const { skip, limit } = serverSidePagination(req);
     const userIdFormat = await IdFormat.findOne({ entity: DBModels.USER });
+    const searchString = url.searchParams.get("searchString");
 
-    const response: any = await Project.findById(projectId)
-      .populate("users.userId", "firstName lastName role customId")
+    // Step 1: Get the project without populating users
+    const project = (await Project.findById(projectId)
       .select("_id users")
+      .lean()
+      .exec()) as { _id: string; users: any[] } | null;
+
+    if (!project) {
+      return Response.json({ error: "Project not found" }, { status: 404 });
+    }
+
+    // Step 2: Paginate the users array
+    const totalUsers = project.users.length;
+    const paginatedUsers = project.users.slice(skip, skip + Number(limit));
+
+    // Step 3: Populate only the paginated users
+    const populatedUsers = await User.find({
+      _id: { $in: paginatedUsers.map((user: any) => user.userId) },
+    })
+      .select("firstName lastName role customId")
       .lean();
 
+    // if (searchString) {
+    //   const result = await filterProjectUsers(
+    //     searchString,
+    //     skip,
+    //     limit,
+    //     userIdFormat,
+    //     projectId,
+    //     project as any,
+    //     totalUsers
+    //   );
+    //   return Response.json({
+    //     data: result,
+    //   });
+    // }
+
+    // Step 4: Map users and add additional data
     const usersWithCustomIds = await Promise.all(
-      response?.users.map(async (user: any) => {
+      paginatedUsers.map(async (user: any) => {
+        const userInfo = populatedUsers.find((u: any) =>
+          u?._id.equals(user.userId)
+        );
         const customIdTransformed = replaceCustomId(
           userIdFormat.idFormat,
-          user.userId?.customId
+          userInfo?.customId
         );
-        const tester = await Tester.findOne({ user: user.userId?._id })
+
+        const tester = await Tester.findOne({ user: userInfo?._id })
           .select("address languages skills")
           .sort({ _id: -1 });
+
         return {
           ...user,
+          userId: userInfo,
           customId: customIdTransformed,
           tester: tester,
         };
@@ -67,11 +111,12 @@ export async function GET(
     );
 
     const result = {
-      ...response,
+      _id: project._id,
       users: usersWithCustomIds,
+      total: totalUsers,
     };
 
-    return Response.json(result);
+    return Response.json({ data: result });
   } catch (error: any) {
     return errorHandler(error);
   }

@@ -162,7 +162,7 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
         },
     ];
 
-    const testCycleId = row.original?.id;
+    const testCycleId = row?.original?.id;
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
     const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
@@ -171,7 +171,7 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
     const [assignTestCases, setAssignTestCases] = useState<ITestCaseResult[]>([]);
     const [isViewLoading, setIsViewLoading] = useState<boolean>(false);
     const [assignIsViewLoading, setAssignIsViewLoading] = useState<boolean>(false);
-    const [activeTab, setActiveTab] = useState<string>("un-assigned");
+    const [activeTab, setActiveTab] = useState<string>("");
     const [testCases, setTestCases] = useState<ITestCase[]>([]);
     const [testCaseIds, setTestCaseIds] = useState<string[]>([]);
     const [globalFilter, setGlobalFilter] = useState<unknown>([]);
@@ -326,7 +326,7 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
         if (sheetOpen) {
             getAlltestCases();
             getAssigntestCases();
-            setActiveTab("un-assigned");
+            setActiveTab("assigned");
         }
     }, [sheetOpen]);
 
@@ -360,21 +360,21 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
             <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto">
                 <SheetHeader>
                     <SheetTitle className="text-left font-medium">
-                        <span className="text-primary">{row.original?.customId}:</span>
-                        <span className="ml-2 capitalize">{row.original?.title}</span>
+                        <span className="text-primary">{row?.original?.customId}:</span>
+                        <span className="ml-2 capitalize">{row?.original?.title}</span>
                     </SheetTitle>
 
                 </SheetHeader>
-                <Tabs defaultValue="un-assigned" value={activeTab} onValueChange={setActiveTab} className="mt-4">
+                <Tabs defaultValue="assigned" value={activeTab} onValueChange={setActiveTab} className="mt-4">
                     <TabsList>
-                        <TabsTrigger value="un-assigned" >Unassigned</TabsTrigger>
-                        <TabsTrigger value="assigned">Assigned</TabsTrigger>
+                        <TabsTrigger value="assigned" >Assigned</TabsTrigger>
+                        <TabsTrigger value="un-assigned">Unassigned</TabsTrigger>
                     </TabsList>
-                    <TabsContent value="un-assigned">
+                    <TabsContent value="assigned">
                         <main className="mt-3">
                             <div className="w-full mb-4">
                                 <div className="flex items-center justify-between mb-2">
-                                    <div>Un assigned test cases</div>
+                                    <div>Assigned test cases</div>
                                 </div>
 
                                 <div className="rounded-md border">
@@ -445,10 +445,10 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
                             </div>
                         </main>
                     </TabsContent>
-                    <TabsContent value="assigned">
+                    <TabsContent value="un-assigned">
                         <div className="w-full">
                             <div className="flex mb-3">
-                                <div>Assigned test cases</div>
+                                <div>Unassigned test cases</div>
                             </div>
                             <div className="rounded-md border">
                                 <Table>

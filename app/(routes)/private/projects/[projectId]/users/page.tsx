@@ -22,15 +22,17 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { useParams } from "next/navigation";
-import { getProjectUsersService } from "@/app/_services/project.service";
+import { getProjectUsersPaginationService, getProjectUsersService } from "@/app/_services/project.service";
 import { AddProjectUser } from "./add-user";
 import { ProjectUserRowActions } from "./row-actions";
 import { IProjectUserDisplay } from "@/app/_interface/project";
 import { statusBadgeProjectUserRole } from "@/app/_utils/common-functionality";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
-import { getUsernameWithUserId, getUsernameWithUserIdReverse } from "@/app/_utils/common";
 import ExpandableTable from "@/app/_components/expandable-table";
+import { DBModels } from "@/app/_constants";
+import { Button } from "@/components/ui/button";
+import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
 
 export default function ProjectUsers() {
     const [userData, setUserData] = useState<any>();
@@ -72,6 +74,7 @@ export default function ProjectUsers() {
             },
         },
         {
+            accessorFn: (row) => row.tester?.languages || "",
             accessorKey: "language",
             header: "Language",
             cell: ({ row }) => (
@@ -79,6 +82,12 @@ export default function ProjectUsers() {
                     <ExpandableTable row={row.original.tester?.languages as any[]} />
                 </div>
             ),
+            filterFn: (row, columnId, filterValue) => {
+                const languages = row.original?.tester?.languages || [];
+                return languages.some((language) =>
+                    language?.name?.toLowerCase().includes(filterValue.toLowerCase())
+                );
+            },
         },
         {
             accessorFn: (row) => row.role || "",
@@ -99,7 +108,7 @@ export default function ProjectUsers() {
             ),
         },
         {
-            accessorFn: (row) => row.tester?.address?.city || "",
+            accessorFn: (row) => row.tester?.address?.country || "",
             accessorKey: "country",
             header: "Country",
             cell: ({ row }) => (
@@ -125,10 +134,32 @@ export default function ProjectUsers() {
     const [rowSelection, setRowSelection] = useState({});
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [globalFilter, setGlobalFilter] = useState<unknown>([]);
+    const [pageIndex, setPageIndex] = useState<number>(() => {
+        const entity = localStorage.getItem("entity");
+        if (entity === DBModels.USER) {
+            return Number(localStorage.getItem("currentPage")) || 1;
+        }
+        return 1;
+    });
+    const [totalPageCount, setTotalPageCount] = useState(0);
     const [projectUsers, setProjectUsers] = useState<IProjectUserDisplay[]>([]);
-    // const [pageIndex, setPageIndex] = useState(0);
-    // const [pageSize, setPageSize] = useState(7);
+    const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
+    const { projectId } = useParams<{ projectId: string }>();
     const { data } = useSession();
+
+    const handlePreviousPage = () => {
+        if (pageIndex > 1) {
+            setPageIndex(pageIndex - 1);
+        }
+    };
+
+    const handleNextPage = () => {
+        const maxPage = Math.ceil(totalPageCount / pageSize);
+        if (pageIndex < maxPage) {
+            setPageIndex((prev) => prev + 1);
+        }
+    };
+
 
     useEffect(() => {
         if (data) {
@@ -137,15 +168,24 @@ export default function ProjectUsers() {
         }
     }, [data]);
 
-    const { projectId } = useParams<{ projectId: string }>();
     useEffect(() => {
-        getProjectUsers();
+        localStorage.setItem("entity", DBModels.PROJECT_USERS);
     }, []);
+
+
+    useEffect(() => {
+        const debounceFetch = setTimeout(() => {
+            getProjectUsers();
+        }, 500);
+        return () => clearTimeout(debounceFetch);
+
+    }, [pageIndex, pageSize])
 
     const getProjectUsers = async () => {
         setIsLoading(true);
-        const projectUsers = await getProjectUsersService(projectId);
-        setProjectUsers(projectUsers?.users);
+        const projectUsers = await getProjectUsersPaginationService(projectId, pageIndex, pageSize);
+        setProjectUsers(projectUsers?.data?.users);
+        setTotalPageCount(projectUsers?.data?.total);
         setIsLoading(false);
     };
 
@@ -170,20 +210,8 @@ export default function ProjectUsers() {
             globalFilter,
             columnVisibility,
             rowSelection,
-            // pagination: {
-            //     pageIndex,
-            //     pageSize,
-            // },
         },
         onGlobalFilterChange: setGlobalFilter,
-        // onPaginationChange: (updater) => {
-        //     const newPagination =
-        //         typeof updater === "function"
-        //             ? updater({ pageIndex, pageSize })
-        //             : updater;
-        //     setPageIndex(newPagination.pageIndex);
-        //     setPageSize(newPagination.pageSize);
-        // },
     });
 
     return (
@@ -256,6 +284,27 @@ export default function ProjectUsers() {
                             )}
                         </TableBody>
                     </Table>
+                </div>
+                <div className="flex items-center justify-end space-x-2 py-4">
+
+                    <div className="flex space-x-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handlePreviousPage}
+                            disabled={pageIndex === 1}
+                        >
+                            Previous
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleNextPage}
+                            disabled={pageIndex >= Math.ceil(totalPageCount / pageSize)}
+                        >
+                            Next
+                        </Button>
+                    </div>
                 </div>
             </div>
         </main>

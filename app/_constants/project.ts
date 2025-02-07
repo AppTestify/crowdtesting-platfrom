@@ -9,3 +9,13 @@ export const enum TestSuiteTabs {
   REQUIREMENTS = "REQUIREMENTS",
   COMMENTS = "COMMENTS",
 }
+
+export const enum ProjectStatusData {
+  ACTIVE = "Active",
+  IN_ACTIVE = "Inactive",
+}
+
+export const projectStatusList = [
+  ProjectStatusData.ACTIVE,
+  ProjectStatusData.IN_ACTIVE,
+];

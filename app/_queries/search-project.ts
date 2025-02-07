@@ -7,7 +7,8 @@ export async function filterProjectsForAdmin(
   searchString: string,
   skip: number,
   limit: number,
-  idObject: any
+  idObject: any,
+  status?: boolean
 ) {
   const regex = new RegExp(searchString, "i");
   searchString = customIdForSearch(idObject, searchString);
@@ -18,6 +19,15 @@ export async function filterProjectsForAdmin(
         deletedAt: { $exists: false },
       },
     },
+    ...(status
+      ? [
+          {
+            $match: {
+              isActive: status,
+            },
+          },
+        ]
+      : []),
     {
       $lookup: {
         from: "users",
@@ -83,7 +93,8 @@ export async function filterProjectsForClient(
   skip: number,
   limit: number,
   idObject: any,
-  user: any
+  user: any,
+  status?: boolean
 ) {
   const regex = new RegExp(searchString, "i");
   searchString = customIdForSearch(idObject, searchString);
@@ -96,6 +107,15 @@ export async function filterProjectsForClient(
         userId: userId,
       },
     },
+    ...(status
+      ? [
+          {
+            $match: {
+              isActive: status,
+            },
+          },
+        ]
+      : []),
     {
       $lookup: {
         from: "users",
@@ -161,7 +181,8 @@ export async function filterProjectsForTester(
   skip: number,
   limit: number,
   idObject: any,
-  user: any
+  user: any,
+  status?: boolean
 ) {
   const regex = new RegExp(searchString, "i");
   searchString = customIdForSearch(idObject, searchString);
@@ -174,6 +195,15 @@ export async function filterProjectsForTester(
         users: { $elemMatch: { userId: userId } },
       },
     },
+    ...(status
+      ? [
+          {
+            $match: {
+              isActive: status,
+            },
+          },
+        ]
+      : []),
     {
       $match: {
         $or: [
