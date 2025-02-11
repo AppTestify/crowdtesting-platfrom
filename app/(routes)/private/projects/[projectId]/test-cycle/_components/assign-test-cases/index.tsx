@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
     ColumnDef,
     Row,
@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/table";
 import { useParams } from "next/navigation";
 import { ITestCase } from "@/app/_interface/test-case";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import toasterService from "@/app/_services/toaster-service";
@@ -32,7 +32,6 @@ import { ITestCycle } from "@/app/_interface/test-cycle";
 import { assignTestCase, getAssignTestCaseService, unAssignTestCase } from "@/app/_services/test-cycle.service";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileInput, FileOutput, Loader2 } from "lucide-react";
-import { ITestCaseResult } from "@/app/_interface/test-case-result";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
@@ -148,7 +147,7 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
             cell: ({ row }) => (
                 <Tooltip delayDuration={200}>
                     <TooltipTrigger asChild>
-                        <Button variant="ghost" size="sm" onClick={() => singleAssign(row.original.id)} >
+                        <Button variant="ghost" size="sm" onClick={() => singleAssign(row.original?._id as string)} >
                             {assignedLoading && loadingRowIdAssign === row.original.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileInput />}
                         </Button>
                     </TooltipTrigger>
@@ -168,7 +167,7 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
     const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
     const [unAssignrowSelection, setUnAssignRowSelection] = useState<Record<string, boolean>>({});
     const [unAssignTestCaseIds, setUnAssignTestCaseIds] = useState<string[]>([]);
-    const [assignTestCases, setAssignTestCases] = useState<ITestCaseResult[]>([]);
+    const [assignTestCases, setAssignTestCases] = useState<ITestCase[]>([]);
     const [isViewLoading, setIsViewLoading] = useState<boolean>(false);
     const [assignIsViewLoading, setAssignIsViewLoading] = useState<boolean>(false);
     const [activeTab, setActiveTab] = useState<string>("");
@@ -179,6 +178,7 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
     const [assignedLoading, setAssignedLoading] = useState<boolean>(false);
     const [loadingRowIdUnAssign, setLoadingRowIdUnAssign] = useState<string | null>(null);
     const [loadingRowIdAssign, setLoadingRowIdAssign] = useState<string | null>(null);
+    const [newTestCases, setNewTestCases] = useState<string[]>([]);
     const { projectId } = useParams<{ projectId: string }>();
 
     const refreshTestCases = () => {
@@ -206,7 +206,7 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
     const unAssignTestCaseInTestCycle = async () => {
         setUnAssignedLoading(true);
         try {
-            const response = await unAssignTestCase(projectId, testCycleId, { testCaseIds: unAssignTestCaseIds, isSingleDelete: false })
+            const response = await unAssignTestCase(projectId, testCycleId, { testCaseIds: unAssignTestCaseIds, isSingleDelete: false, testCases: unAssignTestCaseIds })
             if (response) {
                 refreshTestCases();
                 toasterService.success(response.message);
@@ -223,7 +223,7 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
         try {
             const response = await getTestCaseWithoutPaginationService(projectId, testCycleId);
             if (response) {
-                setTestCases(response);
+                setTestCases(response?.testCases);
             }
         } catch (error) {
             toasterService.error();
@@ -237,7 +237,8 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
         try {
             const response = await getAssignTestCaseService(projectId, testCycleId);
             if (response) {
-                setAssignTestCases(response?.testCaseResults);
+                setAssignTestCases(response?.testCases || []);
+                setNewTestCases(response?.testCases || []);
             }
         } catch (error) {
             toasterService.error();
@@ -246,9 +247,8 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
         }
     }
 
-    const memoizedData = useMemo(() => assignTestCases?.map((testCaseResult) => testCaseResult.testCaseId) || [], [assignTestCases]);
     const table = useReactTable({
-        data: memoizedData,
+        data: assignTestCases,
         columns,
         onSortingChange: setSorting,
         getCoreRowModel: getCoreRowModel(),
@@ -309,7 +309,8 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
         setAssignedLoading(true);
         try {
             setLoadingRowIdAssign(id);
-            const assignTestCaseIds = assignTestCases?.map((assignTestCase) => assignTestCase?.testCaseId?._id).filter((id): id is string => id !== undefined) || []; const totalAssignTestCaseId = [...assignTestCaseIds, id];
+            const assignTestCaseIds = assignTestCases?.map((assignTestCase) => assignTestCase?._id).filter((id): id is string => id !== undefined) || [];
+            const totalAssignTestCaseId = [...assignTestCaseIds, id];
             const response = await assignTestCase(projectId, testCycleId, { testCaseIds: totalAssignTestCaseId })
             if (response) {
                 toasterService.success(response.message);
@@ -333,9 +334,9 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
     useEffect(() => {
         const selectedIds = Object.keys(rowSelection)
             .filter((key) => rowSelection[key])
-            .map((key) => testCases[parseInt(key)]?.id)
+            .map((key) => testCases[parseInt(key)]?._id)
             .filter((id): id is string => id !== undefined);
-        const assignTestCaseIds = assignTestCases?.map((assignTestCase) => assignTestCase?.testCaseId?._id) || [];
+        const assignTestCaseIds = assignTestCases?.map((assignTestCase) => assignTestCase?._id) || [];
         const allTestCaseIds = [...assignTestCaseIds, ...selectedIds];
         setTestCaseIds(allTestCaseIds as string[]);
     }, [rowSelection, testCases]);

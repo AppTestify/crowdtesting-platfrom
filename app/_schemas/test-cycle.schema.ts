@@ -15,4 +15,5 @@ export const assignTestCasesSchema = z.object({
 export const unAssignTestCasesSchema = z.object({
   testCaseIds: z.array(z.string().min(1, "Atleast one testCase required")),
   isSingleDelete: z.boolean(),
+  testCases: z.array(z.string().optional()).optional(),
 });

@@ -9,6 +9,7 @@ export interface ITestCycle extends Document {
   customId: number;
   description: string;
   testCaseResults?: [Types.ObjectId];
+  testCases?: Types.ObjectId[];
   attachments: Types.ObjectId[];
   startDate: Date;
   endDate: Date;
@@ -28,6 +29,7 @@ const TestCycleSchema = new Schema<ITestCycle>(
     testCaseResults: [
       { type: Schema.Types.ObjectId, ref: DBModels.TEST_CASE_RESULT },
     ],
+    testCases: [{ type: Schema.Types.ObjectId, ref: DBModels.TEST_CASE }],
     attachments: [
       { type: Schema.Types.ObjectId, ref: DBModels.TEST_CYCLE_ATTACHMENT },
     ],

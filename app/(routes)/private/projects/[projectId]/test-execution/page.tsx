@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import {
     ColumnDef,
@@ -23,15 +23,16 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
-import { getTestCycleService } from "@/app/_services/test-cycle.service";
 import { ITestCyclePayload } from "@/app/_interface/test-cycle";
 import { ArrowUpDown, ChartNoAxesGantt } from "lucide-react";
 import Link from "next/link";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
+import { AddTestExecution } from "./_components/add-test-execution";
+import { getTestExecutionService } from "@/app/_services/test-execution.service";
 
 export default function TestExecution() {
-    const [testCycle, setTestCycle] = useState<ITestCyclePayload[]>([]);
+    const [testExecution, setTestExecution] = useState<ITestCyclePayload[]>([]);
 
     const columns: ColumnDef<ITestCyclePayload>[] = [
         {
@@ -50,7 +51,8 @@ export default function TestExecution() {
             },
             cell: ({ row }) => (
                 <div className="text-primary cursor-pointer ml-4">
-                    {row.getValue("customId")}</div>
+                    {row.original?.testCycle?.customId}
+                </div>
             ),
             sortingFn: "alphanumeric"
         },
@@ -59,7 +61,8 @@ export default function TestExecution() {
             header: "Title",
             cell: ({ row }) => (
                 <div className="capitalize hover:text-primary cursor-pointer">
-                    {row.getValue("title")}</div>
+                    {row.original?.testCycle?.title}
+                </div>
             ),
         },
         {
@@ -67,10 +70,10 @@ export default function TestExecution() {
             header: "Description",
             cell: ({ row }) => (
                 <div
-                    title={row.getValue("description")}
+                    title={row.original?.testCycle?.description}
                     className="capitalize w-48 overflow-hidden text-ellipsis line-clamp-2"
                 >
-                    {row.getValue("description")}
+                    {row.original?.testCycle?.description}
                 </div>
             ),
         },
@@ -99,8 +102,8 @@ export default function TestExecution() {
             enableHiding: false,
             cell: ({ row }) => (
                 <div className="">
-                    <Button variant={"outline"} size={"sm"} className="px-2 text-sm ">
-                        {row.original?.testCaseResults && row.original?.testCaseResults.length > 0 ?
+                    <Button variant={"outline"} size={"sm"} className="px-2 text-sm " >
+                        {row.original?.testCycle?.testCases && row.original?.testCycle?.testCases.length > 0 ?
                             <Link href={`/private/projects/${projectId}/test-execution/${row.original?.id}`}>
                                 <div className="flex items-center">
                                     <ChartNoAxesGantt className="h-5 w-5 mr-2" />
@@ -143,14 +146,15 @@ export default function TestExecution() {
 
     const getTestCycle = async () => {
         setIsLoading(true);
-        const response = await getTestCycleService(projectId, pageIndex, pageSize, "");
-        setTestCycle(response?.testCycles);
+        const response = await getTestExecutionService(projectId, pageIndex, pageSize, "");
+        setTestExecution(response?.testCycles);
         setTotalPageCount(response?.total);
         setIsLoading(false);
     };
 
+    const tableData = useMemo(() => testExecution?.map((testExecute) => testExecute) || [], [testExecution]);
     const table = useReactTable({
-        data: testCycle,
+        data: tableData,
         columns,
         onSortingChange: setSorting,
         getCoreRowModel: getCoreRowModel(),
@@ -181,6 +185,10 @@ export default function TestExecution() {
         }
     };
 
+    const refreshTestExecution = () => {
+        getTestCycle();
+    }
+
     useEffect(() => {
         if (pageIndex) {
             localStorage.setItem("entity", "TestExecution");
@@ -202,6 +210,8 @@ export default function TestExecution() {
                         }}
                         className="max-w-sm"
                     />
+
+                    <AddTestExecution refreshTestExecution={refreshTestExecution} />
                 </div>
                 <div className="rounded-md border">
                     <Table>

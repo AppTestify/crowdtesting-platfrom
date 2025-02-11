@@ -5,6 +5,7 @@ export interface ITestCaseResult extends Document {
   userId: Types.ObjectId;
   testCycleId: Types.ObjectId;
   testCaseId: Types.ObjectId;
+  testExecutionId: Types.ObjectId;
   remarks: string;
   result: string;
   actualResult: string;
@@ -26,6 +27,10 @@ const TestCaseResultSchema = new Schema<ITestCaseResult>(
       type: Schema.Types.ObjectId,
       ref: DBModels.TEST_CASE,
       required: true,
+    },
+    testExecutionId: {
+      type: Schema.Types.ObjectId,
+      ref: DBModels.TEST_EXECUTION,
     },
     remarks: { type: String, required: false },
     result: { type: String, required: false },

@@ -18,7 +18,7 @@ const mongoose = require("mongoose");
 
 export async function GET(
   req: Request,
-  { params }: { params: { testCycleId: string } }
+  { params }: { params: { testExecutionId: string } }
 ) {
   try {
     const session = await verifySession();
@@ -41,9 +41,9 @@ export async function GET(
 
     // filter and pagination
     const url = new URL(req.url);
-    const { testCycleId } = params;
+    const { testExecutionId } = params;
     const result = url.searchParams.get("result");
-    const filter: any = { testCycleId: testCycleId };
+    const filter: any = { testExecutionId: testExecutionId };
     if (result) {
       filter.result = result;
     }

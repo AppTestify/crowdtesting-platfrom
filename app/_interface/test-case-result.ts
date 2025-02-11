@@ -16,6 +16,7 @@ export interface ITestCaseResult {
   result?: string;
   remarks?: string;
   isStarted: boolean;
+  customId?: string;
   updatedBy?: IUserByAdmin;
   testCaseData: ITestCaseData[];
   testCaseStep: ITestCaseStep[];

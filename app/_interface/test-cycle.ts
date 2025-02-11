@@ -1,9 +1,11 @@
+import { ITestCase } from "./test-case";
 import { ITestCaseResult } from "./test-case-result";
 import { IUserByAdmin } from "./user";
 
 export interface ITestCyclePayload {
   title: string;
   testCaseResults?: string;
+  testCycle?: ITestCycle;
   projectId?: string;
   description: string;
   userId?: IUserByAdmin;
@@ -26,6 +28,7 @@ export interface ITestCycle {
   description: string;
   id: string;
   testCaseResults: ITestCaseResult[] | undefined;
+  testCases: ITestCase[];
   customId?: string;
   userId?: IUserByAdmin;
   createdAt?: string;
@@ -40,6 +43,7 @@ export interface IAssignedTestCase {
 export interface IUnAssignedTestCase {
   testCaseIds: string[];
   isSingleDelete: boolean;
+  testCases?: string[];
 }
 
 export interface ITestCycleAttachment {

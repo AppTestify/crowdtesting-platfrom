@@ -44,54 +44,45 @@ export async function GET(
 
     const { projectId } = params;
     const response = await TestCycle.find({ projectId: projectId })
-      .select("title testCaseResults")
+      .select("title testCases")
       .populate({
-        path: "testCaseResults",
-        select: "actualResult result testCaseId",
-        populate: {
-          path: "testCaseId",
-          select: "requirements customId",
-          populate: [
-            {
-              path: "requirements",
-              select: "customId title",
-            },
-            {
-              path: "testSuite",
-              select: "title",
-            },
-          ],
-        },
+        path: "testCases",
+        select: "customId title result testCaseId testSuite requirements",
+        populate: [
+          {
+            path: "requirements",
+            select: "customId title",
+          },
+          {
+            path: "testSuite",
+            select: "title",
+          },
+        ],
       })
       .sort({ createdAt: -1 })
       .lean();
 
     const result = response.map((res) => ({
       ...res,
-      testCaseResults: res?.testCaseResults?.map(
-        (testCase: ITestCaseResult) => ({
-          // test case
-          ...testCase,
-          //   test case customId
-          testCaseId: {
-            ...testCase?.testCaseId,
+      testCases: res?.testCases?.map((testCase: ITestCaseResult) => ({
+        // test case
+        ...testCase,
+        customId: replaceCustomId(
+          testCaseIdFormat.idFormat,
+          testCase?.customId
+        ),
+
+        //   requirement customId
+        requirements: testCase?.testCaseId?.requirements?.map(
+          (requirement) => ({
+            ...requirement,
             customId: replaceCustomId(
-              testCaseIdFormat.idFormat,
-              testCase?.testCaseId?.customId
+              requirementIdFormat.idFormat,
+              requirement.customId
             ),
-            //   requirement customId
-            requirements: testCase?.testCaseId?.requirements?.map(
-              (requirement) => ({
-                ...requirement,
-                customId: replaceCustomId(
-                  requirementIdFormat.idFormat,
-                  requirement.customId
-                ),
-              })
-            ),
-          },
-        })
-      ),
+          })
+        ),
+      })),
     }));
 
     return Response.json(result);

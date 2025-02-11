@@ -16,7 +16,7 @@ class SendCredentials {
   }: EmailCredentials) {
     try {
       const password = generateCustomPassword();
-      if (sendCredentials) {
+      if (sendCredentials && password) {
         const templateTags = {
           email: email,
           role: role,

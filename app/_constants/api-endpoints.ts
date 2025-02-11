@@ -121,3 +121,7 @@ export const MODERATE_ENDPOINT = (
 export const GET_TASK_ENPOINT = (projectId: string) => {
   return `/api/project/${projectId}/task`;
 };
+
+export const TEST_EXECUTION_ENDPOINT = (projectId: string) => {
+  return `/api/project/${projectId}/test-execution`;
+};
