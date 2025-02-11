@@ -133,14 +133,14 @@ export async function GET(
       totalComments = await Comment.find({
         ...find,
         $or: [
-          { commentedBy: session?.user?._id, isVerify: false },
+          { commentedBy: session?.user?._id },
           { commentedBy: { $ne: session?.user?._id }, isVerify: true },
         ],
       }).countDocuments();
       response = await Comment.find({
         ...find,
         $or: [
-          { commentedBy: session?.user?._id, isVerify: false },
+          { commentedBy: session?.user?._id },
           { commentedBy: { $ne: session?.user?._id }, isVerify: true },
         ],
       })
