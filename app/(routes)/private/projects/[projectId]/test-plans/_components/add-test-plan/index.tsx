@@ -36,7 +36,7 @@ import { TESTING_LIST } from "@/app/_constants/test-plan";
 import TextEditor from "../../../../_components/text-editor";
 import { addTestPlanService } from "@/app/_services/test-plan.service";
 import { ProjectUserRoles } from "@/app/_constants/project-user-roles";
-import { getProjectUsersService } from "@/app/_services/project.service";
+import { getProjectUsersListService, getProjectUsersService } from "@/app/_services/project.service";
 import { useSession } from "next-auth/react";
 import { IProjectUserDisplay } from "@/app/_interface/project";
 import { UserRoles } from "@/app/_constants/user-roles";
@@ -125,9 +125,9 @@ export function AddTestPlan({ refreshTestPlans, userData }: { refreshTestPlans: 
 
     const getProjectUsers = async () => {
         try {
-            const projectUsers = await getProjectUsersService(projectId);
-            if (projectUsers?.users?.length) {
-                setUsers(projectUsers.users);
+            const projectUsers = await getProjectUsersListService(projectId);
+            if (projectUsers?.data?.users?.length) {
+                setUsers(projectUsers.data.users);
             }
         } catch (error) {
             toasterService.error();

@@ -62,6 +62,7 @@ import {
 import { IProject, IProjectUserDisplay } from "@/app/_interface/project";
 import {
   getProjectService,
+  getProjectUsersListService,
   getProjectUsersService,
 } from "@/app/_services/project.service";
 import { checkProjectAdmin, getUsernameWithUserId } from "@/app/_utils/common";
@@ -265,7 +266,7 @@ const EditIssue = ({
 
   const getProjectUsers = async () => {
     try {
-      const projectUsers = await getProjectUsersService(projectId);
+      const projectUsers = await getProjectUsersListService(projectId);
       if (projectUsers?.data?.users?.length) {
         setUsers(projectUsers.data.users);
       }

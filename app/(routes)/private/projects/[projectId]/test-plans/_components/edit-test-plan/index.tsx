@@ -32,7 +32,7 @@ import { UserRoles } from "@/app/_constants/user-roles";
 import { useSession } from "next-auth/react";
 import { IProjectUserDisplay } from "@/app/_interface/project";
 import { getUsernameWithUserId } from "@/app/_utils/common";
-import { getProjectUsersService } from "@/app/_services/project.service";
+import { getProjectUsersListService } from "@/app/_services/project.service";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -130,9 +130,9 @@ export function EditTestPlan({
 
     const getProjectUsers = async () => {
         try {
-            const projectUsers = await getProjectUsersService(projectId?._id as unknown as string);
-            if (projectUsers?.users?.length) {
-                setUsers(projectUsers.users);
+            const projectUsers = await getProjectUsersListService(projectId?._id as unknown as string);
+            if (projectUsers?.data?.users?.length) {
+                setUsers(projectUsers.data.users);
             }
         } catch (error) {
             toasterService.error();

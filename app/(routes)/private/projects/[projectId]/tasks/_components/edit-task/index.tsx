@@ -40,7 +40,7 @@ import { displayIcon } from "@/app/_utils/common-functionality";
 import TextEditor from "@/app/(routes)/private/projects/_components/text-editor";
 import { IIssue } from "@/app/_interface/issue";
 import { IProjectUserDisplay } from "@/app/_interface/project";
-import { getProjectUsersService } from "@/app/_services/project.service";
+import { getProjectUsersListService, getProjectUsersService } from "@/app/_services/project.service";
 import { getUsernameWithUserId } from "@/app/_utils/common";
 import { ProjectUserRoles } from "@/app/_constants/project-user-roles";
 import { useSession } from "next-auth/react";
@@ -194,9 +194,9 @@ export function EditTask({
     const getProjectUsers = async () => {
         setIsViewLoading(true);
         try {
-            const projectUsers = await getProjectUsersService(projectId);
-            if (projectUsers?.users?.length) {
-                setUsers(projectUsers.users);
+            const projectUsers = await getProjectUsersListService(projectId);
+            if (projectUsers?.data?.users?.length) {
+                setUsers(projectUsers.data.users);
             }
         } catch (error) {
             toasterService.error();
