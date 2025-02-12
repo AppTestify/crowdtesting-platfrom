@@ -123,10 +123,24 @@ export const getProjectUsersService = async (
   }
 };
 
+export const getProjectUsersListService = async (
+  projectId: string
+): Promise<any> => {
+  try {
+    const response = await genericGet(
+      `${PROJECT_USER_ENPOINT(projectId)}/list`
+    );
+    return response || [];
+  } catch (error) {
+    console.error(`Error > getProjectUsersListService:`, error);
+    throw error;
+  }
+};
+
 export const getProjectUsersPaginationService = async (
   projectId: string,
   index: Number,
-  pageSize: Number,
+  pageSize: Number
   // globalFilter?: string
 ): Promise<any> => {
   try {

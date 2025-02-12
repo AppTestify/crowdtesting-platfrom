@@ -42,7 +42,7 @@ import { ProjectUserRoles } from "@/app/_constants/project-user-roles";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSession } from "next-auth/react";
 import { IProjectUserDisplay } from "@/app/_interface/project";
-import { getProjectUsersService } from "@/app/_services/project.service";
+import { getProjectUsersListService, getProjectUsersService } from "@/app/_services/project.service";
 import { UserRoles } from "@/app/_constants/user-roles";
 import { getUsernameWithUserId } from "@/app/_utils/common";
 import { TASK_STATUS_LIST } from "@/app/_constants/issue";
@@ -145,9 +145,9 @@ export function AddRequirement({ refreshRequirements }: { refreshRequirements: (
 
     const getProjectUsers = async () => {
         try {
-            const projectUsers = await getProjectUsersService(projectId);
-            if (projectUsers?.users?.length) {
-                setUsers(projectUsers.users);
+            const projectUsers = await getProjectUsersListService(projectId);
+            if (projectUsers?.data?.users?.length) {
+                setUsers(projectUsers.data.users);
             }
         } catch (error) {
             toasterService.error();

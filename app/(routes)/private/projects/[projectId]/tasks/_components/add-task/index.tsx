@@ -45,7 +45,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { IIssue, IIssueAttachmentDisplay } from "@/app/_interface/issue";
 import { DocumentName } from "@/app/_components/document-name";
 import { IProjectUserDisplay } from "@/app/_interface/project";
-import { getProjectUsersService } from "@/app/_services/project.service";
+import { getProjectUsersListService, getProjectUsersService } from "@/app/_services/project.service";
 import { getUsernameWithUserId } from "@/app/_utils/common";
 import { ProjectUserRoles } from "@/app/_constants/project-user-roles";
 import { useSession } from "next-auth/react";
@@ -177,9 +177,9 @@ export function AddTask({ refreshTasks }: { refreshTasks: () => void }) {
     const getProjectUsers = async () => {
         setIsViewLoading(true);
         try {
-            const projectUsers = await getProjectUsersService(projectId);
-            if (projectUsers?.users?.length) {
-                setUsers(projectUsers.users);
+            const projectUsers = await getProjectUsersListService(projectId);
+            if (projectUsers?.data?.users?.length) {
+                setUsers(projectUsers.data.users);
             }
         } catch (error) {
             toasterService.error();

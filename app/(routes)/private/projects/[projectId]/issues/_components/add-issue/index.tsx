@@ -55,7 +55,7 @@ import { getTestCycleWithoutPaginationService } from "@/app/_services/test-cycle
 import { ITestCycle } from "@/app/_interface/test-cycle";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { IProjectUserDisplay } from "@/app/_interface/project";
-import { getProjectUsersService } from "@/app/_services/project.service";
+import { getProjectUsersListService, getProjectUsersService } from "@/app/_services/project.service";
 import { getUsernameWithUserId } from "@/app/_utils/common";
 import { ProjectUserRoles } from "@/app/_constants/project-user-roles";
 import { useSession } from "next-auth/react";
@@ -247,9 +247,9 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
   const getProjectUsers = async () => {
     setIsViewLoading(true);
     try {
-      const projectUsers = await getProjectUsersService(projectId);
-      if (projectUsers?.users?.length) {
-        setUsers(projectUsers.users);
+      const projectUsers = await getProjectUsersListService(projectId);
+      if (projectUsers?.data?.users?.length) {
+        setUsers(projectUsers.data.users);
       }
     } catch (error) {
       toasterService.error();
