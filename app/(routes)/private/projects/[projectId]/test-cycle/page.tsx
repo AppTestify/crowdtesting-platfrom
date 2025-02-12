@@ -39,7 +39,7 @@ import { IProject } from "@/app/_interface/project";
 import { getProjectService } from "@/app/_services/project.service";
 import toasterService from "@/app/_services/toaster-service";
 import AssignTestCase from "./_components/assign-test-cases";
-import { ITestCase } from "@/app/_interface/test-case";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export default function TestPlan() {
     const [testCycle, setTestCycle] = useState<ITestCycle[]>([]);
@@ -89,15 +89,24 @@ export default function TestPlan() {
                     ),
                 }] : []
         ),
-        // {
-        //     accessorKey: "Assign",
-        //     header: "Assign",
-        //     cell: ({ row }) => (
-        //         <Button variant={"secondary"} size={"sm"} onClick={() => setTestCase(row)}>
-        //             Assign
-        //         </Button>
-        //     ),
-        // },
+        {
+            accessorKey: "Assign",
+            header: "Assign",
+            cell: ({ row }) => (
+                <TooltipProvider>
+                    <Tooltip delayDuration={10}>
+                        <TooltipTrigger asChild>
+                            <Button variant={"outline"} size={"sm"} onClick={() => openAssignTestCase(row)}>
+                                Assign
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>Assign test case</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+            ),
+        },
         ...(
             userData?.role != UserRoles.TESTER && checkProjectActiveRole(project?.isActive ?? false, userData) ?
                 [{
@@ -129,6 +138,11 @@ export default function TestPlan() {
     const { projectId } = useParams<{ projectId: string }>();
     const [isAssignOpen, setIsAssignOpen] = useState<boolean>(false);
     const { data } = useSession();
+
+    const openAssignTestCase = (row: Row<ITestCycle>) => {
+        setIsAssignOpen(true);
+        setTestCase(row);
+    }
 
     useEffect(() => {
         if (data) {
@@ -187,7 +201,6 @@ export default function TestPlan() {
         globalFilterFn: "includesString",
         state: {
             sorting,
-            // globalFilter,
             columnVisibility,
             rowSelection,
         },
@@ -232,13 +245,12 @@ export default function TestPlan() {
                 testCycle={testCycleData as ITestCycle}
             />
 
-            {testCase &&
-                <AssignTestCase
-                    sheetOpen={isAssignOpen}
-                    setSheetOpen={setIsAssignOpen}
-                    row={testCase as Row<ITestCycle>}
-                />
-            }
+            <AssignTestCase
+                sheetOpen={isAssignOpen}
+                setSheetOpen={setIsAssignOpen}
+                row={testCase as Row<ITestCycle>}
+            />
+
             <div className="">
                 <h2 className="text-medium">Test cycle</h2>
                 <span className="text-xs text-gray-600">

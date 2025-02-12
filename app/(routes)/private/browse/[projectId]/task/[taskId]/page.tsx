@@ -3,7 +3,7 @@
 import toasterService from "@/app/_services/toaster-service";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { displayIcon, taskStatusBadge } from "@/app/_utils/common-functionality";
+import { displayDate, displayIcon, taskStatusBadge } from "@/app/_utils/common-functionality";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -135,7 +135,12 @@ const ViewTask = () => {
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-[2fr_1fr] gap-4">
                         <div className="my-4">
-                            <div className=" text-[24px]">{taskData?.title}</div>
+                            <div className="flex justify-between">
+                                <div className="text-[24px]">{taskData?.title}</div>
+                                <div className="flex items-center">
+                                    {displayDate(taskData)}
+                                </div>
+                            </div>
                             <div className="mt-2">
                                 <span className="font-semibold">Description</span>
                                 <div
@@ -145,7 +150,6 @@ const ViewTask = () => {
                                     }}
                                 />
                             </div>
-
                         </div>
                         <div>
                             <div className="border rounded-md p-4 h-fit flex flex-col gap-3">

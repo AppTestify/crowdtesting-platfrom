@@ -30,6 +30,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
 import { AddTestExecution } from "./_components/add-test-execution";
 import { getTestExecutionService } from "@/app/_services/test-execution.service";
+import { formatDateWithoutTime } from "@/app/_constants/date-formatter";
 
 export default function TestExecution() {
     const [testExecution, setTestExecution] = useState<ITestCyclePayload[]>([]);
@@ -50,9 +51,11 @@ export default function TestExecution() {
                 );
             },
             cell: ({ row }) => (
-                <div className="text-primary cursor-pointer ml-4">
-                    {row.original?.testCycle?.customId}
-                </div>
+                <Link href={`/private/projects/${projectId}/test-execution/${row.original?.id}`}>
+                    <div className="text-primary cursor-pointer ml-4">
+                        {row.original?.testCycle?.customId}
+                    </div>
+                </Link>
             ),
             sortingFn: "alphanumeric"
         },
@@ -60,20 +63,63 @@ export default function TestExecution() {
             accessorKey: "title",
             header: "Title",
             cell: ({ row }) => (
-                <div className="capitalize hover:text-primary cursor-pointer">
-                    {row.original?.testCycle?.title}
-                </div>
+                <Link href={`/private/projects/${projectId}/test-execution/${row.original?.id}`}>
+                    <div className="capitalize hover:text-primary cursor-pointer">
+                        {row.original?.testCycle?.title}
+                    </div>
+                </Link>
             ),
         },
         {
             accessorKey: "description",
             header: "Description",
+            cell: ({ row }) => {
+                const description = row.original?.testCycle?.description;
+                return (
+                    <div
+                        title={description}
+                        className="capitalize line-clamp-2"
+                    >
+                        {description && description.length > 30 ? `${description.substring(0, 30)}...` : description}
+                    </div>
+                )
+            },
+        },
+        {
+            accessorKey: "type",
+            header: "Type",
             cell: ({ row }) => (
                 <div
-                    title={row.original?.testCycle?.description}
-                    className="capitalize w-48 overflow-hidden text-ellipsis line-clamp-2"
+                    title={row.original?.type}
+                    className=""
                 >
-                    {row.original?.testCycle?.description}
+                    {row.original?.type}
+                </div>
+            ),
+        },
+        {
+            accessorKey: "startDate",
+            header: "Start Date",
+            cell: ({ row }) => (
+                <div className="capitalize">
+                    {row.original?.startDate !== null ? (
+                        <span>{formatDateWithoutTime(row.getValue("startDate"))}</span>
+                    ) : (
+                        <span className="text-gray-400">Not available</span>
+                    )}
+                </div>
+            ),
+        },
+        {
+            accessorKey: "endDate",
+            header: "End Date",
+            cell: ({ row }) => (
+                <div className="capitalize">
+                    {row.original?.endDate !== null ? (
+                        <span>{formatDateWithoutTime(row.getValue("endDate"))}</span>
+                    ) : (
+                        <span className="text-gray-400">Not available</span>
+                    )}
                 </div>
             ),
         },

@@ -58,7 +58,6 @@ export default function TestCycleView({ sheetOpen, setSheetOpen, testCycle }:
                                 </TooltipContent>
                             </Tooltip>
                         </TooltipProvider>
-
                     </div>
                 </div>
                 <div className="mt-3">

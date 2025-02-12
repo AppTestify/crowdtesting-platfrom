@@ -13,6 +13,7 @@ export interface ITestCyclePayload {
   startDate: Date;
   endDate: Date;
   id?: string;
+  type?: string;
   resultCounts?: {
     blocked: number;
     passed: number;

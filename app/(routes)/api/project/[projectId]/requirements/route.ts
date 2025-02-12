@@ -57,6 +57,8 @@ export async function POST(
       projectId: body.get("projectId"),
       assignedTo: body.get("assignedTo") || null,
       status: body.get("status"),
+      startDate: body.get("startDate"),
+      endDate: body.get("endDate"),
     };
     const response = requirementSchema.safeParse(formData);
 

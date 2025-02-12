@@ -7,6 +7,7 @@ import { TestCaseExecutionResult } from "../_constants/test-case";
 import { Button } from "@/components/ui/button";
 import { PaymentStatus } from "../_constants/payment";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { formatDateWithoutTime } from "../_constants/date-formatter";
 
 export const displayIcon = (priority: string) => {
     switch (priority) {
@@ -212,4 +213,29 @@ export const statusColors: { [key: string]: { font: { color: { rgb: string } } }
 
 export const checkProjectActiveRole = (isActive: boolean, userData: any) => {
     return isActive || userData?.role === UserRoles.ADMIN
+}
+
+export const displayDate = (data: any) => {
+    return (
+        <TooltipProvider>
+            {data?.startDate || data?.endDate ? (
+                <Tooltip delayDuration={50}>
+                    <TooltipTrigger asChild>
+                        <div>
+                            <Badge variant={'outline'} className='font-medium'>
+                                {data?.startDate ? formatDateWithoutTime(data.startDate) : " Date not specified yet"} - {data?.endDate ? formatDateWithoutTime(data.endDate) : " Date not specified yet"}
+                            </Badge>
+                        </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>Start date - End date</p>
+                    </TooltipContent>
+                </Tooltip>
+            ) : (
+                <Badge variant={'outline'} className='font-medium text-gray-500'>
+                    Date not specified yet
+                </Badge>
+            )}
+        </TooltipProvider>
+    );
 }

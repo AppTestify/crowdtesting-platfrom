@@ -146,9 +146,11 @@ export default function Issues() {
       header: "Test cycle",
       cell: ({ row }) => {
         const testCycle = row.original?.testCycle?.title;
-        return (<div className="capitalize" title={testCycle}>
-          {testCycle?.length > 30 ? `${testCycle?.substring(0, 30)}...` : testCycle}
-        </div>)
+        return (
+          <div className="capitalize" title={testCycle}>
+            {testCycle?.length > 30 ? `${testCycle?.substring(0, 30)}...` : testCycle}
+          </div>
+        )
       },
     },
     ...(userData?.role === UserRoles.ADMIN

@@ -41,7 +41,6 @@ import { DBModels } from "@/app/_constants";
 import ExpandableTable from "@/app/_components/expandable-table";
 import { IRequirement } from "@/app/_interface/requirement";
 import { UserRoles } from "@/app/_constants/user-roles";
-import ViewTask from "../../../browse/[projectId]/task/[taskId]/page";
 import Link from "next/link";
 import { IProject } from "@/app/_interface/project";
 import { getProjectService } from "@/app/_services/project.service";

@@ -59,6 +59,7 @@ export async function POST(
     const newTestSuite = new TestPlan({
       ...response.data,
       userId: session.user._id,
+      assignedTo: response.data.assignedTo || null,
     });
     const saveTestSuite = await newTestSuite.save();
 

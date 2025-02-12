@@ -10,6 +10,8 @@ export interface ITaskPayload {
   issueId?: string | null;
   assignedTo?: string;
   requirementIds?: string[];
+  startDate?: string | null;
+  endDate?: string | null;
 }
 
 export interface ITask {
@@ -25,6 +27,8 @@ export interface ITask {
   userId: IUserByAdmin;
   createdAt: string;
   requirementIds: IRequirement[];
+  startDate?: string | null;
+  endDate?: string | null;
 }
 
 export interface ITaskStatusPayload {

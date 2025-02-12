@@ -248,8 +248,8 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
     setIsViewLoading(true);
     try {
       const projectUsers = await getProjectUsersService(projectId);
-      if (projectUsers?.users?.length) {
-        setUsers(projectUsers.users);
+      if (projectUsers?.data?.users?.length) {
+        setUsers(projectUsers.data.users);
       }
     } catch (error) {
       toasterService.error();

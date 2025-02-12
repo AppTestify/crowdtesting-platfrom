@@ -8,6 +8,8 @@ export const TaskSchema = z.object({
   issueId: z.string().nullable(),
   requirementIds: z.array(z.string()).optional(),
   assignedTo: z.string().optional(),
+  startDate: z.string().nullable(),
+  endDate: z.string().nullable(),
 });
 
 export const taskStatusSchema = z.object({

@@ -11,6 +11,8 @@ export interface ITask extends Document {
   requirementIds?: Types.ObjectId[];
   userId: Types.ObjectId;
   projectId: Types.ObjectId;
+  startDate: Date;
+  endDate: Date;
 }
 
 const TaskSchema = new Schema<ITask>(
@@ -45,6 +47,8 @@ const TaskSchema = new Schema<ITask>(
       ref: DBModels.PROJECT,
       required: true,
     },
+    startDate: { type: Date, required: false },
+    endDate: { type: Date, required: false },
   },
   {
     timestamps: true,

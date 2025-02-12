@@ -9,6 +9,8 @@ export interface ITestPlan extends Document {
   customId: number;
   parameters: Types.ObjectId[];
   assignedTo?: Types.ObjectId;
+  startDate: Date;
+  endDate: Date;
 }
 
 const parametersSchema = new Schema({
@@ -28,6 +30,8 @@ const TestPlanSchema = new Schema<ITestPlan>(
     customId: { type: Number },
     parameters: [parametersSchema],
     assignedTo: { type: Schema.Types.ObjectId, ref: DBModels.USER },
+    startDate: { type: Date, required: false },
+    endDate: { type: Date, required: false },
   },
   {
     timestamps: true,

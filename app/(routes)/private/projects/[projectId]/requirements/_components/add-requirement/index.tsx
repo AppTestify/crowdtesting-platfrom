@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
+    CalendarIcon,
     Loader2,
     Plus,
     Trash,
@@ -22,7 +23,6 @@ import {
     Sheet,
     SheetClose,
     SheetContent,
-    SheetDescription,
     SheetHeader,
     SheetTitle,
     SheetTrigger,
@@ -46,6 +46,10 @@ import { getProjectUsersService } from "@/app/_services/project.service";
 import { UserRoles } from "@/app/_constants/user-roles";
 import { getUsernameWithUserId } from "@/app/_utils/common";
 import { TASK_STATUS_LIST } from "@/app/_constants/issue";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { Calendar } from "@/components/ui/calendar";
 
 const projectSchema = z.object({
     title: z.string().min(1, "Required"),
@@ -55,7 +59,9 @@ const projectSchema = z.object({
         .array(z.instanceof(File))
         .optional(),
     assignedTo: z.string().optional(),
-    status: z.string().min(1, 'Required')
+    status: z.string().min(1, 'Required'),
+    startDate: z.date().nullable(),
+    endDate: z.date().nullable(),
 });
 
 export function AddRequirement({ refreshRequirements }: { refreshRequirements: () => void }) {
@@ -86,14 +92,20 @@ export function AddRequirement({ refreshRequirements }: { refreshRequirements: (
             projectId: projectId,
             attachments: [],
             assignedTo: "",
-            status: ""
+            status: "",
+            startDate: null,
+            endDate: null
         },
     });
 
     async function onSubmit(values: z.infer<typeof projectSchema>) {
         setIsLoading(true);
         try {
-            const response = await addRequirementService(projectId, { ...values });
+            const response = await addRequirementService(projectId, {
+                ...values,
+                startDate: values.startDate ? values.startDate.toISOString() : null,
+                endDate: values.endDate ? values.endDate.toISOString() : null,
+            });
             if (response) {
                 refreshRequirements();
                 toasterService.success(response.message);
@@ -146,8 +158,8 @@ export function AddRequirement({ refreshRequirements }: { refreshRequirements: (
     const getProjectUsers = async () => {
         try {
             const projectUsers = await getProjectUsersService(projectId);
-            if (projectUsers?.users?.length) {
-                setUsers(projectUsers.users);
+            if (projectUsers?.data?.users?.length) {
+                setUsers(projectUsers.data.users);
             }
         } catch (error) {
             toasterService.error();
@@ -155,7 +167,7 @@ export function AddRequirement({ refreshRequirements }: { refreshRequirements: (
     };
 
     useEffect(() => {
-        if (!sheetOpen) {
+        if (sheetOpen) {
             setAttachments([]);
             getProjectUsers();
             form.setValue("attachments", []);
@@ -289,6 +301,90 @@ export function AddRequirement({ refreshRequirements }: { refreshRequirements: (
                                         />
                                     </div>
                                 ) : null}
+                            </div>
+                            <div className="grid grid-cols-2 gap-2 mt-3">
+                                <FormField
+                                    control={form.control}
+                                    name="startDate"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-col">
+                                            <FormLabel>Start date</FormLabel>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <FormControl>
+                                                        <Button
+                                                            variant={"outline"}
+                                                            className={cn(
+                                                                "w-full pl-3 text-left font-normal",
+                                                                !field.value && "text-muted-foreground"
+                                                            )}
+                                                        >
+                                                            {field.value ? (
+                                                                format(field.value, "PPP")
+                                                            ) : (
+                                                                <span>Start date</span>
+                                                            )}
+                                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                        </Button>
+                                                    </FormControl>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-auto p-0" align="start">
+                                                    <Calendar
+                                                        mode="single"
+                                                        selected={field.value || undefined}
+                                                        onSelect={field.onChange}
+                                                        disabled={(date) => date < new Date("1900-01-01")}
+                                                        initialFocus
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <FormField
+                                    control={form.control}
+                                    name="endDate"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-col">
+                                            <FormLabel>End date</FormLabel>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <FormControl>
+                                                        <Button
+                                                            variant={"outline"}
+                                                            className={cn(
+                                                                "w-full pl-3 text-left font-normal",
+                                                                !field.value && "text-muted-foreground"
+                                                            )}
+                                                        >
+                                                            {field.value ? (
+                                                                format(field.value, "PPP")
+                                                            ) : (
+                                                                <span>End date</span>
+                                                            )}
+                                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                        </Button>
+                                                    </FormControl>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-auto p-0" align="start">
+                                                    <Calendar
+                                                        mode="single"
+                                                        selected={field.value || undefined}
+                                                        onSelect={field.onChange}
+                                                        disabled={(date) =>
+                                                            date < (form.watch("startDate") ?? new Date("1900-01-01")) ||
+                                                            date < new Date("1900-01-01")
+                                                        }
+                                                        initialFocus
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
                             </div>
 
                             <div className="grid grid-cols-1 gap-2 mt-4">

@@ -28,7 +28,7 @@ export function TestCycleRowActions({
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [isViewOpen, setIsViewOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-    const [isActionOpen, setIsActionOpen] = useState(false);
+    // const [isActionOpen, setIsActionOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const projectId = row.original.projectId as string;
     const testCycleId = row.original.id as string;
@@ -64,11 +64,11 @@ export function TestCycleRowActions({
                 refreshTestCycle={refreshTestCycle}
             />
 
-            <AssignTestCase
+            {/* <AssignTestCase
                 sheetOpen={isActionOpen}
                 setSheetOpen={setIsActionOpen}
                 row={row}
-            />
+            /> */}
 
             <ConfirmationDialog
                 isOpen={isDeleteOpen}
@@ -90,7 +90,7 @@ export function TestCycleRowActions({
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                    <DropdownMenuItem
+                    {/* <DropdownMenuItem
                         className="mb-1"
                         onClick={() => {
                             setIsActionOpen(true);
@@ -98,7 +98,7 @@ export function TestCycleRowActions({
                     >
                         <ChartNoAxesGantt className="h-2 w-2" /> Test cases
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator className="border-b" />
+                    <DropdownMenuSeparator className="border-b" /> */}
                     <DropdownMenuItem
                         className="mb-1"
                         onClick={() => {

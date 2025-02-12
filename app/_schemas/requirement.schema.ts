@@ -6,4 +6,6 @@ export const requirementSchema = z.object({
   projectId: z.string().min(1, "ProjectId is required"),
   assignedTo: z.string().nullable().optional(),
   status: z.string().min(1, "Status is required"),
+  startDate: z.string().nullable(),
+  endDate: z.string().nullable(),
 });

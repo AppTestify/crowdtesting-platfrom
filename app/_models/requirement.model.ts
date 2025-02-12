@@ -11,6 +11,8 @@ export interface IRequirement extends Document {
   attachments: Types.ObjectId[];
   assignedTo?: Types.ObjectId;
   status: string;
+  startDate: Date;
+  endDate: Date;
 }
 
 const RequirementSchema = new Schema<IRequirement>(
@@ -24,11 +26,13 @@ const RequirementSchema = new Schema<IRequirement>(
       required: true,
     },
     customId: { type: Number },
-    attachments: [  
+    attachments: [
       { type: Schema.Types.ObjectId, ref: DBModels.REQUIREMENT_ATTACHMENT },
     ],
     assignedTo: { type: Schema.Types.ObjectId, ref: DBModels.USER },
     status: { type: String, required: true },
+      startDate: { type: Date, required: false },
+      endDate: { type: Date, required: false },
   },
   {
     timestamps: true,

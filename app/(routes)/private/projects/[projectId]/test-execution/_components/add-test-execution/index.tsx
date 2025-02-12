@@ -224,7 +224,10 @@ export function AddTestExecution({ refreshTestExecution }: { refreshTestExecutio
                                                                     value={testCycle._id as string}
                                                                     disabled={!testCycle?.testCases || testCycle?.testCases?.length === 0}
                                                                 >
-                                                                    {testCycle.title}
+                                                                    {!testCycle?.testCases || testCycle?.testCases?.length === 0 ?
+                                                                        testCycle.title + " (0 test cases)" :
+                                                                        testCycle.title
+                                                                    }
                                                                 </SelectItem>
                                                             ))
                                                         ) : (

@@ -7,6 +7,15 @@ import { formatDistanceToNow } from "date-fns";
 import DefaultComments from "../../../comments";
 import { DBModels } from "@/app/_constants";
 import { Separator } from "@/components/ui/separator";
+import { UserCircle2Icon } from "lucide-react";
+import { NAME_NOT_SPECIFIED_ERROR_MESSAGE } from "@/app/_constants/errors";
+import { UserRoles } from "@/app/_constants/user-roles";
+import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Badge } from "@/components/ui/badge";
+import { formatDateWithoutTime } from "@/app/_constants/date-formatter";
+import { displayDate } from "@/app/_utils/common-functionality";
 
 const ViewRequirement = ({
   requirement,
@@ -17,7 +26,16 @@ const ViewRequirement = ({
   sheetOpen: boolean;
   setSheetOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
+  const { data } = useSession();
   const requirementId = requirement?.id;
+  const [userData, setUserData] = useState<any>();
+
+  useEffect(() => {
+    if (data) {
+      const { user } = data;
+      setUserData(user);
+    }
+  }, [data]);
 
   return (
     <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
@@ -72,21 +90,28 @@ const ViewRequirement = ({
               >
                 <div className="mt-4">
                   {/* Assigned */}
-                  {/* <div className="flex items-center gap-[10px]">
-                    <span className="text-gray-500 min-w-[40px] text-sm">Assignee</span>
-                    <span className="text-sm flex items-center">
-                      <UserCircle2Icon className="text-gray-600 h-4 w-4 mr-1" />
-                      {requirement?.assignedTo?._id ? (
-                        `${requirement?.assignedTo?.firstName ||
-                        NAME_NOT_SPECIFIED_ERROR_MESSAGE
-                        } ${requirement?.assignedTo?.lastName || ""}`
-                      ) : (
-                        <span className="text-gray-400">Unassigned</span>
-                      )}
-                    </span>
-                  </div> */}
+                  <div className="flex justify-between">
+                    <div className="flex items-center gap-[10px]">
+                      <span className="text-gray-500 min-w-[40px] text-sm">Assignee</span>
+                      <span className="text-sm flex items-center">
+                        <UserCircle2Icon className="text-gray-600 h-4 w-4 mr-1" />
+                        {requirement?.assignedTo?._id ? (
+                          `${requirement?.assignedTo?.firstName ||
+                          NAME_NOT_SPECIFIED_ERROR_MESSAGE
+                          } ${requirement?.assignedTo?.lastName || ""}`
+                        ) : (
+                          <span className="text-gray-400">Unassigned</span>
+                        )}
+                      </span>
+                    </div>
+
+                    <div>
+                      {displayDate(requirement)}
+                    </div>
+                  </div>
+
                   <div
-                    className="text-sm leading-relaxed text-gray-700 rich-description"
+                    className="mt-2 text-sm leading-relaxed text-gray-700 rich-description"
                     dangerouslySetInnerHTML={{
                       __html: requirement?.description || "",
                     }}

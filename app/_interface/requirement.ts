@@ -8,6 +8,8 @@ export interface IRequirementPayload {
   attachments?: File[];
   assignedTo?: string;
   status: string;
+  startDate?: string | null;
+  endDate?: string | null;
 }
 
 export interface IRequirement {
@@ -22,6 +24,8 @@ export interface IRequirement {
   updatedAt: string;
   assignedTo: IUserByAdmin;
   status: string;
+  startDate?: string | null;
+  endDate?: string | null;
 }
 
 export interface IRequirementAttachmentDisplay {

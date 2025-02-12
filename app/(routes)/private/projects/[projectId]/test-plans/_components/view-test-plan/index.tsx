@@ -5,6 +5,9 @@ import { formatDate } from "@/app/_constants/date-formatter";
 import { Separator } from "@/components/ui/separator";
 import DefaultComments from "../../../comments";
 import { DBModels } from "@/app/_constants";
+import { UserCircle2Icon } from "lucide-react";
+import { NAME_NOT_SPECIFIED_ERROR_MESSAGE } from "@/app/_constants/errors";
+import { displayDate } from "@/app/_utils/common-functionality";
 
 const ViewTestPlan = ({
   testPlan,
@@ -37,6 +40,27 @@ const ViewTestPlan = ({
           </span>
         </SheetHeader>
         <DropdownMenuSeparator className="border-b" />
+
+        <div className="flex justify-between mt-2">
+          <div className="flex items-center gap-[10px]">
+            <span className="text-gray-500 min-w-[40px] text-sm">Assignee</span>
+            <span className="text-sm flex items-center">
+              <UserCircle2Icon className="text-gray-600 h-4 w-4 mr-1" />
+              {testPlan?.assignedTo?._id ? (
+                `${testPlan?.assignedTo?.firstName ||
+                NAME_NOT_SPECIFIED_ERROR_MESSAGE
+                } ${testPlan?.assignedTo?.lastName || ""}`
+              ) : (
+                <span className="text-gray-400">Unassigned</span>
+              )}
+            </span>
+          </div>
+
+          <div>
+            {displayDate(testPlan)}
+          </div>
+        </div>
+
         <div className="mt-2">
           <span className="text-xl mb-2">Parameters</span>
           <div className="space-y-2 py-2">

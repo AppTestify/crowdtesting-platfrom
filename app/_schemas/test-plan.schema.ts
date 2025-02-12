@@ -10,4 +10,6 @@ export const testPlanSchema = z.object({
     })
   ),
   assignedTo: z.string().nullable().optional(),
+  startDate: z.string().nullable(),
+  endDate: z.string().nullable(),
 });

@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2 } from "lucide-react";
+import { CalendarIcon, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import toasterService from "@/app/_services/toaster-service";
 import {
@@ -52,6 +52,10 @@ import { Label } from "@/components/ui/label";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { IRequirement } from "@/app/_interface/requirement";
 import { getRequirementsWithoutPaginationService } from "@/app/_services/requirement.service";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { Calendar } from "@/components/ui/calendar";
 
 const taskSchema = z.object({
     title: z.string().min(1, "Required"),
@@ -60,6 +64,8 @@ const taskSchema = z.object({
     description: z.string().min(1, "Required"),
     issueId: z.string().nullable(),
     assignedTo: z.string().optional(),
+    startDate: z.date().nullable(),
+    endDate: z.date().nullable(),
 });
 
 export function EditTask({
@@ -118,6 +124,8 @@ export function EditTask({
             description: task?.description || "",
             issueId: task?.issueId?._id || null,
             assignedTo: task?.assignedTo?._id || "",
+            startDate: task?.startDate ? new Date(task.startDate) : null,
+            endDate: task?.endDate ? new Date(task.endDate) : null
         },
     });
 
@@ -130,6 +138,8 @@ export function EditTask({
                 description: task.description || "",
                 issueId: task?.issueId?._id || null,
                 assignedTo: task.assignedTo?._id || "",
+                startDate: task?.startDate ? new Date(task.startDate) : null,
+                endDate: task?.endDate ? new Date(task.endDate) : null
             });
         }
     }, [task, form.reset]);
@@ -139,6 +149,8 @@ export function EditTask({
         try {
             const response = await updateTaskService(projectId, taskId, {
                 ...values,
+                startDate: values.startDate ? values.startDate.toISOString() : null,
+                endDate: values.endDate ? values.endDate.toISOString() : null,
                 requirementIds: selectedRequirements,
             });
             if (response) {
@@ -322,6 +334,92 @@ export function EditTask({
                                     )}
                                 />
                             </div>
+
+                            <div className="grid grid-cols-2 gap-2 mt-3">
+                                <FormField
+                                    control={form.control}
+                                    name="startDate"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-col">
+                                            <FormLabel>Start date</FormLabel>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <FormControl>
+                                                        <Button
+                                                            variant={"outline"}
+                                                            className={cn(
+                                                                "w-full pl-3 text-left font-normal",
+                                                                !field.value && "text-muted-foreground"
+                                                            )}
+                                                        >
+                                                            {field.value ? (
+                                                                format(field.value, "PPP")
+                                                            ) : (
+                                                                <span>Start date</span>
+                                                            )}
+                                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                        </Button>
+                                                    </FormControl>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-auto p-0" align="start">
+                                                    <Calendar
+                                                        mode="single"
+                                                        selected={field.value || undefined}
+                                                        onSelect={field.onChange}
+                                                        disabled={(date) => date < new Date("1900-01-01")}
+                                                        initialFocus
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <FormField
+                                    control={form.control}
+                                    name="endDate"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-col">
+                                            <FormLabel>End date</FormLabel>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <FormControl>
+                                                        <Button
+                                                            variant={"outline"}
+                                                            className={cn(
+                                                                "w-full pl-3 text-left font-normal",
+                                                                !field.value && "text-muted-foreground"
+                                                            )}
+                                                        >
+                                                            {field.value ? (
+                                                                format(field.value, "PPP")
+                                                            ) : (
+                                                                <span>End date</span>
+                                                            )}
+                                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                        </Button>
+                                                    </FormControl>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-auto p-0" align="start">
+                                                    <Calendar
+                                                        mode="single"
+                                                        selected={field.value || undefined}
+                                                        onSelect={field.onChange}
+                                                        disabled={(date) =>
+                                                            date < (form.watch("startDate") ?? new Date("1900-01-01")) ||
+                                                            date < new Date("1900-01-01")
+                                                        }
+                                                        initialFocus
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+
                             <div className={`grid grid-cols-${userProjectRole === ProjectUserRoles.ADMIN ||
                                 userProjectRole === ProjectUserRoles.CLIENT ? 2 : 1} gap-2 mt-3`}>
                                 <FormField

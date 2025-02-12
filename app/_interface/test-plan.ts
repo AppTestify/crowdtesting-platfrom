@@ -24,4 +24,6 @@ export interface ITestPlan {
   createdAt?: string;
   updatedAt: string;
   assignedTo: IUserByAdmin;
+  startDate?: string | null;
+  endDate?: string | null;
 }
