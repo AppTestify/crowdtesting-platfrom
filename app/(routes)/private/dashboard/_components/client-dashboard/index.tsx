@@ -7,6 +7,7 @@ import DeviceChart from "./_components/devices-chart";
 import { DonutChart } from "./_components/donut-chart";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import StatusBarChart from "./_components/bar-chart";
+import AssigneeUser from "./_components/assignee-user";
 
 export default function ClientDashboard() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -91,13 +92,16 @@ export default function ClientDashboard() {
           dataKey="status"
         />
       </div>
-      <div className="grid gap-2 mt-1 sm:mt-2 grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
+      <div className="grid gap-2 mt-1 sm:mt-2 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
         <DonutChart chartData={dashboard?.issueType} dataKey={"issueType"} title={"Issue Type"}
           description={"Showing issue type levels"}
           headerTitle={"Issue by type"} />
         <DonutChart chartData={dashboard?.task} dataKey={"issueType"} title={"Task"}
           description={"Showing task status levels"}
           headerTitle={"Task by status"} />
+        <DonutChart chartData={dashboard?.requirementStatus} dataKey={"issueType"} title={"Requirement"}
+          description={"Showing requirement status levels"}
+          headerTitle={"Requirement"} />
       </div>
 
       <div className="grid gap-2 mt-1 sm:mt-2 grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 mb-4">
@@ -113,6 +117,10 @@ export default function ClientDashboard() {
           chartData={dashboard?.status || {}}
           dataKey="status"
         />
+      </div>
+
+      <div className='grid grid-cols-[60%] mb-3'>
+        <AssigneeUser assignedUser={dashboard?.assignedIssueCounts} />
       </div>
     </div>
   );
