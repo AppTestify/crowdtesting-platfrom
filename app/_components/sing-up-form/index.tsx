@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -32,13 +31,13 @@ import { countries, ICountry } from "@/app/_constants/countries"
 
 export function SignUpForm({ role, setIsGoogleSignInDisable }: { role: UserRoles, setIsGoogleSignInDisable: (value: boolean) => void; }) {
   const formSchema = z.object({
-    email: z.string().email({ message: "Invalid email address" }),
+    email: z.string().min(1, "Email is required").email({ message: "Invalid email address" }),
     password: z.string().min(8, { message: "Password must be at least 8 characters" }),
+    firstName: z.string().min(1, { message: "First name is required" }),
+    lastName: z.string().min(1, { message: "Last name is required" }),
   }).extend(
     role === UserRoles.TESTER ?
       {
-        firstName: z.string().min(1, { message: "First name is required" }),
-        lastName: z.string().min(1, { message: "Last name is required" }),
         country: z.string().min(1, { message: "Country is required" }),
       } : {}
   );
@@ -57,6 +56,8 @@ export function SignUpForm({ role, setIsGoogleSignInDisable }: { role: UserRoles
     {
       email: "",
       password: "",
+      firstName: "",
+      lastName: "",
     }
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -97,36 +98,6 @@ export function SignUpForm({ role, setIsGoogleSignInDisable }: { role: UserRoles
         {role === UserRoles.TESTER &&
           (
             <>
-              <div className="grid grid-cols-1 xs:grid-cols-2 gap-2">
-                <FormField
-                  control={form.control}
-                  name="firstName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>First name</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="lastName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Last name</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
               <FormField
                 control={form.control}
                 name="country"
@@ -160,6 +131,36 @@ export function SignUpForm({ role, setIsGoogleSignInDisable }: { role: UserRoles
               />
             </>)
         }
+
+        <div className="grid grid-cols-1 xs:grid-cols-2 gap-2">
+          <FormField
+            control={form.control}
+            name="firstName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>First name</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="lastName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Last name</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
         <FormField
           control={form.control}

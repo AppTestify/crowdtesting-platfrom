@@ -46,7 +46,7 @@ function SignUpWrapper() {
     <div className="flex flex-col p-5 md:p-10 h-full">
       <BrandLogo className="text-white" />
       <div className="flex items-center justify-center h-4/5">
-        <div className="mx-auto grid w-full md:w-[350px] gap-6">
+        <div className="mx-auto grid w-full md:w-[380px] gap-6">
           <div className="grid gap-2 text-left md:text-center">
             <h1 className="text-3xl font-bold">Sign up as client</h1>
             <p className="text-balance text-muted-foreground">
@@ -74,7 +74,9 @@ function SignUpWrapper() {
 export default function SignUp() {
   return (
     <Suspense>
-      <SignUpWrapper />
+      <div className="overflow-y-auto max-h-screen ">
+        <SignUpWrapper />
+      </div>
     </Suspense>
   );
 }

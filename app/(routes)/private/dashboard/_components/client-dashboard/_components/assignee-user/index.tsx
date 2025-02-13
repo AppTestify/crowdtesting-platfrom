@@ -134,7 +134,9 @@ export default function AssigneeUser({ assignedUser }: { assignedUser: any }) {
                                         colSpan={columns.length}
                                         className="h-24 text-center"
                                     >
-                                        {/* {!isLoading ? "No results" : "Loading"} */}
+                                        <div className='text-gray-500 text-xl'>
+                                            {assignedUser.length === 0 && "No data found"}
+                                        </div>
                                     </TableCell>
                                 </TableRow>
                             )}
