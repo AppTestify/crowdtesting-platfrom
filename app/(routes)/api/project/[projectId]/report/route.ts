@@ -7,21 +7,21 @@ import {
   USER_UNAUTHORIZED_SERVER_ERROR_MESSAGE,
 } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
+import { ReportStatus } from "@/app/_constants/issue";
 import { connectDatabase } from "@/app/_db";
 import AttachmentService from "@/app/_helpers/attachment.helper";
-import { isAdmin, verifySession } from "@/app/_lib/dal";
+import { isAdmin, isClient, verifySession } from "@/app/_lib/dal";
 import { ReportAttachment } from "@/app/_models/report-attachment.model";
 import { Report } from "@/app/_models/report.model";
 import {
   filterReportsForAdmin,
-  filterReportsNotForAdmin,
+  filterReportsForTester,
 } from "@/app/_queries/search-report";
 import { ReportSchema } from "@/app/_schemas/report.schema";
 import {
   getFileMetaData,
   serverSidePagination,
 } from "@/app/_utils/common-server-side";
-import { addCustomIds } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function POST(
@@ -75,6 +75,7 @@ export async function POST(
       ...response.data,
       userId: session.user._id,
       projectId: projectId,
+      status: ReportStatus.SUBMITTED,
     });
     const savedReport = await newReport.save();
 
@@ -152,8 +153,8 @@ export async function GET(
     }).countDocuments();
 
     if (searchString) {
-      if (!(await isAdmin(session.user))) {
-        const { reports, totalReports } = await filterReportsNotForAdmin(
+      if (await isAdmin(session.user)) {
+        const { reports, totalReports } = await filterReportsForAdmin(
           searchString,
           skip,
           limit,
@@ -163,8 +164,20 @@ export async function GET(
           Reports: reports,
           total: totalReports,
         });
+      } else if (await isClient(session.user)) {
+        const { reports, totalReports } = await filterReportsForTester(
+          searchString,
+          skip,
+          limit,
+          projectId,
+          true
+        );
+        return Response.json({
+          Reports: reports,
+          total: totalReports,
+        });
       } else {
-        const { reports, totalReports } = await filterReportsForAdmin(
+        const { reports, totalReports } = await filterReportsForTester(
           searchString,
           skip,
           limit,
@@ -177,8 +190,20 @@ export async function GET(
       }
     }
 
-    if (!(await isAdmin(session.user))) {
+    if (await isAdmin(session.user)) {
       response = await Report.find({ projectId: projectId })
+        .populate("projectId", "_id")
+        .populate("userId", "id firstName lastName")
+        .populate("attachments")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(Number(limit))
+        .lean();
+    } else if (await isClient(session.user)) {
+      response = await Report.find({
+        projectId: projectId,
+        status: ReportStatus.APPROVED,
+      })
         .populate("projectId", "_id")
         .populate("attachments")
         .sort({ createdAt: -1 })
@@ -188,7 +213,6 @@ export async function GET(
     } else {
       response = await Report.find({ projectId: projectId })
         .populate("projectId", "_id")
-        .populate("userId", "id firstName lastName")
         .populate("attachments")
         .sort({ createdAt: -1 })
         .skip(skip)

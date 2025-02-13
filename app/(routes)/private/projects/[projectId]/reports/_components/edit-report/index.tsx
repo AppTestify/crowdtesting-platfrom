@@ -6,7 +6,6 @@ import {
     Sheet,
     SheetClose,
     SheetContent,
-    SheetDescription,
     SheetHeader,
     SheetTitle,
 } from "@/components/ui/sheet";
@@ -27,10 +26,16 @@ import { updateReportService } from "@/app/_services/report.service";
 import TextEditor from "../../../../_components/text-editor";
 import { addReportAttachmentsService } from "@/app/_services/report-attachment.service";
 import ReportAttachments from "../attachments/report-attachment";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { REPORT_STATUS_LIST } from "@/app/_constants/issue";
+import { useSession } from "next-auth/react";
+import { UserRoles } from "@/app/_constants/user-roles";
+import { useParams } from "next/navigation";
 
 const ReportSchema = z.object({
     title: z.string().min(1, "Required"),
-    description: z.string().min(1, 'Required')
+    description: z.string().min(1, 'Required'),
+    status: z.string().optional(),
 });
 
 export function EditReport({
@@ -38,22 +43,28 @@ export function EditReport({
     sheetOpen,
     setSheetOpen,
     refreshReports,
+    projectAdmin
 }: {
     report: IReport;
     sheetOpen: boolean;
     setSheetOpen: React.Dispatch<React.SetStateAction<boolean>>;
     refreshReports: () => void;
+    projectAdmin: boolean
 }) {
     const ReportId = report._id;
-    const { title, projectId, description } = report;
+    const { projectId } = useParams<{ projectId: string }>();
+    const { title, description, status } = report;
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [attachments, setAttachments] = useState<any>();
+    const [userData, setUserData] = useState<any>();
+    const { data } = useSession();
 
     const form = useForm<z.infer<typeof ReportSchema>>({
         resolver: zodResolver(ReportSchema),
         defaultValues: {
             title: title || "",
-            description: description || ""
+            description: description || "",
+            status: status || ""
         },
     });
 
@@ -97,6 +108,13 @@ export function EditReport({
         }
     }, [sheetOpen]);
 
+    useEffect(() => {
+        if (data) {
+            const { user } = data;
+            setUserData(user);
+        }
+    }, [data]);
+
     return (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
             <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto">
@@ -122,6 +140,38 @@ export function EditReport({
                                 />
                             </div>
 
+                            {(projectAdmin === true || userData?.role === UserRoles.ADMIN) &&
+                                (<div className="grid grid-cols-1 gap-2 mt-3">
+                                    <FormField
+                                        control={form.control}
+                                        name="status"
+                                        render={({ field }) => (
+                                            <FormItem className="flex flex-col">
+                                                <FormLabel>Status</FormLabel>
+                                                <Select
+                                                    onValueChange={field.onChange}
+                                                    value={field.value}
+                                                >
+                                                    <SelectTrigger className="w-full">
+                                                        <SelectValue>{field.value || ""}</SelectValue>
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectGroup>
+                                                            {REPORT_STATUS_LIST.map((status) => (
+                                                                <SelectItem value={status}>
+                                                                    {status}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectGroup>
+                                                    </SelectContent>
+                                                </Select>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>)
+                            }
+
                             <div className="grid grid-cols-1 gap-2 mt-3">
                                 <FormField
                                     control={form.control}
@@ -130,7 +180,6 @@ export function EditReport({
                                         <FormItem>
                                             <FormLabel>Description</FormLabel>
                                             <FormControl>
-                                                {/* <Textarea {...field} /> */}
                                                 <TextEditor
                                                     markup={field.value || ""}
                                                     onChange={(value) => {

@@ -45,6 +45,16 @@ export const enum TaskStatus {
   DONE = "Done",
 }
 
+export const enum ReportStatus {
+  SUBMITTED = "Submitted",
+  APPROVED = "Approved",
+}
+
+export const REPORT_STATUS_LIST = [
+  ReportStatus.SUBMITTED,
+  ReportStatus.APPROVED,
+];
+
 export const TASK_STATUS_LIST = [
   TaskStatus.TODO,
   TaskStatus.IN_PROGRESS,

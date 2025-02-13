@@ -9,6 +9,7 @@ export interface IReport {
   userId: IUserByAdmin;
   createdAt: string;
   attachments?: File[];
+  status: string;
 }
 
 export interface IReportAttachment {

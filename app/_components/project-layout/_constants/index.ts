@@ -5,7 +5,7 @@ export const getProjectTabs = (user: any) => {
     case UserRoles.ADMIN:
       return [
         "dashboard",
-        "test instructions",
+        "project details",
         "users",
         "requirements",
         "test plans",
@@ -21,7 +21,7 @@ export const getProjectTabs = (user: any) => {
     case UserRoles.TESTER:
       return [
         "dashboard",
-        "test instructions",
+        "project details",
         "requirements",
         "test plans",
         "test suites",
@@ -35,7 +35,7 @@ export const getProjectTabs = (user: any) => {
     case UserRoles.CLIENT:
       return [
         "dashboard",
-        "test instructions",
+        "project details",
         "users",
         "requirements",
         "test plans",
@@ -50,7 +50,7 @@ export const getProjectTabs = (user: any) => {
     default:
       return [
         "dashboard",
-        "test instructions",
+        "project details",
         "users",
         "requirements",
         "test plans",

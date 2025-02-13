@@ -7,6 +7,7 @@ export interface IReport extends Document {
   userId: Types.ObjectId;
   projectId: Types.ObjectId;
   attachments: Types.ObjectId[];
+  status: string;
 }
 
 const ReportsSchema = new Schema<IReport>(
@@ -22,6 +23,7 @@ const ReportsSchema = new Schema<IReport>(
     attachments: [
       { type: Schema.Types.ObjectId, ref: DBModels.REPORT_ATTACHMENT },
     ],
+    status: { type: String },
   },
   {
     timestamps: true,

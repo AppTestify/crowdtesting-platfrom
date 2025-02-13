@@ -22,9 +22,11 @@ import { UserRoles } from "@/app/_constants/user-roles";
 export function ReportRowActions({
     row,
     refreshReports,
+    projectAdmin
 }: {
     row: Row<IReport>;
     refreshReports: () => void;
+    projectAdmin: boolean
 }) {
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [isViewOpen, setIsViewOpen] = useState(false);
@@ -67,6 +69,7 @@ export function ReportRowActions({
                 sheetOpen={isEditOpen}
                 setSheetOpen={setIsEditOpen}
                 refreshReports={refreshReports}
+                projectAdmin={projectAdmin}
             />
 
             <ViewReport
@@ -88,7 +91,7 @@ export function ReportRowActions({
             />
 
             <DropdownMenu>
-                {userData?.role !== UserRoles.TESTER ?
+                {userData?.role !== UserRoles.TESTER || projectAdmin ?
                     <>
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" className="h-8 w-8 p-0">

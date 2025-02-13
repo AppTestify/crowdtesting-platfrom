@@ -1,3 +1,4 @@
+import { DBModels } from "@/app/_constants";
 import {
   DB_CONNECTION_ERROR_MESSAGE,
   USER_UNAUTHORIZED_SERVER_ERROR_MESSAGE,
@@ -12,12 +13,17 @@ import {
 } from "@/app/_constants/issue";
 import { connectDatabase } from "@/app/_db";
 import { IProject } from "@/app/_interface/project";
+import { IRequirement } from "@/app/_interface/requirement";
 import { ITask } from "@/app/_interface/task";
 import { verifySession } from "@/app/_lib/dal";
+import { IdFormat } from "@/app/_models/id-format.model";
 import { Issue } from "@/app/_models/issue.model";
 import { Project } from "@/app/_models/project.model";
+import { Requirement } from "@/app/_models/requirement.model";
 import { Task } from "@/app/_models/task.model";
 import { TestCycle } from "@/app/_models/test-cycle.model";
+import { User } from "@/app/_models/user.model";
+import { addCustomIds, replaceCustomId } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function GET(req: Request) {
@@ -59,6 +65,10 @@ export async function GET(req: Request) {
       projectId: projects.map((project) => project._id),
     });
 
+    const requirements = await Requirement.find({
+      projectId: projects.map((project) => project._id),
+    });
+
     const topDevices = await topDevicesData(projects);
     const testCycleCounts = await TestCycle.find({
       projectId: projects.map((project) => project._id),
@@ -66,8 +76,14 @@ export async function GET(req: Request) {
 
     const projectCounts = countProjectResults(projects);
 
-    const { severityCounts, priorityCounts, statusCounts, issueTypeCounts } =
-      countresults(issues);
+    const {
+      severityCounts,
+      priorityCounts,
+      statusCounts,
+      issueTypeCounts,
+      requirementStatusCounts,
+      assignedIssueCountsArray,
+    } = await countresults(issues, requirements);
 
     // task by status
     const tasks = await Task.find({
@@ -86,6 +102,8 @@ export async function GET(req: Request) {
       totalProjects: projects.length,
       totalIssues: issues.length,
       task: taskCounts,
+      requirementStatus: requirementStatusCounts,
+      assignedIssueCounts: assignedIssueCountsArray,
     });
   } catch (error: any) {
     return errorHandler(error);
@@ -124,7 +142,7 @@ function countTaskByStatus(tasks: ITask[]) {
   return taskCounts;
 }
 
-function countresults(issue: any[]) {
+async function countresults(issue: any[], requirements: IRequirement[]) {
   const severityCounts: any = {};
   severityCounts[Severity.MINOR] = 0;
   severityCounts[Severity.MAJOR] = 0;
@@ -161,7 +179,51 @@ function countresults(issue: any[]) {
   issueTypeCounts[IssueType.PERFORMANCE] = 0;
   issueTypeCounts[IssueType.SECURITY] = 0;
 
-  issue.forEach((result) => {
+  const requirementStatusCounts: any = {};
+  requirementStatusCounts[TaskStatus.TODO] = 0;
+  requirementStatusCounts[TaskStatus.IN_PROGRESS] = 0;
+  requirementStatusCounts[TaskStatus.BLOCKED] = 0;
+  requirementStatusCounts[TaskStatus.DONE] = 0;
+
+  const userIdFormat = await IdFormat.findOne({ entity: DBModels.USER });
+  const assignedIssueCounts: Record<
+    string,
+    { noOfAssigned: number; customId: string; fullName: string; role: string }
+  > = {};
+  const userMap: Record<string, any> = {};
+
+  for (const result of issue) {
+    // Assigned count
+    let assignedTo = "Unassigned";
+    let userDetails = { customId: "", fullName: "", role: "" };
+
+    if (result.assignedTo) {
+      if (!userMap[result.assignedTo.toString()]) {
+        const user = await User.findById(result.assignedTo).select(
+          "_id customId firstName lastName role"
+        );
+        if (user) {
+          const customId = replaceCustomId(
+            userIdFormat.idFormat,
+            user.customId
+          );
+          userDetails = {
+            customId,
+            fullName: `${user.firstName || ""} ${user.lastName || ""}`,
+            role: user.role,
+          };
+          userMap[result.assignedTo.toString()] = userDetails;
+        }
+      }
+
+      userDetails = userMap[result.assignedTo.toString()];
+      assignedTo = userDetails.customId;
+    }
+    assignedIssueCounts[assignedTo] = {
+      noOfAssigned: (assignedIssueCounts[assignedTo]?.noOfAssigned || 0) + 1,
+      ...userDetails,
+    };
+
     // By severity
     if (result.severity) {
       severityCounts[result.severity]++;
@@ -180,9 +242,32 @@ function countresults(issue: any[]) {
     if (result.issueType) {
       issueTypeCounts[result.issueType]++;
     }
+  }
+
+  const assignedIssueCountsArray = Object.entries(assignedIssueCounts).map(
+    ([customId, { noOfAssigned, fullName, role }]) => ({
+      customId,
+      noOfAssigned,
+      fullName,
+      role,
+    })
+  );
+
+  requirements.forEach((result) => {
+    // By status
+    if (result.status) {
+      requirementStatusCounts[result.status]++;
+    }
   });
 
-  return { severityCounts, priorityCounts, statusCounts, issueTypeCounts };
+  return {
+    severityCounts,
+    priorityCounts,
+    statusCounts,
+    issueTypeCounts,
+    requirementStatusCounts,
+    assignedIssueCountsArray,
+  };
 }
 
 async function topDevicesData(projects: IProject[]) {

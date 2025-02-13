@@ -1,3 +1,4 @@
+import AssigneeUser from '@/app/(routes)/private/dashboard/_components/client-dashboard/_components/assignee-user';
 import StatusBarChart from '@/app/(routes)/private/dashboard/_components/client-dashboard/_components/bar-chart';
 import DeviceChart from '@/app/(routes)/private/dashboard/_components/client-dashboard/_components/devices-chart';
 import { DonutChart } from '@/app/(routes)/private/dashboard/_components/client-dashboard/_components/donut-chart';
@@ -93,13 +94,20 @@ export default function ProjectClientDashboard() {
                     headerTitle={"Task by status"} />
             </div>
 
-            <div className="w-full sm:w-[60%] flex justify-center mt-1 mb-2">
+            <div className="grid grid-cols-[60%,40%] gap-2 mt-1 mb-2">
                 <DeviceChart
                     title="Issues by device"
                     description="Showing top 10 most devices"
                     dataKey="device"
                     chartData={dashboard?.topDevices || {}}
                 />
+                <DonutChart chartData={dashboard?.requirementStatus} dataKey={"issueType"} title={"Requirement"}
+                    description={"Showing requirement status levels"}
+                    headerTitle={"Requirement"} />
+            </div>
+
+            <div className='grid grid-cols-[60%]'>
+                <AssigneeUser assignedUser={dashboard?.assignedIssueCounts} />
             </div>
         </div>
     )
