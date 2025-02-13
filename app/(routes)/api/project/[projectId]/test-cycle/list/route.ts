@@ -48,6 +48,7 @@ export async function GET(
       .populate({
         path: "testCases",
         select: "customId title result testCaseId testSuite requirements",
+        strictPopulate: false,
         populate: [
           {
             path: "requirements",

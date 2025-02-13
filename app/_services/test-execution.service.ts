@@ -75,11 +75,25 @@ export const getTestExecutionService = async (
       `${TEST_EXECUTION_ENDPOINT(projectId)}${PAGINATION_QUERY_ENDPOINT(
         index,
         pageSize
-      )}&result=${result}`
+      )}&searchString=${result}`
     );
     return response || {};
   } catch (error) {
     console.error(`Error > getTestExecutionService:`, error);
+    throw error;
+  }
+};
+
+export const getTestExecutionWithoutPaginationService = async (
+  projectId: string
+): Promise<any> => {
+  try {
+    const response = await genericGet(
+      `${TEST_EXECUTION_ENDPOINT(projectId)}/without-pagination`
+    );
+    return response || {};
+  } catch (error) {
+    console.error(`Error > getTestExecutionWithoutPaginationService:`, error);
     throw error;
   }
 };

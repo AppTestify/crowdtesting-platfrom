@@ -43,6 +43,7 @@ export async function GET(
     const response = await TestCycle.findById(testCycleId)
       .populate({
         path: "testCases",
+        strictPopulate: false,
       })
       .lean();
 

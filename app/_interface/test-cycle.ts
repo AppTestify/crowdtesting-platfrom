@@ -7,6 +7,7 @@ export interface ITestCyclePayload {
   testCaseResults?: string;
   testCycle?: ITestCycle;
   projectId?: string;
+  customId?: string;
   description: string;
   userId?: IUserByAdmin;
   attachments?: File[];

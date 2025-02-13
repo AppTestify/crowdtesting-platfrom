@@ -20,6 +20,8 @@ import { statusColors } from '@/app/_utils/common-functionality';
 import * as XLSX from "sheetjs-style";
 import { Button } from '@/components/ui/button';
 import { FileSpreadsheet, Loader2 } from 'lucide-react';
+import { getTestExecutionWithoutPaginationService } from '@/app/_services/test-execution.service';
+import { ITestExecution } from '@/app/_interface/test-execution';
 
 const rtmSchema = z.object({
     testCycle: z.string().optional(),
@@ -29,11 +31,11 @@ const rtmSchema = z.object({
 export default function RTM() {
 
     const { projectId } = useParams<{ projectId: string }>();
-    const [testCycles, setTestCycles] = useState<ITestCycle[]>([]);
+    const [testExecutions, setTestExecutions] = useState<ITestExecution[]>([]);
     const [testSuites, setTestSuites] = useState<ITestSuite[]>([]);
     const [testSuite, setTestSuite] = useState<ITestSuite>();
     const [testCycle, setTestCycle] = React.useState<ITestCycle | undefined>(
-        testCycles.length > 0 ? testCycles[0] : undefined
+        testExecutions.length > 0 ? testExecutions[0]?.testCycle : undefined
     );
     const [requirements, setRequirements] = useState<IRequirement[]>([]);
     const [isViewLoading, setIsViewLoading] = useState<boolean>(false);
@@ -42,7 +44,7 @@ export default function RTM() {
     const form = useForm<z.infer<typeof rtmSchema>>({
         resolver: zodResolver(rtmSchema),
         defaultValues: {
-            testCycle: testCycles.length > 0 ? testCycles[0]._id : "",
+            testCycle: testExecutions.length > 0 ? testExecutions[0]?.testCycle?._id : "",
             testSuite: ""
         },
     });
@@ -50,9 +52,9 @@ export default function RTM() {
     const getTestCycles = async () => {
         setIsViewLoading(true);
         try {
-            const response = await getTestCycleListService(projectId)
+            const response = await getTestExecutionWithoutPaginationService(projectId)
             if (response) {
-                setTestCycles(response);
+                setTestExecutions(response);
             }
         } catch (error) {
             toasterService.error();
@@ -104,7 +106,7 @@ export default function RTM() {
 
     // Filter for testSuite
     const filteredTestCases = React.useMemo(() => {
-        const currentTestCycle = testCycle ?? testCycles[0];
+        const currentTestCycle = testCycle ?? testExecutions[0];
 
         if (currentTestCycle && testSuite) {
             return currentTestCycle.testCaseResults?.filter(
@@ -115,7 +117,7 @@ export default function RTM() {
             return currentTestCycle.testCaseResults ?? [];
         }
         return [];
-    }, [testCycle, testSuite, testCycles]);
+    }, [testCycle, testSuite, testExecutions]);
     const testCasesToDisplay = filteredTestCases.length > 0 ? filteredTestCases : [];
 
 
@@ -137,7 +139,7 @@ export default function RTM() {
             const rows = [
                 ['RTM Report'],
                 [`Project : ${requirements[0]?.projectId?.title || 'N/A'}`],
-                [`Test Cycle : ${testCycle?.title ? testCycle?.title : testCycles[0]?.title || 'N/A'} | Test Suite : ${testSuite?.title || 'N/A'}`],
+                [`Test Cycle : ${testCycle?.title ? testCycle?.title : testExecutions[0]?.testCycle?.title || 'N/A'} | Test Suite : ${testSuite?.title || 'N/A'}`],
                 [`Generated on ${new Date().toLocaleString()}`],
                 [],
                 ['Test Case IDs And Their Results', '', 'Requirement IDs →', ...requirements.map(req => req.customId)],
@@ -243,11 +245,11 @@ export default function RTM() {
     }, [form.watch("testSuite")]);
 
     useEffect(() => {
-        const testCycle = testCycles?.find((cycle) => cycle._id === form.watch("testCycle"));
-        setTestCycle(testCycle);
+        const testCycle = testExecutions?.find((cycle) => cycle?.testCycle?._id === form.watch("testCycle"));
+        setTestCycle(testCycle as unknown as ITestCycle);
         setTestSuite(undefined);
         form.setValue("testSuite", "");
-    }, [form.watch("testCycle"), testCycles]);
+    }, [form.watch("testCycle"), testExecutions]);
 
     return (
         <main className="mx-4 mt-2">
@@ -278,16 +280,16 @@ export default function RTM() {
                                                 <FormLabel>Test cycle</FormLabel>
                                                 <Select
                                                     onValueChange={field.onChange}
-                                                    value={field.value || testCycles[0]?._id}
+                                                    value={field.value || testExecutions[0]?.testCycle?._id}
                                                 >
                                                     <SelectTrigger className="w-full">
                                                         <SelectValue />
                                                     </SelectTrigger>
                                                     <SelectContent>
                                                         <SelectGroup>
-                                                            {testCycles.map((testCycle, index) => (
-                                                                <SelectItem key={index} value={testCycle?._id as string}>
-                                                                    {testCycle.title}
+                                                            {testExecutions?.map((testExecution, index) => (
+                                                                <SelectItem key={index} value={testExecution?.testCycle?._id as string}>
+                                                                    {testExecution?.customId} - {testExecution?.testCycle?.title}
                                                                 </SelectItem>
                                                             ))}
                                                         </SelectGroup>
@@ -344,7 +346,7 @@ export default function RTM() {
             </div>
             {!isViewLoading && testCasesToDisplay &&
                 <RtmTable
-                    testCycle={testCycle as ITestCycle || testCycles[0]}
+                    testCycle={testCycle as ITestCycle || testExecutions[0]}
                     testSuite={testSuite as ITestSuite}
                     requirements={requirements as IRequirement[]}
                     testCasesToDisplay={testCasesToDisplay as any[]}

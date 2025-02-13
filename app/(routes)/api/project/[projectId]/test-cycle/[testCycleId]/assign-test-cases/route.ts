@@ -10,10 +10,9 @@ import { connectDatabase } from "@/app/_db";
 import { ITestCycle } from "@/app/_interface/test-cycle";
 import { verifySession } from "@/app/_lib/dal";
 import { IdFormat } from "@/app/_models/id-format.model";
-import { TestCaseResult } from "@/app/_models/test-case-result.model";
 import { TestCycle } from "@/app/_models/test-cycle.model";
 import { assignTestCasesSchema } from "@/app/_schemas/test-cycle.schema";
-import { addCustomIds, replaceCustomId } from "@/app/_utils/data-formatters";
+import { replaceCustomId } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function PATCH(
@@ -55,48 +54,42 @@ export async function PATCH(
 
     const { testCycleId } = params;
 
-    const checkTestCycleResult = await TestCycle.findById(
-      //     {
-      // //   testCaseId: { $in: response.data?.testCaseIds },
-      //   testCycleId: testCycleId,
-      // }
-      testCycleId
-    );
+    const checkTestCycleResult = await TestCycle.findById(testCycleId);
 
-    const existingTestCaseIds = checkTestCycleResult?.testCases?.map(
-      (result: any) => result.toString()
-    );
+    const existingTestCaseIds = Array.isArray(checkTestCycleResult?.testCases)
+      ? checkTestCycleResult?.testCases.map((result: any) => result.toString())
+      : [];
+
     const newTestCaseIds = response.data?.testCaseIds.filter(
-      (testCaseId) => !existingTestCaseIds.includes(testCaseId)
+      (testCaseId) => !existingTestCaseIds?.includes(testCaseId)
     );
 
-    // if (newTestCaseIds.length > 0) {
-    //   testCaseResults = await TestCaseResult.insertMany(
-    //     newTestCaseIds.map((testCaseId) => ({
-    //       userId: session.user._id,
-    //       testCaseId,
-    //       testCycleId,
-    //     }))
-    //   );
-    // }
     //  testcycle -> modal
-    const existingTestCaseResultIds = checkTestCycleResult?.testCases?.map(
-      (result: any) => result.toString()
-    );
+    const existingTestCaseResultIds = Array.isArray(
+      checkTestCycleResult?.testCases
+    )
+      ? checkTestCycleResult?.testCases?.map((result: any) => result.toString())
+      : [];
 
     const allTestCaseResultIds = [
       ...existingTestCaseResultIds,
       ...newTestCaseIds,
     ];
 
-    await TestCycle.findByIdAndUpdate(
-      testCycleId,
-      {
-        // testCaseResults: allTestCaseResultIds,
-        testCases: allTestCaseResultIds,
-      },
-      { new: true }
-    );
+
+    try {
+      await TestCycle.findOneAndUpdate(
+        { _id: testCycleId },
+        { testCases: allTestCaseResultIds },
+        { new: true }
+      );
+    } catch (error: any) {
+      console.error("Error updating test cycle:", error);
+      return Response.json({
+        message: "Error updating test cycle",
+        error: error.message,
+      });
+    }
 
     return Response.json({
       message: "test cases assigned successfully",
@@ -137,6 +130,7 @@ export async function GET(
     const testCycle = (await TestCycle.findById(testCycleId)
       .populate({
         path: "testCases",
+        strictPopulate: false,
       })
       .sort({ createdAt: -1 })
       .lean()) as ITestCycle | null;

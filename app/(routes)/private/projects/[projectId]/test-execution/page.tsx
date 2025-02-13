@@ -31,9 +31,12 @@ import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
 import { AddTestExecution } from "./_components/add-test-execution";
 import { getTestExecutionService } from "@/app/_services/test-execution.service";
 import { formatDateWithoutTime } from "@/app/_constants/date-formatter";
+import { useSession } from "next-auth/react";
+import { UserRoles } from "@/app/_constants/user-roles";
 
 export default function TestExecution() {
     const [testExecution, setTestExecution] = useState<ITestCyclePayload[]>([]);
+    const [userData, setUserData] = useState<any>();
 
     const columns: ColumnDef<ITestCyclePayload>[] = [
         {
@@ -53,7 +56,7 @@ export default function TestExecution() {
             cell: ({ row }) => (
                 <Link href={`/private/projects/${projectId}/test-execution/${row.original?.id}`}>
                     <div className="text-primary cursor-pointer ml-4">
-                        {row.original?.testCycle?.customId}
+                        {row.original?.customId}
                     </div>
                 </Link>
             ),
@@ -185,14 +188,18 @@ export default function TestExecution() {
     const [totalPageCount, setTotalPageCount] = useState(0);
     const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
     const { projectId } = useParams<{ projectId: string }>();
+    const { data } = useSession();
 
     useEffect(() => {
-        getTestCycle();
-    }, [pageIndex, pageSize]);
+        const debounceFetch = setTimeout(() => {
+            getTestCycle();
+        }, 500);
+        return () => clearTimeout(debounceFetch);
+    }, [pageIndex, pageSize, globalFilter]);
 
     const getTestCycle = async () => {
         setIsLoading(true);
-        const response = await getTestExecutionService(projectId, pageIndex, pageSize, "");
+        const response = await getTestExecutionService(projectId, pageIndex, pageSize, globalFilter as unknown as string);
         setTestExecution(response?.testCycles);
         setTotalPageCount(response?.total);
         setIsLoading(false);
@@ -212,7 +219,6 @@ export default function TestExecution() {
         globalFilterFn: "includesString",
         state: {
             sorting,
-            globalFilter,
             columnVisibility,
             rowSelection,
         },
@@ -241,6 +247,13 @@ export default function TestExecution() {
         }
     }, [pageIndex]);
 
+    useEffect(() => {
+        if (data) {
+            const { user } = data;
+            setUserData(user);
+        }
+    }, [data]);
+
     return (
         <main className="mx-4 mt-2">
             <div className="">
@@ -257,7 +270,9 @@ export default function TestExecution() {
                         className="max-w-sm"
                     />
 
-                    <AddTestExecution refreshTestExecution={refreshTestExecution} />
+                    {userData?.role !== UserRoles.CLIENT &&
+                        <AddTestExecution refreshTestExecution={refreshTestExecution} />
+                    }
                 </div>
                 <div className="rounded-md border">
                     <Table>

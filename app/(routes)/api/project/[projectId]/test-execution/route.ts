@@ -13,6 +13,7 @@ import { IdFormat } from "@/app/_models/id-format.model";
 import { TestCaseResult } from "@/app/_models/test-case-result.model";
 import { TestCycle } from "@/app/_models/test-cycle.model";
 import { TestExecution } from "@/app/_models/test-execution.model";
+import { filterTestExecutionNotForAdmin } from "@/app/_queries/search-test-execution";
 import { testExecutionSchema } from "@/app/_schemas/test-execution.schema";
 import { serverSidePagination } from "@/app/_utils/common-server-side";
 import { addCustomIds, replaceCustomId } from "@/app/_utils/data-formatters";
@@ -126,52 +127,38 @@ export async function GET(
       projectId: projectId,
     }).countDocuments();
     const { skip, limit } = serverSidePagination(req);
-    const userIdFormat = await IdFormat.findOne({
-      entity: DBModels.TEST_CYCLE,
-    });
-    const testCycleIdFormat = await IdFormat.findOne({
-      entity: DBModels.TEST_CYCLE,
+    const testExecutionIdFormat = await IdFormat.findOne({
+      entity: DBModels.TEST_EXECUTION,
     });
 
-    // if (searchString) {
-    //   if (!(await isAdmin(session.user))) {
-    //     const { testCycles, totalTestCycles } =
-    //       await filterTestCyclesNotForAdmin(
-    //         searchString,
-    //         skip,
-    //         limit,
-    //         projectId,
-    //         userIdFormat
-    //       );
-    //     return Response.json({
-    //       testCycles: addCustomIds(testCycles, userIdFormat?.idFormat),
-    //       total: totalTestCycles,
-    //     });
-    //   } else {
-    //     const { testCycles, totalTestCycles } = await filterTestCyclesForAdmin(
-    //       searchString,
-    //       skip,
-    //       limit,
-    //       projectId,
-    //       userIdFormat
-    //     );
-    //     return Response.json({
-    //       testCycles: addCustomIds(testCycles, userIdFormat?.idFormat),
-    //       total: totalTestCycles,
-    //     });
-    //   }
-    // }
+    if (searchString) {
+      const { testExecution, totalTestExecutions } =
+        await filterTestExecutionNotForAdmin(
+          searchString,
+          skip,
+          limit,
+          projectId,
+          testExecutionIdFormat
+        );
+
+      return Response.json({
+        testCycles: addCustomIds(
+          testExecution,
+          testExecutionIdFormat?.idFormat
+        ),
+        total: totalTestExecutions,
+      });
+    }
 
     if (!(await isAdmin(session.user))) {
       response = addCustomIds(
         await TestExecution.find({ projectId: projectId })
-          .populate("userId", "id firstName lastName")
           .populate("testCaseResults testCycle")
           .sort({ createdAt: -1 })
           .skip(skip)
           .limit(Number(limit))
           .lean(),
-        userIdFormat.idFormat
+        testExecutionIdFormat.idFormat
       );
     } else {
       response = addCustomIds(
@@ -182,20 +169,12 @@ export async function GET(
           .skip(skip)
           .limit(Number(limit))
           .lean(),
-        userIdFormat.idFormat
+        testExecutionIdFormat.idFormat
       );
     }
 
     const result = response.map((res) => ({
       ...res,
-      testCycle: {
-        ...res?.testCycle,
-        customId: replaceCustomId(
-          testCycleIdFormat.idFormat,
-          res?.testCycle?.customId
-        ),
-      },
-
       resultCounts: countResults(res?.testCaseResults || []),
     }));
 
@@ -205,7 +184,7 @@ export async function GET(
   }
 }
 
-function countResults(testCaseResults: any[]) {
+export function countResults(testCaseResults: any[]) {
   const resultCount = {
     blocked: 0,
     passed: 0,
