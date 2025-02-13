@@ -15,7 +15,7 @@ import { TestCycle } from "@/app/_models/test-cycle.model";
 import { TestExecution } from "@/app/_models/test-execution.model";
 import { filterTestExecutionNotForAdmin } from "@/app/_queries/search-test-execution";
 import { testExecutionSchema } from "@/app/_schemas/test-execution.schema";
-import { serverSidePagination } from "@/app/_utils/common-server-side";
+import { countResults, serverSidePagination } from "@/app/_utils/common-server-side";
 import { addCustomIds, replaceCustomId } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 
@@ -184,21 +184,4 @@ export async function GET(
   }
 }
 
-export function countResults(testCaseResults: any[]) {
-  const resultCount = {
-    blocked: 0,
-    passed: 0,
-    failed: 0,
-    caused: 0,
-  };
 
-  testCaseResults.forEach((result) => {
-    if (result.result === TestCaseExecutionResult.BLOCKED)
-      resultCount.blocked++;
-    if (result.result === TestCaseExecutionResult.PASSED) resultCount.passed++;
-    if (result.result === TestCaseExecutionResult.FAILED) resultCount.failed++;
-    if (result.result === TestCaseExecutionResult.CAUTION) resultCount.caused++;
-  });
-
-  return resultCount;
-}

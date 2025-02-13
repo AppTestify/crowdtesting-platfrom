@@ -4,6 +4,7 @@ import moment from "moment";
 import AttachmentService from "../_helpers/attachment.helper";
 import { Tester } from "../_models/tester.model";
 import { replaceCustomId } from "./data-formatters";
+import { TestCaseExecutionResult } from "../_constants/test-case";
 
 export const encodeToBase64 = (text: any) => {
   const buffer = Buffer.from(text, "utf8");
@@ -143,3 +144,22 @@ export const customIdForSearch = (idObject: any, searchString: string) => {
 export const normalizePassword = (password: string) => {
   return password.normalize("NFKC").trim();
 };
+
+export function countResults(testCaseResults: any[]) {
+  const resultCount = {
+    blocked: 0,
+    passed: 0,
+    failed: 0,
+    caused: 0,
+  };
+
+  testCaseResults.forEach((result) => {
+    if (result.result === TestCaseExecutionResult.BLOCKED)
+      resultCount.blocked++;
+    if (result.result === TestCaseExecutionResult.PASSED) resultCount.passed++;
+    if (result.result === TestCaseExecutionResult.FAILED) resultCount.failed++;
+    if (result.result === TestCaseExecutionResult.CAUTION) resultCount.caused++;
+  });
+
+  return resultCount;
+}

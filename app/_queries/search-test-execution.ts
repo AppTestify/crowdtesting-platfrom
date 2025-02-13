@@ -1,6 +1,5 @@
-import { countResults } from "../(routes)/api/project/[projectId]/test-execution/route";
 import { TestExecution } from "../_models/test-execution.model";
-import { customIdForSearch } from "../_utils/common-server-side";
+import { countResults, customIdForSearch } from "../_utils/common-server-side";
 import { ObjectId } from "mongodb";
 
 export async function filterTestExecutionNotForAdmin(

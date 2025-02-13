@@ -22,6 +22,7 @@ import {
 } from "@/app/_queries/search-test-cycle";
 import { testCycleSchema } from "@/app/_schemas/test-cycle.schema";
 import {
+  countResults,
   getFileMetaData,
   serverSidePagination,
 } from "@/app/_utils/common-server-side";
@@ -235,23 +236,4 @@ export async function GET(
   } catch (error: any) {
     return errorHandler(error);
   }
-}
-
-function countResults(testCaseResults: any[]) {
-  const resultCount = {
-    blocked: 0,
-    passed: 0,
-    failed: 0,
-    caused: 0,
-  };
-
-  testCaseResults.forEach((result) => {
-    if (result.result === TestCaseExecutionResult.BLOCKED)
-      resultCount.blocked++;
-    if (result.result === TestCaseExecutionResult.PASSED) resultCount.passed++;
-    if (result.result === TestCaseExecutionResult.FAILED) resultCount.failed++;
-    if (result.result === TestCaseExecutionResult.CAUTION) resultCount.caused++;
-  });
-
-  return resultCount;
 }
