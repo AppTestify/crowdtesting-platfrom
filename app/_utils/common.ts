@@ -53,11 +53,10 @@ export const getUsernameWithUserId = (user: any): string => {
   const userCustomId = user?.customId || "";
   const userObj = user?.userId ? { ...user, ...user.userId } : { ...user };
 
-  return `${
-    userObj?.firstName || NAME_NOT_SPECIFIED_ERROR_MESSAGE
-  } ${userObj?.lastName || ""} - ${userCustomId || ""}`;
+  return `${userObj?.firstName || NAME_NOT_SPECIFIED_ERROR_MESSAGE} ${
+    userObj?.lastName || ""
+  } - ${userCustomId || ""}`;
 };
-
 
 export const getUsernameWithUserIdReverse = (user: any): string => {
   const userCustomId = user?.customId || "";

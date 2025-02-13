@@ -1,15 +1,26 @@
 import { ObjectId } from "mongodb";
 import { Report } from "../_models/report.model";
+import { ReportStatus } from "../_constants/issue";
 
-export async function filterReportsNotForAdmin(
+export async function filterReportsForTester(
   searchString: string,
   skip: number,
   limit: number,
-  projectId: any
+  projectId: any,
+  isClient?: boolean
 ) {
   const regex = new RegExp(searchString, "i");
 
   const reportsPipeline = [
+    ...(isClient
+      ? [
+          {
+            $match: {
+              status: ReportStatus.APPROVED,
+            },
+          },
+        ]
+      : []),
     {
       $match: {
         projectId: new ObjectId(projectId),

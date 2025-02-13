@@ -41,6 +41,7 @@ import { Download, Loader2 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { DBModels } from "@/app/_constants";
 import { checkProjectActiveRole } from "@/app/_utils/common-functionality";
+import { checkProjectAdmin } from "@/app/_utils/common";
 
 export default function Report() {
     const [reports, setReports] = useState<IReport[]>([]);
@@ -50,6 +51,7 @@ export default function Report() {
     const [report, setReport] = useState<IReport>();
     const [isDownloadLoading, setIsDownloadLoading] = useState<boolean>(false);
     const [currentReportId, setCurrentReportId] = useState<string>("");
+    const projectAdmin = checkProjectAdmin(project as IProject, userData);
 
     const columns: ColumnDef<IReport>[] = [
         {
@@ -137,7 +139,7 @@ export default function Report() {
             id: "actions",
             enableHiding: false,
             cell: ({ row }: { row: any }) => (
-                <ReportRowActions row={row as Row<IReport>} refreshReports={refreshReports} />
+                <ReportRowActions row={row as Row<IReport>} refreshReports={refreshReports} projectAdmin={projectAdmin} />
             ),
         }] : []),
     ];
