@@ -92,7 +92,7 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
                         </Button>
                     </TooltipTrigger>
                     <TooltipContent className='bg-black'>
-                        <p>Un assign</p>
+                        <p>Unassign</p>
                     </TooltipContent>
                 </Tooltip>
             ),

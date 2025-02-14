@@ -1,16 +1,19 @@
 import {
   DB_CONNECTION_ERROR_MESSAGE,
-  INVALID_INPUT_ERROR_MESSAGE,
+  GENERIC_ERROR_MESSAGE,
   USER_UNAUTHORIZED_ERROR_MESSAGE,
 } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
+import AttachmentService from "@/app/_helpers/attachment.helper";
 import { verifySession } from "@/app/_lib/dal";
-import { Payment } from "@/app/_models/payment.model";
-import { paymentSchema } from "@/app/_schemas/payment.schema";
+import { Invoice } from "@/app/_models/invoice.model";
 import { errorHandler } from "@/app/_utils/error-handler";
 
-export async function POST(req: Request) {
+export async function DELETE(
+  req: Request,
+  { params }: { params: { invoiceId: string } }
+) {
   try {
     const session = await verifySession();
 
@@ -31,29 +34,17 @@ export async function POST(req: Request) {
       );
     }
 
-    const body = await req.json();
-    const response = paymentSchema.safeParse(body);
+    const { invoiceId } = params;
+    const response = await Invoice.findOneAndDelete({ cloudId: invoiceId });
 
-    if (!response.success) {
-      return Response.json(
-        {
-          message: INVALID_INPUT_ERROR_MESSAGE,
-          errors: response.error.errors,
-        },
-        { status: HttpStatusCode.BAD_REQUEST }
-      );
+    const attachmentService = new AttachmentService();
+    await attachmentService.deleteFileFromDrive(invoiceId);
+
+    if (!response) {
+      throw new Error(GENERIC_ERROR_MESSAGE);
     }
 
-    const newProject = new Payment({
-      ...response.data,
-      senderId: session.user._id,
-    });
-    const saveProject = await newProject.save();
-
-    return Response.json({
-      message: "Payment added successfully",
-      id: saveProject._id,
-    });
+    return Response.json({ message: "Invoice deleted successfully" });
   } catch (error: any) {
     return errorHandler(error);
   }

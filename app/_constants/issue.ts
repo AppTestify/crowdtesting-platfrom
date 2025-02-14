@@ -122,3 +122,18 @@ export const ISSUE_TESTER_STATUS_LIST = [
   IssueStatus.CANNOT_REPRODUCE,
   IssueStatus.BLOCKED,
 ];
+
+export const MONTHS_LIST = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];

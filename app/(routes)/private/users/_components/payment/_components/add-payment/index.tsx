@@ -1,8 +1,11 @@
 import { PaymentCurrency, PaymentCurrencyList, PaymentStatus, PaymentStatusList } from '@/app/_constants/payment';
 import { IProject } from '@/app/_interface/project';
+import { IUser, IUserByAdmin } from '@/app/_interface/user';
 import { addPaymentsService } from '@/app/_services/payment.service';
 import { getProjectsWithoutPaginationService } from '@/app/_services/project.service';
 import toasterService from '@/app/_services/toaster-service';
+import { getAllTesterUsersService, getUsersWithoutPaginationService } from '@/app/_services/user.service';
+import { getUsernameWithUserId } from '@/app/_utils/common';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
@@ -36,20 +39,22 @@ const paymentSchema = z.object({
         ),
 });
 
-export default function AddPayment({ isOpen, closeDialog, userId, refreshPayment }: {
+export default function AddPayment({ isOpen, closeDialog, userId, refreshPayment, isTester = false }: {
     isOpen: boolean,
     closeDialog: () => void,
     userId: string,
-    refreshPayment: () => void
+    refreshPayment: () => void,
+    isTester?: boolean
 }) {
     const [projects, setProjects] = useState<IProject[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [testers, setTesters] = useState<IUserByAdmin[]>([]);
     const [wordCount, setWordCount] = useState(0);
 
     const form = useForm<z.infer<typeof paymentSchema>>({
         resolver: zodResolver(paymentSchema),
         defaultValues: {
-            receiverId: userId || "",
+            receiverId: "",
             status: PaymentStatus.COMPLETED,
             currency: PaymentCurrency.USD,
         },
@@ -62,7 +67,7 @@ export default function AddPayment({ isOpen, closeDialog, userId, refreshPayment
 
     const getProjects = async () => {
         try {
-            const response = await getProjectsWithoutPaginationService(userId);
+            const response = await getProjectsWithoutPaginationService(form.watch("receiverId"));
             if (response) {
                 setProjects(response);
             }
@@ -71,9 +76,16 @@ export default function AddPayment({ isOpen, closeDialog, userId, refreshPayment
         }
     }
 
-    useEffect(() => {
-        getProjects();
-    }, []);
+    const getTesters = async () => {
+        try {
+            const response = await getAllTesterUsersService();
+            if (response) {
+                setTesters(response);
+            }
+        } catch (error) {
+            toasterService.error();
+        }
+    }
 
     async function onSubmit(values: z.infer<typeof paymentSchema>) {
         setIsLoading(true);
@@ -98,6 +110,16 @@ export default function AddPayment({ isOpen, closeDialog, userId, refreshPayment
         }
     }, [isOpen]);
 
+    useEffect(() => {
+        getTesters();
+    }, []);
+
+    useEffect(() => {
+        if (!isTester && form.watch("receiverId") !== "") {
+            getProjects();
+        }
+    }, [form.watch("receiverId"), isTester]);
+
     return (
         <div>
             <Dialog open={isOpen} onOpenChange={closeDialog}>
@@ -108,6 +130,36 @@ export default function AddPayment({ isOpen, closeDialog, userId, refreshPayment
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} method="post">
                             <div className=" grid grid-cols-1 gap-2">
+                                <FormField
+                                    control={form.control}
+                                    name="receiverId"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-col">
+                                            <FormLabel>User</FormLabel>
+                                            <Select
+                                                onValueChange={field.onChange}
+                                                value={field.value}
+                                            >
+                                                <SelectTrigger className="w-full">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectGroup>
+                                                        {testers.map((tester) => (
+                                                            <SelectItem key={tester?.id} value={tester?.id as string}>
+                                                                <div className="flex items-center">
+                                                                    {getUsernameWithUserId(tester)}
+                                                                </div>
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectGroup>
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
                                 <FormField
                                     control={form.control}
                                     name="projectId"
@@ -122,15 +174,19 @@ export default function AddPayment({ isOpen, closeDialog, userId, refreshPayment
                                                     <SelectValue />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    <SelectGroup>
-                                                        {projects.map((project) => (
-                                                            <SelectItem value={project?._id as string}>
-                                                                <div className="flex items-center">
-                                                                    {project?.title}
-                                                                </div>
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectGroup>
+                                                    {projects.length > 0 ? (
+                                                        <SelectGroup>
+                                                            {projects.map((project) => (
+                                                                <SelectItem value={project?._id as string}>
+                                                                    <div className="flex items-center">
+                                                                        {project?.title}
+                                                                    </div>
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectGroup>
+                                                    ) : (
+                                                        <div className="p-2 text-gray-500 text-center">No project assigned</div>
+                                                    )}
                                                 </SelectContent>
                                             </Select>
                                             <FormMessage />

@@ -8,6 +8,8 @@ import {
   Settings,
   Files,
   Mail,
+  HandCoins,
+  ReceiptIndianRupee,
 } from "lucide-react";
 import { UserRoles } from "./user-roles";
 
@@ -69,6 +71,12 @@ export const clientNavbar = [
     disabled: false,
   },
   {
+    title: "Invoice",
+    url: "/private/invoices",
+    icon: ReceiptIndianRupee,
+    disabled: false,
+  },
+  {
     title: "Profile",
     url: "/private/profile",
     icon: User,
@@ -93,6 +101,12 @@ export const navMain = [
     title: "Devices",
     url: "/private/devices",
     icon: MonitorSmartphone,
+    disabled: false,
+  },
+  {
+    title: "Payments",
+    url: "/private/payments",
+    icon: HandCoins,
     disabled: false,
   },
   {
@@ -138,6 +152,18 @@ export const adminNavbar = [
     title: "Documents",
     url: "/private/documents",
     icon: Files,
+    disabled: false,
+  },
+  {
+    title: "Invoice",
+    url: "/private/invoices",
+    icon: ReceiptIndianRupee,
+    disabled: false,
+  },
+  {
+    title: "Payments",
+    url: "/private/payments",
+    icon: HandCoins,
     disabled: false,
   },
   {

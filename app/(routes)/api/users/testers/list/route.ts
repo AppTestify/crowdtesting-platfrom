@@ -1,16 +1,18 @@
+import { DBModels } from "@/app/_constants";
 import {
   DB_CONNECTION_ERROR_MESSAGE,
-  INVALID_INPUT_ERROR_MESSAGE,
   USER_UNAUTHORIZED_ERROR_MESSAGE,
 } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
+import { UserRoles } from "@/app/_constants/user-roles";
 import { connectDatabase } from "@/app/_db";
 import { verifySession } from "@/app/_lib/dal";
-import { Payment } from "@/app/_models/payment.model";
-import { paymentSchema } from "@/app/_schemas/payment.schema";
+import { IdFormat } from "@/app/_models/id-format.model";
+import { User } from "@/app/_models/user.model";
+import { addCustomIds } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 
-export async function POST(req: Request) {
+export async function GET(req: Request) {
   try {
     const session = await verifySession();
 
@@ -31,29 +33,15 @@ export async function POST(req: Request) {
       );
     }
 
-    const body = await req.json();
-    const response = paymentSchema.safeParse(body);
+    const userIdFormat = await IdFormat.findOne({ entity: DBModels.USER });
+    const response = addCustomIds(
+      await User.find({ role: UserRoles.TESTER })
+        .select("firstName lastName email customId")
+        .lean(),
+      userIdFormat.idFormat
+    );
 
-    if (!response.success) {
-      return Response.json(
-        {
-          message: INVALID_INPUT_ERROR_MESSAGE,
-          errors: response.error.errors,
-        },
-        { status: HttpStatusCode.BAD_REQUEST }
-      );
-    }
-
-    const newProject = new Payment({
-      ...response.data,
-      senderId: session.user._id,
-    });
-    const saveProject = await newProject.save();
-
-    return Response.json({
-      message: "Payment added successfully",
-      id: saveProject._id,
-    });
+    return Response.json(response);
   } catch (error: any) {
     return errorHandler(error);
   }

@@ -1,6 +1,6 @@
 import {
+  PAGINATION_QUERY_ENDPOINT,
   PAYMENTS_ENDPOINT,
-  PROJECTS_ENDPOINT,
 } from "../_constants/api-endpoints";
 import { IPayment, IPaymentPayload } from "../_interface/payment";
 import {
@@ -11,11 +11,17 @@ import {
 } from "./generic-api-methods";
 
 export const getPaymentsByUserService = async (
-  userId: string
+  userId: string,
+  index: Number,
+  pageSize: Number,
+  searchString?: string
 ): Promise<any> => {
   try {
     const response = await genericGet(
-      `${PAYMENTS_ENDPOINT}/receiver/${userId}`
+      `${PAYMENTS_ENDPOINT}/receiver/${userId}${PAGINATION_QUERY_ENDPOINT(
+        index,
+        pageSize
+      )}&searchString=${searchString}`
     );
     return response || [];
   } catch (error) {

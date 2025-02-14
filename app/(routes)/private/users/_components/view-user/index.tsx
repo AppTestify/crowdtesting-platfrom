@@ -23,7 +23,6 @@ import { getDevicesByUserService } from "@/app/_services/device.service";
 import { IDevice } from "@/app/_interface/device";
 import ViewUserDevice from "../view-device";
 import { Skeleton } from "@/components/ui/skeleton";
-import Payment from "../payment";
 import { useSession } from "next-auth/react";
 
 const ViewTesterIssue = ({
@@ -280,11 +279,11 @@ const ViewTesterIssue = ({
                                     </div>
                                     : <div className="p-2">No Paypal ID found</div>
                                 }
-                                <div>
+                                {/* <div>
                                     {loginUser?.role === UserRoles.ADMIN &&
                                         <Payment userId={userId} />
                                     }
-                                </div>
+                                </div> */}
                             </TabsContent>
                         </Tabs>
                     </>

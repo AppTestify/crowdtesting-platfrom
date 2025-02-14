@@ -1,4 +1,7 @@
-import { FILES_ENDPOINT, PAGINATION_QUERY_ENDPOINT } from "../_constants/api-endpoints";
+import {
+  FILES_ENDPOINT,
+  PAGINATION_QUERY_ENDPOINT,
+} from "../_constants/api-endpoints";
 import {
   genericDelete,
   genericFileGet,

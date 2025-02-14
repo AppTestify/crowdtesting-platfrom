@@ -33,6 +33,7 @@ export const WEBSITE_ENDPOINT = "/api/setting/website";
 export const ID_FORMAT_ENDPOINT = "/api/setting/id-format";
 export const DOWNLOAD_FILE_ENDPOINT = "/api/attachment/";
 export const MAIL_ENDPOINT = "/api/mail";
+export const INVOICE_ENDPOINT = "/api/invoice";
 
 export const COMMENT_ENDPOINT = (
   projectId: string,

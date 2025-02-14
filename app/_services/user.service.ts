@@ -5,7 +5,6 @@ import {
   PAGINATION_QUERY_ENDPOINT,
   PAYMENT_ENDPOINT,
   PROFILE_PICTURE_ENDPOINT,
-  PROJECT_USERS_ENDPOINT,
   PROJECTS_ENDPOINT,
   USER_PASSWORD_ENDPOINT,
   USERS_BULK_DELETE_ENDPOINT,
@@ -223,6 +222,16 @@ export const getAllUsersService = async (): Promise<any> => {
     return response || [];
   } catch (error) {
     console.error(`Error > getAllUsersService:`, error);
+    throw error;
+  }
+};
+
+export const getAllTesterUsersService = async (): Promise<any> => {
+  try {
+    const response = await genericGet(`${USERS_ENDPOINT}/testers/list`);
+    return response || [];
+  } catch (error) {
+    console.error(`Error > getAllTesterUsersService:`, error);
     throw error;
   }
 };

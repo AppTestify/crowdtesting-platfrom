@@ -29,6 +29,7 @@ export enum DBModels {
   TEST_CYCLE_ATTACHMENT = "TestCycleAttachment",
   MAIL = "Mail",
   TEST_EXECUTION = "TestExecution",
+  INVOICE = "Invoice",
 }
 
 export const JWT_TOKEN_EXPIRE_LIMIT = "8h";

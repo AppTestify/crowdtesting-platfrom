@@ -89,10 +89,10 @@ export default function TestPlan() {
                     ),
                 }] : []
         ),
-        {
+        ...(userData?.role !== UserRoles.TESTER ? [{
             accessorKey: "Assign",
             header: "Assign",
-            cell: ({ row }) => (
+            cell: ({ row }: { row: any }) => (
                 <TooltipProvider>
                     <Tooltip delayDuration={10}>
                         <TooltipTrigger asChild>
@@ -106,7 +106,7 @@ export default function TestPlan() {
                     </Tooltip>
                 </TooltipProvider>
             ),
-        },
+        }] : []),
         ...(
             userData?.role != UserRoles.TESTER && checkProjectActiveRole(project?.isActive ?? false, userData) ?
                 [{

@@ -2,7 +2,10 @@ import { IPayment } from '@/app/_interface/payment';
 import { getPaymentsByUserService } from '@/app/_services/payment.service';
 import toasterService from '@/app/_services/toaster-service'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ColumnDef, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, Row, SortingState, useReactTable, VisibilityState } from '@tanstack/react-table';
+import {
+    ColumnDef, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel,
+    getSortedRowModel, Row, SortingState, useReactTable, VisibilityState
+} from '@tanstack/react-table';
 import React, { useEffect, useState } from 'react'
 import AddPayment from './_components/add-payment';
 import { Button } from '@/components/ui/button';
@@ -10,8 +13,10 @@ import { Plus } from 'lucide-react';
 import { PaymentRowActions } from './_components/row-actions';
 import { paymentStatusBadge } from '@/app/_utils/common-functionality';
 import { PaymentCurrency } from '@/app/_constants/payment';
+import { Input } from '@/components/ui/input';
+import { PAGINATION_LIMIT } from '@/app/_constants/pagination-limit';
 
-export default function Payment({ userId }: { userId: string }) {
+export default function Payment({ userId, isTester = false }: { userId: string, isTester?: boolean }) {
 
     const columns: ColumnDef<IPayment>[] = [
         {
@@ -24,7 +29,7 @@ export default function Payment({ userId }: { userId: string }) {
                         title={row.getValue("description")}
                         className="capitalize"
                     >
-                        {typeof description === 'string' && description.length > 30 ? `${description.substring(0, 30)}...` : description as string}
+                        {typeof description === 'string' && description.length > 45 ? `${description.substring(0, 45)}...` : description as string}
                     </div>
                 )
             },
@@ -43,13 +48,20 @@ export default function Payment({ userId }: { userId: string }) {
                 );
             },
         },
-        {
+        ...(!isTester ? [{
             accessorKey: "createdBy",
-            header: "Created By",
+            header: "Sender",
             cell: ({ row }: { row: any }) => (
                 <div className="">{`${row.original?.senderId?.firstName || ""} ${row.original?.senderId?.lastName || ""}`}</div>
             ),
-        },
+        }] : []),
+        ...(!isTester ? [{
+            accessorKey: "receivedBy",
+            header: "Receiver",
+            cell: ({ row }: { row: any }) => (
+                <div className="">{`${row.original?.receiverId?.firstName || ""} ${row.original?.receiverId?.lastName || ""}`}</div>
+            ),
+        }] : []),
         {
             accessorKey: "status",
             header: "Status",
@@ -59,13 +71,13 @@ export default function Payment({ userId }: { userId: string }) {
                 </div>
             ),
         },
-        {
+        ...(!isTester ? [{
             id: "actions",
             enableHiding: false,
-            cell: ({ row }) => (
+            cell: ({ row }: { row: any }) => (
                 <PaymentRowActions row={row as Row<IPayment>} refreshPayment={refreshPayment} />
             ),
-        },
+        }] : []),
     ];
 
 
@@ -76,6 +88,9 @@ export default function Payment({ userId }: { userId: string }) {
     const [globalFilter, setGlobalFilter] = useState<unknown>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isOpen, setIsOpen] = useState<boolean>(false);
+    const [pageIndex, setPageIndex] = useState(1);
+    const [totalPageCount, setTotalPageCount] = useState(0);
+    const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
 
     const table = useReactTable({
         data: payments,
@@ -90,7 +105,6 @@ export default function Payment({ userId }: { userId: string }) {
         globalFilterFn: "includesString",
         state: {
             sorting,
-            globalFilter,
             columnVisibility,
             rowSelection,
         },
@@ -100,9 +114,10 @@ export default function Payment({ userId }: { userId: string }) {
     const getPayment = async () => {
         setIsLoading(true);
         try {
-            const response = await getPaymentsByUserService(userId);
+            const response = await getPaymentsByUserService(userId, pageIndex, pageSize, globalFilter as unknown as string);
             if (response) {
-                setPayments(response);
+                setPayments(response?.payments);
+                setTotalPageCount(response?.total);
             }
         } catch (error) {
             toasterService.error();
@@ -121,17 +136,42 @@ export default function Payment({ userId }: { userId: string }) {
 
     const closeDialog = () => setIsOpen(false);
 
+    const handlePreviousPage = () => {
+        if (pageIndex > 1) {
+            setPageIndex(pageIndex - 1);
+        }
+    };
+
+    const handleNextPage = () => {
+        if (pageIndex < Math.ceil(totalPageCount / pageSize)) {
+            setPageIndex(pageIndex + 1);
+        }
+    };
+
     useEffect(() => {
-        getPayment();
-    }, []);
+        const debounceFetch = setTimeout(() => {
+            getPayment();
+        }, 500);
+        return () => clearTimeout(debounceFetch);
+    }, [pageIndex, pageSize, globalFilter]);
 
     return (
         <div className='w-full'>
-            <AddPayment userId={userId} isOpen={isOpen} closeDialog={closeDialog} refreshPayment={refreshPayment} />
-            <div className="flex justify-end items-center gap-2 mb-3 mx-1">
-                <Button onClick={() => addPayment()}>
-                    <Plus /> Add payment
-                </Button>
+            <AddPayment userId={userId} isOpen={isOpen} closeDialog={closeDialog} refreshPayment={refreshPayment} isTester={isTester} />
+            <div className="flex justify-between items-center gap-2 mb-3 mt-3">
+                <Input
+                    placeholder="Filter projects"
+                    value={(globalFilter as string) ?? ""}
+                    onChange={(event) => {
+                        table.setGlobalFilter(String(event.target.value));
+                    }}
+                    className="max-w-sm"
+                />
+                {!isTester &&
+                    <Button onClick={() => addPayment()}>
+                        <Plus /> Add payment
+                    </Button>
+                }
             </div>
             <div className="rounded-md border">
                 <Table>
@@ -182,6 +222,26 @@ export default function Payment({ userId }: { userId: string }) {
                         )}
                     </TableBody>
                 </Table>
+            </div>
+            <div className="flex items-center justify-end space-x-2 py-4">
+                <div className="flex space-x-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handlePreviousPage}
+                        disabled={pageIndex === 1}
+                    >
+                        Previous
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleNextPage}
+                        disabled={pageIndex >= Math.ceil(totalPageCount / pageSize)}
+                    >
+                        Next
+                    </Button>
+                </div>
             </div>
         </div>
     )
