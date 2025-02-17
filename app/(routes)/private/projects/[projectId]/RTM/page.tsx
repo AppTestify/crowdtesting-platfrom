@@ -2,7 +2,6 @@
 
 import { ITestCycle } from '@/app/_interface/test-cycle';
 import { ITestSuite } from '@/app/_interface/test-suite';
-import { getTestCycleListService } from '@/app/_services/test-cycle.service';
 import { getTestWithoutPaginationSuiteService } from '@/app/_services/test-suite.service';
 import toasterService from '@/app/_services/toaster-service';
 import { Form, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -139,7 +138,7 @@ export default function RTM() {
             const rows = [
                 ['RTM Report'],
                 [`Project : ${requirements[0]?.projectId?.title || 'N/A'}`],
-                [`Test Cycle : ${testCycle?.title ? testCycle?.title : testExecutions[0]?.testCycle?.title || 'N/A'} | Test Suite : ${testSuite?.title || 'N/A'}`],
+                [`Test Execution : ${testCycle?.title ? testCycle?.title : testExecutions[0]?.testCycle?.title || 'N/A'} | Test Suite : ${testSuite?.title || 'N/A'}`],
                 [`Generated on ${new Date().toLocaleString()}`],
                 [],
                 ['Test Case IDs And Their Results', '', 'Requirement IDs →', ...requirements.map(req => req.customId)],
@@ -277,7 +276,7 @@ export default function RTM() {
                                         name="testCycle"
                                         render={({ field }) => (
                                             <FormItem className="flex flex-col">
-                                                <FormLabel>Test cycle</FormLabel>
+                                                <FormLabel>Test execution</FormLabel>
                                                 <Select
                                                     onValueChange={field.onChange}
                                                     value={field.value || testExecutions[0]?.testCycle?._id}
@@ -346,7 +345,7 @@ export default function RTM() {
             </div>
             {!isViewLoading && testCasesToDisplay &&
                 <RtmTable
-                    testCycle={testCycle as ITestCycle || testExecutions[0]}
+                    testCycle={testCycle as any || testExecutions[0]}
                     testSuite={testSuite as ITestSuite}
                     requirements={requirements as IRequirement[]}
                     testCasesToDisplay={testCasesToDisplay as any[]}

@@ -11,7 +11,7 @@ export const getProjectTabs = (user: any) => {
         "test plans",
         "test suites",
         "test cases",
-        "test execution",
+        "test executions",
         "issues",
         "tasks",
         "test cycle",
@@ -26,7 +26,7 @@ export const getProjectTabs = (user: any) => {
         "test plans",
         "test suites",
         "test cases",
-        "test execution",
+        "test executions",
         "issues",
         "tasks",
         "test cycle",
@@ -41,11 +41,12 @@ export const getProjectTabs = (user: any) => {
         "test plans",
         "test suites",
         "test cases",
-        "test execution",
+        "test executions",
         "issues",
         "tasks",
         "test cycle",
         "reports",
+        "RTM",
       ];
     default:
       return [

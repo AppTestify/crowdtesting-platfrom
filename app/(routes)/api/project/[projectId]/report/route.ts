@@ -211,7 +211,12 @@ export async function GET(
         .limit(Number(limit))
         .lean();
     } else {
-      response = await Report.find({ projectId: projectId })
+      response = await Report.find({
+        $or: [
+          { userId: session.user._id },
+          { projectId: projectId, status: ReportStatus.APPROVED },
+        ],
+      })
         .populate("projectId", "_id")
         .populate("attachments")
         .sort({ createdAt: -1 })

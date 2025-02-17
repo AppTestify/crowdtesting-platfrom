@@ -20,6 +20,7 @@ export interface ITestCaseResult {
   updatedBy?: IUserByAdmin;
   testCaseData: ITestCaseData[];
   testCaseStep: ITestCaseStep[];
+  original: ITestCaseResult
 }
 
 export interface ITestCaseResultPayload {

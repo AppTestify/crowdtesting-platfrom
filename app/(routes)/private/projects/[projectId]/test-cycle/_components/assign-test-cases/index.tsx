@@ -327,7 +327,7 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
         if (sheetOpen) {
             getAlltestCases();
             getAssigntestCases();
-            setActiveTab("assigned");
+            setActiveTab("un-assigned");
         }
     }, [sheetOpen]);
 
@@ -366,11 +366,82 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
                     </SheetTitle>
 
                 </SheetHeader>
-                <Tabs defaultValue="assigned" value={activeTab} onValueChange={setActiveTab} className="mt-4">
+                <Tabs defaultValue="un-assigned" value={activeTab} onValueChange={setActiveTab} className="mt-4">
                     <TabsList>
-                        <TabsTrigger value="assigned" >Assigned</TabsTrigger>
                         <TabsTrigger value="un-assigned">Unassigned</TabsTrigger>
+                        <TabsTrigger value="assigned" >Assigned</TabsTrigger>
                     </TabsList>
+                    <TabsContent value="un-assigned">
+                        <div className="w-full">
+                            <div className="flex mb-3">
+                                <div>Unassigned test cases</div>
+                            </div>
+                            <div className="rounded-md border">
+                                <Table>
+                                    <TableHeader>
+                                        {assignTestCaseTable.getHeaderGroups().map((headerGroup) => (
+                                            <TableRow key={headerGroup.id}>
+                                                {headerGroup.headers.map((header) => {
+                                                    return (
+                                                        <TableHead key={header.id}>
+                                                            {header.isPlaceholder
+                                                                ? null
+                                                                : flexRender(
+                                                                    header.column.columnDef.header,
+                                                                    header.getContext()
+                                                                )}
+                                                        </TableHead>
+                                                    );
+                                                })}
+                                            </TableRow>
+                                        ))}
+                                    </TableHeader>
+                                    <TableBody>
+                                        {assignTestCaseTable && assignTestCaseTable.getRowModel() && assignTestCaseTable?.getRowModel()?.rows?.length ? (
+                                            assignTestCaseTable.getRowModel().rows.map((row) => (
+                                                <TableRow
+                                                    key={row.id}
+                                                    data-state={row.getIsSelected() && "selected"}
+                                                >
+                                                    {row.getVisibleCells().map((cell) => (
+                                                        <TableCell key={cell.id}>
+                                                            {flexRender(
+                                                                cell.column.columnDef.cell,
+                                                                cell.getContext()
+                                                            )}
+                                                        </TableCell>
+                                                    ))}
+                                                </TableRow>
+                                            ))
+                                        ) : (
+                                            <TableRow>
+                                                <TableCell
+                                                    colSpan={columns.length}
+                                                    className="h-24 text-center"
+                                                >
+                                                    {isViewLoading ? "Loading" : "No result"}
+                                                </TableCell>
+                                            </TableRow>
+                                        )}
+                                    </TableBody>
+                                </Table>
+                            </div>
+                            <div className="flex justify-end mt-4">
+                                {Object.keys(rowSelection).length > 0 && (
+                                    <>
+                                        <Button type="button" className="bg-destructive hover:bg-destructive mr-4"
+                                            onClick={() => setRowSelection({})}>
+                                            Cancel
+                                        </Button>
+                                        <Button type="button" onClick={assignTestCaseInTestCycle}>
+                                            {assignedLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}
+                                            {assignedLoading ? "Assigning" : "Assign"}
+                                        </Button>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    </TabsContent>
                     <TabsContent value="assigned">
                         <main className="mt-3">
                             <div className="w-full mb-4">
@@ -445,77 +516,6 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
                                 </div>
                             </div>
                         </main>
-                    </TabsContent>
-                    <TabsContent value="un-assigned">
-                        <div className="w-full">
-                            <div className="flex mb-3">
-                                <div>Unassigned test cases</div>
-                            </div>
-                            <div className="rounded-md border">
-                                <Table>
-                                    <TableHeader>
-                                        {assignTestCaseTable.getHeaderGroups().map((headerGroup) => (
-                                            <TableRow key={headerGroup.id}>
-                                                {headerGroup.headers.map((header) => {
-                                                    return (
-                                                        <TableHead key={header.id}>
-                                                            {header.isPlaceholder
-                                                                ? null
-                                                                : flexRender(
-                                                                    header.column.columnDef.header,
-                                                                    header.getContext()
-                                                                )}
-                                                        </TableHead>
-                                                    );
-                                                })}
-                                            </TableRow>
-                                        ))}
-                                    </TableHeader>
-                                    <TableBody>
-                                        {assignTestCaseTable && assignTestCaseTable.getRowModel() && assignTestCaseTable?.getRowModel()?.rows?.length ? (
-                                            assignTestCaseTable.getRowModel().rows.map((row) => (
-                                                <TableRow
-                                                    key={row.id}
-                                                    data-state={row.getIsSelected() && "selected"}
-                                                >
-                                                    {row.getVisibleCells().map((cell) => (
-                                                        <TableCell key={cell.id}>
-                                                            {flexRender(
-                                                                cell.column.columnDef.cell,
-                                                                cell.getContext()
-                                                            )}
-                                                        </TableCell>
-                                                    ))}
-                                                </TableRow>
-                                            ))
-                                        ) : (
-                                            <TableRow>
-                                                <TableCell
-                                                    colSpan={columns.length}
-                                                    className="h-24 text-center"
-                                                >
-                                                    {isViewLoading ? "Loading" : "No result"}
-                                                </TableCell>
-                                            </TableRow>
-                                        )}
-                                    </TableBody>
-                                </Table>
-                            </div>
-                            <div className="flex justify-end mt-4">
-                                {Object.keys(rowSelection).length > 0 && (
-                                    <>
-                                        <Button type="button" className="bg-destructive hover:bg-destructive mr-4"
-                                            onClick={() => setRowSelection({})}>
-                                            Cancel
-                                        </Button>
-                                        <Button type="button" onClick={assignTestCaseInTestCycle}>
-                                            {assignedLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}
-                                            {assignedLoading ? "Assigning" : "Assign"}
-                                        </Button>
-                                    </>
-                                )}
-                            </div>
-                        </div>
                     </TabsContent>
                 </Tabs>
 

@@ -11,7 +11,7 @@ export default function TestData({ testCaseResult }:
             <div className="text-lg font-semibold">
                 Test data
             </div>
-            {testCaseResult?.testCaseData.length > 0 ?
+            {testCaseResult?.testCaseData?.length > 0 ?
                 <div className='mt-2'>
                     {testCaseResult?.testCaseData?.map((testData, index) => (
                         <Accordion type="single" collapsible className={`mb-2 rounded-lg w-[95%] ${accordionBodyColors[index % accordionBodyColors.length]} relative`}>

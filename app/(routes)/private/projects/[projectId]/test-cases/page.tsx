@@ -316,7 +316,7 @@ export default function TestCases() {
                     </div>
                     {selectedRequirement ?
                         <div>
-                            <Button onClick={resetFilter} className="px-3 bg-red-500 hover:bg-red-500">
+                            <Button variant={"outline"} size={"icon"} onClick={resetFilter} className="px-3">
                                 <X />
                             </Button>
                         </div>

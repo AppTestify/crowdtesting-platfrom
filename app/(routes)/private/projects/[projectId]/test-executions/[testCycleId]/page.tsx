@@ -249,7 +249,7 @@ export default function TestCasesInTestExecution() {
                 <Breadcrumb>
                     <BreadcrumbList>
                         <BreadcrumbItem>
-                            <BreadcrumbLink href={`/private/projects/${projectId}/test-execution`}>
+                            <BreadcrumbLink href={`/private/projects/${projectId}/test-executions`}>
                                 Test execution
                             </BreadcrumbLink>
                         </BreadcrumbItem>
@@ -298,7 +298,7 @@ export default function TestCasesInTestExecution() {
                     </div>
                     {selectedResult ?
                         <div>
-                            <Button onClick={resetFilter} className="px-3 bg-red-500 hover:bg-red-500">
+                            <Button variant={'outline'} size={'icon'} onClick={resetFilter} className="px-3">
                                 <X />
                             </Button>
                         </div>

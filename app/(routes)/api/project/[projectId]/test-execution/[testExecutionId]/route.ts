@@ -1,6 +1,7 @@
 import { DBModels } from "@/app/_constants";
 import {
   DB_CONNECTION_ERROR_MESSAGE,
+  GENERIC_ERROR_MESSAGE,
   USER_UNAUTHORIZED_SERVER_ERROR_MESSAGE,
 } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
@@ -10,6 +11,7 @@ import { IdFormat } from "@/app/_models/id-format.model";
 import { TestCaseData } from "@/app/_models/test-case-data";
 import { TestCaseResult } from "@/app/_models/test-case-result.model";
 import { TestCaseStep } from "@/app/_models/test-case-step.model";
+import { TestExecution } from "@/app/_models/test-execution.model";
 import { User } from "@/app/_models/user.model";
 import { serverSidePagination } from "@/app/_utils/common-server-side";
 import { replaceCustomId } from "@/app/_utils/data-formatters";
@@ -149,6 +151,43 @@ export async function GET(
       testExecution: allData,
       total: totalTestExecutionCounts,
     });
+  } catch (error: any) {
+    return errorHandler(error);
+  }
+}
+
+export async function DELETE(
+  req: Request,
+  { params }: { params: { testExecutionId: string } }
+) {
+  try {
+    const session = await verifySession();
+    if (!session || !session.isAuth) {
+      return Response.json(
+        { message: USER_UNAUTHORIZED_SERVER_ERROR_MESSAGE },
+        { status: HttpStatusCode.UNAUTHORIZED }
+      );
+    }
+
+    const isDBConnected = await connectDatabase();
+    if (!isDBConnected) {
+      return Response.json(
+        {
+          message: DB_CONNECTION_ERROR_MESSAGE,
+        },
+        { status: HttpStatusCode.INTERNAL_SERVER_ERROR }
+      );
+    }
+
+    const { testExecutionId } = params;
+
+    const response = await TestExecution.findByIdAndDelete(testExecutionId);
+
+    if (!response) {
+      throw new Error(GENERIC_ERROR_MESSAGE);
+    }
+
+    return Response.json({ message: "Test execution deleted successfully" });
   } catch (error: any) {
     return errorHandler(error);
   }

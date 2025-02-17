@@ -96,7 +96,7 @@ export default function Issues() {
         },
       ]
       : []),
-    ...(requirements.some((item) => item.assignedTo?._id)
+    ...(Array.isArray(requirements) && requirements?.some((item) => item.assignedTo?._id)
       ? [
         {
           accessorKey: "assignedTo",

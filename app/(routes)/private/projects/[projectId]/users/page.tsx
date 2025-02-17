@@ -22,7 +22,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { useParams } from "next/navigation";
-import { getProjectUsersPaginationService, getProjectUsersService } from "@/app/_services/project.service";
+import { getProjectUsersPaginationService } from "@/app/_services/project.service";
 import { AddProjectUser } from "./add-user";
 import { ProjectUserRowActions } from "./row-actions";
 import { IProjectUserDisplay } from "@/app/_interface/project";

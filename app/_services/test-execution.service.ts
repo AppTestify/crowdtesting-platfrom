@@ -6,7 +6,12 @@ import {
 } from "../_constants/api-endpoints";
 import { ITestCaseResultPayload } from "../_interface/test-case-result";
 import { ITestExecutionPayload } from "../_interface/test-execution";
-import { genericGet, genericPost, genericPut } from "./generic-api-methods";
+import {
+  genericDelete,
+  genericGet,
+  genericPost,
+  genericPut,
+} from "./generic-api-methods";
 
 export const getTestExecutionsService = async (
   projectId: string,
@@ -94,6 +99,21 @@ export const getTestExecutionWithoutPaginationService = async (
     return response || {};
   } catch (error) {
     console.error(`Error > getTestExecutionWithoutPaginationService:`, error);
+    throw error;
+  }
+};
+
+export const deleteTestExecutionsService = async (
+  projectId: string,
+  testExecutionId: string
+): Promise<any> => {
+  try {
+    const response = await genericDelete(
+      `${TEST_EXECUTION_ENDPOINT(projectId)}/${testExecutionId}`
+    );
+    return response || [];
+  } catch (error) {
+    console.error(`Error > deleteTestExecutionsService:`, error);
     throw error;
   }
 };

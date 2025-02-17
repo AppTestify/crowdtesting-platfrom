@@ -40,6 +40,7 @@ import { getProjectService } from "@/app/_services/project.service";
 import toasterService from "@/app/_services/toaster-service";
 import AssignTestCase from "./_components/assign-test-cases";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { UserCheck } from "lucide-react";
 
 export default function TestPlan() {
     const [testCycle, setTestCycle] = useState<ITestCycle[]>([]);
@@ -97,7 +98,7 @@ export default function TestPlan() {
                     <Tooltip delayDuration={10}>
                         <TooltipTrigger asChild>
                             <Button variant={"outline"} size={"sm"} onClick={() => openAssignTestCase(row)}>
-                                Assign
+                                <UserCheck />
                             </Button>
                         </TooltipTrigger>
                         <TooltipContent>

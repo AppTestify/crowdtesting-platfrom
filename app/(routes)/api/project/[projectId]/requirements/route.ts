@@ -22,7 +22,7 @@ import {
   getFileMetaData,
   serverSidePagination,
 } from "@/app/_utils/common-server-side";
-import { addCustomIds } from "@/app/_utils/data-formatters";
+import { addCustomIds, replaceCustomId } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function POST(
@@ -154,6 +154,9 @@ export async function GET(
     const requirementIdFormat = await IdFormat.findOne({
       entity: DBModels.REQUIREMENT,
     });
+    const userIdFormat = await IdFormat.findOne({
+      entity: DBModels.USER,
+    });
 
     if (searchString) {
       if (!(await isAdmin(session.user))) {
@@ -206,7 +209,7 @@ export async function GET(
       response = addCustomIds(
         await Requirement.find({ projectId: projectId })
           .populate("userId", "firstName lastName")
-          .populate("assignedTo", "firstName lastName")
+          .populate("assignedTo", "firstName lastName customId")
           .sort({ createdAt: -1 })
           .skip(skip)
           .limit(Number(limit))

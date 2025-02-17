@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import {
     ColumnDef,
+    Row,
     SortingState,
     VisibilityState,
     flexRender,
@@ -33,6 +34,9 @@ import { getTestExecutionService } from "@/app/_services/test-execution.service"
 import { formatDateWithoutTime } from "@/app/_constants/date-formatter";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
+import { TestExecutionRowActions } from "./_components/row-actions";
+import { ITestExecution } from "@/app/_interface/test-execution";
+import TestExecutionView from "./_components/view-test-execution";
 
 export default function TestExecution() {
     const [testExecution, setTestExecution] = useState<ITestCyclePayload[]>([]);
@@ -54,11 +58,9 @@ export default function TestExecution() {
                 );
             },
             cell: ({ row }) => (
-                <Link href={`/private/projects/${projectId}/test-execution/${row.original?.id}`}>
-                    <div className="text-primary cursor-pointer ml-4">
-                        {row.original?.customId}
-                    </div>
-                </Link>
+                <div className="text-primary cursor-pointer ml-4" onClick={() => openTestExecutionView(row as Row<ITestCyclePayload>)}>
+                    {row.original?.customId}
+                </div>
             ),
             sortingFn: "alphanumeric"
         },
@@ -66,11 +68,9 @@ export default function TestExecution() {
             accessorKey: "title",
             header: "Title",
             cell: ({ row }) => (
-                <Link href={`/private/projects/${projectId}/test-execution/${row.original?.id}`}>
-                    <div className="capitalize hover:text-primary cursor-pointer">
-                        {row.original?.testCycle?.title}
-                    </div>
-                </Link>
+                <div className="capitalize hover:text-primary cursor-pointer" onClick={() => openTestExecutionView(row as Row<ITestCyclePayload>)}>
+                    {row.original?.testCycle?.title}
+                </div>
             ),
         },
         {
@@ -147,36 +147,55 @@ export default function TestExecution() {
             ),
         },
         {
-            id: "actions",
+            id: "testCases",
             enableHiding: false,
             cell: ({ row }) => (
                 <div className="">
-                    <Button variant={"outline"} size={"sm"} className="px-2 text-sm " >
-                        {row.original?.testCycle?.testCases && row.original?.testCycle?.testCases.length > 0 ?
-                            <Link href={`/private/projects/${projectId}/test-execution/${row.original?.id}`}>
-                                <div className="flex items-center">
-                                    <ChartNoAxesGantt className="h-5 w-5 mr-2" />
-                                    Test cases
-                                </div>
-                            </Link> :
-                            <TooltipProvider>
-                                <Tooltip delayDuration={200}>
-                                    <TooltipTrigger asChild>
-                                        <div className="flex items-center text-gray-500 cursor-not-allowed">
-                                            <ChartNoAxesGantt className="h-5 w-5 mr-2" />
-                                            Test cases
-                                        </div>
-                                    </TooltipTrigger>
-                                    <TooltipContent className="bg-black">
-                                        <p>First assign test cases</p>
-                                    </TooltipContent>
-                                </Tooltip>
-                            </TooltipProvider>
-                        }
-                    </Button>
+                    {row.original?.testCycle?.testCases && row.original?.testCycle?.testCases.length > 0 ?
+                        <Link href={`/private/projects/${projectId}/test-executions/${row.original?.id}`}>
+                            <div className="flex items-center">
+                                <TooltipProvider>
+                                    <Tooltip delayDuration={20}>
+                                        <TooltipTrigger asChild>
+                                            <Button variant={"outline"} size={"sm"} >
+                                                <ChartNoAxesGantt className="h-5 w-5" />
+                                            </Button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p>Test cases</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
+                            </div>
+                        </Link> :
+                        <TooltipProvider>
+                            <Tooltip delayDuration={200}>
+                                <TooltipTrigger asChild>
+                                    <div className="flex items-center text-gray-500 cursor-not-allowed">
+                                        <Button variant={"outline"} size={"sm"} >
+                                            <ChartNoAxesGantt className="h-5 w-5" />
+                                        </Button>
+                                    </div>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>First assign test cases</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                    }
                 </div>
             ),
         },
+        ...(
+            userData?.role !== UserRoles.TESTER ?
+                [{
+                    id: "actions",
+                    enableHiding: false,
+                    cell: ({ row }: { row: any }) => (
+                        <TestExecutionRowActions row={row as Row<ITestExecution>} refreshTestExecution={refreshTestExecution} />
+                    ),
+                }] : []
+        )
     ];
 
     const [sorting, setSorting] = useState<SortingState>([]);
@@ -184,20 +203,22 @@ export default function TestExecution() {
     const [rowSelection, setRowSelection] = useState({});
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [globalFilter, setGlobalFilter] = useState<unknown>([]);
+    const [testExecutionView, setTestExecutionView] = useState<ITestExecution>();
     const [pageIndex, setPageIndex] = useState(1);
     const [totalPageCount, setTotalPageCount] = useState(0);
     const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
     const { projectId } = useParams<{ projectId: string }>();
+    const [isViewOpen, setIsViewOpen] = useState(false);
     const { data } = useSession();
 
     useEffect(() => {
         const debounceFetch = setTimeout(() => {
-            getTestCycle();
+            getTestExecution();
         }, 500);
         return () => clearTimeout(debounceFetch);
     }, [pageIndex, pageSize, globalFilter]);
 
-    const getTestCycle = async () => {
+    const getTestExecution = async () => {
         setIsLoading(true);
         const response = await getTestExecutionService(projectId, pageIndex, pageSize, globalFilter as unknown as string);
         setTestExecution(response?.testCycles);
@@ -238,7 +259,12 @@ export default function TestExecution() {
     };
 
     const refreshTestExecution = () => {
-        getTestCycle();
+        getTestExecution();
+    }
+
+    const openTestExecutionView = (row: Row<ITestCyclePayload>) => {
+        setIsViewOpen(true);
+        setTestExecutionView(row.original as unknown as ITestExecution);
     }
 
     useEffect(() => {
@@ -256,6 +282,11 @@ export default function TestExecution() {
 
     return (
         <main className="mx-4 mt-2">
+            <TestExecutionView
+                sheetOpen={isViewOpen}
+                setSheetOpen={setIsViewOpen}
+                testExecution={testExecutionView as ITestExecution}
+            />
             <div className="">
                 <h2 className="text-medium">Test execution</h2>
             </div>

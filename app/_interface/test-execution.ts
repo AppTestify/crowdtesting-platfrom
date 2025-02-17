@@ -1,5 +1,6 @@
 import { ITestCaseResult } from "./test-case-result";
 import { ITestCycle } from "./test-cycle";
+import { IUserByAdmin } from "./user";
 
 export interface ITestExecutionPayload {
   projectId: string;
@@ -10,6 +11,7 @@ export interface ITestExecutionPayload {
 }
 
 export interface ITestExecution {
+  id: string;
   projectId: string;
   testCycle: ITestCycle;
   testCaseResults: ITestCaseResult[];
@@ -18,4 +20,6 @@ export interface ITestExecution {
   startDate?: string | null;
   endDate?: string | null;
   customId: string;
+  userId: IUserByAdmin;
+  createdAt: string;
 }

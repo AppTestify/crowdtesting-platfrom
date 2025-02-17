@@ -1,11 +1,9 @@
 import { IRequirement } from '@/app/_interface/requirement';
-import { ITestCycle } from '@/app/_interface/test-cycle';
 import { ITestSuite } from '@/app/_interface/test-suite';
 import { displayRTMStatus } from '@/app/_utils/common-functionality';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
-import { ArrowDown, CheckIcon, CornerRightDown, MoveRight } from 'lucide-react';
-import React, { useState } from 'react'
-
+import { ArrowDown, CheckIcon, MoveRight } from 'lucide-react';
+import React from 'react'
 
 export default function RtmTable({
     testCycle,
@@ -14,13 +12,12 @@ export default function RtmTable({
     testCasesToDisplay,
     customIdCounts
 }: {
-    testCycle: ITestCycle;
+    testCycle: any;
     testSuite: ITestSuite;
     requirements: IRequirement[],
     testCasesToDisplay: any[],
     customIdCounts: any
 }) {
-
     return (
         <div className="overflow-x-auto border rounded-md mt-4">
             <Table className="border-collapse border border-gray-200 table-fixed">
@@ -29,7 +26,7 @@ export default function RtmTable({
                         <TableCell className="border border-1 text-xs font-semibold" colSpan={5}>
                             <div className="w-full">
                                 Project name: {requirements[0]?.projectId?.title} |
-                                Test cycle: {testCycle?.title ? testCycle?.title : 'N/A'} |
+                                Test execution: {testCycle?.testCycle?.title ? testCycle?.testCycle?.title : 'N/A'} |
                                 Test suite: {testSuite?.title ? testSuite?.title : 'N/A'}
                             </div>
                         </TableCell>

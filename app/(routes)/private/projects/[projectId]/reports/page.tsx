@@ -135,7 +135,7 @@ export default function Report() {
 
             ),
         },
-        ...(checkProjectActiveRole(project?.isActive ?? false, userData) ? [{
+        ...(checkProjectActiveRole(project?.isActive ?? false, userData) && (userData?.role !== UserRoles.CLIENT) ? [{
             id: "actions",
             enableHiding: false,
             cell: ({ row }: { row: any }) => (
@@ -271,7 +271,6 @@ export default function Report() {
         globalFilterFn: "includesString",
         state: {
             sorting,
-            // globalFilter,
             columnVisibility,
             rowSelection,
         },
@@ -310,8 +309,8 @@ export default function Report() {
                         }}
                         className="max-w-sm"
                     />
-                    {(project?.isActive === true || userData?.role !== UserRoles.CLIENT) && checkProjectActiveRole(project?.isActive ?? false, userData) &&
-                        <div className="flex gap-2 ml-2">
+                    {(project?.isActive === true || userData?.role !== UserRoles.CLIENT) && checkProjectActiveRole(project?.isActive ?? false, userData) && (userData?.role !== UserRoles.CLIENT) &&
+                        < div className="flex gap-2 ml-2">
                             <AddReport refreshReports={refreshReports} />
                         </div>
                     }
@@ -388,6 +387,6 @@ export default function Report() {
                     </div>
                 </div>
             </div>
-        </main>
+        </main >
     );
 }
