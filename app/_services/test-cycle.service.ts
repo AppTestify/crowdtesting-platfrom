@@ -48,8 +48,8 @@ export const addTestCycleService = async (
     formData.append("description", body?.description);
     formData.append("startDate", body?.startDate.toISOString());
     formData.append("endDate", body?.endDate.toISOString());
-    // formData.append("country", body?.country);
-    // formData.append("isEmailSend", (body?.isEmailSend ?? false).toString());
+    formData.append("country", body?.country);
+    formData.append("isEmailSend", (body?.isEmailSend ?? false).toString());
     body?.attachments?.forEach((file) => {
       formData.append("attachments", file);
     });

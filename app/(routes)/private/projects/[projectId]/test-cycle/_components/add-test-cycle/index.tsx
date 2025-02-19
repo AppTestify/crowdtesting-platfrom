@@ -54,18 +54,18 @@ const testCycleSchema = z.object({
     attachments: z.array(z.instanceof(File)).optional(),
     startDate: z.date(),
     endDate: z.date(),
-    // country: z.string().optional(),
-    // isEmailSend: z.boolean().optional()
-});
-// .refine((data) => {
-//     if (data.isEmailSend === true && !data.country) {
-//         return false;
-//     }
-//     return true;
-// }, {
-//     message: "Required",
-//     path: ["country"]
-// });
+    country: z.string().optional(),
+    isEmailSend: z.boolean().optional()
+})
+    .refine((data) => {
+        if (data.isEmailSend === true && !data.country) {
+            return false;
+        }
+        return true;
+    }, {
+        message: "Required",
+        path: ["country"]
+    });
 
 export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => void }) {
     const columns: ColumnDef<ITestCycleAttachment[]>[] = [
@@ -92,8 +92,8 @@ export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => voi
             projectId: projectId,
             startDate: new Date(),
             endDate: new Date(),
-            // country: "",
-            // isEmailSend: false
+            country: "",
+            isEmailSend: false
         },
     });
 
@@ -102,8 +102,8 @@ export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => voi
         try {
             const response = await addTestCycleService(projectId, {
                 ...values,
-                // country: values.country || "",
-                // isEmailSend: values.isEmailSend === true,
+                country: values.country || "",
+                isEmailSend: values.isEmailSend === true,
             });
             if (response) {
                 refreshTestCycle();
@@ -290,7 +290,7 @@ export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => voi
                                 />
                             </div>
 
-                            {/* <div className="grid grid-cols-1 gap-2 mt-3">
+                            <div className="grid grid-cols-1 gap-2 mt-3">
                                 <FormField
                                     control={form.control}
                                     name="country"
@@ -320,7 +320,7 @@ export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => voi
                                         </FormItem>
                                     )}
                                 />
-                            </div> */}
+                            </div>
 
                             <div className="grid grid-cols-1 gap-2 mt-3">
                                 <FormField
@@ -397,7 +397,7 @@ export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => voi
                                 </div>
                             </div>
 
-                            {/* <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 mt-3">
+                            <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 mt-3">
                                 <FormField
                                     control={form.control}
                                     name="isEmailSend"
@@ -418,7 +418,7 @@ export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => voi
                                         </FormItem>
                                     )}
                                 />
-                            </div> */}
+                            </div>
 
                             < div className="mt-6 w-full flex justify-end gap-2" >
                                 <SheetClose asChild>

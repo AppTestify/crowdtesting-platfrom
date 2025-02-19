@@ -1,5 +1,6 @@
 import { DBModels } from "@/app/_constants";
 import { AttachmentFolder } from "@/app/_constants/constant-server-side";
+import { formatDateWithoutTime } from "@/app/_constants/date-formatter";
 import {
   DB_CONNECTION_ERROR_MESSAGE,
   GENERIC_ERROR_MESSAGE,
@@ -66,8 +67,8 @@ export async function POST(
       description: body.get("description"),
       startDate: body.get("startDate"),
       endDate: body.get("endDate"),
-      // country: body.get("country"),
-      // isEmailSend: body.get("isEmailSend") === "true",
+      country: body.get("country"),
+      isEmailSend: body.get("isEmailSend") === "true",
     };
     const response = testCycleSchema.safeParse(formData);
 
@@ -85,41 +86,42 @@ export async function POST(
       );
     }
 
-    // if (response.data?.isEmailSend) {
-    //   const testers = await User.find({ role: UserRoles.TESTER });
+    if (response.data?.isEmailSend) {
+      const testers = await User.find({ role: UserRoles.TESTER });
 
-    //   const users = await Tester.find({
-    //     "address.country": response?.data?.country,
-    //     user: testers?.map((tester) => tester?._id),
-    //   }).populate("user", "firstName lastName email");
+      const users = await Tester.find({
+        "address.country": response?.data?.country,
+        user: testers?.map((tester) => tester?._id),
+      }).populate("user", "firstName lastName email");
 
-    //   // unique users
-    //   const uniqueUsers = new Map();
-    //   users.forEach((user) => {
-    //     if (user?.user?._id) {
-    //       uniqueUsers.set(user.user._id.toString(), {
-    //         id: user.user._id,
-    //         email: user.user.email,
-    //         fullName: `${user.user.firstName.trim()} ${user.user.lastName.trim()}`,
-    //       });
-    //     }
-    //   });
+      // unique users
+      const uniqueUsers = new Map();
+      users.forEach((user) => {
+        if (user?.user?._id) {
+          uniqueUsers.set(user.user._id.toString(), {
+            id: user.user._id,
+            email: user.user.email,
+            fullName: `${user.user.firstName.trim()} ${user.user.lastName.trim()}`,
+          });
+        }
+      });
 
-    //   const uniqueUsersArray = Array.from(uniqueUsers.values());
+      const uniqueUsersArray = Array.from(uniqueUsers.values());
 
-    //   for (const user of uniqueUsersArray) {
-    //     const payload = {
-    //       emails: user.email,
-    //       fullName: user.fullName || "",
-    //       name: response.data.title,
-    //       description: response?.data?.description,
-    //       startDate: response?.data?.startDate,
-    //       endDate: response?.data?.endDate,
-    //       applyLink: generateTestCycleLink(user.id, projectId),
-    //     };
-    //     await testCycleCountryMail(payload);
-    //   }
-    // }
+      for (const user of uniqueUsersArray) {
+        const payload = {
+          emails: user.email,
+          fullName: user.fullName || "",
+          name: response.data.title,
+          description: response?.data?.description,
+          startDate: formatDateWithoutTime(response?.data?.startDate),
+          endDate: formatDateWithoutTime(response?.data?.endDate),
+          country: response?.data?.country || "",
+          applyLink: generateTestCycleLink(user.id, projectId),
+        };
+        await testCycleCountryMail(payload);
+      }
+    }
 
     const newTestSuite = new TestCycle({
       ...response.data,
