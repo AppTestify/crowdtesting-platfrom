@@ -25,36 +25,36 @@ export default function ModerateView({ sheetOpen, setSheetOpen, moderate }:
                     <div
                         className="text-sm leading-relaxed text-gray-700 space-y-2 rich-description"
                         dangerouslySetInnerHTML={{
-                            __html: moderate?.original.testCaseId?.expectedResult || "",
+                            __html: moderate?.original?.testCaseId?.expectedResult || "",
                         }}
                     />
                 </div>
-                {moderate && moderate?.original.actualResult &&
+                {moderate && moderate?.original?.actualResult &&
                     <div className='mt-5'>
                         <div className='text-lg font-semibold'>
                             Actual result
                         </div>
                         <div className=" leading-relaxed text-gray-700 space-y-2 rich-description">
-                            {moderate?.original.actualResult}
+                            {moderate?.original?.actualResult}
                         </div>
                     </div>
                 }
-                {moderate && moderate?.original.remarks &&
+                {moderate && moderate?.original?.remarks &&
                     <div className='mt-5'>
                         <div className='text-lg font-semibold'>
                             Remarks
                         </div>
                         <div className="leading-relaxed text-gray-700 space-y-2 rich-description">
-                            {moderate?.original.remarks}
+                            {moderate?.original?.remarks}
                         </div>
                     </div>
                 }
-                {moderate && moderate?.original.result &&
+                {moderate && moderate?.original?.result &&
                     <div className='mt-5'>
                         <div className=''>
                             <span className='text-lg font-semibold'>Result:</span>
                             <span className='leading-relaxed text-gray-700 space-y-2 rich-description ml-4'>
-                                {showTestCaseResultStatusBadge(moderate?.original.result as string)}
+                                {showTestCaseResultStatusBadge(moderate?.original?.result as string)}
                             </span>
                         </div>
                     </div>

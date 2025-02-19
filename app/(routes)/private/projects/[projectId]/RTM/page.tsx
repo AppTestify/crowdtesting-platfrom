@@ -1,6 +1,5 @@
 "use client";
 
-import { ITestCycle } from '@/app/_interface/test-cycle';
 import { ITestSuite } from '@/app/_interface/test-suite';
 import { getTestWithoutPaginationSuiteService } from '@/app/_services/test-suite.service';
 import toasterService from '@/app/_services/toaster-service';
@@ -33,8 +32,8 @@ export default function RTM() {
     const [testExecutions, setTestExecutions] = useState<ITestExecution[]>([]);
     const [testSuites, setTestSuites] = useState<ITestSuite[]>([]);
     const [testSuite, setTestSuite] = useState<ITestSuite>();
-    const [testCycle, setTestCycle] = React.useState<ITestCycle | undefined>(
-        testExecutions.length > 0 ? testExecutions[0]?.testCycle : undefined
+    const [testCycle, setTestCycle] = React.useState<ITestExecution | undefined>(
+        testExecutions.length > 0 ? testExecutions[0] : undefined
     );
     const [requirements, setRequirements] = useState<IRequirement[]>([]);
     const [isViewLoading, setIsViewLoading] = useState<boolean>(false);
@@ -43,7 +42,7 @@ export default function RTM() {
     const form = useForm<z.infer<typeof rtmSchema>>({
         resolver: zodResolver(rtmSchema),
         defaultValues: {
-            testCycle: testExecutions.length > 0 ? testExecutions[0]?.testCycle?._id : "",
+            testCycle: testExecutions.length > 0 ? testExecutions[0]?.id : "",
             testSuite: ""
         },
     });
@@ -138,7 +137,7 @@ export default function RTM() {
             const rows = [
                 ['RTM Report'],
                 [`Project : ${requirements[0]?.projectId?.title || 'N/A'}`],
-                [`Test Execution : ${testCycle?.title ? testCycle?.title : testExecutions[0]?.testCycle?.title || 'N/A'} | Test Suite : ${testSuite?.title || 'N/A'}`],
+                [`Test Execution : ${testCycle?.testCycle?.title ? testCycle?.testCycle?.title : testExecutions[0]?.testCycle?.title || 'N/A'} | Test Suite : ${testSuite?.title || 'N/A'}`],
                 [`Generated on ${new Date().toLocaleString()}`],
                 [],
                 ['Test Case IDs And Their Results', '', 'Requirement IDs →', ...requirements.map(req => req.customId)],
@@ -244,8 +243,8 @@ export default function RTM() {
     }, [form.watch("testSuite")]);
 
     useEffect(() => {
-        const testCycle = testExecutions?.find((cycle) => cycle?.testCycle?._id === form.watch("testCycle"));
-        setTestCycle(testCycle as unknown as ITestCycle);
+        const testCycle = testExecutions?.find((cycle) => cycle?.id === form.watch("testCycle"));
+        setTestCycle(testCycle as unknown as ITestExecution);
         setTestSuite(undefined);
         form.setValue("testSuite", "");
     }, [form.watch("testCycle"), testExecutions]);
@@ -279,18 +278,21 @@ export default function RTM() {
                                                 <FormLabel>Test execution</FormLabel>
                                                 <Select
                                                     onValueChange={field.onChange}
-                                                    value={field.value || testExecutions[0]?.testCycle?._id}
+                                                    value={field.value || testExecutions[0]?.id}
                                                 >
                                                     <SelectTrigger className="w-full">
                                                         <SelectValue />
                                                     </SelectTrigger>
                                                     <SelectContent>
                                                         <SelectGroup>
-                                                            {testExecutions?.map((testExecution, index) => (
-                                                                <SelectItem key={index} value={testExecution?.testCycle?._id as string}>
-                                                                    {testExecution?.customId} - {testExecution?.testCycle?.title}
-                                                                </SelectItem>
-                                                            ))}
+                                                            {testExecutions?.map((testExecution) => {
+                                                                return (
+                                                                    <SelectItem key={testExecution?.id} value={testExecution?.id as string}>
+                                                                        {testExecution?.customId} - {testExecution?.testCycle?.title}
+                                                                    </SelectItem>
+                                                                );
+                                                            })}
+
                                                         </SelectGroup>
                                                     </SelectContent>
                                                 </Select>

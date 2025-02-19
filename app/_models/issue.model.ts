@@ -34,7 +34,7 @@ const IssueSchema = new Schema<IIssue>(
         device: [
             { type: Schema.Types.ObjectId, ref: DBModels.DEVICE }
         ],
-        issueType: { type: String, required: true },
+        issueType: { type: String, required: false },
         testCycle: { type: Schema.Types.ObjectId, ref: DBModels.TEST_CYCLE, required: true },
         assignedTo: { type: Schema.Types.ObjectId, ref: DBModels.USER, default: null },
     },

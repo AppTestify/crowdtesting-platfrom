@@ -20,7 +20,7 @@ export interface ITestCaseResult {
   updatedBy?: IUserByAdmin;
   testCaseData: ITestCaseData[];
   testCaseStep: ITestCaseStep[];
-  original: ITestCaseResult
+  original: ITestCaseResult;
 }
 
 export interface ITestCaseResultPayload {
@@ -28,4 +28,5 @@ export interface ITestCaseResultPayload {
   result: string;
   remarks?: string;
   isIssue?: boolean;
+  testCycle?: string;
 }
