@@ -26,7 +26,7 @@ import {
   getFileMetaData,
   serverSidePagination,
 } from "@/app/_utils/common-server-side";
-import { addCustomIds } from "@/app/_utils/data-formatters";
+import { addCustomIds, replaceCustomId } from "@/app/_utils/data-formatters";
 import { issueAssignMail } from "@/app/_utils/email";
 import { errorHandler } from "@/app/_utils/error-handler";
 
@@ -184,6 +184,9 @@ export async function GET(
     const status = url.searchParams.get("status");
     const testCycle = url.searchParams.get("testCycle");
     const customIDFormat = await IdFormat.findOne({ entity: DBModels.ISSUE });
+    const userIdFormat = await IdFormat.findOne({
+      entity: DBModels.USER,
+    });
     const { skip, limit } = serverSidePagination(req);
 
     if (severity) {
@@ -288,7 +291,7 @@ export async function GET(
         .find(filter)
         .countDocuments();
 
-      response = addCustomIds(
+      const data = addCustomIds(
         await Issue.find({ status: { $nin: IssueStatus.NEW } })
           .find(filter)
           .sort({ createdAt: -1 })
@@ -300,7 +303,7 @@ export async function GET(
           })
           .populate({
             path: "assignedTo",
-            select: "firstName lastName _id",
+            select: "firstName lastName _id customId",
             strictPopulate: false,
           })
           .populate("projectId", "title")
@@ -313,9 +316,22 @@ export async function GET(
           .lean(),
         customIDFormat.idFormat
       );
+
+      response = data?.map((res) => ({
+        ...res,
+        assignedTo: res.assignedTo
+          ? {
+              ...res.assignedTo,
+              customId: replaceCustomId(
+                userIdFormat?.idFormat,
+                res.assignedTo?.customId
+              ),
+            }
+          : null,
+      }));
     } else {
       totalIssues = await Issue.find(filter).countDocuments();
-      response = addCustomIds(
+      const data = addCustomIds(
         await query
           .populate({
             path: "userId",
@@ -324,7 +340,7 @@ export async function GET(
           .populate("projectId", "title")
           .populate({
             path: "assignedTo",
-            select: "firstName lastName _id",
+            select: "firstName lastName _id customId",
             strictPopulate: false,
           })
           .populate({
@@ -336,6 +352,19 @@ export async function GET(
           .lean(),
         customIDFormat.idFormat
       );
+
+      response = data?.map((res) => ({
+        ...res,
+        assignedTo: res.assignedTo
+          ? {
+              ...res.assignedTo,
+              customId: replaceCustomId(
+                userIdFormat?.idFormat,
+                res.assignedTo?.customId
+              ),
+            }
+          : null,
+      }));
     }
 
     return Response.json({ issues: response, total: totalIssues });

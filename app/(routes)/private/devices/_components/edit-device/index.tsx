@@ -244,7 +244,7 @@ export function EditDevice({
                           <SelectTrigger>
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="h-80">
                             {countries.map((country) => (
                               <SelectItem
                                 key={country._id}

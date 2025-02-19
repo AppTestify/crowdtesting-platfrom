@@ -92,7 +92,7 @@ export async function PATCH(
     }
 
     return Response.json({
-      message: "test cases assigned successfully",
+      message: "Test cases assigned successfully",
     });
   } catch (error: any) {
     return errorHandler(error);

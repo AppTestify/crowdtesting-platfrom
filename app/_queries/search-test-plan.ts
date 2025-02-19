@@ -16,8 +16,8 @@ export async function filterTestPlanNotForAdmin(
   const userIdFormat = await IdFormat.findOne({
     entity: DBModels.USER,
   });
-  searchString = customIdForSearch(idObject, searchString);
-  searchString = customIdForSearch(userIdFormat, searchString);
+  const testPlanCustomId = customIdForSearch(idObject, searchString);
+  const userCustomId = customIdForSearch(userIdFormat, searchString);
 
   const testPlanPipeline = [
     {
@@ -42,12 +42,16 @@ export async function filterTestPlanNotForAdmin(
           $concat: ["$assignedTo.firstName", " ", "$assignedTo.lastName"],
         },
         address: "$address",
+        "assignedTo.customId": { $ifNull: ["$assignedTo.customId", "N/A"] },
       },
     },
     {
       $match: {
         $or: [
-          { customId: parseInt(searchString) },
+          { customId: parseInt(testPlanCustomId) },
+          {
+            "assignedTo.customId": parseInt(userCustomId),
+          },
           { title: regex },
           { "assignedTo.firstName": regex },
           { "assignedTo.lastName": regex },

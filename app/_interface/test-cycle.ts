@@ -21,8 +21,8 @@ export interface ITestCyclePayload {
     failed: number;
     caused: number;
   };
-  country: string;
-  isEmailSend: boolean;
+  // country: string;
+  // isEmailSend: boolean;
 }
 
 export interface ITestCycle {

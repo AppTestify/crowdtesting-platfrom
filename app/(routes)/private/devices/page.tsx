@@ -37,6 +37,7 @@ import { IUserByAdmin } from "@/app/_interface/user";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
 import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
+import { getUsernameWithUserId } from "@/app/_utils/common";
 
 export default function Devices() {
   const [devices, setDevices] = useState<IDevice[]>([]);
@@ -77,7 +78,9 @@ export default function Devices() {
               onClick={() => getUser(row.original?.userId as IUserByAdmin)}
             >
               {row.original?.userId?.firstName || row.original?.userId?.lastName
-                ? `${row.original?.userId?.firstName || ''} ${row.original?.userId?.lastName || ''}`.trim()
+                ?
+                getUsernameWithUserId(row.original?.userId)
+                // `${row.original?.userId?.firstName || ''} ${row.original?.userId?.lastName || ''}`.trim()
                 : row.original?.userId?.email}
             </div>,
         }] : []

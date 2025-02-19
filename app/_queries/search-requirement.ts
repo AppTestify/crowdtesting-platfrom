@@ -16,8 +16,8 @@ export async function filterRequirementsNotForAdmin(
   const userIdFormat = await IdFormat.findOne({
     entity: DBModels.USER,
   });
-  searchString = customIdForSearch(idObject, searchString);
-  searchString = customIdForSearch(userIdFormat, searchString);
+  const requirementCustomId = customIdForSearch(idObject, searchString);
+  const assigneCustomId = customIdForSearch(userIdFormat, searchString);
 
   const requirementsPipeline = [
     {
@@ -47,9 +47,9 @@ export async function filterRequirementsNotForAdmin(
     {
       $match: {
         $or: [
-          { customId: parseInt(searchString) },
+          { customId: parseInt(requirementCustomId) },
           {
-            "assignedTo.customId": parseInt(searchString),
+            "assignedTo.customId": parseInt(assigneCustomId),
           },
           { title: regex },
           { "assignedTo.firstName": regex },

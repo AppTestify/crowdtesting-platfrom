@@ -3,6 +3,9 @@ import { ObjectId } from "mongodb";
 import { Issue } from "../_models/issue.model";
 import { IssueStatus } from "../_constants/issue";
 import { customIdForSearch } from "../_utils/common-server-side";
+import { IdFormat } from "../_models/id-format.model";
+import { DBModels } from "../_constants";
+import { replaceCustomId } from "../_utils/data-formatters";
 
 export async function filterIssuesForAdmin(
   searchString: string,
@@ -196,7 +199,11 @@ export async function filterIssuesForClient(
   testCycle?: string
 ) {
   const regex = new RegExp(searchString, "i");
-  searchString = customIdForSearch(idObject, searchString);
+  const issueCustomId = customIdForSearch(idObject, searchString);
+  const userIdFormat = await IdFormat.findOne({
+    entity: DBModels.USER,
+  });
+  const assignCustomId = customIdForSearch(userIdFormat, searchString);
 
   const issuesPipeline = [
     {
@@ -316,7 +323,7 @@ export async function filterIssuesForClient(
     {
       $match: {
         $or: [
-          { customId: parseInt(searchString) },
+          { customId: parseInt(issueCustomId) },
           { title: regex },
           { severity: regex },
           { priority: regex },
@@ -328,6 +335,9 @@ export async function filterIssuesForClient(
           { "user.firstName": regex },
           { "user.lastName": regex },
           { fullName: regex },
+          {
+            "assignedTo.customId": parseInt(assignCustomId),
+          },
           { "assignedTo.firstName": regex },
           { "assignedTo.lastName": regex },
           { AssigedfullName: regex },
@@ -352,8 +362,21 @@ export async function filterIssuesForClient(
     { $limit: limit },
   ]);
 
+  const transformedIssues = issues.map((res) => ({
+    ...res,
+    assignedTo: res.assignedTo
+      ? {
+          ...res.assignedTo,
+          customId: replaceCustomId(
+            userIdFormat?.idFormat,
+            res.assignedTo.customId
+          ),
+        }
+      : null,
+  }));
+
   return {
-    issues,
+    issues: transformedIssues,
     totalIssues: totalIssues[0]?.total || 0,
   };
 }
@@ -370,8 +393,11 @@ export async function filterIssuesForTester(
   testCycle?: string
 ) {
   const regex = new RegExp(searchString, "i");
-  searchString = customIdForSearch(idObject, searchString);
-
+  const userIdFormat = await IdFormat.findOne({
+    entity: DBModels.USER,
+  });
+  const issueCustomId = customIdForSearch(idObject, searchString);
+  const assignCustomId = customIdForSearch(userIdFormat, searchString);
   const issuesPipeline = [
     {
       $match: {
@@ -473,7 +499,7 @@ export async function filterIssuesForTester(
     {
       $match: {
         $or: [
-          { customId: parseInt(searchString) },
+          { customId: parseInt(issueCustomId) },
           { title: regex },
           { severity: regex },
           { priority: regex },
@@ -483,6 +509,9 @@ export async function filterIssuesForTester(
           { "device.name": regex },
           { "testCycle.title": regex },
           { fullName: regex },
+          {
+            "assignedTo.customId": parseInt(assignCustomId),
+          },
           { "assignedTo.firstName": regex },
           { "assignedTo.lastName": regex },
           { AssigedfullName: regex },
@@ -507,8 +536,21 @@ export async function filterIssuesForTester(
     { $limit: limit },
   ]);
 
+  const transformedIssues = issues.map((res) => ({
+    ...res,
+    assignedTo: res.assignedTo
+      ? {
+          ...res.assignedTo,
+          customId: replaceCustomId(
+            userIdFormat?.idFormat,
+            res.assignedTo.customId
+          ),
+        }
+      : null,
+  }));
+
   return {
-    issues,
+    issues: transformedIssues,
     totalIssues: totalIssues[0]?.total || 0,
   };
 }

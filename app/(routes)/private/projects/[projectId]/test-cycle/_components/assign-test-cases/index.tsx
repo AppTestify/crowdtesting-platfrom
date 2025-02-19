@@ -88,7 +88,7 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
                 <Tooltip delayDuration={200}>
                     <TooltipTrigger asChild>
                         <Button variant="ghost" size="sm" onClick={() => singleUnAssign(row.original._id as string)} >
-                            {unassignedLoading && loadingRowIdUnAssign === row.original._id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileOutput />}
+                            {unassignedLoading && loadingRowIdUnAssign === row.original._id ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileOutput />}
                         </Button>
                     </TooltipTrigger>
                     <TooltipContent className='bg-black'>
@@ -148,7 +148,7 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
                 <Tooltip delayDuration={200}>
                     <TooltipTrigger asChild>
                         <Button variant="ghost" size="sm" onClick={() => singleAssign(row.original?._id as string)} >
-                            {assignedLoading && loadingRowIdAssign === row.original.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileInput />}
+                            {assignedLoading && loadingRowIdAssign === row.original._id ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileInput />}
                         </Button>
                     </TooltipTrigger>
                     <TooltipContent className='bg-black'>
@@ -178,7 +178,6 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
     const [assignedLoading, setAssignedLoading] = useState<boolean>(false);
     const [loadingRowIdUnAssign, setLoadingRowIdUnAssign] = useState<string | null>(null);
     const [loadingRowIdAssign, setLoadingRowIdAssign] = useState<string | null>(null);
-    const [newTestCases, setNewTestCases] = useState<string[]>([]);
     const { projectId } = useParams<{ projectId: string }>();
 
     const refreshTestCases = () => {
@@ -238,7 +237,6 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
             const response = await getAssignTestCaseService(projectId, testCycleId);
             if (response) {
                 setAssignTestCases(response?.testCases || []);
-                setNewTestCases(response?.testCases || []);
             }
         } catch (error) {
             toasterService.error();
