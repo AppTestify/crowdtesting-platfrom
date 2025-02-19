@@ -71,3 +71,7 @@ export interface ITesterWelcomePayload {
   email: string;
   link: string;
 }
+
+export interface IVerifyUser {
+  isVerify: boolean;
+}

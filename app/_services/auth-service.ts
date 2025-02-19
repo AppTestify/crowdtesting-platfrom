@@ -99,7 +99,9 @@ export const resendAccountVerificationMailService = async (): Promise<any> => {
   }
 };
 
-export const forgotPasswordService = async (body: IForgotPasswordPayload): Promise<any> => {
+export const forgotPasswordService = async (
+  body: IForgotPasswordPayload
+): Promise<any> => {
   try {
     const response = await genericPost(FORGOT_PASSWORD_ENDPOINT, body);
     return response;
@@ -109,7 +111,9 @@ export const forgotPasswordService = async (body: IForgotPasswordPayload): Promi
   }
 };
 
-export const resetPasswordService = async (body: IResetPasswordPayload): Promise<any> => {
+export const resetPasswordService = async (
+  body: IResetPasswordPayload
+): Promise<any> => {
   try {
     const response = await genericPost(RESET_PASSWORD_ENDPOINT, body);
     return response;

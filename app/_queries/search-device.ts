@@ -1,5 +1,8 @@
 import { Device } from "../_models/device.model";
 import { ObjectId } from "mongodb";
+import { IdFormat } from "../_models/id-format.model";
+import { DBModels } from "../_constants";
+import { replaceCustomId } from "../_utils/data-formatters";
 
 export async function filterDevicesForAdmin(
   searchString: string,
@@ -7,6 +10,9 @@ export async function filterDevicesForAdmin(
   limit: number
 ) {
   const regex = new RegExp(searchString, "i");
+  const userIdFormat = await IdFormat.findOne({
+    entity: DBModels.USER,
+  });
 
   const devicesPipeline = [
     {
@@ -65,8 +71,21 @@ export async function filterDevicesForAdmin(
     { $limit: limit },
   ]);
 
+  const transformedDevices = devices.map((res) => ({
+    ...res,
+    userId: res.userId
+      ? {
+          ...res.userId,
+          customId: replaceCustomId(
+            userIdFormat?.idFormat,
+            res.userId.customId
+          ),
+        }
+      : null,
+  }));
+
   return {
-    devices,
+    devices: transformedDevices,
     totalDevices: totalDevices[0]?.total || 0,
   };
 }

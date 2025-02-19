@@ -1,3 +1,4 @@
+import { DBModels } from "@/app/_constants";
 import {
   DB_CONNECTION_ERROR_MESSAGE,
   INVALID_INPUT_ERROR_MESSAGE,
@@ -7,6 +8,7 @@ import {
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
 import { isAdmin, verifySession } from "@/app/_lib/dal";
+import { IdFormat } from "@/app/_models/id-format.model";
 import { Task } from "@/app/_models/task.model";
 import { User } from "@/app/_models/user.model";
 import {
@@ -15,7 +17,11 @@ import {
 } from "@/app/_queries/search-task";
 import { TaskSchema } from "@/app/_schemas/task.schema";
 import { serverSidePagination } from "@/app/_utils/common-server-side";
-import { addCustomIds, normaliseIds } from "@/app/_utils/data-formatters";
+import {
+  addCustomIds,
+  normaliseIds,
+  replaceCustomId,
+} from "@/app/_utils/data-formatters";
 import { taskAssignMail } from "@/app/_utils/email";
 import { errorHandler } from "@/app/_utils/error-handler";
 
@@ -121,6 +127,9 @@ export async function GET(
     const totalTasks = await Task.find({
       projectId: projectId,
     }).countDocuments();
+    const userIdFormat = await IdFormat.findOne({
+      entity: DBModels.USER,
+    });
 
     if (searchString) {
       if (!(await isAdmin(session.user))) {
@@ -148,10 +157,10 @@ export async function GET(
       }
     }
 
-    const response = normaliseIds(
+    const data = normaliseIds(
       await Task.find({ projectId: projectId })
         .populate("userId", "firstName lastName")
-        .populate("assignedTo", "firstName lastName")
+        .populate("assignedTo", "firstName lastName customId")
         .populate("issueId", "title")
         .populate("requirementIds", "title")
         .sort({ createdAt: -1 })
@@ -159,6 +168,19 @@ export async function GET(
         .limit(Number(limit))
         .lean()
     );
+
+    const response = data?.map((res) => ({
+      ...res,
+      assignedTo: res.assignedTo
+        ? {
+            ...res.assignedTo,
+            customId: replaceCustomId(
+              userIdFormat?.idFormat,
+              res.assignedTo?.customId
+            ),
+          }
+        : null,
+    }));
     return Response.json({ tasks: response, total: totalTasks });
   } catch (error: any) {
     return errorHandler(error);

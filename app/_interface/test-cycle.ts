@@ -21,6 +21,8 @@ export interface ITestCyclePayload {
     failed: number;
     caused: number;
   };
+  // country: string;
+  // isEmailSend: boolean;
 }
 
 export interface ITestCycle {
@@ -65,4 +67,18 @@ export interface TestCycleAttachmentsProps {
   isUpdate: boolean;
   isView: boolean;
   setAttachmentsData?: React.Dispatch<React.SetStateAction<any[]>>;
+}
+
+export interface ITestCycleCountryMailPayload {
+  name: string;
+  emails: string[];
+  fullName?: string[];
+  description: string;
+  startDate: string;
+  endDate: string;
+  applyLink: string;
+}
+
+export interface ITestCycleVerificationPayload {
+  token: string;
 }

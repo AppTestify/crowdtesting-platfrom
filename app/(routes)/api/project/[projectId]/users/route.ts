@@ -8,7 +8,7 @@ import {
 } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
-import { verifySession } from "@/app/_lib/dal";
+import { isAdmin, verifySession } from "@/app/_lib/dal";
 import { Counter } from "@/app/_models/counter.model";
 import { IdFormat } from "@/app/_models/id-format.model";
 import { Project } from "@/app/_models/project.model";
@@ -60,12 +60,21 @@ export async function GET(
       return Response.json({ error: "Project not found" }, { status: 404 });
     }
 
+    let totalUsers, paginatedUsers;
     // Step 2: Paginate the users array
-    const totalUsers = project.users.length;
-    const paginatedUsers = project.users.slice(skip, skip + Number(limit));
-
+    if (!(await isAdmin(session.user))) {
+      const activeUsers = project.users.filter(
+        (user) => user.isVerify !== false
+      );
+      totalUsers = activeUsers.length;
+      paginatedUsers = activeUsers.slice(skip, skip + Number(limit));
+    } else {
+      totalUsers = project.users.length;
+      paginatedUsers = project.users.slice(skip, skip + Number(limit));
+    }
     // Step 3: Populate only the paginated users
-    const populatedUsers = await User.find({
+    let populatedUsers;
+    populatedUsers = await User.find({
       _id: { $in: paginatedUsers.map((user: any) => user.userId) },
     })
       .select("firstName lastName role customId")

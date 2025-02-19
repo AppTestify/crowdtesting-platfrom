@@ -1,41 +1,19 @@
-import { getDashboardService, getTesterDashboardService } from "@/app/_services/dashboard.service";
+import { getTesterDashboardService } from "@/app/_services/dashboard.service";
 import toasterService from "@/app/_services/toaster-service";
 import {
   Card,
-  CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  ChartContainer,
-  ChartLegend,
-  ChartLegendContent,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
 import React, { useEffect, useState } from "react";
-import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import HorizontalBarChart from "../client-dashboard/_components/horizontal-bar-chart";
 import PieCharts from "../client-dashboard/_components/pie-chart";
 import StatusBarChart from "../client-dashboard/_components/bar-chart";
 
-const chartConfig = {
-  project: {
-    label: "Project",
-    color: "#2563eb",
-  },
-  issue: {
-    label: "Issue",
-    color: "#60a5fa",
-  },
-};
-
 export default function TesterDashboard() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [dashboard, setDashboard] = useState<any>();
-  const lastIndex = dashboard?.length - 1;
 
   const getTesterDashboard = async () => {
     try {
@@ -103,7 +81,7 @@ export default function TesterDashboard() {
               dataKey="status"
             />
             <PieCharts
-              title="Project status Chart Sequence"
+              title="Project Status Chart Sequence"
               description="Showing project sequence levels"
               chartData={dashboard?.ProjectSequence || {}}
               dataKey="project"

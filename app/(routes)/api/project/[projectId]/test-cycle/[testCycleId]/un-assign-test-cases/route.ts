@@ -92,7 +92,7 @@ export async function PATCH(
     );
 
     return Response.json({
-      message: "test cases unassigned successfully",
+      message: "Test cases unassigned successfully",
     });
   } catch (error: any) {
     return errorHandler(error);

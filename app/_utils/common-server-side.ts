@@ -163,3 +163,26 @@ export function countResults(testCaseResults: any[]) {
 
   return resultCount;
 }
+
+export const generateTestCycleLink = (id: string, projectId: string) => {
+  const frontEndURL: string = process.env.URL ?? "";
+  const verificationPath: string = "/test-cycle";
+
+  const generatedAuthKeyForCandidate: string =
+    generateTestCycleAuthKeyForUnprotectedRoutes(id, projectId);
+  const generatedVerificationLink: string = `${frontEndURL}${verificationPath}?token=${generatedAuthKeyForCandidate}`;
+
+  return generatedVerificationLink;
+};
+
+export const generateTestCycleAuthKeyForUnprotectedRoutes = (
+  userId: string,
+  projectId: string
+): string => {
+  const currentDateTimeUTC = new Date().toISOString();
+  return encodeToBase64(
+    `${userId.toString()}${Delimeters.PIPE}${currentDateTimeUTC}${
+      Delimeters.PIPE
+    }${projectId}`
+  );
+};

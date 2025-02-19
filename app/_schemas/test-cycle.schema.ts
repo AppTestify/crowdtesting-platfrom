@@ -6,6 +6,8 @@ export const testCycleSchema = z.object({
   description: z.string().min(1, "description is required"),
   startDate: z.string().min(1, "Start date is required"),
   endDate: z.string().min(1, "End date is required"),
+  // country: z.string().optional(),
+  // isEmailSend: z.boolean().optional(),
 });
 
 export const assignTestCasesSchema = z.object({

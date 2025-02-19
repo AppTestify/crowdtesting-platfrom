@@ -1,3 +1,4 @@
+import { DBModels } from "@/app/_constants";
 import {
   DB_CONNECTION_ERROR_MESSAGE,
   INVALID_INPUT_ERROR_MESSAGE,
@@ -8,6 +9,7 @@ import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
 import { isAdmin, isClient, verifySession } from "@/app/_lib/dal";
 import { Device } from "@/app/_models/device.model";
+import { IdFormat } from "@/app/_models/id-format.model";
 import {
   filterDevicesForAdmin,
   filterDevicesForClient,
@@ -15,7 +17,7 @@ import {
 } from "@/app/_queries/search-device";
 import { deviceSchema } from "@/app/_schemas/device.schema";
 import { serverSidePagination } from "@/app/_utils/common-server-side";
-import { addCustomIds, normaliseIds } from "@/app/_utils/data-formatters";
+import { normaliseIds, replaceCustomId } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function POST(req: Request) {
@@ -91,6 +93,9 @@ export async function GET(req: Request) {
     const url = new URL(req.url);
     const searchString = url.searchParams.get("searchString");
     const { skip, limit } = serverSidePagination(req);
+    const userIdFormat = await IdFormat.findOne({
+      entity: DBModels.USER,
+    });
     let totalDevices;
 
     if (searchString) {
@@ -132,14 +137,27 @@ export async function GET(req: Request) {
     }
 
     if (await isAdmin(session.user)) {
-      response = normaliseIds(
+      const data = normaliseIds(
         await Device.find({})
-          .populate("userId", "id email firstName lastName isActive")
+          .populate("userId", "id email firstName lastName isActive customId")
           .sort({ createdAt: -1 })
           .skip(skip)
           .limit(Number(limit))
           .lean()
       );
+
+      response = data?.map((res) => ({
+        ...res,
+        userId: res.userId
+          ? {
+              ...res.userId,
+              customId: replaceCustomId(
+                userIdFormat?.idFormat,
+                res.userId?.customId
+              ),
+            }
+          : null,
+      }));
       totalDevices = await Device.find({}).countDocuments();
     } else if (await isClient(session.user)) {
       response = normaliseIds(

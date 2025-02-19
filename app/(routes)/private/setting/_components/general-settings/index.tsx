@@ -185,7 +185,7 @@ export default function GeneralSettings() {
                                             <SelectTrigger className="w-full">
                                                 <SelectValue />
                                             </SelectTrigger>
-                                            <SelectContent side='bottom'>
+                                            <SelectContent side='bottom' className="h-80">
                                                 <SelectGroup>
                                                     {uniqueTimeZones.map((zoneName, index) => (
                                                         <SelectItem key={index} value={zoneName}>

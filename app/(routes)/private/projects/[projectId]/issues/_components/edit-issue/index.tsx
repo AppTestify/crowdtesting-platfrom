@@ -449,7 +449,7 @@ const EditIssue = ({
                         <SelectTrigger className="w-full">
                           <SelectValue>{field.value || ""}</SelectValue>
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="h-72">
                           {userData?.role === UserRoles.TESTER &&
                             !checkProjectRole ? (
                             <SelectGroup>

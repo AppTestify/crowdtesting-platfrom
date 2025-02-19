@@ -96,9 +96,11 @@ export default function TestPlan() {
                     cell: ({ row }: { row: any }) => (
                         <div>
                             {row.original?.assignedTo?._id ? (
-                                `${row.original?.assignedTo?.firstName ||
-                                NAME_NOT_SPECIFIED_ERROR_MESSAGE
-                                } ${row.original?.assignedTo?.lastName || ""}`
+                                userData?.role === UserRoles.ADMIN ?
+                                    `${row.original?.assignedTo?.firstName ||
+                                    NAME_NOT_SPECIFIED_ERROR_MESSAGE
+                                    } ${row.original?.assignedTo?.lastName || ""}` :
+                                    row.original?.assignedTo?.customId
                             ) : (
                                 <span className="text-gray-400">Unassigned</span>
                             )}

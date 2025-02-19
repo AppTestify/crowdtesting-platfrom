@@ -195,16 +195,29 @@ export async function GET(
     }
 
     if (!(await isAdmin(session.user))) {
-      response = addCustomIds(
+      const data = addCustomIds(
         await Requirement.find({ projectId: projectId })
           .populate("userId", "firstName lastName")
-          .populate("assignedTo", "firstName lastName")
+          .populate("assignedTo", "firstName lastName customId")
           .sort({ createdAt: -1 })
           .skip(skip)
           .limit(Number(limit))
           .lean(),
         requirementIdFormat.idFormat
       );
+      // userIdFormat
+      response = data?.map((res) => ({
+        ...res,
+        assignedTo: res.assignedTo
+          ? {
+              ...res.assignedTo,
+              customId: replaceCustomId(
+                userIdFormat?.idFormat,
+                res.assignedTo?.customId
+              ),
+            }
+          : null,
+      }));
     } else {
       response = addCustomIds(
         await Requirement.find({ projectId: projectId })

@@ -85,6 +85,7 @@ export default function PieCharts({ title, description, chartData, dataKey }: Ho
         : [];
 
     const filteredData = formattedData.filter((item) => Number(item[dataKey]) > 0);
+    const isEmpty = Object.values(chartData || {}).every((value) => value === 0);
 
     return (
         <Card className="flex flex-col mt-2 shadow-none">
@@ -93,28 +94,34 @@ export default function PieCharts({ title, description, chartData, dataKey }: Ho
                 <CardDescription>{description}</CardDescription>
             </CardHeader>
             <CardContent className="flex-1 pb-0">
-                <ChartContainer
-                    config={chartConfig}
-                    className="mx-auto aspect-square max-h-[250px] [&_.recharts-text]:fill-background"
-                >
-                    <PieChart >
-                        <ChartTooltip
-                            content={<ChartTooltipContent nameKey="level" hideLabel />}
-                        />
-                        <Pie data={filteredData} dataKey={dataKey}
-                        >
-                            <LabelList
-                                dataKey="level"
-                                className="fill-background"
-                                stroke="none"
-                                fontSize={12}
-                                formatter={(value: keyof typeof chartConfig) =>
-                                    chartConfig[value]?.label || value.split('_').join(' ')
-                                }
+                {isEmpty ? (
+                    <div className='flex justify-center items-center h-48'>
+                        <div className="text-center text-xl text-gray-500">No data found</div>
+                    </div>
+                ) : (
+                    <ChartContainer
+                        config={chartConfig}
+                        className="mx-auto aspect-square max-h-[250px] [&_.recharts-text]:fill-background"
+                    >
+                        <PieChart >
+                            <ChartTooltip
+                                content={<ChartTooltipContent nameKey="level" hideLabel />}
                             />
-                        </Pie>
-                    </PieChart>
-                </ChartContainer>
+                            <Pie data={filteredData} dataKey={dataKey}
+                            >
+                                <LabelList
+                                    dataKey="level"
+                                    className="fill-background"
+                                    stroke="none"
+                                    fontSize={12}
+                                    formatter={(value: keyof typeof chartConfig) =>
+                                        chartConfig[value]?.label || value.split('_').join(' ')
+                                    }
+                                />
+                            </Pie>
+                        </PieChart>
+                    </ChartContainer>
+                )}
             </CardContent>
         </Card>
     );

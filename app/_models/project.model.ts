@@ -19,6 +19,7 @@ const ProjectUserSchema = new Schema(
     userId: { type: Schema.Types.ObjectId, ref: DBModels.USER, required: true },
     role: { type: String },
     customId: { type: Number },
+    isVerify: { type: Boolean },
   },
   { timestamps: true }
 );
