@@ -13,6 +13,8 @@ export interface ITestCycle extends Document {
   attachments: Types.ObjectId[];
   startDate: Date;
   endDate: Date;
+  country?: string;
+  isEmailSend: boolean;
 }
 
 const TestCycleSchema = new Schema<ITestCycle>(
@@ -35,6 +37,8 @@ const TestCycleSchema = new Schema<ITestCycle>(
     ],
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
+    country: { type: String, required: false },
+    isEmailSend: { type: Boolean, default: false },
   },
   {
     timestamps: true,

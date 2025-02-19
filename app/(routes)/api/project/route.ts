@@ -177,18 +177,26 @@ export async function GET(req: Request) {
         projectIdFormat.idFormat
       );
       totalProjects = await Project.find(filter)
-      .find({
-        // filter,
-        $or: [
-          { "users.userId": session.user._id },
-          { userId: session.user._id },
-        ],
-      }).countDocuments();
+        .find({
+          $or: [
+            { "users.userId": session.user._id },
+            { userId: session.user._id },
+          ],
+        })
+        .countDocuments();
     } else {
       response = addCustomIds(
         await Project.find(filter)
           .find({
-            "users.userId": session.user._id,
+            users: {
+              $elemMatch: {
+                userId: session.user._id,
+                $or: [
+                  { isVerify: { $exists: false } },
+                  { isVerify: { $ne: false } },
+                ],
+              },
+            },
           })
           .sort({ createdAt: -1 })
           .skip(skip)
@@ -196,9 +204,18 @@ export async function GET(req: Request) {
           .lean(),
         projectIdFormat.idFormat
       );
+
       totalProjects = await Project.find(filter)
         .find({
-          "users.userId": session.user._id,
+          users: {
+            $elemMatch: {
+              userId: session.user._id,
+              $or: [
+                { isVerify: { $exists: false } },
+                { isVerify: { $ne: false } },
+              ],
+            },
+          },
         })
         .countDocuments();
     }

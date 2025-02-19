@@ -5,6 +5,7 @@ import {
   PAGINATION_QUERY_ENDPOINT,
   PAYMENT_ENDPOINT,
   PROFILE_PICTURE_ENDPOINT,
+  PROJECT_USER_ENPOINT,
   PROJECTS_ENDPOINT,
   USER_PASSWORD_ENDPOINT,
   USERS_BULK_DELETE_ENDPOINT,
@@ -14,10 +15,12 @@ import {
   IUserByAdmin,
   IUserPassword,
   IUsersBulkDeletePayload,
+  IVerifyUser,
 } from "../_interface/user";
 import {
   genericDelete,
   genericGet,
+  genericPatch,
   genericPost,
   genericPostFormData,
   genericPut,
@@ -232,6 +235,23 @@ export const getAllTesterUsersService = async (): Promise<any> => {
     return response || [];
   } catch (error) {
     console.error(`Error > getAllTesterUsersService:`, error);
+    throw error;
+  }
+};
+
+export const verifyUserService = async (
+  projectId: string,
+  userId: string,
+  body: IVerifyUser
+): Promise<any> => {
+  try {
+    const response = await genericPatch(
+      `${PROJECT_USER_ENPOINT(projectId)}/${userId}/verify`,
+      body
+    );
+    return response || {};
+  } catch (error) {
+    console.error(`Error > verifyUserService:`, error);
     throw error;
   }
 };

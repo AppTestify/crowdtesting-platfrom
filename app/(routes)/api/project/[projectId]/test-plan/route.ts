@@ -16,7 +16,7 @@ import {
 } from "@/app/_queries/search-test-plan";
 import { testPlanSchema } from "@/app/_schemas/test-plan.schema";
 import { serverSidePagination } from "@/app/_utils/common-server-side";
-import { addCustomIds } from "@/app/_utils/data-formatters";
+import { addCustomIds, replaceCustomId } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function POST(
@@ -106,6 +106,9 @@ export async function GET(
     const testPlanIdFormat = await IdFormat.findOne({
       entity: DBModels.TEST_PLAN,
     });
+    const userIdFormat = await IdFormat.findOne({
+      entity: DBModels.USER,
+    });
 
     if (searchString) {
       if (!(await isAdmin(session.user))) {
@@ -136,17 +139,30 @@ export async function GET(
     }
 
     if (!(await isAdmin(session.user))) {
-      response = addCustomIds(
+      const data = addCustomIds(
         await TestPlan.find({ projectId: projectId })
           .populate("projectId", "_id")
           .populate("userId", "id firstName lastName")
-          .populate("assignedTo", "firstName lastName")
+          .populate("assignedTo", "firstName lastName customId")
           .sort({ createdAt: -1 })
           .skip(skip)
           .limit(Number(limit))
           .lean(),
         testPlanIdFormat.idFormat
       );
+
+      response = data?.map((res) => ({
+        ...res,
+        assignedTo: res.assignedTo
+          ? {
+              ...res.assignedTo,
+              customId: replaceCustomId(
+                userIdFormat?.idFormat,
+                res.assignedTo?.customId
+              ),
+            }
+          : null,
+      }));
     } else {
       response = addCustomIds(
         await TestPlan.find({ projectId: projectId })

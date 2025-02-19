@@ -3,10 +3,7 @@ import {
   USER_UNAUTHORIZED_SERVER_ERROR_MESSAGE,
 } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
-import {
-  IssueStatus,
-  Severity,
-} from "@/app/_constants/issue";
+import { IssueStatus, Severity } from "@/app/_constants/issue";
 import { connectDatabase } from "@/app/_db";
 import { verifySession } from "@/app/_lib/dal";
 import { Issue } from "@/app/_models/issue.model";
@@ -40,7 +37,25 @@ export async function GET(req: Request) {
     if (project && project !== "undefined") {
       projects = await Project.find({ _id: project });
     } else {
-      projects = await Project.find({ "users.userId": session.user._id });
+      projects = await Project.find({
+        users: {
+          $elemMatch: {
+            userId: session.user._id,
+            $or: [
+              { isVerify: { $exists: false } },
+              { isVerify: { $ne: false } },
+            ],
+          },
+        },
+      });
+
+      projects.forEach((project) => {
+        project.users.forEach((user: any) => {
+          if (user.isVerify === undefined) {
+            user.isVerify = true;
+          }
+        });
+      });
     }
 
     const issues = await Issue.find({

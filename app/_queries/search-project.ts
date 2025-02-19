@@ -192,7 +192,7 @@ export async function filterProjectsForTester(
     {
       $match: {
         deletedAt: { $exists: false },
-        users: { $elemMatch: { userId: userId } },
+        users: { $elemMatch: { userId: userId, isVerify: { $ne: false } } },
       },
     },
     ...(status

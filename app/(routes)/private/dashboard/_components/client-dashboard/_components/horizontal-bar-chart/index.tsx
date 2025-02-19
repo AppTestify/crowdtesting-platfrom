@@ -120,7 +120,7 @@ export default function HorizontalBarChart({ title, description, dataKey, chartD
                     >
                         <SelectValue placeholder="Status" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className='h-72'>
                         <SelectGroup>
                             <SelectItem value="All">
                                 <div className="flex items-center">All status</div>

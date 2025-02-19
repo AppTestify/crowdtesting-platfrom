@@ -25,7 +25,7 @@ export default function ModerateView({ sheetOpen, setSheetOpen, moderate }:
                     <div
                         className="text-sm leading-relaxed text-gray-700 space-y-2 rich-description"
                         dangerouslySetInnerHTML={{
-                            __html: moderate?.original.testCaseId?.expectedResult || "",
+                            __html: moderate?.original?.testCaseId?.expectedResult || "",
                         }}
                     />
                 </div>

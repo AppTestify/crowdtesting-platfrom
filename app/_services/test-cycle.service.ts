@@ -1,11 +1,11 @@
 import {
   PAGINATION_QUERY_ENDPOINT,
-  TEST_CASE_STEP_ENPOINT,
   TEST_CYCLE_ENPOINT,
 } from "../_constants/api-endpoints";
 import {
   IAssignedTestCase,
   ITestCyclePayload,
+  ITestCycleVerificationPayload,
   IUnAssignedTestCase,
 } from "../_interface/test-cycle";
 import {
@@ -48,6 +48,8 @@ export const addTestCycleService = async (
     formData.append("description", body?.description);
     formData.append("startDate", body?.startDate.toISOString());
     formData.append("endDate", body?.endDate.toISOString());
+    formData.append("country", body?.country);
+    formData.append("isEmailSend", (body?.isEmailSend ?? false).toString());
     body?.attachments?.forEach((file) => {
       formData.append("attachments", file);
     });
@@ -181,6 +183,18 @@ export const getSingleCycleService = async (
     return response || [];
   } catch (error) {
     console.error(`Error > getSingleCycleService:`, error);
+    throw error;
+  }
+};
+
+export const verifyTestCycleService = async (
+  body: ITestCycleVerificationPayload
+): Promise<any> => {
+  try {
+    const response = await genericPost(`/api/auth/test-cycle/verify`, body);
+    return response || [];
+  } catch (error) {
+    console.error(`Error > verifyTestCycleService:`, error);
     throw error;
   }
 };

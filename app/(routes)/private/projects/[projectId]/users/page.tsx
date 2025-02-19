@@ -22,10 +22,10 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { useParams } from "next/navigation";
-import { getProjectUsersPaginationService } from "@/app/_services/project.service";
+import { getProjectService, getProjectUsersPaginationService } from "@/app/_services/project.service";
 import { AddProjectUser } from "./add-user";
 import { ProjectUserRowActions } from "./row-actions";
-import { IProjectUserDisplay } from "@/app/_interface/project";
+import { IProject, IProjectUserDisplay } from "@/app/_interface/project";
 import { statusBadgeProjectUserRole } from "@/app/_utils/common-functionality";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
@@ -33,9 +33,18 @@ import ExpandableTable from "@/app/_components/expandable-table";
 import { DBModels } from "@/app/_constants";
 import { Button } from "@/components/ui/button";
 import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
+import { checkProjectAdmin } from "@/app/_utils/common";
+import toasterService from "@/app/_services/toaster-service";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ShieldCheck } from "lucide-react";
+import { verifyUserService } from "@/app/_services/user.service";
+import { IUserByAdmin } from "@/app/_interface/user";
+import { ConfirmationDialog } from "@/app/_components/confirmation-dialog";
 
 export default function ProjectUsers() {
     const [userData, setUserData] = useState<any>();
+    const [project, setProject] = useState<IProject>();
+    const projectAdmin = checkProjectAdmin(project as IProject, userData);
 
     const columns: ColumnDef<IProjectUserDisplay>[] = [
         {
@@ -117,6 +126,32 @@ export default function ProjectUsers() {
                 </div>
             ),
         },
+        ...((projectAdmin === true || userData?.role === UserRoles.ADMIN) ?
+            [{
+                accessorKey: "verify",
+                header: "Verify",
+                cell: ({ row }: { row: any }) => {
+                    const isVerify = row.original?.isVerify;
+                    return (
+                        <div className="capitalize" >
+                            {isVerify === false &&
+                                <TooltipProvider>
+                                    <Tooltip delayDuration={50}>
+                                        <TooltipTrigger asChild>
+                                            <Button variant={'outline'} size={'icon'} onClick={() => verifyUser(row.original)}>
+                                                <ShieldCheck />
+                                            </Button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p>Verify User</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
+                            }
+                        </div >
+                    )
+                },
+            }] : []),
         ...(
             userData?.role === UserRoles.ADMIN ?
                 [{
@@ -145,6 +180,9 @@ export default function ProjectUsers() {
     const [projectUsers, setProjectUsers] = useState<IProjectUserDisplay[]>([]);
     const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
     const { projectId } = useParams<{ projectId: string }>();
+    const [userVerify, setUserVerify] = useState<string>();
+    const [isVerifyLoading, setIsVerifyLoading] = useState<boolean>(false);
+    const [isOpen, setIsOpen] = useState<boolean>(false);
     const { data } = useSession();
 
     const handlePreviousPage = () => {
@@ -160,6 +198,10 @@ export default function ProjectUsers() {
         }
     };
 
+    const verifyUser = (user: IUserByAdmin) => {
+        setIsOpen(true);
+        setUserVerify(user?._id)
+    }
 
     useEffect(() => {
         if (data) {
@@ -170,8 +212,8 @@ export default function ProjectUsers() {
 
     useEffect(() => {
         localStorage.setItem("entity", DBModels.PROJECT_USERS);
+        getProject();
     }, []);
-
 
     useEffect(() => {
         const debounceFetch = setTimeout(() => {
@@ -188,6 +230,34 @@ export default function ProjectUsers() {
         setTotalPageCount(projectUsers?.data?.total);
         setIsLoading(false);
     };
+
+    const getProject = async () => {
+        setIsLoading(true);
+        try {
+            const response = await getProjectService(projectId);
+            setProject(response);
+        } catch (error) {
+            toasterService.error();
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    const verifyProjectUser = async () => {
+        setIsVerifyLoading(true);
+        try {
+            const response = await verifyUserService(projectId, userVerify as string, { isVerify: true });
+            if (response) {
+                setIsOpen(false);
+                toasterService.success(response.message);
+                refreshProjectUsers();
+            }
+        } catch (error) {
+            toasterService.error();
+        } finally {
+            setIsVerifyLoading(false);
+        }
+    }
 
     const refreshProjectUsers = () => {
         getProjectUsers();
@@ -216,6 +286,19 @@ export default function ProjectUsers() {
 
     return (
         <main className="mx-4 mt-2">
+            {userVerify && (
+                <ConfirmationDialog
+                    isOpen={isOpen}
+                    setIsOpen={setIsOpen}
+                    title={`Verify user`}
+                    description={`Are you sure you want to verify this user?`}
+                    isLoading={isVerifyLoading}
+                    successAction={verifyProjectUser}
+                    successLabel={`Verify`}
+                    successLoadingLabel={`Verifing`}
+                    successVariant={"default"}
+                />
+            )}
             <div className="">
                 <h2 className="text-medium">Users</h2>
             </div>

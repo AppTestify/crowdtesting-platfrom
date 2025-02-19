@@ -7,4 +7,5 @@ export const enum EmailSubjects {
   TESTER_INFORMATION = "Complete Your Registration on AppTestify to Start Testing!",
   FORGOT_PASSWORD = "Forgot password",
   DOCUMENT_APPROVAL = "Document approval",
+  TEST_CYCLE_COUNTRY = "New test cycle added in your project",
 }

@@ -43,6 +43,9 @@ import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { ColumnDef } from "@tanstack/react-table";
 import { ITestCycleAttachment } from "@/app/_interface/test-cycle";
 import { DocumentName } from "@/app/_components/document-name";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { countries } from "@/app/_constants/countries";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const testCycleSchema = z.object({
     title: z.string().min(1, "Required"),
@@ -51,6 +54,16 @@ const testCycleSchema = z.object({
     attachments: z.array(z.instanceof(File)).optional(),
     startDate: z.date(),
     endDate: z.date(),
+    country: z.string().optional(),
+    isEmailSend: z.boolean().optional()
+}).refine((data) => {
+    if (data.isEmailSend === true && !data.country) {
+        return false;
+    }
+    return true;
+}, {
+    message: "Required",
+    path: ["country"]
 });
 
 export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => void }) {
@@ -78,6 +91,8 @@ export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => voi
             projectId: projectId,
             startDate: new Date(),
             endDate: new Date(),
+            country: "",
+            isEmailSend: false
         },
     });
 
@@ -86,6 +101,8 @@ export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => voi
         try {
             const response = await addTestCycleService(projectId, {
                 ...values,
+                country: values.country || "",
+                isEmailSend: values.isEmailSend === true,
             });
             if (response) {
                 refreshTestCycle();
@@ -198,7 +215,7 @@ export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => voi
                                                         <Button
                                                             variant={"outline"}
                                                             className={cn(
-                                                                "w-[260px] pl-3 text-left font-normal",
+                                                                "w-full pl-3 text-left font-normal",
                                                                 !field.value && "text-muted-foreground"
                                                             )}
                                                         >
@@ -240,7 +257,7 @@ export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => voi
                                                         <Button
                                                             variant={"outline"}
                                                             className={cn(
-                                                                "w-[260px] pl-3 text-left font-normal",
+                                                                "w-full pl-3 text-left font-normal",
                                                                 !field.value && "text-muted-foreground"
                                                             )}
                                                         >
@@ -266,6 +283,38 @@ export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => voi
                                                     />
                                                 </PopoverContent>
                                             </Popover>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-1 gap-2 mt-3">
+                                <FormField
+                                    control={form.control}
+                                    name="country"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Country</FormLabel>
+                                            <Select
+                                                onValueChange={field.onChange}
+                                                value={field.value}
+                                            >
+                                                <SelectTrigger className="w-full">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent className="h-72">
+                                                    <SelectGroup>
+                                                        {countries.map((country) => (
+                                                            <SelectItem value={country?.description}>
+                                                                <div className="flex items-center">
+                                                                    {country?.description}
+                                                                </div>
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectGroup>
+                                                </SelectContent>
+                                            </Select>
                                             <FormMessage />
                                         </FormItem>
                                     )}
@@ -345,6 +394,29 @@ export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => voi
                                         </div>
                                     )}
                                 </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 mt-3">
+                                <FormField
+                                    control={form.control}
+                                    name="isEmailSend"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormControl>
+                                                <div className="flex items-center space-x-2 mt-2">
+                                                    <Checkbox
+                                                        id="terms"
+                                                        className="h-5 w-5 text-blue-500 border-gray-300 "
+                                                        checked={Boolean(field.value)}
+                                                        onCheckedChange={field.onChange}
+                                                    />
+                                                    <Label htmlFor="terms" className="text-gray-600">Send mail to all testers of same country to apply?</Label>
+                                                </div>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
                             </div>
 
                             < div className="mt-6 w-full flex justify-end gap-2" >

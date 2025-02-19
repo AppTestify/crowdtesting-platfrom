@@ -101,7 +101,7 @@ export default function Projects() {
         const { id } = row.original;
         return (
           <Link href={`/private/projects/${id}/dashboard`}>
-            <div className="ml-4 hover:text-primary">
+            <div className="hover:text-primary">
               {row.getValue("title")}
             </div>
           </Link>

@@ -8,7 +8,7 @@ import {
   USER_UNAUTHORIZED_SERVER_ERROR_MESSAGE,
 } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
-import { TestCaseExecutionResult } from "@/app/_constants/test-case";
+import { UserRoles } from "@/app/_constants/user-roles";
 import { connectDatabase } from "@/app/_db";
 import AttachmentService from "@/app/_helpers/attachment.helper";
 import { ITestCase } from "@/app/_interface/test-case";
@@ -16,6 +16,8 @@ import { isAdmin, verifySession } from "@/app/_lib/dal";
 import { IdFormat } from "@/app/_models/id-format.model";
 import { TestCycleAttachment } from "@/app/_models/test-cycle-attachment.model";
 import { TestCycle } from "@/app/_models/test-cycle.model";
+import { Tester } from "@/app/_models/tester.model";
+import { User } from "@/app/_models/user.model";
 import {
   filterTestCyclesForAdmin,
   filterTestCyclesNotForAdmin,
@@ -23,10 +25,12 @@ import {
 import { testCycleSchema } from "@/app/_schemas/test-cycle.schema";
 import {
   countResults,
+  generateTestCycleLink,
   getFileMetaData,
   serverSidePagination,
 } from "@/app/_utils/common-server-side";
 import { addCustomIds, replaceCustomId } from "@/app/_utils/data-formatters";
+import { testCycleCountryMail } from "@/app/_utils/email";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function POST(
@@ -54,6 +58,7 @@ export async function POST(
     }
 
     const body = await req.formData();
+    const { projectId } = params;
     const attachments = body.getAll("attachments");
     const formData = {
       title: body.get("title"),
@@ -61,7 +66,8 @@ export async function POST(
       description: body.get("description"),
       startDate: body.get("startDate"),
       endDate: body.get("endDate"),
-      // testCaseResults: body.get("testCaseResults"),
+      country: body.get("country"),
+      isEmailSend: body.get("isEmailSend") === "true",
     };
     const response = testCycleSchema.safeParse(formData);
 
@@ -77,6 +83,42 @@ export async function POST(
         },
         { status: HttpStatusCode.BAD_REQUEST }
       );
+    }
+
+    if (response.data?.isEmailSend) {
+      const testers = await User.find({ role: UserRoles.TESTER });
+
+      const users = await Tester.find({
+        "address.country": response?.data?.country,
+        user: testers?.map((tester) => tester?._id),
+      }).populate("user", "firstName lastName email");
+
+      // unique users
+      const uniqueUsers = new Map();
+      users.forEach((user) => {
+        if (user?.user?._id) {
+          uniqueUsers.set(user.user._id.toString(), {
+            id: user.user._id,
+            email: user.user.email,
+            fullName: `${user.user.firstName.trim()} ${user.user.lastName.trim()}`,
+          });
+        }
+      });
+
+      const uniqueUsersArray = Array.from(uniqueUsers.values());
+
+      for (const user of uniqueUsersArray) {
+        const payload = {
+          emails: user.email,
+          fullName: user.fullName || "",
+          name: response.data.title,
+          description: response?.data?.description,
+          startDate: response?.data?.startDate,
+          endDate: response?.data?.endDate,
+          applyLink: generateTestCycleLink(user.id, projectId),
+        };
+        await testCycleCountryMail(payload);
+      }
     }
 
     const newTestSuite = new TestCycle({
@@ -196,9 +238,6 @@ export async function GET(
     if (!(await isAdmin(session.user))) {
       response = addCustomIds(
         await TestCycle.find({ projectId: projectId })
-          // .populate({
-          //   path: "testCaseResults",
-          // })
           .sort({ createdAt: -1 })
           .skip(skip)
           .limit(Number(limit))
@@ -209,9 +248,6 @@ export async function GET(
       response = addCustomIds(
         await TestCycle.find({ projectId: projectId })
           .populate("userId", "id firstName lastName")
-          // .populate({
-          //   path: "testCaseResults",
-          // })
           .sort({ createdAt: -1 })
           .skip(skip)
           .limit(Number(limit))
