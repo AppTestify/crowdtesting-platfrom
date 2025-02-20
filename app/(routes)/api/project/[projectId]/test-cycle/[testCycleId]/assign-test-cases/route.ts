@@ -8,9 +8,12 @@ import {
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
 import { ITestCycle } from "@/app/_interface/test-cycle";
+import { ITestExecution } from "@/app/_interface/test-execution";
 import { verifySession } from "@/app/_lib/dal";
 import { IdFormat } from "@/app/_models/id-format.model";
+import { TestCaseResult } from "@/app/_models/test-case-result.model";
 import { TestCycle } from "@/app/_models/test-cycle.model";
+import { TestExecution } from "@/app/_models/test-execution.model";
 import { assignTestCasesSchema } from "@/app/_schemas/test-cycle.schema";
 import { replaceCustomId } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
@@ -71,11 +74,39 @@ export async function PATCH(
       ? checkTestCycleResult?.testCases?.map((result: any) => result.toString())
       : [];
 
+    // New test case result
+    const testExecutions = await TestExecution.find({
+      testCycle: testCycleId,
+    }).populate({ path: "testCaseResults", populate: { path: "testCaseId" } });
+
+    // Add new test case result
+    const testCase = await TestCaseResult.insertMany(
+      testExecutions.flatMap((testExecution: ITestExecution) =>
+        newTestCaseIds.map((testCaseId: string) => ({
+          userId: session.user._id,
+          testCycleId: testCycleId,
+          testCaseId: testCaseId,
+          testExecutionId: testExecution._id,
+        }))
+      )
+    );
+
+    // After added new test case result, update test execution
+    if (testCase.length > 0) {
+      await Promise.all(
+        testCase.map(async (tc) => {
+          await TestExecution.updateOne(
+            { _id: tc.testExecutionId }, 
+            { $push: { testCaseResults: tc._id } }
+          );
+        })
+      );
+    }
+
     const allTestCaseResultIds = [
       ...existingTestCaseResultIds,
       ...newTestCaseIds,
     ];
-
 
     try {
       await TestCycle.findOneAndUpdate(

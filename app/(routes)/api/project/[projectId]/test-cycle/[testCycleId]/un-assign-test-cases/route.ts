@@ -54,22 +54,17 @@ export async function PATCH(
     let TestCaseResultIds;
     let TestCaseResults;
 
-    if (isSingleDelete) {
-      TestCaseResults = await TestCaseResult.find({
-        testCaseId: testCaseIds,
-        testCycleId: testCycleId,
-      });
-      TestCaseResultIds = TestCaseResults.map(
-        (TestCaseResult) => TestCaseResult._id
-      );
-      await TestCaseResult.deleteMany({
-        testCaseId: testCaseIds,
-        testCycleId: testCycleId,
-      });
-    } else {
-      TestCaseResults = await TestCaseResult.find({ _id: testCaseIds });
-      await TestCaseResult.deleteMany({ _id: testCaseIds });
-    }
+    TestCaseResults = await TestCaseResult.find({
+      testCaseId: testCaseIds,
+      testCycleId: testCycleId,
+    });
+    TestCaseResultIds = TestCaseResults.map(
+      (TestCaseResult) => TestCaseResult._id
+    );
+    await TestCaseResult.deleteMany({
+      testCaseId: testCaseIds,
+      testCycleId: testCycleId,
+    });
 
     const testCaseIssueId = TestCaseResults?.map(
       (TestCaseResult) => TestCaseResult.issueId

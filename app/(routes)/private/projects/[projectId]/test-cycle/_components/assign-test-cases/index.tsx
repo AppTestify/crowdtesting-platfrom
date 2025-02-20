@@ -175,7 +175,9 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
     const [testCaseIds, setTestCaseIds] = useState<string[]>([]);
     const [globalFilter, setGlobalFilter] = useState<unknown>([]);
     const [unassignedLoading, setUnAssignedLoading] = useState<boolean>(false);
+    const [multipleUnassignedLoading, setMultipleUnAssignedLoading] = useState<boolean>(false);
     const [assignedLoading, setAssignedLoading] = useState<boolean>(false);
+    const [multipleAssignedLoading, setMultipleAssignedLoading] = useState<boolean>(false);
     const [loadingRowIdUnAssign, setLoadingRowIdUnAssign] = useState<string | null>(null);
     const [loadingRowIdAssign, setLoadingRowIdAssign] = useState<string | null>(null);
     const { projectId } = useParams<{ projectId: string }>();
@@ -188,7 +190,7 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
     };
 
     const assignTestCaseInTestCycle = async () => {
-        setAssignedLoading(true);
+        setMultipleAssignedLoading(true);
         try {
             const response = await assignTestCase(projectId, testCycleId, { testCaseIds: testCaseIds })
             if (response) {
@@ -198,12 +200,12 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
         } catch (error) {
             toasterService.error();
         } finally {
-            setAssignedLoading(false);
+            setMultipleAssignedLoading(false);
         }
     }
 
     const unAssignTestCaseInTestCycle = async () => {
-        setUnAssignedLoading(true);
+        setMultipleUnAssignedLoading(true);
         try {
             const response = await unAssignTestCase(projectId, testCycleId, { testCaseIds: unAssignTestCaseIds, isSingleDelete: false, testCases: unAssignTestCaseIds })
             if (response) {
@@ -213,7 +215,7 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
         } catch (error) {
             toasterService.error();
         } finally {
-            setUnAssignedLoading(false);
+            setMultipleUnAssignedLoading(false);
         }
     }
 
@@ -432,8 +434,8 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
                                             Cancel
                                         </Button>
                                         <Button type="button" onClick={assignTestCaseInTestCycle}>
-                                            {assignedLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}
-                                            {assignedLoading ? "Assigning" : "Assign"}
+                                            {multipleAssignedLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}
+                                            {multipleAssignedLoading ? "Assigning" : "Assign"}
                                         </Button>
                                     </>
                                 )}
@@ -506,8 +508,8 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
                                                 Cancel
                                             </Button>
                                             <Button type="button" onClick={unAssignTestCaseInTestCycle}>
-                                                {unassignedLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}
-                                                {unassignedLoading ? "Un Assigning" : "Unassign"}
+                                                {multipleUnassignedLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}
+                                                {multipleUnassignedLoading ? "Un Assigning" : "Unassign"}
                                             </Button>
                                         </>
                                     )}
