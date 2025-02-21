@@ -12,14 +12,7 @@ export const FORGOT_PASSWORD_TEMPLATE = `
             margin: 0;
             padding: 0;
         }
-        .container {
-            background-color: #ffffff;
-            padding: 30px;
-            margin: 50px auto;
-            max-width: 600px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
+         
         h1 {
             color: #333;
             font-size: 24px;
@@ -43,6 +36,7 @@ export const FORGOT_PASSWORD_TEMPLATE = `
          
         .reset-button:hover {
             background-color: #45a049;  
+            margin-bottom: 20px;
         }
         .footer {
             margin-top: 30px;
@@ -57,13 +51,13 @@ export const FORGOT_PASSWORD_TEMPLATE = `
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Password Reset Request</h1>
+    <div >
+        <h1>Reset Password Request</h1>
         <p>We received a request to reset your password. Click the link below to reset it:</p>
         <a href="{resetLink}" class="reset-button">Reset Password</a>
         <p>If you did not request a password reset, please ignore this email or contact support if you have questions.</p>
         
-        <p class="footer">Best regards, <br> CrowdTesting</p>
+         
     </div>
 </body>
 </html>

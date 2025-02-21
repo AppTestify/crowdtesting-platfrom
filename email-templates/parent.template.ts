@@ -357,7 +357,7 @@ export const PARENT_EMAIL_TEMPLATE = `<!doctype html>
             </div>
             <!-- START FOOTER -->
             <div class="footer">
-              &copy; APPTESTIFY GLOBAL SERVICES PRIVATE LIMITED | Corporate Identity Number: U74999DL2021PTC382674
+              &copy; AppTestify | Corporate Identity Number: U74999DL2021PTC382674
             </div>
             <!-- END FOOTER -->
         </td>

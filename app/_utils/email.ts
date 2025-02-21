@@ -120,7 +120,7 @@ export const sendForgotPasswordLink = async (
     to: templateTags?.email,
     subject: EmailSubjects.FORGOT_PASSWORD,
     body: replaceEmailTemplateTagsInternalService({
-      emailBody: FORGOT_PASSWORD_TEMPLATE,
+      emailBody: prepareEmailTemplate(FORGOT_PASSWORD_TEMPLATE),
       tagValuesObject: templateTags,
     }),
   });
