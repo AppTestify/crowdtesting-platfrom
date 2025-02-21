@@ -38,7 +38,7 @@ export async function POST(req: Request) {
     }
 
     const { token } = response.data;
-    const [id, emailSentAt, projectId] =
+    const [id, emailSentAt, projectId, testCycleId] =
       extractDataFromVerificationToken(token);
 
     if (!id || !emailSentAt) {
@@ -80,6 +80,7 @@ export async function POST(req: Request) {
             role: UserRoles.TESTER,
             customId: counter.sequence,
             isVerify: false,
+            testCycles: testCycleId,
           },
         },
       },

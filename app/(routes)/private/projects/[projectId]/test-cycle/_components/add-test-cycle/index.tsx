@@ -33,7 +33,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useParams } from "next/navigation";
 import { Textarea } from "@/components/ui/text-area";
-import { addTestCycleService } from "@/app/_services/test-cycle.service";
+import { addTestCycleService, getTestCycleEmailFormatService } from "@/app/_services/test-cycle.service";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -46,6 +46,8 @@ import { DocumentName } from "@/app/_components/document-name";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { countries } from "@/app/_constants/countries";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import TextEditor from "../../../../_components/text-editor";
 
 const testCycleSchema = z.object({
     title: z.string().min(1, "Required"),
@@ -56,16 +58,15 @@ const testCycleSchema = z.object({
     endDate: z.date(),
     country: z.string().optional(),
     isEmailSend: z.boolean().optional()
-})
-    .refine((data) => {
-        if (data.isEmailSend === true && !data.country) {
-            return false;
-        }
-        return true;
-    }, {
-        message: "Required",
-        path: ["country"]
-    });
+}).refine((data) => {
+    if (data.isEmailSend === true && !data.country) {
+        return false;
+    }
+    return true;
+}, {
+    message: "Required",
+    path: ["country"]
+});
 
 export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => void }) {
     const columns: ColumnDef<ITestCycleAttachment[]>[] = [
@@ -79,10 +80,30 @@ export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => voi
         },
     ];
 
+    const requiredVariables = ["{fullName}", "{name}", "{startDate}", "{endDate}", "{description}", "{country}", "{applyLink}"];
+    const EmailSchema = z.object({
+        subject: z.string().min(1, "Required"),
+        body: z.string().min(1, "Required").superRefine((body, ctx) => {
+            const missingVars = requiredVariables.filter(variable => !body.includes(variable));
+            if (missingVars.length > 0) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: `Missing required variables: ${missingVars.join(", ")}`,
+                });
+            }
+        })
+    });
+
+
+    const [emailFormat, setEmailFormat] = useState<{ subject: string, body: string }>();
     const [sheetOpen, setSheetOpen] = useState(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const { projectId } = useParams<{ projectId: string }>();
     const [attachments, setAttachments] = useState<File[]>([]);
+    const [modalOpen, setModalOpen] = useState<boolean>(false);
+    const [isModalLoading, setIsModalLoading] = useState<boolean>(false);
+    const [emailBody, setEmailBody] = useState("");
+    const [emailSubject, setEmailSubject] = useState<string>("");
     const inputRef = useRef<HTMLInputElement | null>(null);
 
     const form = useForm<z.infer<typeof testCycleSchema>>({
@@ -97,6 +118,27 @@ export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => voi
         },
     });
 
+    const Emailform = useForm<z.infer<typeof EmailSchema>>({
+        resolver: zodResolver(EmailSchema),
+        defaultValues: {
+            subject: emailFormat?.subject || "",
+            body: emailFormat?.body || "",
+        },
+    });
+
+    async function onFormSubmit(values: z.infer<typeof EmailSchema>) {
+        setIsModalLoading(true);
+        try {
+            setEmailBody(values.body);
+            setEmailSubject(values.subject);
+            setModalOpen(false);
+        } catch (error) {
+            toasterService.error();
+        } finally {
+            setIsModalLoading(false);
+        }
+    }
+
     async function onSubmit(values: z.infer<typeof testCycleSchema>) {
         setIsLoading(true);
         try {
@@ -104,6 +146,8 @@ export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => voi
                 ...values,
                 country: values.country || "",
                 isEmailSend: values.isEmailSend === true,
+                emailFormat: emailBody,
+                emailSubject: emailSubject,
             });
             if (response) {
                 refreshTestCycle();
@@ -116,12 +160,26 @@ export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => voi
             setSheetOpen(false);
         }
     }
+    const validateTestCycle = async (event?: React.FormEvent) => {
+        event?.preventDefault();
+        await form.trigger();
 
-    const validateTestCycle = () => {
         if (form.formState.isValid) {
-            form.handleSubmit(onSubmit)();
+            if (form.watch("isEmailSend") && !emailBody && !emailSubject) {
+                await getEmailFormat();
+                setModalOpen(true);
+                return;
+            } else {
+                form.handleSubmit(onSubmit)();
+            }
         }
     };
+
+    const validateEmail = () => {
+        if (Emailform.formState.isValid) {
+            Emailform.handleSubmit(onFormSubmit)();
+        }
+    }
 
     const resetForm = () => {
         form.reset();
@@ -160,9 +218,35 @@ export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => voi
         }
     };
 
+    const getEmailFormat = async () => {
+        try {
+            const response = await getTestCycleEmailFormatService(projectId);
+            if (response) {
+                setEmailFormat({
+                    ...response,
+                    body: decodeURIComponent(response.body),
+                });
+            }
+        } catch (error) {
+            toasterService.error();
+        }
+    }
+
+    useEffect(() => {
+        if (emailFormat) {
+            Emailform.reset({
+                subject: emailFormat.subject || "",
+                body: emailFormat.body || ""
+            })
+        }
+    }, [emailFormat]);
+
     useEffect(() => {
         if (sheetOpen) {
             setAttachments([]);
+            setModalOpen(false);
+            setEmailBody("");
+            setEmailSubject("");
         }
     }, [sheetOpen])
 
@@ -183,6 +267,86 @@ export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => voi
                         to validate product functionality.
                     </SheetDescription>
                 </SheetHeader>
+
+                {/* start of modal */}
+                <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+                    <DialogContent className="sm:max-w-[650px]" onOpenAutoFocus={(event) => event.preventDefault()}>
+                        <DialogHeader>
+                            <DialogTitle>Email format</DialogTitle>
+                        </DialogHeader>
+                        <Form {...Emailform}>
+                            <form onSubmit={Emailform.handleSubmit(onFormSubmit)} className="flex flex-col max-h-[70vh] overflow-y-auto p-2">
+                                <div className="grid grid-cols-1 gap-2 mt-2 mx-2">
+                                    <FormField
+                                        control={Emailform.control}
+                                        name="subject"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Subject</FormLabel>
+                                                <FormControl>
+                                                    <Input {...field} autoFocus={false} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-1 gap-2 mt-4 mx-2">
+                                    <FormField
+                                        control={Emailform.control}
+                                        name="body"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className="flex justify-between">
+                                                    <div>Body</div>
+                                                    <span className="text-xs text-destructive">
+                                                        Note: please do not remove any variable
+                                                    </span>
+                                                </FormLabel>
+                                                <FormControl>
+                                                    <TextEditor
+                                                        markup={field.value || ""}
+                                                        onChange={(value) => {
+                                                            Emailform.setValue("body", value, { shouldDirty: true });
+                                                            Emailform.trigger("body");
+                                                        }} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                                <div className="mt-6 w-full flex justify-end gap-2" >
+                                    <SheetClose asChild>
+                                        <Button
+                                            disabled={isModalLoading}
+                                            type="button"
+                                            variant={"outline"}
+                                            size="lg"
+                                            className="w-full md:w-fit"
+                                        >
+                                            Cancel
+                                        </Button>
+                                    </SheetClose>
+                                    <Button
+                                        disabled={isModalLoading}
+                                        type="submit"
+                                        size="lg"
+                                        onClick={() => validateEmail()}
+                                        className="w-full md:w-fit"
+                                    >
+                                        {isModalLoading ? (
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        ) : null}
+                                        {isModalLoading ? "Saving" : "Save"}
+                                    </Button>
+                                </div>
+                            </form>
+                        </Form>
+                    </DialogContent>
+                </Dialog>
+                {/* end of modal */}
 
                 <div className="mt-4">
                     <Form {...form}>
@@ -411,7 +575,7 @@ export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => voi
                                                         checked={Boolean(field.value)}
                                                         onCheckedChange={field.onChange}
                                                     />
-                                                    <Label htmlFor="terms" className="text-gray-600">Send mail to all testers of same country to apply?</Label>
+                                                    <Label htmlFor="terms" className="text-gray-600">Send email to all testers from same country to apply?</Label>
                                                 </div>
                                             </FormControl>
                                             <FormMessage />
@@ -420,7 +584,7 @@ export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => voi
                                 />
                             </div>
 
-                            < div className="mt-6 w-full flex justify-end gap-2" >
+                            <div className="mt-6 w-full flex justify-end gap-2" >
                                 <SheetClose asChild>
                                     <Button
                                         disabled={isLoading}
@@ -436,7 +600,7 @@ export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => voi
                                     disabled={isLoading}
                                     type="submit"
                                     size="lg"
-                                    onClick={() => validateTestCycle()}
+                                    onClick={(e) => validateTestCycle(e)}
                                     className="w-full md:w-fit"
                                 >
                                     {isLoading ? (
