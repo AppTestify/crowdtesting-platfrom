@@ -24,7 +24,7 @@ import {
     CommandList,
 } from "@/components/ui/command";
 import { Button } from "@/components/ui/button";
-import { Trash, CheckIcon, Loader2, CircleArrowLeft } from "lucide-react";
+import { Trash, CheckIcon, Loader2, CircleArrowLeft, Pin, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
 import toasterService from "@/app/_services/toaster-service";
 import { getAllUsersService } from "@/app/_services/user.service";
@@ -37,6 +37,8 @@ import { format } from "date-fns";
 import TextEditor from "@/app/(routes)/private/projects/_components/text-editor";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { getAvatarFallbackText } from "@/app/_utils/string-formatters";
+import { showUsersRoleInBadges } from "@/app/_utils/common-functionality";
+import { UserRoles } from "@/app/_constants/user-roles";
 
 const mailSchema = z.object({
     emails: z.array(z.string()).min(1, "At least one user is required").max(20, "Maximum 20 users allowed"),
@@ -314,7 +316,17 @@ export function MailDisplay({ refreshMails, mails }: { refreshMails: () => void,
                                                                 value={user.email}
                                                                 onSelect={() => handleSelectUser(user.email)}
                                                             >
-                                                                {user.customId} - {user.email}{(user?.firstName || user?.lastName) && ` (${user?.firstName || ""} ${user?.lastName || ""})`} / {user.role} {user?.tester?.address?.country && `/ ${user?.tester?.address?.country}`}
+                                                                <div className="flex justify-evenly gap-2">
+                                                                    {user.customId} - {user.email}{(user?.firstName || user?.lastName) &&
+                                                                        ` (${user?.firstName || ""} ${user?.lastName || ""})`}
+                                                                    {showUsersRoleInBadges(user?.role as UserRoles)}
+                                                                    {user?.tester?.address?.country && (
+                                                                        <div className="flex items-center justify-center">
+                                                                            <MapPin className="mr-1" /> {user.tester.address.country}
+                                                                        </div>
+                                                                    )}
+
+                                                                </div>
                                                                 <CheckIcon
                                                                     className={cn(
                                                                         "ml-auto h-4 w-4",
