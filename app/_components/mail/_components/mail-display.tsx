@@ -314,7 +314,7 @@ export function MailDisplay({ refreshMails, mails }: { refreshMails: () => void,
                                                                 value={user.email}
                                                                 onSelect={() => handleSelectUser(user.email)}
                                                             >
-                                                                {user.customId} - {user.email}
+                                                                {user.customId} - {user.email}{(user?.firstName || user?.lastName) && ` (${user?.firstName || ""} ${user?.lastName || ""})`} / {user.role} {user?.tester?.address?.country && `/ ${user?.tester?.address?.country}`}
                                                                 <CheckIcon
                                                                     className={cn(
                                                                         "ml-auto h-4 w-4",

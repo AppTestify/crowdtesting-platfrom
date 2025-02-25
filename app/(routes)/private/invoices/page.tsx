@@ -21,11 +21,9 @@ import { InvoiceRowActions } from './_components/row-actions';
 import { PAGINATION_LIMIT } from '@/app/_constants/pagination-limit';
 import { useSession } from 'next-auth/react';
 import { UserRoles } from '@/app/_constants/user-roles';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MONTHS_LIST, SEVERITY_LIST } from '@/app/_constants/issue';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import { addDays, format } from 'date-fns';
+import { format } from 'date-fns';
 import { Calendar } from '@/components/ui/calendar';
 import { DateRange } from 'react-day-picker';
 
@@ -47,7 +45,6 @@ export default function Invoices() {
     const [globalFilter, setGlobalFilter] = useState<any>([]);
     const [pageIndex, setPageIndex] = useState(1);
     const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
-    const [selectedMonth, setSelectedMonth] = useState<string>("");
     const [totalPageCount, setTotalPageCount] = useState(0);
     const [userData, setUserData] = useState<any>();
     const [date, setDate] = React.useState<DateRange | undefined>({
@@ -237,14 +234,15 @@ export default function Invoices() {
                                 </PopoverContent>
                             </Popover>
                         </div>
-
                         <div className="flex items-end justify-end gap-2 ml-auto">
-                            <Button
-                                className="ml-2"
-                                onClick={() => setIsAddInvoiceOpen(true)}
-                            >
-                                <Upload /> Upload document
-                            </Button>
+                            {userData?.role !== UserRoles.CLIENT && (
+                                <Button
+                                    className="ml-2"
+                                    onClick={() => setIsAddInvoiceOpen(true)}
+                                >
+                                    <Upload /> Upload document
+                                </Button>
+                            )}
                         </div>
                     </div>
                     <div className="rounded-md border">
