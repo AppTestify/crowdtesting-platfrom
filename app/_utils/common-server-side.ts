@@ -5,6 +5,7 @@ import AttachmentService from "../_helpers/attachment.helper";
 import { Tester } from "../_models/tester.model";
 import { replaceCustomId } from "./data-formatters";
 import { TestCaseExecutionResult } from "../_constants/test-case";
+import { IProject } from "../_interface/project";
 
 export const encodeToBase64 = (text: any) => {
   const buffer = Buffer.from(text, "utf8");
@@ -132,7 +133,9 @@ export const usersWithCustomIds = async (response: any, userIdFormat: any) => {
 };
 
 export const customIdForSearch = (idObject: any, searchString: string) => {
-  const idFormat = idObject?.idFormat.replace(/\{.*?\}/, "");
+  const idFormat = idObject?.idFormat
+    ? idObject?.idFormat.replace(/\{.*?\}/, "")
+    : "";
 
   if (searchString?.toLowerCase().startsWith(idFormat?.toLowerCase())) {
     searchString = searchString.slice(idFormat?.length);
@@ -190,4 +193,12 @@ export const generateTestCycleAuthKeyForUnprotectedRoutes = (
       Delimeters.PIPE
     }${projectId}${Delimeters.PIPE}${testCycleId}`
   );
+};
+
+export const getTestCycleBasedIds = (project: IProject, userId: any) => {
+  return Array.isArray(project?.users)
+    ? project.users
+        .filter((user: any) => user.userId.toString() === userId.toString())
+        .flatMap((user: any) => user.testCycles)
+    : [];
 };

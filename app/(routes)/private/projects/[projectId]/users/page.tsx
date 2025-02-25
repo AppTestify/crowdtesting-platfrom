@@ -35,11 +35,7 @@ import { Button } from "@/components/ui/button";
 import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
 import { checkProjectAdmin } from "@/app/_utils/common";
 import toasterService from "@/app/_services/toaster-service";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { ShieldCheck } from "lucide-react";
-import { verifyUserService } from "@/app/_services/user.service";
-import { IUserByAdmin } from "@/app/_interface/user";
-import { ConfirmationDialog } from "@/app/_components/confirmation-dialog";
+import UserVerify from "./user-verify/page";
 
 export default function ProjectUsers() {
     const [userData, setUserData] = useState<any>();
@@ -131,23 +127,15 @@ export default function ProjectUsers() {
                 accessorKey: "verify",
                 header: "Verify",
                 cell: ({ row }: { row: any }) => {
-                    const isVerify = row.original?.isVerify;
+                    const isVerify = row.original?.isVerify ?? true;
                     return (
                         <div className="capitalize" >
-                            {isVerify === false &&
-                                <TooltipProvider>
-                                    <Tooltip delayDuration={50}>
-                                        <TooltipTrigger asChild>
-                                            <Button variant={'outline'} size={'icon'} onClick={() => verifyUser(row.original)}>
-                                                <ShieldCheck />
-                                            </Button>
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                            <p>Verify User</p>
-                                        </TooltipContent>
-                                    </Tooltip>
-                                </TooltipProvider>
-                            }
+                            <UserVerify
+                                status={isVerify}
+                                id={row.original._id as string}
+                                projectId={projectId as string}
+                                refreshProjectUsers={refreshProjectUsers}
+                            />
                         </div >
                     )
                 },
@@ -180,9 +168,6 @@ export default function ProjectUsers() {
     const [projectUsers, setProjectUsers] = useState<IProjectUserDisplay[]>([]);
     const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
     const { projectId } = useParams<{ projectId: string }>();
-    const [userVerify, setUserVerify] = useState<string>();
-    const [isVerifyLoading, setIsVerifyLoading] = useState<boolean>(false);
-    const [isOpen, setIsOpen] = useState<boolean>(false);
     const { data } = useSession();
 
     const handlePreviousPage = () => {
@@ -197,11 +182,6 @@ export default function ProjectUsers() {
             setPageIndex((prev) => prev + 1);
         }
     };
-
-    const verifyUser = (user: IUserByAdmin) => {
-        setIsOpen(true);
-        setUserVerify(user?._id)
-    }
 
     useEffect(() => {
         if (data) {
@@ -243,22 +223,6 @@ export default function ProjectUsers() {
         }
     }
 
-    const verifyProjectUser = async () => {
-        setIsVerifyLoading(true);
-        try {
-            const response = await verifyUserService(projectId, userVerify as string, { isVerify: true });
-            if (response) {
-                setIsOpen(false);
-                toasterService.success(response.message);
-                refreshProjectUsers();
-            }
-        } catch (error) {
-            toasterService.error();
-        } finally {
-            setIsVerifyLoading(false);
-        }
-    }
-
     const refreshProjectUsers = () => {
         getProjectUsers();
         setRowSelection({});
@@ -286,19 +250,6 @@ export default function ProjectUsers() {
 
     return (
         <main className="mx-4 mt-2">
-            {userVerify && (
-                <ConfirmationDialog
-                    isOpen={isOpen}
-                    setIsOpen={setIsOpen}
-                    title={`Verify user`}
-                    description={`Are you sure you want to verify this user?`}
-                    isLoading={isVerifyLoading}
-                    successAction={verifyProjectUser}
-                    successLabel={`Verify`}
-                    successLoadingLabel={`Verifing`}
-                    successVariant={"default"}
-                />
-            )}
             <div className="">
                 <h2 className="text-medium">Users</h2>
             </div>

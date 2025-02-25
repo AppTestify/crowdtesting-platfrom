@@ -58,6 +58,18 @@ export async function POST(req: Request) {
     });
 
     if (existingProject) {
+      await Project.findOneAndUpdate(
+        {
+          _id: projectId,
+          "users.userId": id,
+        },
+        {
+          $push: {
+            "users.$.testCycles": testCycleId,
+          },
+        },
+        { new: true }
+      );
       return Response.json({
         message: "Applied project based on test cycle successfully",
         isActivated: true,

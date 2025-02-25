@@ -15,6 +15,7 @@ import { isAdmin, isClient, verifySession } from "@/app/_lib/dal";
 import { IdFormat } from "@/app/_models/id-format.model";
 import { IssueAttachment } from "@/app/_models/issue-attachment.model";
 import { Issue } from "@/app/_models/issue.model";
+import { Project } from "@/app/_models/project.model";
 import { User } from "@/app/_models/user.model";
 import {
   filterIssuesForAdmin,
@@ -24,6 +25,7 @@ import {
 import { issueSchema } from "@/app/_schemas/issue.schema";
 import {
   getFileMetaData,
+  getTestCycleBasedIds,
   serverSidePagination,
 } from "@/app/_utils/common-server-side";
 import { addCustomIds, replaceCustomId } from "@/app/_utils/data-formatters";
@@ -263,6 +265,14 @@ export async function GET(
       .skip(skip)
       .limit(Number(limit));
 
+    // From tester
+    const project = await Project.findById(projectId);
+    const testCycleIds = getTestCycleBasedIds(project, session.user?._id);
+    // const query =
+    //   testCycleIds?.length > 0
+    //     ? { _id: { $in: testCycleIds } }
+    //     : { projectId: projectId };
+
     if (await isAdmin(session.user)) {
       totalIssues = await Issue.find(filter).countDocuments();
 
@@ -330,6 +340,10 @@ export async function GET(
           : null,
       }));
     } else {
+      // query =
+      //   testCycleIds?.length > 0
+      //     ? { _id: { $in: testCycleIds } }
+      //     : { projectId: projectId };
       totalIssues = await Issue.find(filter).countDocuments();
       const data = addCustomIds(
         await query

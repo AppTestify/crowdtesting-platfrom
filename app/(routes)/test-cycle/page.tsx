@@ -78,14 +78,7 @@ function TestCycleWrapper() {
                                         <div className="flex flex-col items-center gap-2 text-center">
                                             <CheckCircle className="text-primary h-10 w-10" />
                                             <span>
-                                                We assigned you to new test cycle please check{" "}
-                                                <Link
-                                                    href="/auth/sign-in"
-                                                    className="underline p-0 text-black"
-                                                >
-                                                    Login
-                                                </Link>{" "}
-                                                to continue.
+                                                Your request has been received, please wait for verification
                                             </span>
                                         </div>
                                     ) : (
