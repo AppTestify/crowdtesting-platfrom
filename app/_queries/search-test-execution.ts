@@ -6,7 +6,7 @@ export async function filterTestExecutionNotForTester(
   searchString: string,
   skip: number,
   limit: number,
-  projectId: string,
+  projectId: any,
   idObject: any
 ) {
   const regex = new RegExp(searchString, "i");

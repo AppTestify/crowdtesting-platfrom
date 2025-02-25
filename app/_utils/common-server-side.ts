@@ -196,9 +196,10 @@ export const generateTestCycleAuthKeyForUnprotectedRoutes = (
 };
 
 export const getTestCycleBasedIds = (project: IProject, userId: any) => {
-  return Array.isArray(project?.users)
-    ? project.users
-        .filter((user: any) => user.userId.toString() === userId.toString())
-        .flatMap((user: any) => user.testCycles)
+  const data = Array.isArray(project?.users)
+    ? project.users.filter(
+        (user: any) => user.userId.toString() === userId.toString()
+      )
     : [];
+  return data?.[0]?.testCycles;
 };

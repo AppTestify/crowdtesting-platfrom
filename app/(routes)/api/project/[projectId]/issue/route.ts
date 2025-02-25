@@ -9,6 +9,7 @@ import {
 } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { IssueStatus } from "@/app/_constants/issue";
+import { UserRoles } from "@/app/_constants/user-roles";
 import { connectDatabase } from "@/app/_db";
 import AttachmentService from "@/app/_helpers/attachment.helper";
 import { isAdmin, isClient, verifySession } from "@/app/_lib/dal";
@@ -175,10 +176,17 @@ export async function GET(
       );
     }
 
+    // For tester
     let response;
     const { projectId } = params;
+    const project = await Project.findById(projectId);
+    const testCycleIds = getTestCycleBasedIds(project, session.user?._id);
 
-    let filter: any = { projectId: projectId };
+    let filter: any =
+      testCycleIds?.length > 0 && session.user?.role === UserRoles.TESTER
+        ? { testCycle: { $in: testCycleIds } }
+        : { projectId: projectId };
+
     const url = new URL(req.url);
     const searchString = url.searchParams.get("searchString");
     const severity = url.searchParams.get("severity");
@@ -245,8 +253,8 @@ export async function GET(
           searchString,
           skip,
           limit,
-          projectId,
           customIDFormat,
+          filter as any,
           severity || undefined,
           priority || undefined,
           status || undefined,
@@ -264,14 +272,6 @@ export async function GET(
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(Number(limit));
-
-    // From tester
-    const project = await Project.findById(projectId);
-    const testCycleIds = getTestCycleBasedIds(project, session.user?._id);
-    // const query =
-    //   testCycleIds?.length > 0
-    //     ? { _id: { $in: testCycleIds } }
-    //     : { projectId: projectId };
 
     if (await isAdmin(session.user)) {
       totalIssues = await Issue.find(filter).countDocuments();
@@ -340,10 +340,6 @@ export async function GET(
           : null,
       }));
     } else {
-      // query =
-      //   testCycleIds?.length > 0
-      //     ? { _id: { $in: testCycleIds } }
-      //     : { projectId: projectId };
       totalIssues = await Issue.find(filter).countDocuments();
       const data = addCustomIds(
         await query

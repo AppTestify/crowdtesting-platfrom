@@ -40,11 +40,9 @@ import {
 import { useParams } from "next/navigation";
 import { displayIcon } from "@/app/_utils/common-functionality";
 import TextEditor from "@/app/(routes)/private/projects/_components/text-editor";
-import { ColumnDef } from "@tanstack/react-table";
-import { IIssue, IIssueAttachmentDisplay } from "@/app/_interface/issue";
-import { DocumentName } from "@/app/_components/document-name";
+import { IIssue } from "@/app/_interface/issue";
 import { IProjectUserDisplay } from "@/app/_interface/project";
-import { getProjectUsersListService, getProjectUsersService } from "@/app/_services/project.service";
+import { getProjectUsersListService } from "@/app/_services/project.service";
 import { getUsernameWithUserId } from "@/app/_utils/common";
 import { ProjectUserRoles } from "@/app/_constants/project-user-roles";
 import { useSession } from "next-auth/react";

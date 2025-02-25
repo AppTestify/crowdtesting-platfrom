@@ -13,15 +13,16 @@ import { Project } from "@/app/_models/project.model";
 import { TestCaseResult } from "@/app/_models/test-case-result.model";
 import { TestCycle } from "@/app/_models/test-cycle.model";
 import { TestExecution } from "@/app/_models/test-execution.model";
-import { filterTestExecutionNotForTester } from "@/app/_queries/search-test-execution";
+import { filterTestExecutionForTester, filterTestExecutionNotForTester } from "@/app/_queries/search-test-execution";
 import { testExecutionSchema } from "@/app/_schemas/test-execution.schema";
 import {
   countResults,
   getTestCycleBasedIds,
   serverSidePagination,
 } from "@/app/_utils/common-server-side";
-import { addCustomIds, replaceCustomId } from "@/app/_utils/data-formatters";
+import { addCustomIds } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
+import { ObjectId } from "mongodb";
 
 export async function POST(
   req: Request,
@@ -140,7 +141,10 @@ export async function GET(
     const testCycleIds = getTestCycleBasedIds(project, session.user?._id);
     const query =
       testCycleIds?.length > 0
-        ? { _id: { $in: testCycleIds } }
+        ? {
+            testCycle: { $in: testCycleIds },
+            projectId: new ObjectId(projectId),
+          }
         : { projectId: projectId };
 
     if (searchString) {
@@ -163,7 +167,7 @@ export async function GET(
         });
       } else {
         const { testExecution, totalTestExecutions } =
-          await filterTestExecutionNotForTester(
+          await filterTestExecutionForTester(
             searchString,
             skip,
             limit,

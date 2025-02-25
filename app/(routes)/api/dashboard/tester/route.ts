@@ -4,10 +4,12 @@ import {
 } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { IssueStatus, Severity } from "@/app/_constants/issue";
+import { UserRoles } from "@/app/_constants/user-roles";
 import { connectDatabase } from "@/app/_db";
 import { verifySession } from "@/app/_lib/dal";
 import { Issue } from "@/app/_models/issue.model";
 import { Project } from "@/app/_models/project.model";
+import { getTestCycleBasedIds } from "@/app/_utils/common-server-side";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function GET(req: Request) {
@@ -34,8 +36,17 @@ export async function GET(req: Request) {
     const project = url.searchParams.get("project");
     let projects;
 
+    // for assign
+    const proj = await Project.findById(project);
+    const testCycleIds = getTestCycleBasedIds(proj, session.user?._id);
+
     if (project && project !== "undefined") {
-      projects = await Project.find({ _id: project });
+      let filter: any =
+        testCycleIds?.length > 0 && session.user?.role === UserRoles.TESTER
+          ? { "users.testCycles": { $in: testCycleIds } }
+          : { _id: project };
+
+      projects = await Project.find(filter);
     } else {
       projects = await Project.find({
         users: {
@@ -57,10 +68,15 @@ export async function GET(req: Request) {
         });
       });
     }
+    // let issueFilter: any =
+    //   testCycleIds?.length > 0 && session.user?.role === UserRoles.TESTER
+    //     ? { testCycle: { $in: testCycleIds } }
+    //     : { projectId: project };
 
     const issues = await Issue.find({
       projectId: projects.map((project) => project._id),
     });
+
 
     const testCycleMap = issues.reduce((acc, issue) => {
       const testCycle =

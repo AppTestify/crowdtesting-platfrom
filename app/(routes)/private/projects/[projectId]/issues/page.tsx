@@ -210,13 +210,14 @@ export default function Issues() {
     {
       id: "actions",
       enableHiding: false,
-      cell: ({ row }: { row: any }) => (
-        <>
+      cell: ({ row }: { row: any }) => {
+
+        return (<>
           {showIssueRowActions(row.original) && checkProjectActiveRole(project?.isActive ?? false, userData) ? (
             <IssueRowActions row={row} refreshIssues={refreshIssues} />
           ) : null}
-        </>
-      ),
+        </>)
+      },
     },
   ];
 

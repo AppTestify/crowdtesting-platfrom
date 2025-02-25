@@ -39,6 +39,7 @@ import {
   testCycleCountryMail,
 } from "@/app/_utils/email";
 import { errorHandler } from "@/app/_utils/error-handler";
+import { ObjectId } from "mongodb";
 
 export async function POST(
   req: Request,
@@ -259,7 +260,7 @@ export async function GET(
     const testCycleIds = getTestCycleBasedIds(project, session.user?._id);
     const query =
       testCycleIds?.length > 0
-        ? { _id: { $in: testCycleIds } }
+        ? { _id: { $in: testCycleIds }, projectId: new ObjectId(projectId) }
         : { projectId: projectId };
 
     if (searchString) {

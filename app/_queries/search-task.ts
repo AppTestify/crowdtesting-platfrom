@@ -130,7 +130,7 @@ export async function filterTasksForAdmin(
   };
 }
 
-export async function filterTasksForNonAdmin(
+export async function filterTasksForClient(
   searchString: string,
   skip: number,
   limit: number,
@@ -213,6 +213,142 @@ export async function filterTasksForNonAdmin(
           { "issueId.title": regex },
           { "requirementIds.title": regex },
         ],
+      },
+    },
+    {
+      $project: {
+        user: 0,
+      },
+    },
+  ];
+
+  const totalTasks = await Task.aggregate([
+    ...testCyclesPipeline,
+    { $count: "total" },
+  ]);
+
+  const tasks = await Task.aggregate([
+    ...testCyclesPipeline,
+    { $skip: skip },
+    { $limit: limit },
+  ]);
+
+  const transformedTasks = tasks.map((res) => ({
+    ...res,
+    assignedTo: res.assignedTo
+      ? {
+          ...res.assignedTo,
+          customId: replaceCustomId(
+            userIdFormat?.idFormat,
+            res.assignedTo.customId
+          ),
+        }
+      : null,
+  }));
+
+  return {
+    tasks: transformedTasks,
+    totalTasks: totalTasks[0]?.total || 0,
+  };
+}
+
+export async function filterTasksForTester(
+  searchString: string,
+  skip: number,
+  limit: number,
+  query: any
+) {
+  const regex = new RegExp(searchString, "i");
+  const userIdFormat = await IdFormat.findOne({
+    entity: DBModels.USER,
+  });
+  const assignCustomId = customIdForSearch(userIdFormat, searchString);
+
+  const testCyclesPipeline = [
+    {
+      $match: {
+        ...query,
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "userId",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+    { $unwind: "$user" },
+    {
+      $lookup: {
+        from: "requirements",
+        localField: "requirementIds",
+        foreignField: "_id",
+        as: "requirementIds",
+      },
+    },
+    // for assignee
+    {
+      $lookup: {
+        from: "users",
+        localField: "assignedTo",
+        foreignField: "_id",
+        as: "assignedTo",
+      },
+    },
+    { $unwind: { path: "$assignedTo", preserveNullAndEmptyArrays: true } },
+    {
+      $addFields: {
+        AssigedfullName: {
+          $concat: ["$assignedTo.firstName", " ", "$assignedTo.lastName"],
+        },
+        address: "$assignedTo.address",
+      },
+    },
+    // for issue
+    {
+      $lookup: {
+        from: "issues",
+        localField: "issueId",
+        foreignField: "_id",
+        as: "issueId",
+      },
+    },
+    {
+      $addFields: {
+        issueId: {
+          $cond: {
+            if: { $gt: [{ $size: "$issueId" }, 0] },
+            then: {
+              _id: { $arrayElemAt: ["$issueId._id", 0] },
+              title: { $arrayElemAt: ["$issueId.title", 0] },
+            },
+            else: null,
+          },
+        },
+      },
+    },
+    {
+      $match: {
+        $or: [
+          { title: regex },
+          { priority: regex },
+          { status: regex },
+          { fullName: regex },
+          {
+            "assignedTo.customId": parseInt(assignCustomId),
+          },
+          { "assigned.firstName": regex },
+          { "assigned.lastName": regex },
+          { AssigedfullName: regex },
+          { "issueId.title": regex },
+          { "requirementIds.title": regex },
+        ],
+      },
+    },
+    {
+      $addFields: {
+        userId: "$user",
       },
     },
     {
