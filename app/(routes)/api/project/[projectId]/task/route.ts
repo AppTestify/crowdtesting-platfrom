@@ -24,10 +24,7 @@ import {
   getTestCycleBasedIds,
   serverSidePagination,
 } from "@/app/_utils/common-server-side";
-import {
-  normaliseIds,
-  replaceCustomId,
-} from "@/app/_utils/data-formatters";
+import { normaliseIds, replaceCustomId } from "@/app/_utils/data-formatters";
 import { taskAssignMail } from "@/app/_utils/email";
 import { errorHandler } from "@/app/_utils/error-handler";
 import { ObjectId } from "mongodb";
@@ -131,9 +128,6 @@ export async function GET(
     const url = new URL(req.url);
     const searchString = url.searchParams.get("searchString");
     const { skip, limit } = serverSidePagination(req);
-    const totalTasks = await Task.find({
-      projectId: projectId,
-    }).countDocuments();
     const userIdFormat = await IdFormat.findOne({
       entity: DBModels.USER,
     });
@@ -151,6 +145,9 @@ export async function GET(
             issueId: { $in: issues.map((issue) => issue._id) },
           }
         : { projectId: projectId };
+    const totalTasks = await Task.find({
+      projectId: projectId,
+    }).countDocuments();
 
     if (searchString) {
       if (await isAdmin(session.user)) {

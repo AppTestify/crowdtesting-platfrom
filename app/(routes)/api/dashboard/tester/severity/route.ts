@@ -9,6 +9,7 @@ import { connectDatabase } from "@/app/_db";
 import { verifySession } from "@/app/_lib/dal";
 import { Issue } from "@/app/_models/issue.model";
 import { Project } from "@/app/_models/project.model";
+import { getTestCycleBasedIds } from "@/app/_utils/common-server-side";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function GET(req: Request) {
@@ -36,6 +37,10 @@ export async function GET(req: Request) {
     const status = url.searchParams.get("status");
     let projects;
 
+    // fro assign users
+    const proj = await Project.findById(project);
+    const testCycleIds = getTestCycleBasedIds(proj, session.user?._id);
+
     if (project && project !== "undefined" && project !== "") {
       projects = await Project.find({ _id: project });
     } else if (UserRoles.CLIENT) {
@@ -50,9 +55,13 @@ export async function GET(req: Request) {
       projects = await Project.find({});
     }
 
-    let filter: any = {
-      projectId: projects.map((project) => project._id),
-    };
+    let filter: any =
+      testCycleIds?.length > 0 && session.user?.role === UserRoles.TESTER
+        ? {
+            testCycle: { $in: testCycleIds },
+            projectId: projects.map((project) => project._id),
+          }
+        : { projectId: projects.map((project) => project._id) };
 
     if (status) {
       filter.status = status;
