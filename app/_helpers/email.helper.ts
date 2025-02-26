@@ -31,7 +31,7 @@ class EmailService {
     bcc = [],
   }: EmailOptions): Promise<void> {
     try {
-      cc = `aman@excitesys.com, ${cc}`; // xshivangchauhanx@gmail.com
+      cc = ` ${cc}`; // xshivangchauhanx@gmail.com
       const toRecipients = Array.isArray(to) ? to.join(", ") : to;
       const bccRecipients = Array.isArray(bcc) ? bcc.join(", ") : bcc;
       const mailOptions = {

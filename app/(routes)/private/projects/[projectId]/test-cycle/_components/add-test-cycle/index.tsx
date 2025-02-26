@@ -7,6 +7,7 @@ import {
     Loader2,
     Plus,
     Trash,
+    TriangleAlert,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -102,12 +103,11 @@ export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => voi
     const [attachments, setAttachments] = useState<File[]>([]);
     const [modalOpen, setModalOpen] = useState<boolean>(false);
     const [isModalLoading, setIsModalLoading] = useState<boolean>(false);
-    const [emailBody, setEmailBody] = useState("");
-    const [emailSubject, setEmailSubject] = useState<string>("");
     const inputRef = useRef<HTMLInputElement | null>(null);
 
     const form = useForm<z.infer<typeof testCycleSchema>>({
         resolver: zodResolver(testCycleSchema),
+        mode: "onChange",
         defaultValues: {
             title: "",
             projectId: projectId,
@@ -120,22 +120,35 @@ export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => voi
 
     const Emailform = useForm<z.infer<typeof EmailSchema>>({
         resolver: zodResolver(EmailSchema),
+        mode: "onChange",
         defaultValues: {
             subject: emailFormat?.subject || "",
             body: emailFormat?.body || "",
         },
     });
 
-    async function onFormSubmit(values: z.infer<typeof EmailSchema>) {
+    async function onFormSubmit(emailValues: z.infer<typeof EmailSchema>,
+        testCycleValues: z.infer<typeof testCycleSchema>) {
         setIsModalLoading(true);
         try {
-            setEmailBody(values.body);
-            setEmailSubject(values.subject);
-            setModalOpen(false);
+            const combinedData = {
+                ...testCycleValues,
+                country: testCycleValues.country || "",
+                isEmailSend: testCycleValues.isEmailSend === true,
+                emailFormat: emailValues.body,
+                emailSubject: emailValues.subject,
+            }
+            const response = await addTestCycleService(projectId, combinedData);
+            if (response) {
+                setModalOpen(false);
+                toasterService.success(response.message);
+                refreshTestCycle();
+            }
         } catch (error) {
             toasterService.error();
         } finally {
             setIsModalLoading(false);
+            setSheetOpen(false);
         }
     }
 
@@ -146,8 +159,6 @@ export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => voi
                 ...values,
                 country: values.country || "",
                 isEmailSend: values.isEmailSend === true,
-                emailFormat: emailBody,
-                emailSubject: emailSubject,
             });
             if (response) {
                 refreshTestCycle();
@@ -165,7 +176,7 @@ export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => voi
         await form.trigger();
 
         if (form.formState.isValid) {
-            if (form.watch("isEmailSend") && !emailBody && !emailSubject) {
+            if (form.watch("isEmailSend")) {
                 await getEmailFormat();
                 setModalOpen(true);
                 return;
@@ -175,11 +186,16 @@ export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => voi
         }
     };
 
-    const validateEmail = () => {
-        if (Emailform.formState.isValid) {
-            Emailform.handleSubmit(onFormSubmit)();
+    const validateEmail = async () => {
+        if (Emailform.formState.isValid && form.formState.isValid) {
+            Emailform.handleSubmit((emailValues) => {
+                form.handleSubmit((testCycleValues) => {
+                    onFormSubmit(emailValues, testCycleValues);
+                })();
+            })();
         }
-    }
+    };
+
 
     const resetForm = () => {
         form.reset();
@@ -245,8 +261,6 @@ export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => voi
         if (sheetOpen) {
             setAttachments([]);
             setModalOpen(false);
-            setEmailBody("");
-            setEmailSubject("");
         }
     }, [sheetOpen])
 
@@ -270,12 +284,17 @@ export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => voi
 
                 {/* start of modal */}
                 <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-                    <DialogContent className="sm:max-w-[650px]" onOpenAutoFocus={(event) => event.preventDefault()}>
+                    <DialogContent className="sm:max-w-[700px]" onOpenAutoFocus={(event) => event.preventDefault()}>
                         <DialogHeader>
                             <DialogTitle>Email format</DialogTitle>
                         </DialogHeader>
                         <Form {...Emailform}>
-                            <form onSubmit={Emailform.handleSubmit(onFormSubmit)} className="flex flex-col max-h-[70vh] overflow-y-auto p-2">
+                            <form
+                                onSubmit={async (e) => {
+                                    e.preventDefault();
+                                    validateEmail()
+                                }}
+                                className="flex flex-col max-h-[70vh] overflow-y-auto p-2">
                                 <div className="grid grid-cols-1 gap-2 mt-2 mx-2">
                                     <FormField
                                         control={Emailform.control}
@@ -300,8 +319,13 @@ export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => voi
                                             <FormItem>
                                                 <FormLabel className="flex justify-between">
                                                     <div>Body</div>
-                                                    <span className="text-xs text-destructive">
-                                                        Note: please do not remove any variable
+                                                    <span className="text-xs flex text-destructive">
+                                                        <span className="mr-1">
+                                                            <TriangleAlert className="h-4 w-4" />
+                                                        </span>
+                                                        <span>
+                                                            please do not remove any variables
+                                                        </span>
                                                     </span>
                                                 </FormLabel>
                                                 <FormControl>
@@ -339,7 +363,7 @@ export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => voi
                                         {isModalLoading ? (
                                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                         ) : null}
-                                        {isModalLoading ? "Saving" : "Save"}
+                                        {isModalLoading ? "Sending" : "Send"}
                                     </Button>
                                 </div>
                             </form>
