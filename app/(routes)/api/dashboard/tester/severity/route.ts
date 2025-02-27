@@ -37,11 +37,13 @@ export async function GET(req: Request) {
     const status = url.searchParams.get("status");
     let projects;
 
-    // fro assign users
-    const proj = await Project.findById(project);
-    const testCycleIds = getTestCycleBasedIds(proj, session.user?._id);
+    // for assign users
+    let testCycleIds, proj;
 
     if (project && project !== "undefined" && project !== "") {
+      proj = await Project.findById(project);
+      testCycleIds = getTestCycleBasedIds(proj, session.user?._id);
+
       projects = await Project.find({ _id: project });
     } else if (UserRoles.CLIENT) {
       projects = await Project.find({
@@ -56,7 +58,9 @@ export async function GET(req: Request) {
     }
 
     let filter: any =
-      testCycleIds?.length > 0 && session.user?.role === UserRoles.TESTER
+      testCycleIds?.length > 0 &&
+      testCycleIds !== "undefined" &&
+      session.user?.role === UserRoles.TESTER
         ? {
             testCycle: { $in: testCycleIds },
             projectId: projects.map((project) => project._id),
