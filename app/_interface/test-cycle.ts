@@ -23,8 +23,8 @@ export interface ITestCyclePayload {
   };
   emailFormat?: any;
   emailSubject?: string;
-  country: string;
-  isEmailSend: boolean;
+  country?: string;
+  isEmailSend?: boolean;
 }
 
 export interface ITestCycle {

@@ -3,13 +3,12 @@
 import React, { useEffect, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { updateProjectStausService } from "@/app/_services/project.service";
 import toasterService from "@/app/_services/toaster-service";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
 import { verifyUserService } from "@/app/_services/user.service";
 
-export function SwitchUser({
+export function SwitchUserVerify({
     id,
     isActive,
     projectId,
@@ -73,7 +72,7 @@ const UserVerify = ({
 }) => {
     return (
         <div>
-            <SwitchUser
+            <SwitchUserVerify
                 id={id}
                 isActive={status}
                 projectId={projectId}

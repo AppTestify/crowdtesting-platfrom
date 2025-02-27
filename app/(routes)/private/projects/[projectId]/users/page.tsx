@@ -35,7 +35,7 @@ import { Button } from "@/components/ui/button";
 import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
 import { checkProjectAdmin } from "@/app/_utils/common";
 import toasterService from "@/app/_services/toaster-service";
-import UserVerify from "./user-verify/page";
+import UserVerify from "./user-verify";
 
 export default function ProjectUsers() {
     const [userData, setUserData] = useState<any>();

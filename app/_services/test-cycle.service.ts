@@ -48,7 +48,7 @@ export const addTestCycleService = async (
     formData.append("description", body?.description);
     formData.append("startDate", body?.startDate.toISOString());
     formData.append("endDate", body?.endDate.toISOString());
-    formData.append("country", body?.country);
+    formData.append("country", body?.country || "");
     formData.append("emailFormat", body?.emailFormat);
     formData.append("emailSubject", body?.emailSubject || "");
     formData.append("isEmailSend", (body?.isEmailSend ?? false).toString());
