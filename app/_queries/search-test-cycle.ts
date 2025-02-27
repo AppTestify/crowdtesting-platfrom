@@ -2,7 +2,7 @@ import { TestCycle } from "../_models/test-cycle.model";
 import { customIdForSearch } from "../_utils/common-server-side";
 import { ObjectId } from "mongodb";
 
-export async function filterTestCyclesNotForAdmin(
+export async function filterTestCyclesForClient(
   searchString: string,
   skip: number,
   limit: number,
@@ -104,6 +104,54 @@ export async function filterTestCyclesForAdmin(
         userId: "$user",
       },
     },
+    {
+      $project: {
+        user: 0,
+      },
+    },
+  ];
+
+  const totalTestCycles = await TestCycle.aggregate([
+    ...testCyclesPipeline,
+    { $count: "total" },
+  ]);
+
+  const testCycles = await TestCycle.aggregate([
+    ...testCyclesPipeline,
+    { $skip: skip },
+    { $limit: limit },
+  ]);
+
+  return {
+    testCycles,
+    totalTestCycles: totalTestCycles[0]?.total || 0,
+  };
+}
+
+export async function filterTestCyclesForTester(
+  searchString: string,
+  skip: number,
+  limit: number,
+  idObject: any,
+  query: any
+) {
+  const regex = new RegExp(searchString, "i");
+  searchString = customIdForSearch(idObject, searchString);
+
+  const testCyclesPipeline = [
+    {
+      $match: {
+        ...query,
+        $or: [
+          { customId: parseInt(searchString) },
+          { title: regex },
+          { description: regex },
+          { startDate: regex },
+          { endDate: regex },
+        ],
+      },
+    },
+
     {
       $project: {
         user: 0,

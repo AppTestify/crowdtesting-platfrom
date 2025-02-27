@@ -1,4 +1,5 @@
 import { IDocument } from "./document";
+import { ITestCycle } from "./test-cycle";
 import { ITester } from "./tester";
 
 export interface IUser {
@@ -34,6 +35,8 @@ export interface IUserByAdmin {
   customId?: string;
   file?: IDocument;
   isVerified: boolean;
+  isVerify?: boolean;
+  testCycles?: ITestCycle[];
 }
 
 export interface IUsersBulkDeletePayload {

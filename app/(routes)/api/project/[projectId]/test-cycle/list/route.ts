@@ -8,7 +8,9 @@ import { connectDatabase } from "@/app/_db";
 import { ITestCaseResult } from "@/app/_interface/test-case-result";
 import { verifySession } from "@/app/_lib/dal";
 import { IdFormat } from "@/app/_models/id-format.model";
+import { Project } from "@/app/_models/project.model";
 import { TestCycle } from "@/app/_models/test-cycle.model";
+import { getTestCycleBasedIds } from "@/app/_utils/common-server-side";
 import { replaceCustomId } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 
@@ -35,6 +37,7 @@ export async function GET(
       );
     }
 
+    const { projectId } = params;
     const testCaseIdFormat = await IdFormat.findOne({
       entity: DBModels.TEST_CASE,
     });
@@ -42,8 +45,14 @@ export async function GET(
       entity: DBModels.REQUIREMENT,
     });
 
-    const { projectId } = params;
-    const response = await TestCycle.find({ projectId: projectId })
+    const project = await Project.findById(projectId);
+    const testCycleIds = getTestCycleBasedIds(project, session.user?._id);
+    const query =
+      testCycleIds?.length > 0
+        ? { _id: { $in: testCycleIds } }
+        : { projectId: projectId };
+
+    const response = await TestCycle.find(query)
       .select("title testCases")
       .populate({
         path: "testCases",

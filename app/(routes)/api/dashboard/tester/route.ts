@@ -4,10 +4,13 @@ import {
 } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { IssueStatus, Severity } from "@/app/_constants/issue";
+import { UserRoles } from "@/app/_constants/user-roles";
 import { connectDatabase } from "@/app/_db";
 import { verifySession } from "@/app/_lib/dal";
 import { Issue } from "@/app/_models/issue.model";
 import { Project } from "@/app/_models/project.model";
+import { TestCycle } from "@/app/_models/test-cycle.model";
+import { getTestCycleBasedIds } from "@/app/_utils/common-server-side";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function GET(req: Request) {
@@ -32,11 +35,30 @@ export async function GET(req: Request) {
 
     const url = new URL(req.url);
     const project = url.searchParams.get("project");
-    let projects;
+    let projects: any[] = [];
+    let totalTestCycles: any[] = [];
 
+    // for assign
+    let proj, testCycleIds;
+
+    // for inside project
     if (project && project !== "undefined") {
-      projects = await Project.find({ _id: project });
+      proj = await Project.findById(project);
+      testCycleIds = getTestCycleBasedIds(proj, session.user?._id);
+
+      let filter: any =
+        testCycleIds?.length > 0 && session.user?.role === UserRoles.TESTER
+          ? { "users.testCycles": { $in: testCycleIds } }
+          : { _id: project };
+
+      projects = await Project.find(filter);
+
+      totalTestCycles = await TestCycle.find({
+        projectId: projects,
+        _id: { $in: testCycleIds },
+      });
     } else {
+      // for all projects
       projects = await Project.find({
         users: {
           $elemMatch: {
@@ -58,10 +80,20 @@ export async function GET(req: Request) {
       });
     }
 
-    const issues = await Issue.find({
-      projectId: projects.map((project) => project._id),
-    });
+    // for assign method
+    let issueFilter: any =
+      testCycleIds?.length > 0 &&
+      testCycleIds !== "undefined" &&
+      session.user?.role === UserRoles.TESTER
+        ? {
+            testCycle: { $in: testCycleIds },
+            projectId: projects.map((project) => project._id),
+          }
+        : { projectId: projects.map((project) => project._id) };
 
+    const issues = await Issue.find(issueFilter);
+
+    // Count unique test cycles from issues
     const testCycleMap = issues.reduce((acc, issue) => {
       const testCycle =
         typeof issue.testCycle === "string"
@@ -93,15 +125,16 @@ export async function GET(req: Request) {
       }
     });
 
-    const issueCounts = await Issue.find({
-      projectId: projects.map((project) => project._id),
-    }).countDocuments();
+    const issueCounts = await Issue.find(issueFilter).countDocuments();
 
     const { severityCounts, statusCounts } = countresults(issues);
     return Response.json({
       severity: severityCounts,
       status: statusCounts,
-      testCycle: uniqueTestCycleCount,
+      testCycle:
+        testCycleIds?.length > 0 && session.user?.role === UserRoles.TESTER
+          ? totalTestCycles?.length
+          : uniqueTestCycleCount,
       issue: issueCounts,
       ProjectSequence: { completed: completedCount, ongoing: ongoingCount },
     });

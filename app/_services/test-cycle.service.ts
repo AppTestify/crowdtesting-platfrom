@@ -48,8 +48,10 @@ export const addTestCycleService = async (
     formData.append("description", body?.description);
     formData.append("startDate", body?.startDate.toISOString());
     formData.append("endDate", body?.endDate.toISOString());
-    // formData.append("country", body?.country);
-    // formData.append("isEmailSend", (body?.isEmailSend ?? false).toString());
+    formData.append("country", body?.country);
+    formData.append("emailFormat", body?.emailFormat);
+    formData.append("emailSubject", body?.emailSubject || "");
+    formData.append("isEmailSend", (body?.isEmailSend ?? false).toString());
     body?.attachments?.forEach((file) => {
       formData.append("attachments", file);
     });
@@ -195,6 +197,20 @@ export const verifyTestCycleService = async (
     return response || [];
   } catch (error) {
     console.error(`Error > verifyTestCycleService:`, error);
+    throw error;
+  }
+};
+
+export const getTestCycleEmailFormatService = async (
+  projectId: string
+): Promise<any> => {
+  try {
+    const response = await genericGet(
+      `${TEST_CYCLE_ENPOINT(projectId)}/mailFormat`
+    );
+    return response || [];
+  } catch (error) {
+    console.error(`Error > getTestCycleEmailFormatService:`, error);
     throw error;
   }
 };

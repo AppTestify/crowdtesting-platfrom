@@ -45,30 +45,12 @@ export const TEST_CYCLE_COUNTRY_TEMPLATE = `
         } 
         .button:hover { 
             background-color: #45a049; 
-            cusror: pointer;
+            cursor: pointer;
         } 
     </style>
 </head>
 <body>
-    <div >
-        <h1>New Test Cycle Available</h1>
-        <p>Dear {fullName},</p>
-        <p>A new test cycle has been added to your country-based project. Below are the details:</p>
-        
-        <div class="details">
-            <p><strong>Test Cycle:</strong> {name}</p>
-            <p><strong>Description:</strong> {description}</p>
-        </div>
-
-        <p>If you're interested, click the button below to apply now:</p>
-
-        <a href="{applyLink}" class="button">Apply Now</a>
-
-        <p>If you have any questions, feel free to reach out.</p>
-        <p>Best regards, <br> AppTestify Platform</p>
-
-      
-    </div>
+{emailFormat}
 </body>
 </html>
 `;

@@ -23,7 +23,7 @@ import { Requirement } from "@/app/_models/requirement.model";
 import { Task } from "@/app/_models/task.model";
 import { TestCycle } from "@/app/_models/test-cycle.model";
 import { User } from "@/app/_models/user.model";
-import { addCustomIds, replaceCustomId } from "@/app/_utils/data-formatters";
+import { replaceCustomId } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function GET(req: Request) {

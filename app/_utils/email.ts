@@ -227,7 +227,7 @@ export const testCycleCountryMail = async (
   const emailService = new EmailService();
   await emailService.sendEmail({
     to: templateTags?.emails,
-    subject: EmailSubjects.TEST_CYCLE_COUNTRY,
+    subject: templateTags?.subject,
     body: replaceEmailTemplateTagsInternalService({
       emailBody: prepareEmailTemplate(TEST_CYCLE_COUNTRY_TEMPLATE),
       tagValuesObject: templateTags,

@@ -6,24 +6,28 @@ import {
   USER_UNAUTHORIZED_SERVER_ERROR_MESSAGE,
 } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
+import { UserRoles } from "@/app/_constants/user-roles";
 import { connectDatabase } from "@/app/_db";
-import { isAdmin, verifySession } from "@/app/_lib/dal";
+import { isAdmin, isClient, verifySession } from "@/app/_lib/dal";
 import { IdFormat } from "@/app/_models/id-format.model";
+import { Issue } from "@/app/_models/issue.model";
+import { Project } from "@/app/_models/project.model";
 import { Task } from "@/app/_models/task.model";
 import { User } from "@/app/_models/user.model";
 import {
   filterTasksForAdmin,
-  filterTasksForNonAdmin,
+  filterTasksForClient,
+  filterTasksForTester,
 } from "@/app/_queries/search-task";
 import { TaskSchema } from "@/app/_schemas/task.schema";
-import { serverSidePagination } from "@/app/_utils/common-server-side";
 import {
-  addCustomIds,
-  normaliseIds,
-  replaceCustomId,
-} from "@/app/_utils/data-formatters";
+  getTestCycleBasedIds,
+  serverSidePagination,
+} from "@/app/_utils/common-server-side";
+import { normaliseIds, replaceCustomId } from "@/app/_utils/data-formatters";
 import { taskAssignMail } from "@/app/_utils/email";
 import { errorHandler } from "@/app/_utils/error-handler";
+import { ObjectId } from "mongodb";
 
 export async function POST(
   req: Request,
@@ -124,26 +128,29 @@ export async function GET(
     const url = new URL(req.url);
     const searchString = url.searchParams.get("searchString");
     const { skip, limit } = serverSidePagination(req);
-    const totalTasks = await Task.find({
-      projectId: projectId,
-    }).countDocuments();
     const userIdFormat = await IdFormat.findOne({
       entity: DBModels.USER,
     });
 
+    // for tester
+    const project = await Project.findById(projectId);
+    const testCycleIds = getTestCycleBasedIds(project, session.user?._id);
+    const issues = await Issue.find({
+      testCycle: { $in: testCycleIds },
+    });
+    const query =
+      testCycleIds?.length > 0 && session.user?.role === UserRoles.TESTER
+        ? {
+            projectId: new ObjectId(projectId),
+            issueId: { $in: issues.map((issue) => issue._id) },
+          }
+        : { projectId: projectId };
+    const totalTasks = await Task.find({
+      projectId: projectId,
+    }).countDocuments();
+
     if (searchString) {
-      if (!(await isAdmin(session.user))) {
-        const { tasks, totalTasks } = await filterTasksForNonAdmin(
-          searchString,
-          skip,
-          limit,
-          projectId
-        );
-        return Response.json({
-          tasks: normaliseIds(tasks),
-          total: totalTasks,
-        });
-      } else {
+      if (await isAdmin(session.user)) {
         const { tasks, totalTasks } = await filterTasksForAdmin(
           searchString,
           skip,
@@ -154,11 +161,33 @@ export async function GET(
           tasks: normaliseIds(tasks),
           total: totalTasks,
         });
+      } else if (await isClient(session.user)) {
+        const { tasks, totalTasks } = await filterTasksForClient(
+          searchString,
+          skip,
+          limit,
+          projectId
+        );
+        return Response.json({
+          tasks: normaliseIds(tasks),
+          total: totalTasks,
+        });
+      } else {
+        const { tasks, totalTasks } = await filterTasksForTester(
+          searchString,
+          skip,
+          limit,
+          query as any
+        );
+        return Response.json({
+          tasks: normaliseIds(tasks),
+          total: totalTasks,
+        });
       }
     }
 
     const data = normaliseIds(
-      await Task.find({ projectId: projectId })
+      await Task.find(query)
         .populate("userId", "firstName lastName")
         .populate("assignedTo", "firstName lastName customId")
         .populate("issueId", "title")

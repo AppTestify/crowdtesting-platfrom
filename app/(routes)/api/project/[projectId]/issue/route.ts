@@ -9,12 +9,14 @@ import {
 } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { IssueStatus } from "@/app/_constants/issue";
+import { UserRoles } from "@/app/_constants/user-roles";
 import { connectDatabase } from "@/app/_db";
 import AttachmentService from "@/app/_helpers/attachment.helper";
 import { isAdmin, isClient, verifySession } from "@/app/_lib/dal";
 import { IdFormat } from "@/app/_models/id-format.model";
 import { IssueAttachment } from "@/app/_models/issue-attachment.model";
 import { Issue } from "@/app/_models/issue.model";
+import { Project } from "@/app/_models/project.model";
 import { User } from "@/app/_models/user.model";
 import {
   filterIssuesForAdmin,
@@ -24,6 +26,7 @@ import {
 import { issueSchema } from "@/app/_schemas/issue.schema";
 import {
   getFileMetaData,
+  getTestCycleBasedIds,
   serverSidePagination,
 } from "@/app/_utils/common-server-side";
 import { addCustomIds, replaceCustomId } from "@/app/_utils/data-formatters";
@@ -173,10 +176,17 @@ export async function GET(
       );
     }
 
+    // For tester
     let response;
     const { projectId } = params;
+    const project = await Project.findById(projectId);
+    const testCycleIds = getTestCycleBasedIds(project, session.user?._id);
 
-    let filter: any = { projectId: projectId };
+    let filter: any =
+      testCycleIds?.length > 0 && session.user?.role === UserRoles.TESTER
+        ? { testCycle: { $in: testCycleIds } }
+        : { projectId: projectId };
+
     const url = new URL(req.url);
     const searchString = url.searchParams.get("searchString");
     const severity = url.searchParams.get("severity");
@@ -243,8 +253,8 @@ export async function GET(
           searchString,
           skip,
           limit,
-          projectId,
           customIDFormat,
+          filter as any,
           severity || undefined,
           priority || undefined,
           status || undefined,

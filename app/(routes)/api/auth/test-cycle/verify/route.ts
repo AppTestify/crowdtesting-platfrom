@@ -38,7 +38,7 @@ export async function POST(req: Request) {
     }
 
     const { token } = response.data;
-    const [id, emailSentAt, projectId] =
+    const [id, emailSentAt, projectId, testCycleId] =
       extractDataFromVerificationToken(token);
 
     if (!id || !emailSentAt) {
@@ -58,6 +58,18 @@ export async function POST(req: Request) {
     });
 
     if (existingProject) {
+      await Project.findOneAndUpdate(
+        {
+          _id: projectId,
+          "users.userId": id,
+        },
+        {
+          $push: {
+            "users.$.testCycles": testCycleId,
+          },
+        },
+        { new: true }
+      );
       return Response.json({
         message: "Applied project based on test cycle successfully",
         isActivated: true,
@@ -80,6 +92,7 @@ export async function POST(req: Request) {
             role: UserRoles.TESTER,
             customId: counter.sequence,
             isVerify: false,
+            testCycles: testCycleId,
           },
         },
       },

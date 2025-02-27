@@ -385,8 +385,8 @@ export async function filterIssuesForTester(
   searchString: string,
   skip: number,
   limit: number,
-  projectId: string,
   idObject: any,
+  filter: any,
   severity?: string,
   priority?: string,
   status?: string,
@@ -401,7 +401,7 @@ export async function filterIssuesForTester(
   const issuesPipeline = [
     {
       $match: {
-        projectId: new ObjectId(projectId),
+        ...filter,
       },
     },
     ...(severity
@@ -470,6 +470,15 @@ export async function filterIssuesForTester(
         },
       },
     },
+    {
+      $lookup: {
+        from: "users",
+        localField: "userId",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+    { $unwind: "$user" },
     {
       $lookup: {
         from: "users",

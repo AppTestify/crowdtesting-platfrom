@@ -5,6 +5,7 @@ import AttachmentService from "../_helpers/attachment.helper";
 import { Tester } from "../_models/tester.model";
 import { replaceCustomId } from "./data-formatters";
 import { TestCaseExecutionResult } from "../_constants/test-case";
+import { IProject } from "../_interface/project";
 
 export const encodeToBase64 = (text: any) => {
   const buffer = Buffer.from(text, "utf8");
@@ -132,7 +133,9 @@ export const usersWithCustomIds = async (response: any, userIdFormat: any) => {
 };
 
 export const customIdForSearch = (idObject: any, searchString: string) => {
-  const idFormat = idObject?.idFormat.replace(/\{.*?\}/, "");
+  const idFormat = idObject?.idFormat
+    ? idObject?.idFormat.replace(/\{.*?\}/, "")
+    : "";
 
   if (searchString?.toLowerCase().startsWith(idFormat?.toLowerCase())) {
     searchString = searchString.slice(idFormat?.length);
@@ -164,12 +167,16 @@ export function countResults(testCaseResults: any[]) {
   return resultCount;
 }
 
-export const generateTestCycleLink = (id: string, projectId: string) => {
+export const generateTestCycleLink = (
+  id: string,
+  projectId: string,
+  testCycleId: string
+) => {
   const frontEndURL: string = process.env.URL ?? "";
   const verificationPath: string = "/test-cycle";
 
   const generatedAuthKeyForCandidate: string =
-    generateTestCycleAuthKeyForUnprotectedRoutes(id, projectId);
+    generateTestCycleAuthKeyForUnprotectedRoutes(id, projectId, testCycleId);
   const generatedVerificationLink: string = `${frontEndURL}${verificationPath}?token=${generatedAuthKeyForCandidate}`;
 
   return generatedVerificationLink;
@@ -177,12 +184,22 @@ export const generateTestCycleLink = (id: string, projectId: string) => {
 
 export const generateTestCycleAuthKeyForUnprotectedRoutes = (
   userId: string,
-  projectId: string
+  projectId: string,
+  testCycleId: string
 ): string => {
   const currentDateTimeUTC = new Date().toISOString();
   return encodeToBase64(
     `${userId.toString()}${Delimeters.PIPE}${currentDateTimeUTC}${
       Delimeters.PIPE
-    }${projectId}`
+    }${projectId}${Delimeters.PIPE}${testCycleId}`
   );
+};
+
+export const getTestCycleBasedIds = (project: IProject, userId: any) => {
+  const data = Array.isArray(project?.users)
+    ? project.users.filter(
+        (user: any) => user.userId.toString() === userId.toString()
+      )
+    : [];
+  return data?.[0]?.testCycles;
 };
