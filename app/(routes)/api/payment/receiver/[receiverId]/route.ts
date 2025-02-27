@@ -76,6 +76,7 @@ export async function GET(
         .populate("senderId", "_id firstName lastName ")
         .skip(skip)
         .limit(Number(limit))
+        .sort({ createdAt: -1 })
         .lean();
     } else {
       totalPaymentsCount = await Payment.find({
@@ -84,6 +85,7 @@ export async function GET(
       response = await Payment.find({ receiverId: receiverId })
         .skip(skip)
         .limit(Number(limit))
+        .sort({ createdAt: -1 })
         .lean();
     }
 

@@ -121,13 +121,11 @@ export async function POST(
       });
 
       const uniqueUsersArray = Array.from(uniqueUsers.values());
-      const uniqueUserIds = uniqueUsersArray.map((user) => user.id);
 
       // Check email
       let unMatchedUsers = [];
-      const projectUser = await Project.findOne({
-        "users.userId": { $in: uniqueUserIds },
-      });
+
+      const projectUser = await Project.findById(projectId);
 
       if (projectUser) {
         const projectUserIds = projectUser.users.map(
@@ -138,9 +136,11 @@ export async function POST(
           const isUserMatched = projectUserIds.some((id: any) =>
             id.equals(user.id)
           );
+
           const matchingProjectUser = projectUser.users.find((projUser: any) =>
             projUser.userId.equals(user.id)
           );
+
           const hasTestCycles = matchingProjectUser?.testCycles?.length > 0;
 
           return !isUserMatched || hasTestCycles;

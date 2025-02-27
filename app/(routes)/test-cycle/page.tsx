@@ -69,7 +69,7 @@ function TestCycleWrapper() {
                                 <div className="flex flex-col items-center gap-2 text-center">
                                     <Loader2 className="text-primary animate-spin h-10 w-10" />
                                     <span>
-                                        Please give us a moment we are in the middle of assign you in the project.
+                                        we are the middle of the assigning you the test cycle
                                     </span>
                                 </div>
                             ) : (
