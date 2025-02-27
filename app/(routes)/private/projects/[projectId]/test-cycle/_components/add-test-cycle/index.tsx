@@ -187,14 +187,15 @@ export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => voi
     };
 
     const validateEmail = async () => {
-        if (Emailform.formState.isValid && form.formState.isValid) {
-            Emailform.handleSubmit((emailValues) => {
-                form.handleSubmit((testCycleValues) => {
-                    onFormSubmit(emailValues, testCycleValues);
-                })();
+        const isEmailValid = await Emailform.trigger();
+        if (!isEmailValid) return;  
+    
+        Emailform.handleSubmit((emailValues) => {
+            form.handleSubmit((testCycleValues) => {
+                onFormSubmit(emailValues, testCycleValues);
             })();
-        }
-    };
+        })();
+    };    
 
 
     const resetForm = () => {
