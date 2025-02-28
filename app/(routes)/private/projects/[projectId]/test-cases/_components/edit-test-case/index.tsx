@@ -59,7 +59,7 @@ export function EditTestCase({
     refreshTestCases: () => void;
 }) {
     const testCaseId = testCases.id;
-    const { title, expectedResult, projectId, testSuite, requirements } = testCases;
+    const { title, expectedResult, projectId, testSuite, requirements, testType, severity } = testCases;
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [requirementsList, setRequirementsList] = useState<IRequirement[]>(requirements || []);
     const [clear, setClear] = useState<boolean>(false);
@@ -104,7 +104,9 @@ export function EditTestCase({
             title: title || "",
             expectedResult: expectedResult || "",
             testSuite: testSuite?._id || "",
-            requirements: []
+            requirements: [],
+            testType: testType || "",
+            severity: severity || ""
         });
     };
 
