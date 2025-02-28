@@ -82,6 +82,14 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
             ),
         },
         {
+            accessorKey: "type",
+            header: "Type",
+            cell: ({ row }) => (
+                <div className="capitalize ">
+                    {row.original?.testType}</div>
+            ),
+        },
+        {
             id: "unAssign",
             header: "",
             cell: ({ row }) => (
@@ -139,6 +147,14 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
             cell: ({ row }) => (
                 <div className="capitalize ">
                     {row.getValue("title")}</div>
+            ),
+        },
+        {
+            accessorKey: "type",
+            header: "Type",
+            cell: ({ row }) => (
+                <div className="capitalize ">
+                    {row.original?.testType}</div>
             ),
         },
         {
