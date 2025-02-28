@@ -24,4 +24,6 @@ export interface ITestCase {
   createdAt?: string;
   _id?: string;
   testCaseResults?: ITestCaseResult[];
+  testType?: string;
+  severity?: string;
 }

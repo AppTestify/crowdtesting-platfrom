@@ -258,7 +258,7 @@ const ViewTesterIssue = ({
                             <TabsContent value="payments">
                                 {userData?.paypalId ?
                                     <div className="p-3">
-                                        <Label className="block mb-1">Paypal ID:</Label>
+                                        <Label className="block mb-1">Paypal ID/UPI ID:</Label>
                                         <Input
                                             type={isPaypalVisible ? 'text' : 'password'}
                                             disabled
@@ -273,7 +273,7 @@ const ViewTesterIssue = ({
                                                 onCheckedChange={() => setIsPaypalVisible(!isPaypalVisible)}
                                             />
                                             <Label htmlFor="terms" className="ml-2 text-gray-600">
-                                                Show Paypal ID
+                                                Show Paypal ID/UPI ID
                                             </Label>
                                         </div>
                                     </div>

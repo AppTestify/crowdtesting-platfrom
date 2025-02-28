@@ -24,6 +24,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { IssueType, TaskStatus } from "@/app/_constants/issue";
+import { TEST_CASE_SEVERITY, TEST_TYPE } from "@/app/_constants/test-case";
 
 const chartConfig = {
     [IssueType.FUNCTIONAL]: {
@@ -62,6 +63,26 @@ const chartConfig = {
         label: TaskStatus.DONE,
         color: "hsl(var(--chart-2))",
     },
+    [TEST_TYPE.AUTOMATION]: {
+        label: TEST_TYPE.AUTOMATION,
+        color: "hsl(var(--chart-2))",
+    },
+    [TEST_TYPE.MANUAL]: {
+        label: TEST_TYPE.MANUAL,
+        color: "hsl(var(--chart-4))",
+    },
+    [TEST_CASE_SEVERITY.LOW]: {
+        label: TEST_CASE_SEVERITY.LOW,
+        color: "hsl(var(--chart-2))",
+    },
+    [TEST_CASE_SEVERITY.MEDIUM]: {
+        label: TEST_CASE_SEVERITY.MEDIUM,
+        color: "hsl(var(--chart-5))",
+    },
+    [TEST_CASE_SEVERITY.HIGH]: {
+        label: TEST_CASE_SEVERITY.HIGH,
+        color: "hsl(var(--chart-1))",
+    },
 } satisfies ChartConfig;
 
 const getColorForPriority = (level: string) => {
@@ -84,6 +105,16 @@ const getColorForPriority = (level: string) => {
             return 'hsl(var(--chart-1))';
         case TaskStatus.DONE:
             return 'hsl(var(--chart-2))';
+        case TEST_TYPE.AUTOMATION:
+            return 'hsl(var(--chart-2))';
+        case TEST_TYPE.MANUAL:
+            return 'hsl(var(--chart-4))';
+        case TEST_CASE_SEVERITY.LOW:
+            return 'hsl(var(--chart-2))';
+        case TEST_CASE_SEVERITY.MEDIUM:
+            return 'hsl(var(--chart-5))';
+        case TEST_CASE_SEVERITY.HIGH:
+            return 'hsl(var(--chart-1))';
         default:
             return 'hsl(var(--primary))';
     }

@@ -41,6 +41,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AddTestStep } from "../steps";
 import { TestCaseData } from "../test-case-data";
 import { ITestCase } from "@/app/_interface/test-case";
+import { TEST_CASE_SEVERITY_LIST, TEST_TYPE_LIST } from "@/app/_constants/test-case";
 
 const testSuiteSchema = z.object({
     title: z.string().min(1, "Required"),
@@ -48,6 +49,8 @@ const testSuiteSchema = z.object({
     projectId: z.string().optional(),
     testSuite: z.string().min(1, "Required"),
     requirements: z.array(z.string().optional()),
+    testType: z.string().optional(),
+    severity: z.string().optional(),
 });
 
 export function AddTestCase({ refreshTestCases, testSuites }: { refreshTestCases: () => void, testSuites: ITestSuite[] }) {
@@ -69,7 +72,9 @@ export function AddTestCase({ refreshTestCases, testSuites }: { refreshTestCases
             expectedResult: "",
             projectId: projectId,
             testSuite: "",
-            requirements: []
+            requirements: [],
+            testType: "",
+            severity: "",
         },
     });
     useEffect(() => {
@@ -179,6 +184,68 @@ export function AddTestCase({ refreshTestCases, testSuites }: { refreshTestCases
                                                     <FormControl>
                                                         <Input {...field} />
                                                     </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-2 mt-4">
+                                        <FormField
+                                            control={form.control}
+                                            name="testType"
+                                            render={({ field }) => (
+                                                <FormItem className="flex flex-col">
+                                                    <FormLabel>Test type</FormLabel>
+                                                    <Select
+                                                        onValueChange={field.onChange}
+                                                        value={field.value ?? undefined}
+                                                    >
+                                                        <SelectTrigger className="w-full">
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectGroup>
+                                                                {TEST_TYPE_LIST.map((testType) => (
+                                                                    <SelectItem value={testType}>
+                                                                        <div className="flex items-center">
+                                                                            {testType}
+                                                                        </div>
+                                                                    </SelectItem>
+                                                                ))}
+                                                            </SelectGroup>
+                                                        </SelectContent>
+                                                    </Select>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name="severity"
+                                            render={({ field }) => (
+                                                <FormItem className="flex flex-col">
+                                                    <FormLabel>Severity</FormLabel>
+                                                    <Select
+                                                        onValueChange={field.onChange}
+                                                        value={field.value ?? undefined}
+                                                    >
+                                                        <SelectTrigger className="w-full">
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectGroup>
+                                                                {TEST_CASE_SEVERITY_LIST.map((severity) => (
+                                                                    <SelectItem value={severity}>
+                                                                        <div className="flex items-center">
+                                                                            {severity}
+                                                                        </div>
+                                                                    </SelectItem>
+                                                                ))}
+                                                            </SelectGroup>
+                                                        </SelectContent>
+                                                    </Select>
                                                     <FormMessage />
                                                 </FormItem>
                                             )}

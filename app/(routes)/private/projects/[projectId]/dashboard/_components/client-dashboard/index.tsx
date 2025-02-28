@@ -42,7 +42,14 @@ export default function ProjectClientDashboard() {
                             </CardDescription>
                         </div>
                         <div className="flex">
-                            <div className="relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l data-[active=true]:bg-muted/50 sm:border-l sm:border-t-0 sm:mx-6 sm:py-6"
+                            <div className="relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left  data-[active=true]:bg-muted/50 sm:border-l sm:border-t-0 sm:px-6 sm:py-6"
+                            >
+                                <span className="text-xs text-muted-foreground whitespace-nowrap">Test Cases</span>
+                                <span className="text-lg font-bold leading-none sm:text-3xl">
+                                    {dashboard?.totalTestCases}
+                                </span>
+                            </div>
+                            <div className="relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left border-l data-[active=true]:bg-muted/50 sm:border-l sm:border-t-0 sm:px-6 sm:py-6"
                             >
                                 <span className="text-xs text-muted-foreground whitespace-nowrap">Test Cycles</span>
                                 <span className="text-lg font-bold leading-none sm:text-3xl">
@@ -50,7 +57,7 @@ export default function ProjectClientDashboard() {
                                 </span>
                             </div>
 
-                            <div className="relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l data-[active=true]:bg-muted/50 sm:border-l sm:border-t-0 sm:px-8 sm:py-6"
+                            <div className="relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left border-l data-[active=true]:bg-muted/50 sm:border-l sm:border-t-0 sm:px-8 sm:py-6"
                             >
                                 <span className="text-xs text-muted-foreground">Issues</span>
                                 <span className="text-lg font-bold leading-none sm:text-3xl">
@@ -92,6 +99,19 @@ export default function ProjectClientDashboard() {
                 <DonutChart chartData={dashboard?.task} dataKey={"issueType"} title={"Task"}
                     description={"Showing task status levels"}
                     headerTitle={"Task by status"} />
+            </div>
+
+            {/* Test case charts */}
+            <div className="grid gap-2 mt-1 sm:mt-2 grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
+                {/* By type */}
+                <DonutChart chartData={dashboard?.testCaseType} dataKey={"issueType"} title={"TestCase"}
+                    description={"Showing test case type levels"}
+                    headerTitle={"Test case by type"} />
+
+                {/* By severity */}
+                <DonutChart chartData={dashboard?.testCaseSeverity} dataKey={"issueType"} title={"TestCase"}
+                    description={"Showing test case severity levels"}
+                    headerTitle={"Test case by severity"} />
             </div>
 
             <div className="grid grid-cols-[60%,40%] gap-2 mt-1 mb-2">

@@ -104,6 +104,26 @@ const ViewTestCase = ({
                 />
               </div>
 
+              {/* test type */}
+              {testCase?.testType &&
+                <div className="mt-3">
+                  <span>Test type</span>
+                  <div className="text-sm leading-relaxed text-gray-700">
+                    {testCase?.testType}
+                  </div>
+                </div>
+              }
+
+              {/* severity */}
+              {testCase?.severity &&
+                <div className="mt-3">
+                  <span>Severity</span>
+                  <div className="text-sm leading-relaxed text-gray-700">
+                    {testCase?.severity}
+                  </div>
+                </div>
+              }
+
               {/* testSuite */}
               <div className="mt-4">
                 Test suite

@@ -44,6 +44,25 @@ export const enum TEST_EXECUTION_TYPE {
   UAT = "UAT",
 }
 
+export const enum TEST_TYPE {
+  AUTOMATION = "Automation",
+  MANUAL = "Manual",
+}
+
+export const enum TEST_CASE_SEVERITY {
+  LOW = "Low",
+  MEDIUM = "Medium",
+  HIGH = "High",
+}
+
+export const TEST_CASE_SEVERITY_LIST = [
+  TEST_CASE_SEVERITY.LOW,
+  TEST_CASE_SEVERITY.MEDIUM,
+  TEST_CASE_SEVERITY.HIGH,
+];
+
+export const TEST_TYPE_LIST = [TEST_TYPE.AUTOMATION, TEST_TYPE.MANUAL];
+
 export const TestCaseExecutionResultList = [
   TestCaseExecutionResult.PASSED,
   TestCaseExecutionResult.FAILED,

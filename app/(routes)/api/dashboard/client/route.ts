@@ -11,16 +11,19 @@ import {
   Severity,
   TaskStatus,
 } from "@/app/_constants/issue";
+import { TEST_CASE_SEVERITY, TEST_TYPE } from "@/app/_constants/test-case";
 import { connectDatabase } from "@/app/_db";
 import { IProject } from "@/app/_interface/project";
 import { IRequirement } from "@/app/_interface/requirement";
 import { ITask } from "@/app/_interface/task";
+import { ITestCase } from "@/app/_interface/test-case";
 import { verifySession } from "@/app/_lib/dal";
 import { IdFormat } from "@/app/_models/id-format.model";
 import { Issue } from "@/app/_models/issue.model";
 import { Project } from "@/app/_models/project.model";
 import { Requirement } from "@/app/_models/requirement.model";
 import { Task } from "@/app/_models/task.model";
+import { TestCase } from "@/app/_models/test-case.model";
 import { TestCycle } from "@/app/_models/test-cycle.model";
 import { User } from "@/app/_models/user.model";
 import { replaceCustomId } from "@/app/_utils/data-formatters";
@@ -76,6 +79,11 @@ export async function GET(req: Request) {
 
     const projectCounts = countProjectResults(projects);
 
+    // Total test case
+    const testCases = await TestCase.find({
+      projectId: projects.map((project) => project._id),
+    });
+
     const {
       severityCounts,
       priorityCounts,
@@ -83,7 +91,9 @@ export async function GET(req: Request) {
       issueTypeCounts,
       requirementStatusCounts,
       assignedIssueCountsArray,
-    } = await countresults(issues, requirements);
+      testCaseTypeCounts,
+      testCaseSeverityCounts,
+    } = await countresults(issues, requirements, testCases);
 
     // task by status
     const tasks = await Task.find({
@@ -104,6 +114,9 @@ export async function GET(req: Request) {
       task: taskCounts,
       requirementStatus: requirementStatusCounts,
       assignedIssueCounts: assignedIssueCountsArray,
+      totalTestCases: testCases.length,
+      testCaseType: testCaseTypeCounts,
+      testCaseSeverity: testCaseSeverityCounts,
     });
   } catch (error: any) {
     return errorHandler(error);
@@ -132,8 +145,6 @@ function countTaskByStatus(tasks: ITask[]) {
   taskCounts[TaskStatus.DONE] = 0;
 
   tasks.forEach((task) => {
-    // if (project?.isActive === true) statusCounts.active++;
-    // else statusCounts.inActive++;
     if (task.status) {
       taskCounts[task.status]++;
     }
@@ -142,7 +153,11 @@ function countTaskByStatus(tasks: ITask[]) {
   return taskCounts;
 }
 
-async function countresults(issue: any[], requirements: IRequirement[]) {
+async function countresults(
+  issue: any[],
+  requirements: IRequirement[],
+  testCases: ITestCase[]
+) {
   const severityCounts: any = {};
   severityCounts[Severity.MINOR] = 0;
   severityCounts[Severity.MAJOR] = 0;
@@ -184,6 +199,15 @@ async function countresults(issue: any[], requirements: IRequirement[]) {
   requirementStatusCounts[TaskStatus.IN_PROGRESS] = 0;
   requirementStatusCounts[TaskStatus.BLOCKED] = 0;
   requirementStatusCounts[TaskStatus.DONE] = 0;
+
+  const testCaseTypeCounts: any = {};
+  testCaseTypeCounts[TEST_TYPE.AUTOMATION] = 0;
+  testCaseTypeCounts[TEST_TYPE.MANUAL] = 0;
+
+  const testCaseSeverityCounts: any = {};
+  testCaseSeverityCounts[TEST_CASE_SEVERITY.LOW] = 0;
+  testCaseSeverityCounts[TEST_CASE_SEVERITY.MEDIUM] = 0;
+  testCaseSeverityCounts[TEST_CASE_SEVERITY.HIGH] = 0;
 
   const userIdFormat = await IdFormat.findOne({ entity: DBModels.USER });
   const assignedIssueCounts: Record<
@@ -260,6 +284,19 @@ async function countresults(issue: any[], requirements: IRequirement[]) {
     }
   });
 
+  // Test case count
+  testCases.forEach((testCase) => {
+    // By type
+    if (testCase.testType) {
+      testCaseTypeCounts[testCase.testType]++;
+    }
+
+    // By severity
+    if (testCase.severity) {
+      testCaseSeverityCounts[testCase.severity]++;
+    }
+  });
+
   return {
     severityCounts,
     priorityCounts,
@@ -267,6 +304,8 @@ async function countresults(issue: any[], requirements: IRequirement[]) {
     issueTypeCounts,
     requirementStatusCounts,
     assignedIssueCountsArray,
+    testCaseTypeCounts,
+    testCaseSeverityCounts,
   };
 }
 
