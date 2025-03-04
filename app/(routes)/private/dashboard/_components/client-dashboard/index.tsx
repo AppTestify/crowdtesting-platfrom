@@ -118,9 +118,14 @@ export default function ClientDashboard() {
           headerTitle={"Test case by type"} />
 
         {/* By severity */}
-        <DonutChart chartData={dashboard?.testCaseSeverity} dataKey={"issueType"} title={"TestCase"}
-          description={"Showing test case severity levels"}
-          headerTitle={"Test case by severity"} />
+        <HorizontalBarChart
+          title="Test case by severity"
+          description="Showing test case severity levels"
+          dataKey="testCaseSeverity"
+          chartData={dashboard?.testCaseSeverity || {}}
+          entity={"Severity"}
+          isDropdown={false}
+        />
       </div>
 
       <div className="grid gap-2 mt-1 sm:mt-2 grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 mb-4">
@@ -138,8 +143,9 @@ export default function ClientDashboard() {
         />
       </div>
 
-      <div className='grid grid-cols-[60%] mb-3'>
-        <AssigneeUser assignedUser={dashboard?.assignedIssueCounts} />
+      <div className='grid grid-cols-2 gap-2 mb-3'>
+        <AssigneeUser assignedUser={dashboard?.assignedIssueCounts} title='Issues' description='Shows number of issues assign to users' />
+        <AssigneeUser assignedUser={dashboard?.assignedRequirementCounts} title='Requirements' description='Shows number of requirement assign to users' />
       </div>
     </div>
   );

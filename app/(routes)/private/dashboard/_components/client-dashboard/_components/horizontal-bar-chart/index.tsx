@@ -1,4 +1,5 @@
 import { ISSUE_STATUS_LIST, Priority, Severity } from '@/app/_constants/issue';
+import { TEST_CASE_SEVERITY } from '@/app/_constants/test-case';
 import { getTesterPriorityDashboardService, getTesterSeverityDashboardService } from '@/app/_services/dashboard.service';
 import toasterService from '@/app/_services/toaster-service';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -32,6 +33,9 @@ const chartConfig = {
     Severity: {
         label: "Severity",
         color: 'hsl(var(--primary))'
+    },
+    [TEST_CASE_SEVERITY.MEDIUM]: {
+        color: "hsl(var(--chart-4))",
     }
 } satisfies ChartConfig;
 type PriorityType = "Low" | "Normal" | "High" | "Severity";
@@ -52,6 +56,8 @@ const getColorForPriority = (level: string) => {
             return 'hsl(var(--chart-1))';
         case Severity.BLOCKER:
             return 'hsl(var(--chart-3))';
+        case TEST_CASE_SEVERITY.MEDIUM:
+            return 'hsl(var(--chart-4))';
         default:
             return 'hsl(var(--primary))';
     }
@@ -64,9 +70,10 @@ interface HorizontalBarChartProps {
     chartData: Record<string, number>;
     projectId?: string;
     entity?: string;
+    isDropdown?: boolean;
 }
 
-export default function HorizontalBarChart({ title, description, dataKey, chartData, projectId, entity }: HorizontalBarChartProps) {
+export default function HorizontalBarChart({ title, description, dataKey, chartData, projectId, entity, isDropdown = true }: HorizontalBarChartProps) {
     const [status, setStatus] = useState<string>("");
     const [severity, setSeverity] = useState([]);
 
@@ -111,30 +118,32 @@ export default function HorizontalBarChart({ title, description, dataKey, chartD
                     <CardDescription>{description}</CardDescription>
                 </div>
 
-                <Select
-                    onValueChange={(value) => setStatus(value)}
-                >
-                    <SelectTrigger
-                        className="ml-auto h-7 w-[150px] rounded-lg "
-                        aria-label="Status"
+                {isDropdown &&
+                    <Select
+                        onValueChange={(value) => setStatus(value)}
                     >
-                        <SelectValue placeholder="Status" />
-                    </SelectTrigger>
-                    <SelectContent className='h-72'>
-                        <SelectGroup>
-                            <SelectItem value="All">
-                                <div className="flex items-center">All status</div>
-                            </SelectItem>
-                            {ISSUE_STATUS_LIST.map((role) => (
-                                <SelectItem value={role} >
-                                    <div className="flex items-center">
-                                        {role}
-                                    </div>
+                        <SelectTrigger
+                            className="ml-auto h-7 w-[150px] rounded-lg "
+                            aria-label="Status"
+                        >
+                            <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent className='h-72'>
+                            <SelectGroup>
+                                <SelectItem value="All">
+                                    <div className="flex items-center">All status</div>
                                 </SelectItem>
-                            ))}
-                        </SelectGroup>
-                    </SelectContent>
-                </Select>
+                                {ISSUE_STATUS_LIST.map((role) => (
+                                    <SelectItem value={role} >
+                                        <div className="flex items-center">
+                                            {role}
+                                        </div>
+                                    </SelectItem>
+                                ))}
+                            </SelectGroup>
+                        </SelectContent>
+                    </Select>
+                }
             </CardHeader>
             <CardContent>
                 <ChartContainer config={chartConfig}>

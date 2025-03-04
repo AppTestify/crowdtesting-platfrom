@@ -112,6 +112,15 @@ export default function TestCases() {
                 }] : []
         ),
         {
+            accessorKey: "testType",
+            header: "Test Type",
+            cell: ({ row }) => (
+                <div className="capitalize">
+                    {row.original.testType}
+                </div>
+            ),
+        },
+        {
             accessorKey: "createdAt",
             header: "Created On",
             cell: ({ row }) => (
