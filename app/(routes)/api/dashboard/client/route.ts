@@ -286,13 +286,6 @@ async function countresults(
     })
   );
 
-  requirements.forEach((result) => {
-    // By status
-    if (result.status) {
-      requirementStatusCounts[result.status]++;
-    }
-  });
-
   // Assign by requirement
   for (const result of requirements) {
     let assignedTo = "Unassigned";
