@@ -111,9 +111,15 @@ export default function ProjectAdminDashboard() {
                             headerTitle={"Test case by type"} />
 
                         {/* By severity */}
-                        <DonutChart chartData={dashboard?.testCaseSeverity} dataKey={"issueType"} title={"TestCase"}
-                            description={"Showing test case severity levels"}
-                            headerTitle={"Test case by severity"} />
+                        <HorizontalBarChart
+                            title="Test case by severity"
+                            description="Showing test case severity levels"
+                            dataKey="testCaseSeverity"
+                            chartData={dashboard?.testCaseSeverity || {}}
+                            projectId={projectId}
+                            entity={"Severity"}
+                            isDropdown={false}
+                        />
                     </div>
 
                     <div className="grid grid-cols-[60%,40%] gap-2 mt-1 mb-2">
@@ -128,8 +134,9 @@ export default function ProjectAdminDashboard() {
                             headerTitle={"Requirement by status"} />
                     </div>
 
-                    <div className='grid grid-cols-[60%]'>
-                        <AssigneeUser assignedUser={dashboard?.assignedIssueCounts} />
+                    <div className='grid grid-cols-2 gap-2'>
+                        <AssigneeUser assignedUser={dashboard?.assignedIssueCounts} title='Issues' description='Shows number of issues assign to users' />
+                        <AssigneeUser assignedUser={dashboard?.assignedRequirementCounts} title='Requirements' description='Shows number of requirement assign to users' />
                     </div>
                 </>
             )}

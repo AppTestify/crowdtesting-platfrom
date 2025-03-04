@@ -70,7 +70,7 @@ export async function GET(req: Request) {
 
     const requirements = await Requirement.find({
       projectId: projects.map((project) => project._id),
-    });
+    }).sort({ _id: -1 });
 
     const topDevices = await topDevicesData(projects);
     const testCycleCounts = await TestCycle.find({
@@ -93,6 +93,7 @@ export async function GET(req: Request) {
       assignedIssueCountsArray,
       testCaseTypeCounts,
       testCaseSeverityCounts,
+      assignedRequirementCountsArray,
     } = await countresults(issues, requirements, testCases);
 
     // task by status
@@ -117,6 +118,7 @@ export async function GET(req: Request) {
       totalTestCases: testCases.length,
       testCaseType: testCaseTypeCounts,
       testCaseSeverity: testCaseSeverityCounts,
+      assignedRequirementCounts: assignedRequirementCountsArray,
     });
   } catch (error: any) {
     return errorHandler(error);
@@ -216,6 +218,13 @@ async function countresults(
   > = {};
   const userMap: Record<string, any> = {};
 
+  // Assign in requirements
+  const assignedRequirementCounts: Record<
+    string,
+    { noOfAssigned: number; customId: string; fullName: string; role: string }
+  > = {};
+  const requirementUserMap: Record<string, any> = {};
+
   for (const result of issue) {
     // Assigned count
     let assignedTo = "Unassigned";
@@ -284,6 +293,55 @@ async function countresults(
     }
   });
 
+  // Assign by requirement
+  for (const result of requirements) {
+    let assignedTo = "Unassigned";
+    let userDetails = { customId: "", fullName: "", role: "" };
+
+    if (result.assignedTo) {
+      if (!requirementUserMap[result.assignedTo.toString()]) {
+        const user = await User.findById(result.assignedTo).select(
+          "_id customId firstName lastName role"
+        );
+        if (user) {
+          const customId = replaceCustomId(
+            userIdFormat.idFormat,
+            user.customId
+          );
+          userDetails = {
+            customId,
+            fullName: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+            role: user.role,
+          };
+          requirementUserMap[result.assignedTo.toString()] = userDetails;
+        }
+      }
+
+      userDetails = requirementUserMap[result.assignedTo.toString()];
+      assignedTo = userDetails.customId;
+    }
+
+    assignedRequirementCounts[assignedTo] = {
+      noOfAssigned:
+        (assignedRequirementCounts[assignedTo]?.noOfAssigned || 0) + 1,
+      ...userDetails,
+    };
+
+    // By status
+    if (result.status) {
+      requirementStatusCounts[result.status]++;
+    }
+  }
+
+  const assignedRequirementCountsArray = Object.entries(
+    assignedRequirementCounts
+  ).map(([customId, { noOfAssigned, fullName, role }]) => ({
+    customId,
+    noOfAssigned,
+    fullName,
+    role,
+  }));
+
   // Test case count
   testCases.forEach((testCase) => {
     // By type
@@ -306,6 +364,7 @@ async function countresults(
     assignedIssueCountsArray,
     testCaseTypeCounts,
     testCaseSeverityCounts,
+    assignedRequirementCountsArray,
   };
 }
 

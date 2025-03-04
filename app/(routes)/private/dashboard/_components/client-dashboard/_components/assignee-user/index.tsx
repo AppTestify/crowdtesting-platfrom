@@ -5,7 +5,8 @@ import { ColumnDef, flexRender, getCoreRowModel, getFilteredRowModel, getPaginat
 import { useSession } from 'next-auth/react';
 import React, { useEffect, useState } from 'react'
 
-export default function AssigneeUser({ assignedUser }: { assignedUser: any }) {
+export default function AssigneeUser({ assignedUser, title, description }:
+    { assignedUser: any, title: string, description: string }) {
     const [userData, setUserData] = useState<any>();
     const { data } = useSession();
 
@@ -85,10 +86,10 @@ export default function AssigneeUser({ assignedUser }: { assignedUser: any }) {
     return (
         <div className='p-4 rounded-md border'>
             <div className='font-semibold '>
-                Issues by assignee
+                {title} by assignee
             </div>
             <div className='my-1 mb-2 text-gray-500 text-sm'>
-                Shows number of issues assign to users
+                {description}
             </div>
             <div className="rounded-md border">
                 {assignedUser &&
