@@ -103,24 +103,28 @@ export default function ProjectLayouts({ onLoaded }: { onLoaded: () => void }) {
                             <div className='flex justify-end items-end ml-2'>
                                 {userData?.role === UserRoles.ADMIN && (
                                     <Popover>
-                                        <PopoverTrigger asChild>
-                                            <TooltipProvider>
-                                                <Tooltip delayDuration={10}>
-                                                    <TooltipTrigger asChild>
+                                        <TooltipProvider>
+                                            <Tooltip delayDuration={10}>
+                                                <TooltipTrigger asChild>
+                                                    <PopoverTrigger asChild>
                                                         <Button variant={"ghost"} size={"icon"}>
-                                                            <GalleryVertical className='h-4 w-4 text-black' />
+                                                            <GalleryVertical className="h-4 w-4 text-black" />
                                                         </Button>
-                                                    </TooltipTrigger>
-                                                    <TooltipContent>
-                                                        <p>Tab access</p>
-                                                    </TooltipContent>
-                                                </Tooltip>
-                                            </TooltipProvider>
-                                        </PopoverTrigger>
+                                                    </PopoverTrigger>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>Tab access</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </TooltipProvider>
+
                                         <PopoverContent className="w-auto h-72 overflow-y-auto rounded-lg shadow-lg bg-white" align="start">
                                             <div className="flex flex-col p-0">
                                                 {accessTabs?.map((tab: any, index: number) => (
-                                                    <div key={index} className="flex items-center gap-2 px-2 py-2 rounded-md hover:bg-gray-100 transition duration-200 cursor-pointer">
+                                                    <div
+                                                        key={index}
+                                                        className="flex items-center gap-2 px-2 py-2 rounded-md hover:bg-gray-100 transition duration-200 cursor-pointer"
+                                                    >
                                                         <Checkbox
                                                             id={`checkbox-${index}`}
                                                             className="h-5 w-5 border-gray-300 rounded-md"
