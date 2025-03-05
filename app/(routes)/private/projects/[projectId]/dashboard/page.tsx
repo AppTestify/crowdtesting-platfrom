@@ -6,7 +6,6 @@ import toasterService from "@/app/_services/toaster-service";
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getDashboardClientService, getTesterDashboardService } from "@/app/_services/dashboard.service";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
 import ProjectTesterDashboard from "./_components/tester-dashboard";
@@ -47,7 +46,7 @@ export default function Projects() {
   }, [projectId, userData?.role]);
 
   return (
-    <div className="mt-2 mx-4">
+    <div className="mt-2 mx-5">
       {!isLoading ? (
         <div className="mb-5">
           {userData?.role === UserRoles.CLIENT ?

@@ -12,6 +12,7 @@ export interface IProject extends Document {
   userId: Types.ObjectId;
   customId: number;
   deletedAt?: Date;
+  projectTabAccess?: Types.ObjectId;
 }
 
 const ProjectUserSchema = new Schema(
@@ -34,6 +35,10 @@ const ProjectSchema = new Schema<IProject>(
     isActive: { type: Boolean, required: true },
     users: [ProjectUserSchema],
     userId: { type: Schema.Types.ObjectId, ref: DBModels.USER, required: true },
+    projectTabAccess: {
+      type: Schema.Types.ObjectId,
+      ref: DBModels.PROJECT_TAB_ACCESS,
+    },
     customId: { type: Number },
     deletedAt: Date,
   },

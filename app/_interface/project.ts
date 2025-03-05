@@ -47,3 +47,7 @@ export interface IProjectUserDisplay {
 export interface IProjectDescription {
   description: string;
 }
+
+export interface IProjectTab {
+  access: boolean;
+}

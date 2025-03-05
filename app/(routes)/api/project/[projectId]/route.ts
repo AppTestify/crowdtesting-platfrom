@@ -124,7 +124,9 @@ export async function GET(
 
     const { projectId } = params;
 
-    const response = await Project.findById(projectId).populate("users")
+    const response = await Project.findById(projectId)
+      .populate({ path: "projectTabAccess", strictPopulate: false })
+      .populate("users")
       .select("_id title description createdAt isActive userId");
 
     return Response.json(response);

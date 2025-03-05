@@ -9,6 +9,7 @@ import {
   IProjectBulkDeletePayload,
   IProjectDescription,
   IProjectPayload,
+  IProjectTab,
   IProjectUser,
 } from "../_interface/project";
 import {
@@ -230,6 +231,23 @@ export const editProjectDescriptionService = async (
     return response || {};
   } catch (error) {
     console.error(`Error > editProjectDescriptionService:`, error);
+    throw error;
+  }
+};
+
+export const updateProjectTabAccessService = async (
+  projectId: string,
+  tabAccessId: string,
+  body: IProjectTab
+): Promise<any> => {
+  try {
+    const response = await genericPut(
+      `${PROJECTS_ENDPOINT}/${projectId}/tab-access/${tabAccessId}`,
+      body
+    );
+    return response || {};
+  } catch (error) {
+    console.error(`Error > updateProjectTabAccessService:`, error);
     throw error;
   }
 };

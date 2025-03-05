@@ -1,4 +1,5 @@
 import "server-only";
+import { UserRoles } from "./user-roles";
 
 export const VERIFICATION_LINK_EXPIRE_LIMIT = 7;
 export const CUSTOM_ID_KEY = "customId";
@@ -35,4 +36,88 @@ export const publicEmailDomains = [
   "outlook.com",
   "hotmail.com",
   "icloud.com",
+];
+
+const enum TabLabels {
+  DASHBOARD = "Dashboard",
+  PROJECT_DETAILS = "Project Details",
+  USERS = "Users",
+  REQUIREMENTS = "Requirements",
+  TEST_PLANS = "Test Plans",
+  TEST_SUITES = "Test Suites",
+  TEST_CASES = "Test Cases",
+  TEST_EXECUTIONS = "Test Executions",
+  ISSUES = "Issues",
+  TASKS = "Tasks",
+  TEST_CYCLE = "Test Cycle",
+  REPORTS = "Reports",
+  RTM = "RTM",
+}
+
+export const defaultTabsAccess = [
+  {
+    label: TabLabels.DASHBOARD,
+    key: "DASHBOARD",
+    roles: [UserRoles.TESTER, UserRoles.ADMIN, UserRoles.CLIENT],
+  },
+  {
+    label: TabLabels.PROJECT_DETAILS,
+    key: "PROJECT_DETAILS",
+    roles: [UserRoles.TESTER, UserRoles.ADMIN, UserRoles.CLIENT],
+  },
+  {
+    label: TabLabels.USERS,
+    key: "USERS",
+    roles: [UserRoles.ADMIN, UserRoles.CLIENT],
+  },
+  {
+    label: TabLabels.REQUIREMENTS,
+    key: "REQUIREMENTS",
+    roles: [UserRoles.TESTER, UserRoles.ADMIN, UserRoles.CLIENT],
+  },
+  {
+    label: TabLabels.TEST_PLANS,
+    key: "TEST_PLANS",
+    roles: [UserRoles.TESTER, UserRoles.ADMIN, UserRoles.CLIENT],
+  },
+  {
+    label: TabLabels.TEST_SUITES,
+    key: "TEST_SUITES",
+    roles: [UserRoles.TESTER, UserRoles.ADMIN, UserRoles.CLIENT],
+  },
+  {
+    label: TabLabels.TEST_CASES,
+    key: "TEST_CASES",
+    roles: [UserRoles.TESTER, UserRoles.ADMIN, UserRoles.CLIENT],
+  },
+  {
+    label: TabLabels.TEST_EXECUTIONS,
+    key: "TEST_EXECUTIONS",
+    roles: [UserRoles.TESTER, UserRoles.ADMIN, UserRoles.CLIENT],
+  },
+  {
+    label: TabLabels.ISSUES,
+    key: "ISSUES",
+    roles: [UserRoles.TESTER, UserRoles.ADMIN, UserRoles.CLIENT],
+  },
+  {
+    label: TabLabels.TASKS,
+    key: "TASKS",
+    roles: [UserRoles.TESTER, UserRoles.ADMIN, UserRoles.CLIENT],
+  },
+  {
+    label: TabLabels.TEST_CYCLE,
+    key: "TEST_CYCLE",
+    roles: [UserRoles.TESTER, UserRoles.ADMIN, UserRoles.CLIENT],
+  },
+  {
+    label: TabLabels.REPORTS,
+    key: "REPORTS",
+    roles: [UserRoles.TESTER, UserRoles.ADMIN, UserRoles.CLIENT],
+  },
+  {
+    label: TabLabels.RTM,
+    key: "RTM",
+    roles: [UserRoles.ADMIN, UserRoles.CLIENT],
+  },
 ];

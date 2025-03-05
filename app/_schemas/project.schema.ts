@@ -24,3 +24,7 @@ export const projectUserSchema = z.object({
 export const projectDescriptionSchema = z.object({
   description: z.string().optional(),
 });
+
+export const projectTabSchema = z.object({
+  access: z.boolean(),
+});

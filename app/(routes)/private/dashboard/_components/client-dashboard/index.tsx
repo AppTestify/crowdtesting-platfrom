@@ -144,8 +144,8 @@ export default function ClientDashboard() {
       </div>
 
       <div className='grid grid-cols-2 gap-2 mb-3'>
-        <AssigneeUser assignedUser={dashboard?.assignedIssueCounts} title='Issues' description='Shows number of issues assign to users' />
-        <AssigneeUser assignedUser={dashboard?.assignedRequirementCounts} title='Requirements' description='Shows number of requirement assign to users' />
+        <AssigneeUser assignedUser={dashboard?.assignedIssueCounts} title='Issues' description='Showing number of issues assigned to users' />
+        <AssigneeUser assignedUser={dashboard?.assignedRequirementCounts} title='Requirements' description='Showing number of requirement assigned to users' />
       </div>
     </div>
   );

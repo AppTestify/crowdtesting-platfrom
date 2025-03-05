@@ -1,4 +1,5 @@
 import { DBModels } from "@/app/_constants";
+import { defaultTabsAccess } from "@/app/_constants/constant-server-side";
 import {
   DB_CONNECTION_ERROR_MESSAGE,
   INVALID_INPUT_ERROR_MESSAGE,
@@ -9,6 +10,7 @@ import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
 import { isAdmin, isClient, verifySession } from "@/app/_lib/dal";
 import { IdFormat } from "@/app/_models/id-format.model";
+import { ProjectTabAccess } from "@/app/_models/project-tab-access.model";
 import { Project } from "@/app/_models/project.model";
 import {
   filterProjectsForAdmin,
@@ -59,6 +61,20 @@ export async function POST(req: Request) {
       userId: session.user._id,
     });
     const saveProject = await newProject.save();
+
+    const projectTabAccess = await ProjectTabAccess.create({
+      projectId: saveProject._id,
+      tabAccess: defaultTabsAccess.map((tab) => ({
+        label: tab.label,
+        key: tab.key,
+        roles: tab.roles,
+        access: true,
+      })),
+    });
+
+    // Update Project with projectTabAccess ID
+    saveProject.projectTabAccess = projectTabAccess._id;
+    await saveProject.save();
 
     return Response.json({
       message: "Project added successfully",
