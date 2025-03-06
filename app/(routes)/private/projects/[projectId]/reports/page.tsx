@@ -309,7 +309,7 @@ export default function Report() {
                         }}
                         className="max-w-sm"
                     />
-                    {(project?.isActive === true || userData?.role !== UserRoles.CLIENT || userData?.role !== UserRoles.MANAGER || userData?.role !== UserRoles.DEVELOPER)
+                    {(project?.isActive === true || userData?.role !== UserRoles.CLIENT && userData?.role !== UserRoles.MANAGER && userData?.role !== UserRoles.DEVELOPER)
                         && checkProjectActiveRole(project?.isActive ?? false, userData) && (userData?.role !== UserRoles.CLIENT) &&
                         < div className="flex gap-2 ml-2">
                             <AddReport refreshReports={refreshReports} />
