@@ -262,10 +262,8 @@ export default function Users() {
         setUser(data as IUserByAdmin);
         if (data.role == UserRoles.TESTER) {
             setIsViewOpen(true);
-        } else if (data.role == UserRoles.CLIENT) {
-            setIsClientViewOpen(true);
         } else {
-            null;
+            setIsClientViewOpen(true);
         }
 
     };
