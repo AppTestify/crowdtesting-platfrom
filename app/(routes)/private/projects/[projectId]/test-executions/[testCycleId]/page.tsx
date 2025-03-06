@@ -139,7 +139,7 @@ export default function TestCasesInTestExecution() {
                 </div>
             ),
         },
-        ...(userData?.role !== UserRoles.CLIENT ? [{
+        ...(userData?.role !== UserRoles.CLIENT && userData?.role !== UserRoles.MANAGER && userData?.role !== UserRoles.DEVELOPER ? [{
             header: "",
             id: "actions",
             enableHiding: false,
