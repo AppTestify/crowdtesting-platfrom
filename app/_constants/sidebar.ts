@@ -41,7 +41,31 @@ export const getSidebarItems = (user: any) => {
       }
     });
     return adminNavbar;
-  } else {
+  } else if (role === UserRoles.CLIENT) {
+    const titles = ["Projects"];
+    clientNavbar.forEach((item) => {
+      if (titles.includes(item.title) && !isVerified) {
+        item.disabled = true;
+      }
+    });
+    return clientNavbar;
+  } else if (role === UserRoles.MANAGER) {
+    const titles = ["Projects"];
+    clientNavbar.forEach((item) => {
+      if (titles.includes(item.title) && !isVerified) {
+        item.disabled = true;
+      }
+    });
+    return clientNavbar;
+  } else if (role === UserRoles.DEVELOPER) {
+    const titles = ["Projects"];
+    clientNavbar.forEach((item) => {
+      if (titles.includes(item.title) && !isVerified) {
+        item.disabled = true;
+      }
+    });
+    return clientNavbar;
+  } else if (role === UserRoles.PROJECT_ADMIN) {
     const titles = ["Projects"];
     clientNavbar.forEach((item) => {
       if (titles.includes(item.title) && !isVerified) {
