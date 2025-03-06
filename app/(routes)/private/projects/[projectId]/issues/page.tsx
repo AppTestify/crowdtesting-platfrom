@@ -577,7 +577,7 @@ export default function Issues() {
 
           <div className="flex items-end justify-end gap-2 ml-auto">
             <div>{ExportExcelFile(generateExcel, hasData, isExcelLoading, false)}</div>
-            {userData?.role !== UserRoles.CLIENT && checkProjectActiveRole(project?.isActive ?? false, userData) &&
+            {userData?.role !== UserRoles.CLIENT && userData?.role !== UserRoles.MANAGER && userData?.role !== UserRoles.DEVELOPER && checkProjectActiveRole(project?.isActive ?? false, userData) &&
               (project?.isActive === true ||
                 userData?.role === UserRoles.ADMIN ||
                 userData?.role === UserRoles.TESTER) && (

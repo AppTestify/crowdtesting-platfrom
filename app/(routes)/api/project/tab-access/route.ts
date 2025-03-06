@@ -31,7 +31,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const projects = await Project.find(); 
+    const projects = await Project.find();
 
     if (!projects || projects.length === 0) {
       console.log("No projects found");
@@ -52,6 +52,28 @@ export async function POST(req: Request) {
 
         project.projectTabAccess = projectTabAccess._id;
         await project.save();
+      } else {
+        const existingTabAccess = await ProjectTabAccess.findById(
+          project.projectTabAccess?._id
+        );
+
+        const updatedTabAccess = defaultTabsAccess.map((tab) => {
+          const existingTab = existingTabAccess.tabAccess.find(
+            (existing: any) => existing.key === tab.key
+          );
+
+          return {
+            label: tab.label,
+            key: tab.key,
+            roles: tab.roles,
+            access: existingTab ? existingTab.access : true,
+          };
+        });
+
+        await ProjectTabAccess.updateOne(
+          { _id: project.projectTabAccess },
+          { $set: { tabAccess: updatedTabAccess } }
+        );
       }
     }
 

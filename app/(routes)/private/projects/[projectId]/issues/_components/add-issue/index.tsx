@@ -475,7 +475,9 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
               </div>
 
               {userProjectRole === ProjectUserRoles.ADMIN ||
-                userProjectRole === ProjectUserRoles.CLIENT ? (
+                userProjectRole === ProjectUserRoles.CLIENT ||
+                userProjectRole === ProjectUserRoles.MANAGER ||
+                userProjectRole === ProjectUserRoles.DEVELOPER ? (
                 <div className="grid grid-cols-1 gap-2 mt-4">
                   <FormField
                     control={form.control}

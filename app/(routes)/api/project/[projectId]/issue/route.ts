@@ -12,7 +12,7 @@ import { IssueStatus } from "@/app/_constants/issue";
 import { UserRoles } from "@/app/_constants/user-roles";
 import { connectDatabase } from "@/app/_db";
 import AttachmentService from "@/app/_helpers/attachment.helper";
-import { isAdmin, isClient, verifySession } from "@/app/_lib/dal";
+import { isAdmin, isClient, isTester, verifySession } from "@/app/_lib/dal";
 import { IdFormat } from "@/app/_models/id-format.model";
 import { IssueAttachment } from "@/app/_models/issue-attachment.model";
 import { Issue } from "@/app/_models/issue.model";
@@ -232,13 +232,13 @@ export async function GET(
           issues: addCustomIds(issues, customIDFormat?.idFormat),
           total: totalIssues,
         });
-      } else if (await isClient(session.user)) {
-        const { issues, totalIssues } = await filterIssuesForClient(
+      } else if (await isTester(session.user)) {
+        const { issues, totalIssues } = await filterIssuesForTester(
           searchString,
           skip,
           limit,
-          projectId,
           customIDFormat,
+          filter as any,
           severity || undefined,
           priority || undefined,
           status || undefined,
@@ -249,12 +249,12 @@ export async function GET(
           total: totalIssues,
         });
       } else {
-        const { issues, totalIssues } = await filterIssuesForTester(
+        const { issues, totalIssues } = await filterIssuesForClient(
           searchString,
           skip,
           limit,
+          projectId,
           customIDFormat,
-          filter as any,
           severity || undefined,
           priority || undefined,
           status || undefined,
@@ -294,7 +294,43 @@ export async function GET(
           .lean(),
         customIDFormat.idFormat
       );
-    } else if (await isClient(session.user)) {
+    } else if (await isTester(session.user)) {
+      totalIssues = await Issue.find(filter).countDocuments();
+      const data = addCustomIds(
+        await query
+          .populate({
+            path: "userId",
+            select: "firstName lastName _id",
+          })
+          .populate("projectId", "title")
+          .populate({
+            path: "assignedTo",
+            select: "firstName lastName _id customId",
+            strictPopulate: false,
+          })
+          .populate({
+            path: "testCycle",
+            select: "title",
+            strictPopulate: false,
+          })
+          .populate("device", "name")
+          .lean(),
+        customIDFormat.idFormat
+      );
+
+      response = data?.map((res) => ({
+        ...res,
+        assignedTo: res.assignedTo
+          ? {
+              ...res.assignedTo,
+              customId: replaceCustomId(
+                userIdFormat?.idFormat,
+                res.assignedTo?.customId
+              ),
+            }
+          : null,
+      }));
+    } else {
       totalIssues = await Issue.find({
         status: { $nin: [IssueStatus.NEW] },
       })
@@ -323,42 +359,6 @@ export async function GET(
             select: "title",
             strictPopulate: false,
           })
-          .lean(),
-        customIDFormat.idFormat
-      );
-
-      response = data?.map((res) => ({
-        ...res,
-        assignedTo: res.assignedTo
-          ? {
-              ...res.assignedTo,
-              customId: replaceCustomId(
-                userIdFormat?.idFormat,
-                res.assignedTo?.customId
-              ),
-            }
-          : null,
-      }));
-    } else {
-      totalIssues = await Issue.find(filter).countDocuments();
-      const data = addCustomIds(
-        await query
-          .populate({
-            path: "userId",
-            select: "firstName lastName _id",
-          })
-          .populate("projectId", "title")
-          .populate({
-            path: "assignedTo",
-            select: "firstName lastName _id customId",
-            strictPopulate: false,
-          })
-          .populate({
-            path: "testCycle",
-            select: "title",
-            strictPopulate: false,
-          })
-          .populate("device", "name")
           .lean(),
         customIDFormat.idFormat
       );

@@ -104,7 +104,7 @@ export function EditTask({
             const userObj: any = { ...user };
             if (userObj.role === UserRoles.ADMIN) {
                 setUserProjectRole(ProjectUserRoles.ADMIN);
-            } else if (userObj.role === UserRoles.CLIENT) {
+            } else if (userObj.role === UserRoles.CLIENT && userObj.role === UserRoles.MANAGER && userObj.role === UserRoles.DEVELOPER) {
                 setUserProjectRole(ProjectUserRoles.CLIENT);
             } else {
                 setUserProjectRole(

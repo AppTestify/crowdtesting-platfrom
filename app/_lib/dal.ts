@@ -41,3 +41,15 @@ export const isClient = cache(async (user: IUser) => {
     throw error;
   }
 });
+
+export const isTester = cache(async (user: IUser) => {
+  try {
+    if (user.role !== UserRoles.TESTER) {
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    throw error;
+  }
+});

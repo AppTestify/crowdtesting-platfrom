@@ -13,7 +13,7 @@ import { UserRoles } from "@/app/_constants/user-roles";
 import { connectDatabase } from "@/app/_db";
 import AttachmentService from "@/app/_helpers/attachment.helper";
 import { ITestCase } from "@/app/_interface/test-case";
-import { isAdmin, isClient, verifySession } from "@/app/_lib/dal";
+import { isAdmin, isClient, isTester, verifySession } from "@/app/_lib/dal";
 import { IdFormat } from "@/app/_models/id-format.model";
 import { Project } from "@/app/_models/project.model";
 import { TestCycleAttachment } from "@/app/_models/test-cycle-attachment.model";
@@ -276,25 +276,25 @@ export async function GET(
           testCycles: addCustomIds(testCycles, userIdFormat?.idFormat),
           total: totalTestCycles,
         });
-      } else if (await isClient(session.user)) {
-        const { testCycles, totalTestCycles } = await filterTestCyclesForClient(
-          searchString,
-          skip,
-          limit,
-          projectId,
-          userIdFormat
-        );
-        return Response.json({
-          testCycles: addCustomIds(testCycles, userIdFormat?.idFormat),
-          total: totalTestCycles,
-        });
-      } else {
+      } else if (await isTester(session.user)) {
         const { testCycles, totalTestCycles } = await filterTestCyclesForTester(
           searchString,
           skip,
           limit,
           userIdFormat,
           query
+        );
+        return Response.json({
+          testCycles: addCustomIds(testCycles, userIdFormat?.idFormat),
+          total: totalTestCycles,
+        });
+      } else {
+        const { testCycles, totalTestCycles } = await filterTestCyclesForClient(
+          searchString,
+          skip,
+          limit,
+          projectId,
+          userIdFormat
         );
         return Response.json({
           testCycles: addCustomIds(testCycles, userIdFormat?.idFormat),
@@ -313,16 +313,7 @@ export async function GET(
           .lean(),
         userIdFormat.idFormat
       );
-    } else if (await isClient(session.user)) {
-      response = addCustomIds(
-        await TestCycle.find({ projectId: projectId })
-          .sort({ createdAt: -1 })
-          .skip(skip)
-          .limit(Number(limit))
-          .lean(),
-        userIdFormat.idFormat
-      );
-    } else {
+    } else if (await isTester(session.user)) {
       response = addCustomIds(
         await TestCycle.find(query)
           .sort({ createdAt: -1 })
@@ -333,6 +324,15 @@ export async function GET(
       );
 
       totalTestCycles = await TestCycle.find(query).countDocuments();
+    } else {
+      response = addCustomIds(
+        await TestCycle.find({ projectId: projectId })
+          .sort({ createdAt: -1 })
+          .skip(skip)
+          .limit(Number(limit))
+          .lean(),
+        userIdFormat.idFormat
+      );
     }
 
     const result = response.map((res) => ({

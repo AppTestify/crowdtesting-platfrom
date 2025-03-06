@@ -346,15 +346,19 @@ export default function Users() {
             <div className="mt-2 mb-3">
                 <Tabs defaultValue="tester"
                     onValueChange={(value) => {
-                        if (value === "admin") handleRoleChange(UserRoles.ADMIN);
+                        if (value === "admin") handleRoleChange(UserRoles.PROJECT_ADMIN);
                         if (value === "tester") handleRoleChange(UserRoles.TESTER);
                         if (value === "client") handleRoleChange(UserRoles.CLIENT);
+                        if (value === "manager") handleRoleChange(UserRoles.MANAGER);
+                        if (value === "developer") handleRoleChange(UserRoles.DEVELOPER);
                     }}
                 >
-                    <TabsList className="grid grid-cols-3 w-[400px]">
+                    <TabsList className="grid grid-cols-5 w-fit">
                         <TabsTrigger value="tester">Tester</TabsTrigger>
-                        <TabsTrigger value="admin">Admin</TabsTrigger>
+                        <TabsTrigger value="admin">Project Admin</TabsTrigger>
                         <TabsTrigger value="client">Client</TabsTrigger>
+                        <TabsTrigger value="manager">Manager</TabsTrigger>
+                        <TabsTrigger value="developer">Developer</TabsTrigger>
                     </TabsList>
                 </Tabs>
             </div>

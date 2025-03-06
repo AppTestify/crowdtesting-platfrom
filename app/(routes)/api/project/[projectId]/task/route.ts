@@ -8,7 +8,7 @@ import {
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { UserRoles } from "@/app/_constants/user-roles";
 import { connectDatabase } from "@/app/_db";
-import { isAdmin, isClient, verifySession } from "@/app/_lib/dal";
+import { isAdmin, isClient, isTester, verifySession } from "@/app/_lib/dal";
 import { IdFormat } from "@/app/_models/id-format.model";
 import { Issue } from "@/app/_models/issue.model";
 import { Project } from "@/app/_models/project.model";
@@ -161,23 +161,23 @@ export async function GET(
           tasks: normaliseIds(tasks),
           total: totalTasks,
         });
-      } else if (await isClient(session.user)) {
-        const { tasks, totalTasks } = await filterTasksForClient(
+      } else if (await isTester(session.user)) {
+        const { tasks, totalTasks } = await filterTasksForTester(
           searchString,
           skip,
           limit,
-          projectId
+          query as any
         );
         return Response.json({
           tasks: normaliseIds(tasks),
           total: totalTasks,
         });
       } else {
-        const { tasks, totalTasks } = await filterTasksForTester(
+        const { tasks, totalTasks } = await filterTasksForClient(
           searchString,
           skip,
           limit,
-          query as any
+          projectId
         );
         return Response.json({
           tasks: normaliseIds(tasks),

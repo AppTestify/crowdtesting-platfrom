@@ -83,6 +83,9 @@ export default function Dashboard() {
                     {user && user.role === UserRoles.ADMIN ? <AdminDashboard /> : null}
                     {user && user.role === UserRoles.CLIENT ? <ClientDashboard /> : null}
                     {user && user.role === UserRoles.TESTER ? <TesterDashboard /> : null}
+                    {user && user.role === UserRoles.MANAGER ? <ClientDashboard /> : null}
+                    {user && user.role === UserRoles.DEVELOPER ? <ClientDashboard /> : null}
+                    {user && user.role === UserRoles.PROJECT_ADMIN ? <ClientDashboard /> : null}
                 </>
             )}
         </main>

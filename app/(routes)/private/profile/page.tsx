@@ -25,10 +25,8 @@ export default function Dashboard() {
             <TesterProfile user={user} />
           ) : user?.role === UserRoles.ADMIN ? (
             <AdminProfile user={user} />
-          ) : user?.role === UserRoles.CLIENT ? (
-            <ClientProfile user={user} />
           ) : (
-            <></>
+            <ClientProfile user={user} />
           )}
         </>
       ) : null}

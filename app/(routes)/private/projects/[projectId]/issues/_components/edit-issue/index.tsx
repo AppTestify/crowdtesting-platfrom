@@ -468,7 +468,8 @@ const EditIssue = ({
                                 </SelectItem>
                               ))}
                             </SelectGroup>
-                          ) : userData?.role === UserRoles.CLIENT ? (
+                          ) : userData?.role === UserRoles.CLIENT && userData?.role === UserRoles.MANAGER
+                            && userData?.role === UserRoles.DEVELOPER ? (
                             <SelectGroup>
                               {ISSUE_STATUS_LIST.filter(
                                 (status) => status !== IssueStatus.NEW

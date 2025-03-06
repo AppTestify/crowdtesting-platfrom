@@ -49,14 +49,12 @@ export default function Projects() {
     <div className="mt-2 mx-5">
       {!isLoading ? (
         <div className="mb-5">
-          {userData?.role === UserRoles.CLIENT ?
-            <ProjectClientDashboard />
-            :
-            userData?.role === UserRoles.TESTER ?
-              <ProjectTesterDashboard />
-              : userData?.role === UserRoles.ADMIN ?
-                <ProjectAdminDashboard />
-                : null
+          {userData?.role === UserRoles.TESTER ?
+            <ProjectTesterDashboard />
+            : userData?.role === UserRoles.ADMIN ?
+              <ProjectAdminDashboard />
+              : <ProjectClientDashboard />
+
           }
         </div>
       ) : (

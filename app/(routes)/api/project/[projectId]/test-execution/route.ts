@@ -7,13 +7,16 @@ import {
 } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
-import { isAdmin, isClient, verifySession } from "@/app/_lib/dal";
+import { isAdmin, isClient, isTester, verifySession } from "@/app/_lib/dal";
 import { IdFormat } from "@/app/_models/id-format.model";
 import { Project } from "@/app/_models/project.model";
 import { TestCaseResult } from "@/app/_models/test-case-result.model";
 import { TestCycle } from "@/app/_models/test-cycle.model";
 import { TestExecution } from "@/app/_models/test-execution.model";
-import { filterTestExecutionForTester, filterTestExecutionNotForTester } from "@/app/_queries/search-test-execution";
+import {
+  filterTestExecutionForTester,
+  filterTestExecutionNotForTester,
+} from "@/app/_queries/search-test-execution";
 import { testExecutionSchema } from "@/app/_schemas/test-execution.schema";
 import {
   countResults,
@@ -148,14 +151,14 @@ export async function GET(
         : { projectId: projectId };
 
     if (searchString) {
-      if ((await isAdmin(session.user)) || (await isClient(session.user))) {
+      if (await isTester(session.user)) {
         const { testExecution, totalTestExecutions } =
-          await filterTestExecutionNotForTester(
+          await filterTestExecutionForTester(
             searchString,
             skip,
             limit,
-            projectId,
-            testExecutionIdFormat
+            testExecutionIdFormat,
+            query
           );
 
         return Response.json({
@@ -167,12 +170,12 @@ export async function GET(
         });
       } else {
         const { testExecution, totalTestExecutions } =
-          await filterTestExecutionForTester(
+          await filterTestExecutionNotForTester(
             searchString,
             skip,
             limit,
-            testExecutionIdFormat,
-            query
+            projectId,
+            testExecutionIdFormat
           );
 
         return Response.json({

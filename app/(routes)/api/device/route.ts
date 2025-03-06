@@ -7,7 +7,7 @@ import {
 } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
-import { isAdmin, isClient, verifySession } from "@/app/_lib/dal";
+import { isAdmin, isClient, isTester, verifySession } from "@/app/_lib/dal";
 import { Device } from "@/app/_models/device.model";
 import { IdFormat } from "@/app/_models/id-format.model";
 import {
@@ -110,11 +110,12 @@ export async function GET(req: Request) {
           devices: normaliseIds(devices),
           total: totalDevices,
         });
-      } else if (await isClient(session.user)) {
-        const { devices, totalDevices } = await filterDevicesForClient(
+      } else if (await isTester(session.user)) {
+        const { devices, totalDevices } = await filterDevicesForTester(
           searchString,
           skip,
-          limit
+          limit,
+          session.user
         );
 
         return Response.json({
@@ -122,11 +123,10 @@ export async function GET(req: Request) {
           total: totalDevices,
         });
       } else {
-        const { devices, totalDevices } = await filterDevicesForTester(
+        const { devices, totalDevices } = await filterDevicesForClient(
           searchString,
           skip,
-          limit,
-          session.user
+          limit
         );
 
         return Response.json({

@@ -10,7 +10,7 @@ import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { ReportStatus } from "@/app/_constants/issue";
 import { connectDatabase } from "@/app/_db";
 import AttachmentService from "@/app/_helpers/attachment.helper";
-import { isAdmin, isClient, verifySession } from "@/app/_lib/dal";
+import { isAdmin, isClient, isTester, verifySession } from "@/app/_lib/dal";
 import { ReportAttachment } from "@/app/_models/report-attachment.model";
 import { Report } from "@/app/_models/report.model";
 import {
@@ -164,13 +164,12 @@ export async function GET(
           Reports: reports,
           total: totalReports,
         });
-      } else if (await isClient(session.user)) {
+      } else if (await isTester(session.user)) {
         const { reports, totalReports } = await filterReportsForTester(
           searchString,
           skip,
           limit,
-          projectId,
-          true
+          projectId
         );
         return Response.json({
           Reports: reports,
@@ -181,7 +180,8 @@ export async function GET(
           searchString,
           skip,
           limit,
-          projectId
+          projectId,
+          true
         );
         return Response.json({
           Reports: reports,
@@ -199,10 +199,12 @@ export async function GET(
         .skip(skip)
         .limit(Number(limit))
         .lean();
-    } else if (await isClient(session.user)) {
+    } else if (await isTester(session.user)) {
       response = await Report.find({
-        projectId: projectId,
-        status: ReportStatus.APPROVED,
+        $or: [
+          { userId: session.user._id },
+          { projectId: projectId, status: ReportStatus.APPROVED },
+        ],
       })
         .populate("projectId", "_id")
         .populate("attachments")
@@ -212,10 +214,8 @@ export async function GET(
         .lean();
     } else {
       response = await Report.find({
-        $or: [
-          { userId: session.user._id },
-          { projectId: projectId, status: ReportStatus.APPROVED },
-        ],
+        projectId: projectId,
+        status: ReportStatus.APPROVED,
       })
         .populate("projectId", "_id")
         .populate("attachments")

@@ -23,6 +23,7 @@ export const teams = [
 
 export const getSidebarItems = (user: any) => {
   const role = user?.role;
+
   const isVerified = user?.isVerified;
   if (role === UserRoles.TESTER) {
     const titles = ["Projects"];
@@ -40,7 +41,7 @@ export const getSidebarItems = (user: any) => {
       }
     });
     return adminNavbar;
-  } else if (role === UserRoles.CLIENT) {
+  } else {
     const titles = ["Projects"];
     clientNavbar.forEach((item) => {
       if (titles.includes(item.title) && !isVerified) {
