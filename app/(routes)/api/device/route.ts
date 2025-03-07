@@ -159,16 +159,7 @@ export async function GET(req: Request) {
           : null,
       }));
       totalDevices = await Device.find({}).countDocuments();
-    } else if (await isClient(session.user)) {
-      response = normaliseIds(
-        await Device.find({})
-          .sort({ createdAt: -1 })
-          .skip(skip)
-          .limit(Number(limit))
-          .lean()
-      );
-      totalDevices = await Device.find({}).countDocuments();
-    } else {
+    } else if (await isTester(session.user)) {
       response = normaliseIds(
         await Device.find({ userId: session.user._id })
           .sort({ createdAt: -1 })
@@ -179,6 +170,15 @@ export async function GET(req: Request) {
       totalDevices = await Device.find({
         userId: session.user._id,
       }).countDocuments();
+    } else {
+      response = normaliseIds(
+        await Device.find({})
+          .sort({ createdAt: -1 })
+          .skip(skip)
+          .limit(Number(limit))
+          .lean()
+      );
+      totalDevices = await Device.find({}).countDocuments();
     }
     response = response.map((res) => ({
       ...res,

@@ -140,7 +140,7 @@ export default function Devices() {
       ),
     },
     ...(
-      userData?.role != UserRoles.CLIENT ?
+      userData?.role != UserRoles.CLIENT && userData?.role != UserRoles.MANAGER && userData?.role != UserRoles.DEVELOPER ?
         [{
           accessorKey: "actions",
           header: "",
@@ -272,7 +272,7 @@ export default function Devices() {
             }}
             className="max-w-sm"
           />
-          {userData?.role != UserRoles.CLIENT &&
+          {userData?.role != UserRoles.CLIENT && userData?.role != UserRoles.MANAGER && userData?.role != UserRoles.DEVELOPER &&
             <div className="flex gap-2 ml-2">
               {getSelectedRows().length ? (
                 <BulkDelete
