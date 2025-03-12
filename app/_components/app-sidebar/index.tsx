@@ -12,7 +12,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { getSidebarItems, navMain, teams } from "@/app/_constants/sidebar";
+import { getSidebarItems, teams } from "@/app/_constants/sidebar";
 import { useSession } from "next-auth/react";
 import { toTitleCase } from "@/app/_utils/string-formatters";
 import toasterService from "@/app/_services/toaster-service";

@@ -2,6 +2,7 @@ import { accordionBodyColors, accrodionColors } from '@/app/_constants/test-case
 import { ITestCaseResult } from '@/app/_interface/test-case-result'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import React from 'react'
+import TestCasesMediaRenderer from '../../../../test-cases/_components/media-render'
 
 export default function TestData({ testCaseResult }:
     { testCaseResult: ITestCaseResult }
@@ -34,6 +35,14 @@ export default function TestData({ testCaseResult }:
                                                 __html: testData?.description || "",
                                             }} className="font-medium" />
                                         </p>
+                                        {testData?.attachments &&
+                                            <div>
+                                                <TestCasesMediaRenderer
+                                                    attachments={testData?.attachments || []}
+                                                    title={"Attachments"}
+                                                />
+                                            </div>
+                                        }
                                     </div>
                                 </AccordionContent>
                             </AccordionItem>

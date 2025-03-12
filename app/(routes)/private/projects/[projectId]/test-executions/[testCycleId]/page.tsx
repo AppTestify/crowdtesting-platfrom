@@ -16,7 +16,7 @@ import React, { useEffect, useState } from 'react'
 import Moderate from './_components/moderate';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator }
     from '@/components/ui/breadcrumb';
-import { showTestCaseResultStatusBadge } from '@/app/_utils/common-functionality';
+import { ExportExcelFile, showTestCaseResultStatusBadge } from '@/app/_utils/common-functionality';
 import { Input } from '@/components/ui/input';
 import ModerateView from './_components/view-moderate';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -24,6 +24,9 @@ import { TestCaseExecutionResult, TestCaseExecutionResultList } from '@/app/_con
 import { PAGINATION_LIMIT } from '@/app/_constants/pagination-limit';
 import { useSession } from 'next-auth/react';
 import { UserRoles } from '@/app/_constants/user-roles';
+import Link from 'next/link';
+import { generateExcelFile } from '@/app/_helpers/generate-excel.helper';
+import { TestCaseResult } from '@/app/_models/test-case-result.model';
 
 export default function TestCasesInTestExecution() {
     const { data } = useSession();
@@ -41,6 +44,7 @@ export default function TestCasesInTestExecution() {
     const [totalPageCount, setTotalPageCount] = useState(0);
     const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
     const [isViewOpen, setIsViewOpen] = useState<boolean>(false);
+    const [isExcelLoading, setIsExcelLoading] = useState<boolean>(false);
     const [selectedResult, setSelectedResult] = useState<TestCaseExecutionResult | any>("");
     const [userData, setUserData] = useState<any>();
 
@@ -94,20 +98,17 @@ export default function TestCasesInTestExecution() {
             },
         },
         {
-            accessorKey: "actualResult",
-            header: "Actual Result",
-            cell: ({ row }) => {
-                const actualResult = row.original?.actualResult;
-                return (
-                    <div className="capitalize" title={actualResult}>
-                        {actualResult && actualResult.length > 40 ? `${actualResult.substring(0, 40)}...` : actualResult}
-                    </div>
-                )
-            },
+            accessorKey: "severity",
+            header: "Severity",
+            cell: ({ row }) => (
+                <div className="capitalize">
+                    {row.original?.testCaseId?.severity}
+                </div>
+            ),
         },
         {
             accessorKey: "moderatedBy",
-            header: "Updated By",
+            header: "Executed By",
             cell: ({ row }) => {
                 const updatedBy = row.original?.updatedBy;
                 return (
@@ -123,7 +124,7 @@ export default function TestCasesInTestExecution() {
         },
         {
             accessorKey: "moderatedOn",
-            header: "Updated On",
+            header: "Executed On",
             cell: ({ row }) => (
                 <div className="capitalize ">
                     {row.original?.updatedAt && formatDate(row.original?.updatedAt as string)}
@@ -147,14 +148,17 @@ export default function TestCasesInTestExecution() {
                 <div>
                     {!row.original?.result &&
                         <>
-                            <Button
-                                type={'button'}
-                                size={"sm"}
-                                className="mb-1"
-                                onClick={() => moderateOpen(row.original)}
+                            <Link
+                                href={`/private/browse/${projectId}/test-execution/${row.original?._id}`}
                             >
-                                <Play className="h-2 w-2" />
-                            </Button>
+                                <Button
+                                    type={'button'}
+                                    size={"sm"}
+                                    className="mb-1"
+                                >
+                                    <Play className="h-2 w-2" />
+                                </Button>
+                            </Link>
                         </>
                     }
                 </div>
@@ -165,11 +169,6 @@ export default function TestCasesInTestExecution() {
     const showView = (row: ITestCaseResult) => {
         setIsViewOpen(true);
         setModerate(row);
-    }
-
-    const moderateOpen = async (row: ITestCaseResult) => {
-        setModerate(row);
-        setIsOpen(true);
     }
 
     const table = useReactTable({
@@ -208,6 +207,47 @@ export default function TestCasesInTestExecution() {
             setIsLoading(false);
         }
     };
+
+    const generateExcel = async () => {
+        setIsExcelLoading(true);
+        const header =
+            userData?.role === UserRoles.ADMIN
+                ? [
+                    "ID",
+                    "Title",
+                    "Severity",
+                    "Executed By",
+                    "Executed On",
+                    "Result",
+                ]
+                : [
+                    "ID",
+                    "Title",
+                    "Severity",
+                    "Executed By",
+                    "Executed On",
+                    "Result",
+                ];
+
+        const response = await getTestExecutionsService(projectId, testCycleId, 1, totalPageCount, "");
+        const data = response?.testExecution?.map((testCaseResult: ITestCaseResult) => [
+            testCaseResult?.testCaseId?.customId,
+            testCaseResult?.testCaseId?.title,
+            testCaseResult?.testCaseId?.severity || "Not specified yet",
+            userData?.role === UserRoles.ADMIN
+                ? `${testCaseResult?.updatedBy?.firstName || ""} ${testCaseResult?.updatedBy?.lastName || ""}`.trim() || "Not specified yet"
+                : testCaseResult?.updatedBy?.customId || "Not specified yet",
+            testCaseResult?.updatedAt ? formatDate(testCaseResult?.updatedAt as string) : "Not specified yet",
+            testCaseResult?.result || "Not specified yet",
+        ]);
+        generateExcelFile(
+            header,
+            data,
+            `Test-execution-${response?.testExecution[0]?.testCycleId?.title}.xlsx`
+        );
+        setIsExcelLoading(false);
+    };
+    const hasData = table.getRowModel().rows?.length > 0;
 
     useEffect(() => {
         getTestExecution();
@@ -304,6 +344,10 @@ export default function TestCasesInTestExecution() {
                         </div>
                         : null
                     }
+
+                    <div className='flex items-end justify-end gap-2 ml-auto mr-4'>
+                        <div>{ExportExcelFile(generateExcel, hasData, isExcelLoading, false)}</div>
+                    </div>
                 </div>
                 <div className="rounded-md border">
                     <Table>

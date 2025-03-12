@@ -130,20 +130,53 @@ export default function TestExecution() {
             accessorKey: "totalTestCases",
             header: "Total Test Cases",
             cell: ({ row }) => (
-                <div className="capitalize flex gap-1">
-                    <div className="w-6 h-6 border border-1 bg-primary rounded-full text-white flex items-center justify-center">
-                        {row.original?.resultCounts?.passed}
+                <TooltipProvider delayDuration={40}>
+
+                    <div className="capitalize flex gap-1">
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <div className="w-6 h-6 border border-1 bg-primary rounded-full text-white flex items-center justify-center">
+                                    {row.original?.resultCounts?.passed}
+                                </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>Passed</p>
+                            </TooltipContent>
+                        </Tooltip>
+                        <Tooltip >
+                            <TooltipTrigger asChild>
+                                <div className="w-6 h-6 border border-1 bg-destructive rounded-full text-white flex items-center justify-center">
+                                    {row.original?.resultCounts?.failed}
+                                </div>
+                            </TooltipTrigger>
+                            <TooltipContent className="bg-destructive">
+                                <p>Failed</p>
+                            </TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <div className="w-6 h-6 border border-1 bg-yellow-500 rounded-full text-white flex items-center justify-center">
+                                    {row.original?.resultCounts?.caused}
+                                </div>
+                            </TooltipTrigger>
+                            <TooltipContent className="bg-yellow-500">
+                                <p>Caution</p>
+                            </TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <div className="w-6 h-6 border border-1 bg-gray-500 rounded-full text-white flex items-center justify-center">
+                                    {row.original?.resultCounts?.blocked}
+                                </div>
+                            </TooltipTrigger>
+                            <TooltipContent className="bg-gray-500">
+                                <p>Blocked</p>
+                            </TooltipContent>
+                        </Tooltip>
+
                     </div>
-                    <div className="w-6 h-6 border border-1 bg-destructive rounded-full text-white flex items-center justify-center">
-                        {row.original?.resultCounts?.failed}
-                    </div>
-                    <div className="w-6 h-6 border border-1 bg-yellow-500 rounded-full text-white flex items-center justify-center">
-                        {row.original?.resultCounts?.caused}
-                    </div>
-                    <div className="w-6 h-6 border border-1 bg-gray-500 rounded-full text-white flex items-center justify-center">
-                        {row.original?.resultCounts?.blocked}
-                    </div>
-                </div>
+
+                </TooltipProvider>
             ),
         },
         {

@@ -5,8 +5,9 @@ import { Input } from "@/components/ui/input";
 import {
     Loader2,
     Plus,
+    Trash,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import toasterService from "@/app/_services/toaster-service";
 import {
@@ -21,7 +22,6 @@ import {
     Sheet,
     SheetClose,
     SheetContent,
-    SheetDescription,
     SheetHeader,
     SheetTitle,
     SheetTrigger,
@@ -40,8 +40,12 @@ import { addTestCaseService, updateTestCaseService } from "@/app/_services/test-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AddTestStep } from "../steps";
 import { TestCaseData } from "../test-case-data";
-import { ITestCase } from "@/app/_interface/test-case";
+import { ITestCase, ITestCaseAttachmentDisplay } from "@/app/_interface/test-case";
 import { TEST_CASE_SEVERITY_LIST, TEST_TYPE_LIST } from "@/app/_constants/test-case";
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
+import { DocumentName } from "@/app/_components/document-name";
+import { ColumnDef } from "@tanstack/react-table";
+import TestCaseAttachments from "../attachments/test-case-attachments";
 
 const testSuiteSchema = z.object({
     title: z.string().min(1, "Required"),
@@ -51,10 +55,21 @@ const testSuiteSchema = z.object({
     requirements: z.array(z.string().optional()),
     testType: z.string().optional(),
     severity: z.string().optional(),
+    attachments: z.array(z.instanceof(File)).optional(),
 });
 
 export function AddTestCase({ refreshTestCases, testSuites }: { refreshTestCases: () => void, testSuites: ITestSuite[] }) {
-
+    const columns: ColumnDef<ITestCaseAttachmentDisplay[]>[] = [
+        {
+            accessorKey: "name",
+            cell: ({ row }) => (
+                <div>
+                    <DocumentName document={row.getValue("name")} />
+                </div>
+            ),
+        },
+    ];
+    const inputRef = useRef<HTMLInputElement | null>(null);
     const [sheetOpen, setSheetOpen] = useState(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const { projectId } = useParams<{ projectId: string }>();
@@ -64,6 +79,7 @@ export function AddTestCase({ refreshTestCases, testSuites }: { refreshTestCases
     const [testCaseId, setTestCaseId] = useState<string>("");
     const [testCase, setTestCase] = useState<ITestCase | null>(null);
     const [activeTab, setActiveTab] = useState("test-case");
+    const [attachments, setAttachments] = useState<File[]>([]);
 
     const form = useForm<z.infer<typeof testSuiteSchema>>({
         resolver: zodResolver(testSuiteSchema),
@@ -75,6 +91,7 @@ export function AddTestCase({ refreshTestCases, testSuites }: { refreshTestCases
             requirements: [],
             testType: "",
             severity: "",
+            attachments: [],
         },
     });
     useEffect(() => {
@@ -105,12 +122,13 @@ export function AddTestCase({ refreshTestCases, testSuites }: { refreshTestCases
             } else {
                 const response = await addTestCaseService(projectId, {
                     ...values,
-                    requirements: selectedRequirements
+                    requirements: selectedRequirements,
                 });
                 if (response) {
                     setTestCase(response?.data);
                     setTestCaseId(response?.id);
                     refreshTestCases();
+                    setAttachments([]);
                     setActiveTab("steps");
                 }
             }
@@ -135,20 +153,65 @@ export function AddTestCase({ refreshTestCases, testSuites }: { refreshTestCases
         setTestCaseId("");
     };
 
-    const defaultData = () => {
+    const defaultData = (): void => {
         form.reset({
             title: testCase?.title || "",
             expectedResult: testCase?.expectedResult || "",
             projectId: projectId,
             testSuite: typeof testCase?.testSuite === "string" ? testCase.testSuite : "",
             requirements: testCase?.requirements?.map(req => req.title) || [],
+            attachments: testCase?.attachments
         });
     };
+
+    // Attachment functions
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            const newFiles = Array.from(e.target.files);
+
+            setAttachments((prevAttachments = []) => {
+                const uniqueAttachments = newFiles.filter(
+                    (file) =>
+                        !prevAttachments.some(
+                            (prevFile) => prevFile.name === file.name && prevFile.size === file.size
+                        )
+                );
+
+                const updatedAttachments = [...prevAttachments, ...uniqueAttachments];
+                form.setValue("attachments", updatedAttachments);
+
+                return updatedAttachments;
+            });
+
+        }
+    };
+
+    const handleRemoveFile = (index: number) => {
+        setAttachments((prevAttachments) => {
+            const updatedAttachments = prevAttachments?.filter((_, i) => i !== index);
+
+            form.setValue("attachments", updatedAttachments);
+
+            return updatedAttachments;
+        });
+
+        if (inputRef.current) {
+            inputRef.current.value = '';
+        }
+    };
+
     useEffect(() => {
         if (testCase === null) {
             defaultData();
         }
     }, [testCase]);
+
+    useEffect(() => {
+        if (!sheetOpen) {
+            setAttachments([]);
+            form.setValue("attachments", []);
+        }
+    }, [sheetOpen]);
 
     return (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
@@ -323,6 +386,77 @@ export function AddTestCase({ refreshTestCases, testSuites }: { refreshTestCases
                                             className="mt-2"
                                         />
                                     </div>
+
+                                    {/* Attachments */}
+                                    {!testCaseId ?
+                                        (<div className="grid grid-cols-1 gap-2 ">
+                                            <div className="w-full mt-3">
+                                                <Label htmlFor="attachments">Attachments</Label>
+                                                <Input
+                                                    className="mt-2 opacity-0 cursor-pointer absolute w-0 h-0"
+                                                    id="attachments"
+                                                    type="file"
+                                                    multiple
+                                                    ref={inputRef}
+                                                    onChange={handleFileChange}
+                                                />
+                                                <label
+                                                    htmlFor="attachments"
+                                                    className="flex mt-2 h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors cursor-pointer"
+                                                >
+                                                    Choose Files
+                                                </label>
+                                                {attachments?.length > 0 && (
+                                                    <div className="mt-2">
+                                                        New attachments
+                                                        <div className="mt-4 rounded-md border">
+                                                            <Table>
+                                                                <TableBody>
+                                                                    {attachments?.length ? (
+                                                                        attachments.map((attachment, index) => (
+                                                                            <TableRow key={index}>
+                                                                                <TableCell>
+                                                                                    <DocumentName document={attachment} />
+                                                                                </TableCell>
+                                                                                <TableCell className="flex justify-end items-end mr-6">
+                                                                                    <Button
+                                                                                        type="button"
+                                                                                        onClick={() => handleRemoveFile(index)}
+                                                                                        variant="ghost"
+                                                                                        size="icon"
+                                                                                    >
+                                                                                        <Trash className="h-4 w-4 text-destructive" />
+                                                                                    </Button>
+                                                                                </TableCell>
+                                                                            </TableRow>
+                                                                        ))
+                                                                    ) : (
+                                                                        <TableRow>
+                                                                            <TableCell
+                                                                                colSpan={columns.length}
+                                                                                className="h-24 text-center"
+                                                                            >
+                                                                                No attachments found
+                                                                            </TableCell>
+                                                                        </TableRow>
+                                                                    )}
+                                                                </TableBody>
+                                                            </Table>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>)
+                                        :
+                                        (
+                                            <TestCaseAttachments
+                                                testCaseId={testCaseId}
+                                                isUpdate={true}
+                                                isView={false}
+                                                setAttachmentsData={setAttachments}
+                                            />
+                                        )
+                                    }
 
                                     <div className="mt-6 w-full flex justify-end gap-2">
                                         <SheetClose asChild>

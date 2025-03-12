@@ -18,6 +18,7 @@ import ViewTestSuite from "../../../test-suites/_components/view-test-suite";
 import { ITestSuite } from "@/app/_interface/test-suite";
 import ViewRequirement from "../../../requirements/_components/view-requirement";
 import { IRequirement } from "@/app/_interface/requirement";
+import TestCaseAttachments from "../attachments/test-case-attachments";
 
 const ViewTestCase = ({
   testCase,
@@ -28,6 +29,7 @@ const ViewTestCase = ({
   sheetOpen: boolean;
   setSheetOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
+  const testCaseId = testCase?.id;
   const [activeTab, setActiveTab] = useState("test-case");
   const [isTestSuiteOpen, setIsTestSuiteOpen] = useState<boolean>(false);
   const [isRequirementOpen, setIsRequirementOpen] = useState<boolean>(false);
@@ -186,6 +188,15 @@ const ViewTestCase = ({
                     </TableBody>
                   </Table>
                 </div>
+              </div>
+
+              <div className="mt-4">
+                Attachments
+                <TestCaseAttachments
+                  testCaseId={testCaseId}
+                  isUpdate={false}
+                  isView={true}
+                />
               </div>
             </div>
           </TabsContent>

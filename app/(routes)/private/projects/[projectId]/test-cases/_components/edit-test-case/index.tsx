@@ -29,11 +29,12 @@ import TextEditor from "../../../../_components/text-editor";
 import { IRequirement } from "@/app/_interface/requirement";
 import { ITestCase } from "@/app/_interface/test-case";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { updateTestCaseService } from "@/app/_services/test-case.service";
+import { addTestCaseAttachmentsService, updateTestCaseService } from "@/app/_services/test-case.service";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AddTestStep } from "../steps";
 import { TestCaseData } from "../test-case-data";
 import { TEST_CASE_SEVERITY_LIST, TEST_TYPE_LIST } from "@/app/_constants/test-case";
+import TestCaseAttachments from "../attachments/test-case-attachments";
 
 const testSuiteSchema = z.object({
     title: z.string().min(1, "Required"),
@@ -67,6 +68,7 @@ export function EditTestCase({
     const [selectedRequirements, setSelectedRequirements] = useState<string[]>(
         requirements?.map((requirement) => requirement._id) as string[]
     );
+    const [attachments, setAttachments] = useState<File[]>([]);
     const form = useForm<z.infer<typeof testSuiteSchema>>({
         resolver: zodResolver(testSuiteSchema),
         defaultValues: {
@@ -89,6 +91,7 @@ export function EditTestCase({
                 projectId: projectId
             });
             if (response) {
+                await uploadAttachment();
                 refreshTestCases();
                 toasterService.success(response.message);
             }
@@ -108,6 +111,19 @@ export function EditTestCase({
             testType: testType || "",
             severity: severity || ""
         });
+    };
+
+    const uploadAttachment = async () => {
+        setIsLoading(true);
+        try {
+            await addTestCaseAttachmentsService(projectId as string, testCaseId, {
+                attachments,
+            });
+        } catch (error) {
+            toasterService.error();
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     useEffect(() => {
@@ -302,6 +318,13 @@ export function EditTestCase({
                                             className="mt-2"
                                         />
                                     </div>
+
+                                    <TestCaseAttachments
+                                        testCaseId={testCaseId}
+                                        isUpdate={true}
+                                        isView={false}
+                                        setAttachmentsData={setAttachments}
+                                    />
 
                                     <div className="mt-8 w-full flex justify-end gap-2">
                                         <SheetClose asChild>

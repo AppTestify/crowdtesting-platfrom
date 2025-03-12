@@ -2,7 +2,6 @@ import { ITestCaseData } from "@/app/_interface/test-case-data";
 import { getTestCaseDataService } from "@/app/_services/test-case-data.service";
 import toasterService from "@/app/_services/toaster-service";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu-icon";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -11,9 +10,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { BadgeCheck, NotebookPen, TriangleAlert } from "lucide-react";
+import { BadgeCheck, NotebookPen } from "lucide-react";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import TestCaseDataAttachments from "../attachments/test-case-data-attachments";
 
 export default function ViewTestCaseData({
   testCaseId,
@@ -130,6 +130,16 @@ export default function ViewTestCaseData({
                       __html: testCase?.description || "",
                     }}
                   />
+
+                  <div className="mt-2">
+                    Attachments
+                    <TestCaseDataAttachments
+                      testCaseId={testCaseId}
+                      testCaseDataId={testCase._id}
+                      isUpdate={false}
+                      isView={true}
+                    />
+                  </div>
                 </div>
               </div>
             ))

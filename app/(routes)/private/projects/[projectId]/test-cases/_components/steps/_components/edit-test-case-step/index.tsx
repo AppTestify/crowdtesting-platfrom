@@ -3,7 +3,7 @@ import { ITestCaseStep } from '@/app/_interface/test-case-step'
 import { updateTestCaseStepService } from '@/app/_services/test-case-step.service'
 import toasterService from '@/app/_services/toaster-service'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/text-area'
@@ -17,6 +17,15 @@ const testSuiteSchema = z.object({
   description: z.string().min(1, "Required"),
   additionalSelectType: z.string().optional(),
   selectedType: z.boolean().optional(),
+  expectedResult: z.string().optional()
+}).refine((data) => {
+  if (data.selectedType && !data.expectedResult) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Required",
+  path: ['expectedResult']
 });
 
 export default function EditTestCaseStep({ isEditOpen, closeDialog, testCaseStepEdit, refreshTestCaseStep }:
@@ -28,7 +37,8 @@ export default function EditTestCaseStep({ isEditOpen, closeDialog, testCaseStep
     defaultValues: {
       description: testCaseStepEdit?.description || "",
       additionalSelectType: testCaseStepEdit?.additionalSelectType || "",
-      selectedType: testCaseStepEdit?.selectedType || false
+      selectedType: testCaseStepEdit?.selectedType || false,
+      expectedResult: testCaseStepEdit?.expectedResult || "",
     },
   });
 
@@ -37,7 +47,8 @@ export default function EditTestCaseStep({ isEditOpen, closeDialog, testCaseStep
       form.reset({
         description: testCaseStepEdit?.description || "",
         additionalSelectType: testCaseStepEdit?.additionalSelectType || "",
-        selectedType: testCaseStepEdit?.selectedType || false
+        selectedType: testCaseStepEdit?.selectedType || false,
+        expectedResult: testCaseStepEdit?.expectedResult || "",
       });
     }
   }, [testCaseStepEdit, form]);
@@ -65,7 +76,7 @@ export default function EditTestCaseStep({ isEditOpen, closeDialog, testCaseStep
   return (
     <div>
       <Dialog open={isEditOpen} onOpenChange={closeDialog}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[550px]">
           <DialogHeader>
             <DialogTitle>Edit step</DialogTitle>
           </DialogHeader>
@@ -79,6 +90,22 @@ export default function EditTestCaseStep({ isEditOpen, closeDialog, testCaseStep
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Description</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="expectedResult"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Expected Result</FormLabel>
                         <FormControl>
                           <Textarea
                             {...field}

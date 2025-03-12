@@ -8,11 +8,13 @@ export interface ITestCaseResult extends Document {
   testExecutionId: Types.ObjectId;
   remarks: string;
   result: string;
-  actualResult: string;
+  // actualResult: string;
+  attachments: Types.ObjectId[];
   updatedAt: Date;
   updatedBy: Types.ObjectId;
   isIssue: boolean;
   issueId: Types.ObjectId;
+  testSteps: { index: number; status: string }[];
 }
 
 const TestCaseResultSchema = new Schema<ITestCaseResult>(
@@ -21,7 +23,7 @@ const TestCaseResultSchema = new Schema<ITestCaseResult>(
     testCycleId: {
       type: Schema.Types.ObjectId,
       ref: DBModels.TEST_CYCLE,
-      required: true,
+      required: false,
     },
     testCaseId: {
       type: Schema.Types.ObjectId,
@@ -34,7 +36,14 @@ const TestCaseResultSchema = new Schema<ITestCaseResult>(
     },
     remarks: { type: String, required: false },
     result: { type: String, required: false },
-    actualResult: { type: String, required: false },
+    // actualResult: { type: String, required: false },
+    attachments: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: DBModels.TEST_CASE_RESULT_ATTACHMENT,
+        required: false,
+      },
+    ],
     updatedAt: { type: Date, default: null },
     updatedBy: {
       type: Schema.Types.ObjectId,
@@ -47,6 +56,12 @@ const TestCaseResultSchema = new Schema<ITestCaseResult>(
       ref: DBModels.ISSUE,
       required: false,
     },
+    testSteps: [
+      {
+        index: { type: Number },
+        status: String,
+      },
+    ],
   },
   {
     timestamps: { createdAt: true, updatedAt: false },

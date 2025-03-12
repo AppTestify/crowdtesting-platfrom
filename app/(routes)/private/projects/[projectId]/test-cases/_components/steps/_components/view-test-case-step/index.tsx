@@ -40,6 +40,9 @@ export default function TestCaseStepView({ testCaseId }: { testCaseId: string })
                                         }
                                     </span>
                                     {testCaseStep?.description}
+                                    <div>
+                                        {testCaseStep?.expectedResult}
+                                    </div>
                                 </span>
                             </div>
                         ))

@@ -2,6 +2,7 @@ import { ITestCase } from "./test-case";
 import { ITestCaseData } from "./test-case-data";
 import { ITestCaseStep } from "./test-case-step";
 import { ITestCycle } from "./test-cycle";
+import { ITestExecution } from "./test-execution";
 import { IUserByAdmin } from "./user";
 
 export interface ITestCaseResult {
@@ -21,12 +22,16 @@ export interface ITestCaseResult {
   testCaseData: ITestCaseData[];
   testCaseStep: ITestCaseStep[];
   original: ITestCaseResult;
+  testExecutionId?: ITestExecution;
+  testSteps: any[];
 }
 
 export interface ITestCaseResultPayload {
-  actualResult: string;
+  // actualResult: string;
   result: string;
   remarks?: string;
   isIssue?: boolean;
   testCycle?: string;
+  attachments?: any[];
+  testSteps?: any[];
 }

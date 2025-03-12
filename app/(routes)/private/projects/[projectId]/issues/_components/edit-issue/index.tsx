@@ -201,7 +201,7 @@ const EditIssue = ({
   }
 
   const uploadAttachment = async () => {
-    setIsLoading(true);
+    setIsLoading(true); 
     try {
       await addIssueAttachmentsService(projectId as string, issueId, {
         attachments,

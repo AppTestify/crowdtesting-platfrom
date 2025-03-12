@@ -1,3 +1,4 @@
+import { AttachmentFolder } from "@/app/_constants/constant-server-side";
 import {
   DB_CONNECTION_ERROR_MESSAGE,
   GENERIC_ERROR_MESSAGE,
@@ -7,13 +8,16 @@ import {
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { IssueStatus } from "@/app/_constants/issue";
 import { connectDatabase } from "@/app/_db";
+import AttachmentService from "@/app/_helpers/attachment.helper";
 import { verifySession } from "@/app/_lib/dal";
 import { Issue } from "@/app/_models/issue.model";
+import { TestCaseResultAttachment } from "@/app/_models/test-case-result-attachment.model";
 import { TestCaseResult } from "@/app/_models/test-case-result.model";
 import { testCaseExecutionSchema } from "@/app/_schemas/test-case-execution";
+import { getFileMetaData } from "@/app/_utils/common-server-side";
 import { errorHandler } from "@/app/_utils/error-handler";
 
-export async function PUT(
+export async function POST(
   req: Request,
   { params }: { params: { testCaseExecutionId: string; projectId: string } }
 ) {
@@ -36,8 +40,43 @@ export async function PUT(
       );
     }
 
-    const body = await req.json();
-    const response = testCaseExecutionSchema.safeParse(body);
+    const body = await req.formData();
+    const attachments = body.getAll("attachments");
+
+    // test steps
+    const testStepsRaw = body.getAll("testSteps[]");
+    const testSteps = testStepsRaw
+      .map((item) => {
+        try {
+          return JSON.parse(item.toString());
+        } catch {
+          return null;
+        }
+      })
+      .filter(Boolean);
+
+    // test cycle
+    const testCycleRaw = body.get("testCycle");
+    const testCycleData =
+      typeof testCycleRaw === "string" && testCycleRaw.trim() !== ""
+        ? testCycleRaw.trim()
+        : null;
+
+    // Issue
+    const isIssueRaw = body.get("isIssue");
+    const isIssue =
+      typeof isIssueRaw === "string" &&
+      isIssueRaw.trim().toLowerCase() === "true";
+
+    const formData = {
+      result: body.get("result"),
+      actualResult: body.get("actualResult"),
+      remarks: body.get("remarks"),
+      isIssue: isIssue,
+      testCycleId: testCycleData,
+      testSteps: testSteps,
+    };
+    const response = testCaseExecutionSchema.safeParse(formData);
 
     if (!response.success) {
       return Response.json(
@@ -60,19 +99,58 @@ export async function PUT(
         userId: session.user._id,
         projectId: projectId,
         status: IssueStatus.NEW,
-        testCycle: response?.data?.testCycle,
+        testCycle: response?.data?.testCycleId,
       });
       await newIssue.save();
     }
 
+    const { testCycleId, ...restData } = response.data;
+    const updatePayload: any = {
+      ...restData,
+      issueId: response.data.isIssue ? newIssue._id : null,
+      updatedBy: session.user._id,
+      updatedAt: Date.now(),
+    };
+
+    if (!response?.data?.testCycleId || response?.data?.testCycleId === "") {
+      delete updatePayload.testCycleId;
+    }
+
     const updateResponse = await TestCaseResult.findByIdAndUpdate(
       testCaseExecutionId,
-      {
-        ...response.data,
-        issueId: response.data.isIssue ? newIssue._id : null,
-        updatedBy: session.user._id,
-        updatedAt: Date.now(),
-      },
+      updatePayload,
+      { new: true }
+    );
+
+    const attachmentService = new AttachmentService();
+    const attachmentIds = await Promise.all(
+      attachments.map(async (file) => {
+        if (file) {
+          const { name, contentType } = await getFileMetaData(file);
+          const cloudId =
+            await attachmentService.uploadFileInGivenFolderInDrive(
+              file,
+              AttachmentFolder.TEST_CASE_RESULT
+            );
+          const newAttachment = new TestCaseResultAttachment({
+            cloudId: cloudId,
+            name,
+            contentType,
+            testCaseResultId: updateResponse._id,
+          });
+
+          const savedAttachment = await newAttachment.save();
+          return savedAttachment._id;
+        }
+        return null;
+      })
+    );
+
+    const validAttachmentIds = attachmentIds.filter((id) => id !== null);
+
+    await TestCaseResult.findByIdAndUpdate(
+      updateResponse._id,
+      { $push: { attachments: { $each: validAttachmentIds } } },
       { new: true }
     );
 

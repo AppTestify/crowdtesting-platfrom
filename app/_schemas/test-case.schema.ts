@@ -9,3 +9,16 @@ export const testCaseSchema = z.object({
   testType: z.string().optional(),
   severity: z.string().optional(),
 });
+
+export const testCaseExecutionSchema = z.object({
+  result: z.string().min(1, "Result is required"),
+  remarks: z.string().optional(),
+  isIssue: z.string().optional(),
+  testCycle: z.string().nullable().optional(),
+  testSteps: z.array(
+    z.object({
+      index: z.number(),
+      status: z.string().min(1, "Status is required"),
+    })
+  ),
+});

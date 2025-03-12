@@ -28,6 +28,9 @@ export const enum AttachmentFolder {
   PROFILE_PICTURES = "profile-pictures",
   TEST_CYCLE = "test-cycle",
   INVOICE = "invoice",
+  TEST_CASE = "test-case",
+  TEST_CASE_DATA = "test-case-data",
+  TEST_CASE_RESULT = "test-case-result",
 }
 
 export const publicEmailDomains = [

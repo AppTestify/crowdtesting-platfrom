@@ -17,6 +17,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu-icon";
+import TestCaseDataAttachments from "../attachments/test-case-data-attachments";
 
 export default function TestCaseDataCard({
   testCaseData,
@@ -166,6 +167,16 @@ export default function TestCaseDataCard({
                       __html: testCase?.description || "",
                     }}
                   />
+
+                  <div className="mt-2">
+                    Attachments
+                    <TestCaseDataAttachments
+                      testCaseId={testCase.testCaseId}
+                      testCaseDataId={testCase._id}
+                      isUpdate={false}
+                      isView={true}
+                    />
+                  </div>
                 </div>
                 <div className="mt-2">
                   <Button

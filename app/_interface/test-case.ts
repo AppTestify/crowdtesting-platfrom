@@ -10,6 +10,15 @@ export interface ITestCasePayload {
   testSuite: string;
   requirements?: string[];
   userId?: IUserByAdmin;
+  testType?: string;
+  severity?: string;
+  attachments?: any[];
+}
+
+export interface ITestCaseAttachment {
+  attachment: any;
+  base64: string;
+  link: string;
 }
 
 export interface ITestCase {
@@ -26,4 +35,24 @@ export interface ITestCase {
   testCaseResults?: ITestCaseResult[];
   testType?: string;
   severity?: string;
+  attachments?: any[];
+}
+
+export interface ITestCaseAttachmentDisplay {
+  attachment: {
+    _id: string;
+    id: string;
+    data: string;
+    name: string;
+    contentType?: string;
+    cloudId: string;
+  };
+  base64: any;
+}
+
+export interface TestCaseAttachmentsProps {
+  testCaseId: string;
+  isUpdate: boolean;
+  isView: boolean;
+  setAttachmentsData?: React.Dispatch<React.SetStateAction<any[]>>;
 }

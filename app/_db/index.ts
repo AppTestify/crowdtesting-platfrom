@@ -20,6 +20,8 @@ import { TestCaseResult } from "../_models/test-case-result.model";
 import { Payment } from "../_models/payment.model";
 import { Report } from "../_models/report.model";
 import { ProjectTabAccess } from "../_models/project-tab-access.model";
+import { TestCaseAttachment } from "../_models/test-case-attachment.model";
+import { TestCaseDataAttachment } from "../_models/test-case-data-attachment.model";
 
 export const connectDatabase = async () => {
   try {
@@ -58,4 +60,6 @@ export const registerModels = () => {
   const requirementModel = Requirement;
   const requirementAttachmentModel = RequirementAttachment;
   const projectTabAccessModel = ProjectTabAccess;
+  const testCaseAttachmentModel = TestCaseAttachment;
+  const testCaseDataAttachmentModel = TestCaseDataAttachment;
 };

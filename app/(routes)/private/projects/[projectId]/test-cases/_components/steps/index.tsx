@@ -7,29 +7,39 @@ import { z } from "zod";
 import { useParams } from "next/navigation";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Edit, Loader2, MoreHorizontal, Plus, Trash } from "lucide-react";
+import { Edit, Loader2, Plus, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { addTestCaseStepService, deleteTestCaseStepService, getTestCaseStepService, updateTestCaseSequenceService } from "@/app/_services/test-case-step.service";
 import { ITestCaseStep } from "@/app/_interface/test-case-step";
-import { closestCenter, DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
+import { closestCenter, DndContext, DragEndEvent, DragOverlay, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { ConfirmationDialog } from "@/app/_components/confirmation-dialog";
 import { aditionalStepTypes, testCaseAddList } from "@/app/_constants/test-case";
 import { Textarea } from "@/components/ui/text-area";
 import EditTestCaseStep from "./_components/edit-test-case-step";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-
-const testSuiteSchema = z.object({
-    description: z.string().min(1, "Required"),
-    additionalSelectType: z.string().optional(),
-    selectedType: z.boolean().optional(),
-});
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function AddTestStep({ testCaseId }: { testCaseId: string }) {
-
     const [selectedItem, setSelectedItem] = useState<string>("");
+
+    const testSuiteSchema = z.object({
+        description: z.string().min(1, "Required"),
+        additionalSelectType: z.string().optional(),
+        selectedType: z.boolean().optional(),
+        expectedResult: z.string().optional()
+    }).refine((data) => {
+        if (selectedItem === "Steps" && (!data.expectedResult || data.expectedResult.trim() === "")) {
+            return false;
+        }
+        return true;
+    }, {
+        message: "Required",
+        path: ["expectedResult"],
+    });
+
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [isDeleteLoading, setIsDeleteLoading] = useState(false);
@@ -37,21 +47,22 @@ export function AddTestStep({ testCaseId }: { testCaseId: string }) {
     const [testCaseStepId, setTestCaseStepId] = useState<string>("");
     const [isEditOpen, setIsEditOpen] = useState<boolean>(false);
     const [testCaseStepEdit, setTestCaseStepEdit] = useState<ITestCaseStep | null>(null);
-    const [isSelectOpen, setSelectOpen] = useState<boolean>(false);
+    const [stepLoading, setStepLoading] = useState<boolean>(false);
     const { projectId } = useParams<{ projectId: string }>();
+    const [activeId, setActiveId] = useState<string | null>(null);
 
     const form = useForm<z.infer<typeof testSuiteSchema>>({
         resolver: zodResolver(testSuiteSchema),
         defaultValues: {
             description: "",
             additionalSelectType: "",
-            selectedType: false
+            selectedType: false,
+            expectedResult: ""
         },
     });
 
     const handleSelectChange = (value: string) => {
         setSelectedItem(value);
-        setSelectOpen(false);
         resetForm();
     };
 
@@ -59,7 +70,9 @@ export function AddTestStep({ testCaseId }: { testCaseId: string }) {
         setIsLoading(true);
         try {
             const response = await addTestCaseStepService(projectId, testCaseId, {
-                ...values,
+                description: values.description as string,
+                additionalSelectType: values.additionalSelectType as string,
+                expectedResult: values.expectedResult as string,
                 selectedType: selectedItem === "Steps" ? true : false
             });
             if (response) {
@@ -75,11 +88,14 @@ export function AddTestStep({ testCaseId }: { testCaseId: string }) {
     }
 
     const getSteps = async () => {
+        setStepLoading(true);
         try {
             const response = await getTestCaseStepService(projectId, testCaseId);
             setTestCaseSteps(response);
         } catch (error) {
             toasterService.error();
+        } finally {
+            setStepLoading(false);
         }
     }
 
@@ -116,8 +132,12 @@ export function AddTestStep({ testCaseId }: { testCaseId: string }) {
     };
 
     // for darg and drop
+    const handleDragStart = (event: any) => {
+        setActiveId(event.active.id);
+    };
     const handleDragEnd = async (event: DragEndEvent) => {
         const { active, over } = event;
+        setActiveId(null);
 
         if (active.id !== over?.id) {
             const activeIndex = testCaseSteps.findIndex((step) => step._id === active.id);
@@ -183,6 +203,11 @@ export function AddTestStep({ testCaseId }: { testCaseId: string }) {
                         }
                     </span>
                     {data?.description}
+                    {data?.expectedResult &&
+                        <div>
+                            <span className="text-sm text-gray-800">Expected result: </span> {data?.expectedResult}
+                        </div>
+                    }
                 </span>
                 <div className="flex items-center gap-4 ">
                     <div
@@ -228,17 +253,44 @@ export function AddTestStep({ testCaseId }: { testCaseId: string }) {
                 successVariant={"destructive"}
             />
             <EditTestCaseStep isEditOpen={isEditOpen} closeDialog={closeDialog} testCaseStepEdit={testCaseStepEdit as ITestCaseStep} refreshTestCaseStep={refreshTestCaseStep} />
-            {testCaseSteps && testCaseSteps.length > 0 && (
+            {!stepLoading ?
+                <>
+                    {testCaseSteps && testCaseSteps.length > 0 && (
+                        <div>
+                            <DndContext
+                                sensors={sensors}
+                                collisionDetection={closestCenter}
+                                onDragStart={handleDragStart}
+                                onDragEnd={handleDragEnd}
+                            >
+                                <SortableContext items={testCaseSteps.map((step) => step._id)} strategy={verticalListSortingStrategy}>
+                                    {testCaseSteps.map((testCaseStep, index) => (
+                                        <SortableData key={testCaseStep._id} data={testCaseStep} index={index} onDelete={handleDelete} />
+                                    ))}
+                                </SortableContext>
+
+                                <DragOverlay>
+                                    {activeId ? (
+                                        <SortableData
+                                            data={testCaseSteps.find((step) => step._id === activeId)!}
+                                            index={testCaseSteps.findIndex((step) => step._id === activeId)}
+                                            onDelete={handleDelete}
+                                        />
+                                    ) : null}
+                                </DragOverlay>
+                            </DndContext>
+                        </div>
+
+                    )}
+                </> :
                 <div>
-                    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                        <SortableContext items={testCaseSteps.map((step) => step._id)} strategy={verticalListSortingStrategy}>
-                            {testCaseSteps.map((testCaseStep, index) => (
-                                <SortableData data={testCaseStep} index={index} onDelete={handleDelete} />
-                            ))}
-                        </SortableContext>
-                    </DndContext>
+                    {Array(3).fill(null).map((_, index) => (
+                        <div className='mt-2'>
+                            <Skeleton key={index} className="h-10 w-full bg-gray-200" />
+                        </div>
+                    ))
+                    }
                 </div>
-            )
             }
             <div className="grid grid-cols-1 gap-2 mt-4">
                 <DropdownMenu>
@@ -273,6 +325,22 @@ export function AddTestStep({ testCaseId }: { testCaseId: string }) {
                                         render={({ field }) => (
                                             <FormItem>
                                                 <FormLabel>Description</FormLabel>
+                                                <FormControl>
+                                                    <Textarea
+                                                        {...field}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+
+                                    <FormField
+                                        control={form.control}
+                                        name="expectedResult"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Expected result</FormLabel>
                                                 <FormControl>
                                                     <Textarea
                                                         {...field}

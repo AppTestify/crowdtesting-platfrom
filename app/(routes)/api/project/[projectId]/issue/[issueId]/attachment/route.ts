@@ -14,7 +14,6 @@ import {
   getAllAttachments,
   getFileMetaData,
 } from "@/app/_utils/common-server-side";
-import { normaliseIds } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 
 export async function POST(

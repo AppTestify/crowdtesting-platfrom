@@ -11,7 +11,8 @@ export interface ITestCase extends Document {
   customId: number;
   expectedResult: string;
   testSuite: Types.ObjectId;
-  requirements: [Types.ObjectId];
+  requirements: Types.ObjectId[];
+  attachments: Types.ObjectId[];
 }
 
 const TestCaseSchema = new Schema<ITestCase>(
@@ -25,6 +26,9 @@ const TestCaseSchema = new Schema<ITestCase>(
       ref: DBModels.PROJECT,
       required: true,
     },
+    attachments: [
+      { type: Schema.Types.ObjectId, ref: DBModels.TEST_CASE_ATTACHMENT },
+    ],
     customId: { type: Number },
     expectedResult: { type: String, required: true },
     testSuite: {
