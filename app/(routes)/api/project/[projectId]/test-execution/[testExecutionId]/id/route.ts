@@ -5,8 +5,6 @@ import {
 } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
-import { ITestCase } from "@/app/_interface/test-case";
-import { ITestCaseResult } from "@/app/_interface/test-case-result";
 import { verifySession } from "@/app/_lib/dal";
 import { IdFormat } from "@/app/_models/id-format.model";
 import { TestCaseData } from "@/app/_models/test-case-data";
@@ -61,7 +59,10 @@ export async function GET(
       Array.isArray(testCaseResult) ||
       !testCaseResult?.testCaseId
     ) {
-      return null;  
+      return new Response(
+        JSON.stringify({ error: "Test Case Result not found" }),
+        { status: 404 }
+      );
     }
 
     const testCaseId = testCaseResult.testCaseId._id;
