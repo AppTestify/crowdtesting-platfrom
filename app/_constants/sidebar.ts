@@ -67,16 +67,43 @@ export const getSidebarItems = (user: any) => {
     return clientNavbar;
   } else if (role === UserRoles.PROJECT_ADMIN) {
     const titles = ["Projects"];
-    clientNavbar.forEach((item) => {
+    projectAdminNavbar.forEach((item) => {
       if (titles.includes(item.title) && !isVerified) {
         item.disabled = true;
       }
     });
-    return clientNavbar;
+    return projectAdminNavbar;
   }
 };
 
 export const clientNavbar = [
+  {
+    title: "Dashboard",
+    url: "/private/dashboard",
+    icon: LayoutDashboardIcon,
+    disabled: false,
+  },
+  {
+    title: "Projects",
+    url: "/private/projects",
+    icon: GalleryVerticalEnd,
+    disabled: false,
+  },
+  {
+    title: "Devices",
+    url: "/private/devices",
+    icon: MonitorSmartphone,
+    disabled: false,
+  },
+  {
+    title: "Profile",
+    url: "/private/profile",
+    icon: User,
+    disabled: false,
+  },
+];
+
+export const projectAdminNavbar = [
   {
     title: "Dashboard",
     url: "/private/dashboard",
