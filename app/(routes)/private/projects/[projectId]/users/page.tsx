@@ -51,16 +51,11 @@ export default function ProjectUsers() {
                 const lastName = row?.original?.userId?.lastName;
                 return (
                     <div className="capitalize">
-                        {userData?.role === UserRoles.ADMIN ?
-                            <div>
-                                {`${row?.original.customId} ${firstName && lastName
-                                    ? `- ${firstName} ${lastName}`
-                                    : ""
-                                    }`}
-                            </div>
-                            :
-                            <div>{row.original.customId}</div>
-                        }
+                        <div>
+                            {firstName && lastName ? `${firstName} ${lastName}`
+                                : ""
+                            }
+                        </div>
                     </div>
                 )
             },
