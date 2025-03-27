@@ -158,7 +158,8 @@ export async function GET(
             skip,
             limit,
             testExecutionIdFormat,
-            query
+            testCycleIds,
+            projectId
           );
 
         return Response.json({

@@ -80,7 +80,8 @@ export async function filterTestExecutionForTester(
   skip: number,
   limit: number,
   idObject: any,
-  query: any
+  testCycleIds: any,
+  projectId: string
 ) {
   const regex = new RegExp(searchString, "i");
   searchString = customIdForSearch(idObject, searchString);
@@ -105,7 +106,10 @@ export async function filterTestExecutionForTester(
     },
     {
       $match: {
-        ...query,
+        projectId: new ObjectId(projectId),
+        ...(testCycleIds.length > 0 && {
+          _id: { $in: new ObjectId(testCycleIds) },
+        }),
         $or: [
           { customId: parseInt(searchString) },
           { title: regex },

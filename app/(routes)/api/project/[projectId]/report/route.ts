@@ -169,7 +169,8 @@ export async function GET(
           searchString,
           skip,
           limit,
-          projectId
+          projectId,
+          session.user._id
         );
         return Response.json({
           Reports: reports,

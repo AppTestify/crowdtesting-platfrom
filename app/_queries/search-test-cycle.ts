@@ -133,7 +133,8 @@ export async function filterTestCyclesForTester(
   skip: number,
   limit: number,
   idObject: any,
-  query: any
+  testCycleIds: any,
+  projectId: string
 ) {
   const regex = new RegExp(searchString, "i");
   searchString = customIdForSearch(idObject, searchString);
@@ -141,7 +142,10 @@ export async function filterTestCyclesForTester(
   const testCyclesPipeline = [
     {
       $match: {
-        ...query,
+        projectId: new ObjectId(projectId),
+        ...(testCycleIds.length > 0 && {
+          _id: { $in: new ObjectId(testCycleIds) },
+        }),
         $or: [
           { customId: parseInt(searchString) },
           { title: regex },
@@ -151,7 +155,6 @@ export async function filterTestCyclesForTester(
         ],
       },
     },
-
     {
       $project: {
         user: 0,

@@ -162,11 +162,14 @@ export async function GET(
           total: totalTasks,
         });
       } else if (await isTester(session.user)) {
+        const issueIds = issues.map((issue) => issue._id);
         const { tasks, totalTasks } = await filterTasksForTester(
           searchString,
           skip,
           limit,
-          query as any
+          testCycleIds,
+          projectId,
+          issueIds
         );
         return Response.json({
           tasks: normaliseIds(tasks),

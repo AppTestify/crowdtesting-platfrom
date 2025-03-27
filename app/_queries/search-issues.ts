@@ -386,7 +386,8 @@ export async function filterIssuesForTester(
   skip: number,
   limit: number,
   idObject: any,
-  filter: any,
+  testCycleIds: any,
+  projectId: string,
   severity?: string,
   priority?: string,
   status?: string,
@@ -398,12 +399,23 @@ export async function filterIssuesForTester(
   });
   const issueCustomId = customIdForSearch(idObject, searchString);
   const assignCustomId = customIdForSearch(userIdFormat, searchString);
+
   const issuesPipeline = [
-    {
-      $match: {
-        ...filter,
-      },
-    },
+    ...(testCycleIds.length > 0
+      ? [
+          {
+            $match: {
+              testCycle: { $in: testCycleIds },
+            },
+          },
+        ]
+      : [
+          {
+            $match: {
+              projectId: new ObjectId(projectId),
+            },
+          },
+        ]),
     ...(severity
       ? [
           {

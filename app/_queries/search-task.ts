@@ -256,7 +256,9 @@ export async function filterTasksForTester(
   searchString: string,
   skip: number,
   limit: number,
-  query: any
+  testCycleIds: any,
+  projectId: string,
+  issueIds: string[]
 ) {
   const regex = new RegExp(searchString, "i");
   const userIdFormat = await IdFormat.findOne({
@@ -265,11 +267,22 @@ export async function filterTasksForTester(
   const assignCustomId = customIdForSearch(userIdFormat, searchString);
 
   const testCyclesPipeline = [
-    {
-      $match: {
-        ...query,
-      },
-    },
+    ...(testCycleIds.length > 0
+      ? [
+          {
+            $match: {
+              projectId: new ObjectId(projectId),
+              issueId: new Object(issueIds)
+            },
+          },
+        ]
+      : [
+          {
+            $match: {
+              projectId: new ObjectId(projectId),
+            },
+          },
+        ]),
     {
       $lookup: {
         from: "users",

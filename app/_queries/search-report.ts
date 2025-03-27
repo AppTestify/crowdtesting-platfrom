@@ -7,7 +7,8 @@ export async function filterReportsForTester(
   skip: number,
   limit: number,
   projectId: any,
-  isClient?: boolean
+  isClient?: boolean,
+  userId?: string
 ) {
   const regex = new RegExp(searchString, "i");
 
@@ -17,15 +18,23 @@ export async function filterReportsForTester(
           {
             $match: {
               status: ReportStatus.APPROVED,
+              projectId: new ObjectId(projectId),
             },
           },
         ]
-      : []),
-    {
-      $match: {
-        projectId: new ObjectId(projectId),
-      },
-    },
+      : [
+          {
+            $match: {
+              $or: [
+                { userId: new ObjectId(userId) },
+                {
+                  projectId: new ObjectId(projectId),
+                  status: ReportStatus.APPROVED,
+                },
+              ],
+            },
+          },
+        ]),
     {
       $lookup: {
         from: "reportattachments",

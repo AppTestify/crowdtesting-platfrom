@@ -282,7 +282,8 @@ export async function GET(
           skip,
           limit,
           userIdFormat,
-          query
+          testCycleIds,
+          projectId
         );
         return Response.json({
           testCycles: addCustomIds(testCycles, userIdFormat?.idFormat),
