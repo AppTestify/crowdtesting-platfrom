@@ -52,6 +52,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { ISSUE_STATUS_LIST, IssueStatus, Priority, PRIORITY_LIST, Severity, SEVERITY_LIST } from "@/app/_constants/issue";
 import { getTestCycleListService } from "@/app/_services/test-cycle.service";
 import { ITestCycle } from "@/app/_interface/test-cycle";
+import { formatDateWithoutTime } from "@/app/_constants/date-formatter";
 
 export default function Issues() {
   const [issues, setIssues] = useState<IIssueView[]>([]);
@@ -107,7 +108,7 @@ export default function Issues() {
               <div
                 title={title}
                 className="hover:text-primary cursor-pointer max-w-[500px] truncate">
-                {title.length > 55 ? `${title.substring(0, 55)}...` : title}
+                {title.length > 50 ? `${title.substring(0, 50)}...` : title}
               </div>
             </Link>
           );
@@ -187,6 +188,21 @@ export default function Issues() {
         },
       ]
       : []),
+    {
+      accessorKey: "updatedAt",
+      header: ({ column }) => {
+        return (
+          <div className="text-center whitespace-nowrap">
+            Raised Date
+          </div>
+        );
+      },
+      cell: ({ row }: { row: any }) => (
+        <div className="whitespace-nowrap">
+          {formatDateWithoutTime(row.original.updatedAt)}
+        </div>
+      ),
+    },
     {
       accessorKey: "status",
       header: ({ column }) => {
@@ -576,7 +592,7 @@ export default function Issues() {
           </div>
 
           <div className="flex items-end justify-end gap-2 ml-auto">
-            <div>{ExportExcelFile(generateExcel, hasData, isExcelLoading, false)}</div> 
+            <div>{ExportExcelFile(generateExcel, hasData, isExcelLoading, false)}</div>
             {userData?.role !== UserRoles.CLIENT && userData?.role !== UserRoles.MANAGER && userData?.role !== UserRoles.DEVELOPER && checkProjectActiveRole(project?.isActive ?? false, userData) &&
               (project?.isActive === true ||
                 userData?.role === UserRoles.ADMIN ||
