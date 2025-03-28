@@ -192,7 +192,7 @@ export default function Issues() {
       accessorKey: "updatedAt",
       header: ({ column }) => {
         return (
-          <div className="text-center whitespace-nowrap">
+          <div className=" whitespace-nowrap">
             Raised Date
           </div>
         );
