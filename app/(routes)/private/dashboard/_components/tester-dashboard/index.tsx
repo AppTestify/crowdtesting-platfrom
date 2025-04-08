@@ -76,7 +76,7 @@ export default function TesterDashboard() {
             />
             <StatusBarChart
               title="Status Chart"
-              description="Showing status priority levels"
+              description="Showing status levels"
               chartData={dashboard?.status || {}}
               dataKey="status"
             />

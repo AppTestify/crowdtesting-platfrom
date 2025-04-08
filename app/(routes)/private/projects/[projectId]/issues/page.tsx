@@ -189,7 +189,7 @@ export default function Issues() {
       ]
       : []),
     {
-      accessorKey: "updatedAt",
+      accessorKey: "createdAt",
       header: ({ column }) => {
         return (
           <div className=" whitespace-nowrap">
@@ -199,7 +199,7 @@ export default function Issues() {
       },
       cell: ({ row }: { row: any }) => (
         <div className="whitespace-nowrap">
-          {formatDateWithoutTime(row.original.updatedAt)}
+          {formatDateWithoutTime(row.original.createdAt)}
         </div>
       ),
     },

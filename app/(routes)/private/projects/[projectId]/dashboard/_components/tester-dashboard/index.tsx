@@ -70,7 +70,7 @@ export default function ProjectTesterDashboard() {
                 />
                 <StatusBarChart
                     title="Issues by status"
-                    description="Showing status priority levels"
+                    description="Showing status levels"
                     chartData={dashboard?.status || {}}
                     dataKey="status"
                 />
