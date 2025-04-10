@@ -42,6 +42,7 @@ export const enum TEST_EXECUTION_TYPE {
   AUTOMATION = "Automation",
   MANUAL = "Manual",
   UAT = "UAT",
+  UNIT_TESTING = "Unit Testing",
 }
 
 export const enum TEST_TYPE {
@@ -119,4 +120,5 @@ export const TEST_EXECUTION_TYPE_LIST = [
   TEST_EXECUTION_TYPE.AUTOMATION,
   TEST_EXECUTION_TYPE.MANUAL,
   TEST_EXECUTION_TYPE.UAT,
+  TEST_EXECUTION_TYPE.UNIT_TESTING,
 ];
