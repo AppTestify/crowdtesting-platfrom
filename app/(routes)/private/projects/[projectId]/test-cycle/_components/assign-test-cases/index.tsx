@@ -33,6 +33,7 @@ import { assignTestCase, getAssignTestCaseService, unAssignTestCase } from "@/ap
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileInput, FileOutput, Loader2 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import ViewTestCase from "../../../test-cases/_components/view-test-case";
 
 export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
     {
@@ -137,8 +138,14 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
             accessorKey: "customId",
             header: "ID",
             cell: ({ row }) => (
-                <div>
-                    {row.getValue("customId")}</div>
+                <div className="hover:cursor-pointer" 
+                // onClick={() => {
+                //     setTestCase(row.original);
+                //     setIsViewOpen(true);
+                // }}
+                >
+                    {row.getValue("customId")}
+                </div>
             ),
         },
         {
@@ -196,7 +203,11 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
     const [multipleAssignedLoading, setMultipleAssignedLoading] = useState<boolean>(false);
     const [loadingRowIdUnAssign, setLoadingRowIdUnAssign] = useState<string | null>(null);
     const [loadingRowIdAssign, setLoadingRowIdAssign] = useState<string | null>(null);
+    // const [isViewOpen, setIsViewOpen] = useState<boolean>(false);
+    // const [testCase, setTestCase] = useState<ITestCase>();
     const { projectId } = useParams<{ projectId: string }>();
+
+    // console.log('testCase',testCase);
 
     const refreshTestCases = () => {
         getAlltestCases();
@@ -268,7 +279,7 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
         columns,
         onSortingChange: setSorting,
         getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
+        // getPaginationRowModel: getPaginationRowModel(),
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         onColumnVisibilityChange: setColumnVisibility,
@@ -288,7 +299,7 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
         columns: assignTestCaseColumns,
         onSortingChange: setSorting,
         getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
+        // getPaginationRowModel: getPaginationRowModel(),
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         onColumnVisibilityChange: setColumnVisibility,
@@ -374,6 +385,11 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
 
     return (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+            {/* <ViewTestCase
+                testCase={testCase as ITestCase}
+                sheetOpen={isViewOpen}
+                setSheetOpen={setIsViewOpen}
+            /> */}
             <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto">
                 <SheetHeader>
                     <SheetTitle className="text-left font-medium">
