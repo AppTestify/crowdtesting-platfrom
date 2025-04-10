@@ -33,7 +33,7 @@ import { assignTestCase, getAssignTestCaseService, unAssignTestCase } from "@/ap
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileInput, FileOutput, Loader2 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import ViewTestCase from "../../../test-cases/_components/view-test-case";
+import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
 
 export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
     {
@@ -138,11 +138,7 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
             accessorKey: "customId",
             header: "ID",
             cell: ({ row }) => (
-                <div className="hover:cursor-pointer" 
-                // onClick={() => {
-                //     setTestCase(row.original);
-                //     setIsViewOpen(true);
-                // }}
+                <div className="hover:cursor-pointer"
                 >
                     {row.getValue("customId")}
                 </div>
@@ -202,12 +198,39 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
     const [assignedLoading, setAssignedLoading] = useState<boolean>(false);
     const [multipleAssignedLoading, setMultipleAssignedLoading] = useState<boolean>(false);
     const [loadingRowIdUnAssign, setLoadingRowIdUnAssign] = useState<string | null>(null);
+    const [assignedPageIndex, setAssignedPageIndex] = useState<number>(1);
+    const [assignedPageSize, setAssignedPageSize] = useState(PAGINATION_LIMIT);
+    const [totalAssignedPageCount, setTotalAssignedPageCount] = useState(0);
     const [loadingRowIdAssign, setLoadingRowIdAssign] = useState<string | null>(null);
-    // const [isViewOpen, setIsViewOpen] = useState<boolean>(false);
-    // const [testCase, setTestCase] = useState<ITestCase>();
+    const [pageIndex, setPageIndex] = useState<number>(1);
+    const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
+    const [totalPageCount, setTotalPageCount] = useState(0);
     const { projectId } = useParams<{ projectId: string }>();
 
-    // console.log('testCase',testCase);
+    const handlePreviousPage = () => {
+        if (pageIndex > 1) {
+            setPageIndex(pageIndex - 1);
+        }
+    };
+
+    const handleNextPage = () => {
+        if (pageIndex < Math.ceil(totalPageCount / pageSize)) {
+            setPageIndex(pageIndex + 1);
+        }
+    };
+
+    const handleAssignedPreviousPage = () => {
+        if (assignedPageIndex > 1) {
+            setAssignedPageIndex(assignedPageIndex - 1);
+        }
+    };
+
+    const handleAssignedNextPage = () => {
+        if (assignedPageIndex < Math.ceil(totalAssignedPageCount / assignedPageSize)) {
+            setAssignedPageIndex(assignedPageIndex + 1);
+        }
+    };
+
 
     const refreshTestCases = () => {
         getAlltestCases();
@@ -249,9 +272,10 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
     const getAlltestCases = async () => {
         setIsViewLoading(true);
         try {
-            const response = await getTestCaseWithoutPaginationService(projectId, testCycleId);
+            const response = await getTestCaseWithoutPaginationService(projectId, testCycleId, assignedPageIndex, assignedPageSize);
             if (response) {
-                setTestCases(response?.testCases);
+                setTestCases(response?.testCases?.testCases);
+                setTotalAssignedPageCount(response?.totalTestCases);
             }
         } catch (error) {
             toasterService.error();
@@ -263,9 +287,10 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
     const getAssigntestCases = async () => {
         setAssignIsViewLoading(true);
         try {
-            const response = await getAssignTestCaseService(projectId, testCycleId);
+            const response = await getAssignTestCaseService(projectId, testCycleId, pageIndex, pageSize);
             if (response) {
-                setAssignTestCases(response?.testCases || []);
+                setAssignTestCases(response?.testCycle?.testCases || []);
+                setTotalPageCount(response?.totalTestCases);
             }
         } catch (error) {
             toasterService.error();
@@ -279,7 +304,7 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
         columns,
         onSortingChange: setSorting,
         getCoreRowModel: getCoreRowModel(),
-        // getPaginationRowModel: getPaginationRowModel(),
+        getPaginationRowModel: getPaginationRowModel(),
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         onColumnVisibilityChange: setColumnVisibility,
@@ -299,7 +324,7 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
         columns: assignTestCaseColumns,
         onSortingChange: setSorting,
         getCoreRowModel: getCoreRowModel(),
-        // getPaginationRowModel: getPaginationRowModel(),
+        getPaginationRowModel: getPaginationRowModel(),
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         onColumnVisibilityChange: setColumnVisibility,
@@ -352,11 +377,19 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
 
     useEffect(() => {
         if (sheetOpen) {
-            getAlltestCases();
-            getAssigntestCases();
+            setPageIndex(1);
+            setAssignedPageIndex(1);
             setActiveTab("un-assigned");
         }
     }, [sheetOpen]);
+
+    useEffect(() => {
+        getAlltestCases();
+    }, [sheetOpen, assignedPageIndex, assignedPageSize]);
+
+    useEffect(() => {
+        getAssigntestCases();
+    }, [sheetOpen, pageIndex, pageSize]);
 
     useEffect(() => {
         const selectedIds = Object.keys(rowSelection)
@@ -385,11 +418,6 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
 
     return (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-            {/* <ViewTestCase
-                testCase={testCase as ITestCase}
-                sheetOpen={isViewOpen}
-                setSheetOpen={setIsViewOpen}
-            /> */}
             <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto">
                 <SheetHeader>
                     <SheetTitle className="text-left font-medium">
@@ -472,6 +500,26 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
                                     </>
                                 )}
                             </div>
+                            <div className="flex items-center justify-end space-x-2 py-4">
+                                <div className="flex space-x-2">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={handleAssignedPreviousPage}
+                                        disabled={assignedPageIndex === 1}
+                                    >
+                                        Previous
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={handleAssignedNextPage}
+                                        disabled={assignedPageIndex >= Math.ceil(totalAssignedPageCount / assignedPageSize)}
+                                    >
+                                        Next
+                                    </Button>
+                                </div>
+                            </div>
                         </div>
                     </TabsContent>
                     <TabsContent value="assigned">
@@ -545,6 +593,27 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
                                             </Button>
                                         </>
                                     )}
+                                </div>
+                            </div>
+                            <div className="flex items-center justify-end space-x-2 py-4">
+
+                                <div className="flex space-x-2">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={handlePreviousPage}
+                                        disabled={pageIndex === 1}
+                                    >
+                                        Previous
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={handleNextPage}
+                                        disabled={pageIndex >= Math.ceil(totalPageCount / pageSize)}
+                                    >
+                                        Next
+                                    </Button>
                                 </div>
                             </div>
                         </main>

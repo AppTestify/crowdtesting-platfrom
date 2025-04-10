@@ -15,6 +15,7 @@ import { TestCaseResult } from "@/app/_models/test-case-result.model";
 import { TestCycle } from "@/app/_models/test-cycle.model";
 import { TestExecution } from "@/app/_models/test-execution.model";
 import { assignTestCasesSchema } from "@/app/_schemas/test-cycle.schema";
+import { serverSidePagination } from "@/app/_utils/common-server-side";
 import { replaceCustomId } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 
@@ -96,7 +97,7 @@ export async function PATCH(
       await Promise.all(
         testCase.map(async (tc) => {
           await TestExecution.updateOne(
-            { _id: tc.testExecutionId }, 
+            { _id: tc.testExecutionId },
             { $push: { testCaseResults: tc._id } }
           );
         })
@@ -158,13 +159,20 @@ export async function GET(
       entity: DBModels.TEST_CASE,
     });
 
+    const { skip, limit } = serverSidePagination(req);
     const testCycle = (await TestCycle.findById(testCycleId)
       .populate({
         path: "testCases",
+        options: {
+          skip,
+          limit,
+        },
         strictPopulate: false,
       })
       .sort({ createdAt: -1 })
       .lean()) as ITestCycle | null;
+    const TestCases = await TestCycle.findById(testCycleId);
+    const totalTestCases = TestCases.testCases.length;
 
     if (testCycle && testCycle.testCases) {
       testCycle.testCases = testCycle.testCases.map((testCase) => ({
@@ -173,7 +181,10 @@ export async function GET(
       }));
     }
 
-    return Response.json(testCycle);
+    return Response.json({
+      testCycle: testCycle,
+      totalTestCases: totalTestCases,
+    });
   } catch (error: any) {
     return errorHandler(error);
   }

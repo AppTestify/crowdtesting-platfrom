@@ -135,11 +135,18 @@ export const unAssignTestCase = async (
 
 export const getAssignTestCaseService = async (
   projectId: string,
-  testCaseId: string
+  testCaseId: string,
+  index: Number,
+  pageSize: Number
 ): Promise<any> => {
   try {
     const response = await genericGet(
-      `${TEST_CYCLE_ENPOINT(projectId)}/${testCaseId}/assign-test-cases`
+      `${TEST_CYCLE_ENPOINT(
+        projectId
+      )}/${testCaseId}/assign-test-cases${PAGINATION_QUERY_ENDPOINT(
+        index,
+        pageSize
+      )}`
     );
     return response || [];
   } catch (error) {

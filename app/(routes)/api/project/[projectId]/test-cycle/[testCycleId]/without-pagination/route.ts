@@ -9,6 +9,7 @@ import { verifySession } from "@/app/_lib/dal";
 import { IdFormat } from "@/app/_models/id-format.model";
 import { TestCase } from "@/app/_models/test-case.model";
 import { TestCycle } from "@/app/_models/test-cycle.model";
+import { serverSidePagination } from "@/app/_utils/common-server-side";
 import { replaceCustomId } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
 
@@ -40,9 +41,14 @@ export async function GET(
       entity: DBModels.TEST_CASE,
     });
 
+    const { skip, limit } = serverSidePagination(req);
     const response = await TestCycle.findById(testCycleId)
       .populate({
         path: "testCases",
+        // options: {
+        //   skip,
+        //   limit,
+        // },
         strictPopulate: false,
       })
       .lean();
@@ -53,7 +59,14 @@ export async function GET(
 
     const missingTestCases = await TestCase.find({
       _id: { $nin: existingTestCaseIds },
-    }).lean();
+    })
+      .skip(skip)
+      .limit(Number(limit))
+      .lean();
+
+    const totalTestCases = await TestCase.find({
+      _id: { $nin: existingTestCaseIds },
+    }).countDocuments();
 
     const data = {
       ...response,
@@ -63,7 +76,7 @@ export async function GET(
       })),
     };
 
-    return Response.json(data);
+    return Response.json({ testCases: data, totalTestCases: totalTestCases });
   } catch (error: any) {
     return errorHandler(error);
   }

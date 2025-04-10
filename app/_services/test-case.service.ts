@@ -98,11 +98,18 @@ export const updateTestCaseService = async (
 
 export const getTestCaseWithoutPaginationService = async (
   projectId: string,
-  testCycleId: string
+  testCycleId: string,
+  index: Number,
+  pageSize: Number
 ): Promise<any> => {
   try {
     const response = await genericGet(
-      `${TEST_CYCLE_ENPOINT(projectId)}/${testCycleId}/without-pagination`
+      `${TEST_CYCLE_ENPOINT(
+        projectId
+      )}/${testCycleId}/without-pagination${PAGINATION_QUERY_ENDPOINT(
+        index,
+        pageSize
+      )}`
     );
     return response || [];
   } catch (error) {
