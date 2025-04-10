@@ -384,11 +384,15 @@ export default function AssignTestCase({ sheetOpen, setSheetOpen, row }:
     }, [sheetOpen]);
 
     useEffect(() => {
-        getAlltestCases();
+        if (sheetOpen) {
+            getAlltestCases();
+        }
     }, [sheetOpen, assignedPageIndex, assignedPageSize]);
 
     useEffect(() => {
-        getAssigntestCases();
+        if (sheetOpen) {
+            getAssigntestCases();
+        }
     }, [sheetOpen, pageIndex, pageSize]);
 
     useEffect(() => {
