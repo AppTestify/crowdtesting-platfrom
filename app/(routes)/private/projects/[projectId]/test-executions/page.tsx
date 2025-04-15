@@ -334,7 +334,7 @@ export default function TestExecution() {
                         className="max-w-sm"
                     />
 
-                    {userData?.role === UserRoles.ADMIN &&
+                    {userData?.role === UserRoles.ADMIN || userData?.role === UserRoles.PROJECT_ADMIN &&
                         <AddTestExecution refreshTestExecution={refreshTestExecution} />
                     }
                 </div>
