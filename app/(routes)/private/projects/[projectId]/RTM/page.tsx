@@ -268,77 +268,79 @@ export default function RTM() {
                                 </div>
                             </div>
                             :
-                            <div className='flex justify-between'>
-                                <div className="grid grid-cols-3 w-full gap-2 mt-3">
-                                    <FormField
-                                        control={form.control}
-                                        name="testCycle"
-                                        render={({ field }) => (
-                                            <FormItem className="flex flex-col">
-                                                <FormLabel>Test execution</FormLabel>
-                                                <Select
-                                                    onValueChange={field.onChange}
-                                                    value={field.value || testExecutions[0]?.id}
-                                                >
-                                                    <SelectTrigger className="w-full">
-                                                        <SelectValue />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectGroup>
-                                                            {testExecutions?.map((testExecution) => {
-                                                                return (
-                                                                    <SelectItem key={testExecution?.id} value={testExecution?.id as string}>
-                                                                        {testExecution?.customId} - {testExecution?.testCycle?.title}
+                            <div className=' inline-block'>
+                                <div className="flex justify-end">
+                                    <div className="grid grid-cols-3 w-full gap-2 mt-3">
+                                        <FormField
+                                            control={form.control}
+                                            name="testCycle"
+                                            render={({ field }) => (
+                                                <FormItem className="flex flex-col">
+                                                    <FormLabel>Test execution</FormLabel>
+                                                    <Select
+                                                        onValueChange={field.onChange}
+                                                        value={field.value || testExecutions[0]?.id}
+                                                    >
+                                                        <SelectTrigger className="w-full">
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectGroup>
+                                                                {testExecutions?.map((testExecution) => {
+                                                                    return (
+                                                                        <SelectItem key={testExecution?.id} value={testExecution?.id as string}>
+                                                                            {testExecution?.customId} - {testExecution?.testCycle?.title}
+                                                                        </SelectItem>
+                                                                    );
+                                                                })}
+
+                                                            </SelectGroup>
+                                                        </SelectContent>
+                                                    </Select>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name="testSuite"
+                                            render={({ field }) => (
+                                                <FormItem className="flex flex-col">
+                                                    <FormLabel>Test suite</FormLabel>
+                                                    <Select
+                                                        onValueChange={field.onChange}
+                                                        value={field.value}
+                                                    >
+                                                        <SelectTrigger className="w-full">
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectGroup>
+                                                                {testSuites.map((testSuite) => (
+                                                                    <SelectItem key={testSuite._id} value={testSuite?._id as string}>
+                                                                        {testSuite.title}
                                                                     </SelectItem>
-                                                                );
-                                                            })}
-
-                                                        </SelectGroup>
-                                                    </SelectContent>
-                                                </Select>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                    <FormField
-                                        control={form.control}
-                                        name="testSuite"
-                                        render={({ field }) => (
-                                            <FormItem className="flex flex-col">
-                                                <FormLabel>Test suite</FormLabel>
-                                                <Select
-                                                    onValueChange={field.onChange}
-                                                    value={field.value}
-                                                >
-                                                    <SelectTrigger className="w-full">
-                                                        <SelectValue />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectGroup>
-                                                            {testSuites.map((testSuite) => (
-                                                                <SelectItem key={testSuite._id} value={testSuite?._id as string}>
-                                                                    {testSuite.title}
-                                                                </SelectItem>
-                                                            ))}
-                                                        </SelectGroup>
-                                                    </SelectContent>
-                                                </Select>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-                                <div className='flex items-end'>
-                                    <Button
-                                        type={"button"}
-                                        variant={"outline"}
-                                        disabled={isExcelLoading || testCasesToDisplay.length === 0}
-                                        onClick={generateExcel}
-                                    >
-                                        {isExcelLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileSpreadsheet />}
-                                        Export
-                                    </Button>
+                                                                ))}
+                                                            </SelectGroup>
+                                                        </SelectContent>
+                                                    </Select>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    <div className='flex items-end'>
+                                        <Button
+                                            type={"button"}
+                                            variant={"outline"}
+                                            disabled={isExcelLoading || testCasesToDisplay.length === 0}
+                                            onClick={generateExcel}
+                                        >
+                                            {isExcelLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileSpreadsheet />}
+                                            Export
+                                        </Button>
+                                    </div>
+                                    </div>
                                 </div>
                             </div>
                         }

@@ -37,10 +37,16 @@ import { UserRoles } from "@/app/_constants/user-roles";
 import { TestExecutionRowActions } from "./_components/row-actions";
 import { ITestExecution } from "@/app/_interface/test-execution";
 import TestExecutionView from "./_components/view-test-execution";
+import { checkProjectAdmin } from "@/app/_utils/common";
+import { IProject } from "@/app/_interface/project";
+import { getProjectService } from "@/app/_services/project.service";
+import toasterService from "@/app/_services/toaster-service";
 
 export default function TestExecution() {
     const [testExecution, setTestExecution] = useState<ITestCyclePayload[]>([]);
     const [userData, setUserData] = useState<any>();
+    const [project, setProject] = useState<IProject>();
+    const checkProjectRole = checkProjectAdmin(project as IProject, userData);
 
     const columns: ColumnDef<ITestCyclePayload>[] = [
         {
@@ -244,6 +250,22 @@ export default function TestExecution() {
     const [isViewOpen, setIsViewOpen] = useState(false);
     const { data } = useSession();
 
+    const getProject = async () => {
+        setIsLoading(true);
+        try {
+            const response = await getProjectService(projectId);
+            setProject(response);
+        } catch (error) {
+            toasterService.error();
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        getProject();
+    }, []);
+
     useEffect(() => {
         const debounceFetch = setTimeout(() => {
             getTestExecution();
@@ -334,7 +356,7 @@ export default function TestExecution() {
                         className="max-w-sm"
                     />
 
-                    {userData?.role === UserRoles.ADMIN || userData?.role === UserRoles.PROJECT_ADMIN &&
+                    {userData?.role === UserRoles.ADMIN || userData?.role === UserRoles.PROJECT_ADMIN || checkProjectRole &&
                         <AddTestExecution refreshTestExecution={refreshTestExecution} />
                     }
                 </div>

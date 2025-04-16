@@ -36,19 +36,17 @@ export async function GET(
       );
     }
 
-    const { testCycleId } = params;
+    const { testCycleId, projectId } = params;
     const testCaseIdFormat = await IdFormat.findOne({
       entity: DBModels.TEST_CASE,
     });
 
     const { skip, limit } = serverSidePagination(req);
-    const response = await TestCycle.findById(testCycleId)
+    const response = await TestCycle.findOne({
+      _id: testCycleId,
+    })
       .populate({
         path: "testCases",
-        // options: {
-        //   skip,
-        //   limit,
-        // },
         strictPopulate: false,
       })
       .lean();
@@ -59,6 +57,7 @@ export async function GET(
 
     const missingTestCases = await TestCase.find({
       _id: { $nin: existingTestCaseIds },
+      projectId: projectId,
     })
       .skip(skip)
       .limit(Number(limit))
@@ -66,6 +65,7 @@ export async function GET(
 
     const totalTestCases = await TestCase.find({
       _id: { $nin: existingTestCaseIds },
+      projectId: projectId,
     }).countDocuments();
 
     const data = {
