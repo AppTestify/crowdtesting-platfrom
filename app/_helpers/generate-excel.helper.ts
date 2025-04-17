@@ -6,7 +6,7 @@ const calculateColumnWidths = (header: string[], data: RowData) => {
   return header.map((_, colIndex) => {
     const columnContentLengths = data.map((row) =>
       row[colIndex] ? row[colIndex].toString().length : 0
-    );
+    ); 
     const headerLength = header[colIndex].length;
     const maxLength = Math.max(headerLength, ...columnContentLengths);
     return { width: maxLength + 2 };
