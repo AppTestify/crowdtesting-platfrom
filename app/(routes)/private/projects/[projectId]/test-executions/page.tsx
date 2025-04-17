@@ -356,8 +356,8 @@ export default function TestExecution() {
                         className="max-w-sm"
                     />
 
-                    {userData?.role === UserRoles.ADMIN || userData?.role === UserRoles.PROJECT_ADMIN || checkProjectRole &&
-                        <AddTestExecution refreshTestExecution={refreshTestExecution} />
+                    {(userData?.role === UserRoles.ADMIN || userData?.role === UserRoles.PROJECT_ADMIN || checkProjectRole) &&
+                        (<AddTestExecution refreshTestExecution={refreshTestExecution} />)
                     }
                 </div>
                 <div className="rounded-md border">
