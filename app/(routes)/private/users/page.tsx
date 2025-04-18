@@ -119,7 +119,7 @@ export default function Users() {
             header: "Role",
             cell: ({ row }) => (
                 <div className="capitalize">
-                    {showUsersRoleInBadges(row.getValue("role"))}
+                    {showUsersRoleInBadges(row?.original?.role as UserRoles)}
                 </div>
             ),
         },
