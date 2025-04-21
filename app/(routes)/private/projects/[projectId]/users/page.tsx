@@ -65,10 +65,11 @@ export default function ProjectUsers() {
             header: "Skills",
             cell: ({ row }) => {
                 const skills = row.original?.tester?.skills;
-                const formattedSkills = skills?.map(skill => ({ name: skill }));
+                const filteredSkills = skills?.filter(skill => skill.trim() !== "") // remove empty strings
+                                             .map(skill => ({ name: skill }));
                 return (
                     <div>
-                        <ExpandableTable row={formattedSkills as any[]} />
+                        <ExpandableTable row={filteredSkills as any[]} />
                     </div>
                 );
             },
