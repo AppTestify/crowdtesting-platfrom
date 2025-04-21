@@ -43,109 +43,118 @@ export default function ProjectUsers() {
     const projectAdmin = checkProjectAdmin(project as IProject, userData);
 
     const columns: ColumnDef<IProjectUserDisplay>[] = [
-        {
-            accessorKey: "userName",
-            header: "Tester Identification Number",
-            cell: ({ row }) => {
-                const firstName = row?.original?.userId?.firstName;
-                const lastName = row?.original?.userId?.lastName;
-                return (
-                    <div className="capitalize">
-                        <div>
-                            {firstName && lastName ? `${firstName} ${lastName}`
-                                : ""
-                            }
-                        </div>
-                    </div>
-                )
-            },
+      {
+        accessorKey: "userName",
+        header: "Tester Identification Number",
+        cell: ({ row }) => {
+          const firstName = row?.original?.userId?.firstName;
+          const lastName = row?.original?.userId?.lastName;
+          return (
+            <div className="capitalize">
+              <div>
+                {firstName && lastName ? `${firstName} ${lastName}` : ""}
+              </div>
+            </div>
+          );
         },
-        {
-            accessorKey: "skills",
-            header: "Skills",
-            cell: ({ row }) => {
-                const skills = row.original?.tester?.skills;
-                const filteredSkills = skills?.filter(skill => skill.trim() !== "") // remove empty strings
-                                             .map(skill => ({ name: skill }));
-                return (
-                    <div>
-                        <ExpandableTable row={filteredSkills as any[]} />
-                    </div>
-                );
-            },
+      },
+      {
+        accessorKey: "skills",
+        header: "Skills",
+        cell: ({ row }) => {
+          const skills = row.original?.tester?.skills;
+          const filteredSkills = skills
+            ?.filter((skill) => skill.trim() !== "")
+            .map((skill) => ({ name: skill }));
+          return (
+            <div>
+              <ExpandableTable row={filteredSkills as any[]} />
+            </div>
+          );
         },
-        {
-            accessorFn: (row) => row.tester?.languages || "",
-            accessorKey: "language",
-            header: "Language",
-            cell: ({ row }) => (
-                <div className="capitalize">
-                    <ExpandableTable row={row.original.tester?.languages as any[]} />
-                </div>
-            ),
-            filterFn: (row, columnId, filterValue) => {
-                const languages = row.original?.tester?.languages || [];
-                return languages.some((language) =>
-                    language?.name?.toLowerCase().includes(filterValue.toLowerCase())
-                );
-            },
-        },
-        {
-            accessorFn: (row) => row.role || "",
-            accessorKey: "projectUserRole",
-            header: "Role",
-            cell: ({ row }) => (
-                <div className="capitalize">{statusBadgeProjectUserRole(row.original?.role)}</div>
-            ),
-        },
-        {
-            accessorFn: (row) => row.tester?.address?.city || "",
-            accessorKey: "city",
-            header: "City",
-            cell: ({ row }) => (
-                <div className="capitalize">
-                    {row.original?.tester?.address?.city}
-                </div>
-            ),
-        },
-        {
-            accessorFn: (row) => row.tester?.address?.country || "",
-            accessorKey: "country",
-            header: "Country",
-            cell: ({ row }) => (
-                <div className="capitalize">
-                    {row.original?.tester?.address?.country}
-                </div>
-            ),
-        },
-        ...((projectAdmin === true || userData?.role === UserRoles.ADMIN) ?
-            [{
-                accessorKey: "verify",
-                header: "Verify",
-                cell: ({ row }: { row: any }) => {
-                    const isVerify = row.original?.isVerify ?? true;
-                    return (
-                        <div className="capitalize" >
-                            <UserVerify
-                                status={isVerify}
-                                id={row.original._id as string}
-                                projectId={projectId as string}
-                                refreshProjectUsers={refreshProjectUsers}
-                            />
-                        </div >
-                    )
-                },
-            }] : []),
-        ...(
-            userData?.role === UserRoles.ADMIN ?
-                [{
-                    id: "actions",
-                    enableHiding: false,
-                    cell: ({ row }: { row: any }) => (
-                        <ProjectUserRowActions row={row} projectId={projectId} refreshProjectUsers={refreshProjectUsers} />
-                    ),
-                }] : []
+      },
+      {
+        accessorFn: (row) => row.tester?.languages || "",
+        accessorKey: "language",
+        header: "Language",
+        cell: ({ row }) => (
+          <div className="capitalize">
+            <ExpandableTable row={row.original.tester?.languages as any[]} />
+          </div>
         ),
+        filterFn: (row, columnId, filterValue) => {
+          const languages = row.original?.tester?.languages || [];
+          return languages.some((language) =>
+            language?.name?.toLowerCase().includes(filterValue.toLowerCase())
+          );
+        },
+      },
+      {
+        accessorFn: (row) => row.role || "",
+        accessorKey: "projectUserRole",
+        header: "Role",
+        cell: ({ row }) => (
+          <div className="capitalize">
+            {statusBadgeProjectUserRole(row.original?.role)}
+          </div>
+        ),
+      },
+      {
+        accessorFn: (row) => row.tester?.address?.city || "",
+        accessorKey: "city",
+        header: "City",
+        cell: ({ row }) => (
+          <div className="capitalize">
+            {row.original?.tester?.address?.city}
+          </div>
+        ),
+      },
+      {
+        accessorFn: (row) => row.tester?.address?.country || "",
+        accessorKey: "country",
+        header: "Country",
+        cell: ({ row }) => (
+          <div className="capitalize">
+            {row.original?.tester?.address?.country}
+          </div>
+        ),
+      },
+      ...(projectAdmin === true || userData?.role === UserRoles.ADMIN
+        ? [
+            {
+              accessorKey: "verify",
+              header: "Verify",
+              cell: ({ row }: { row: any }) => {
+                const isVerify = row.original?.isVerify ?? true;
+                return (
+                  <div className="capitalize">
+                    <UserVerify
+                      status={isVerify}
+                      id={row.original._id as string}
+                      projectId={projectId as string}
+                      refreshProjectUsers={refreshProjectUsers}
+                    />
+                  </div>
+                );
+              },
+            },
+          ]
+        : []),
+      ...(userData?.role === UserRoles.ADMIN
+        ? [
+            {
+              id: "actions",
+              enableHiding: false,
+              cell: ({ row }: { row: any }) => (
+                <ProjectUserRowActions
+                  row={row}
+                  projectId={projectId}
+                  refreshProjectUsers={refreshProjectUsers}
+                />
+              ),
+            },
+          ]
+        : []),
     ];
 
     const [sorting, setSorting] = useState<SortingState>([]);
