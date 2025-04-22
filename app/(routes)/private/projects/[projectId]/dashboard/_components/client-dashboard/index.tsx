@@ -38,7 +38,7 @@ export default function ProjectClientDashboard() {
                         <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6 w-40">
                             <CardTitle>Total data</CardTitle>
                             <CardDescription>
-                                Showing total data
+                                Showing total data:
                             </CardDescription>
                         </div>
                         <div className="flex">
