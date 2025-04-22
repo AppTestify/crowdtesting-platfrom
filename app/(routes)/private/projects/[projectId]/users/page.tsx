@@ -44,6 +44,7 @@ export default function ProjectUsers() {
 
     const columns: ColumnDef<IProjectUserDisplay>[] = [
       {
+        accessorFn: (row) => row.userId?.firstName || row.userId?.lastName || "",
         accessorKey: "userName",
         header: "Tester Identification Number",
         cell: ({ row }) => {
@@ -59,6 +60,8 @@ export default function ProjectUsers() {
         },
       },
       {
+        accessorFn: (row) =>
+          row?.tester?.skills?.filter((skill) => skill.trim() !== "").join(", ") || "",
         accessorKey: "skills",
         header: "Skills",
         cell: ({ row }) => {
@@ -74,7 +77,11 @@ export default function ProjectUsers() {
         },
       },
       {
-        accessorFn: (row) => row.tester?.languages || "",
+        accessorFn: (row) =>
+          row.tester?.languages
+            ?.filter((lang) => lang.name.trim() !== "")
+            .map((lang) => lang.name)
+            .join(", ") || "",
         accessorKey: "language",
         header: "Language",
         cell: ({ row }) => (
