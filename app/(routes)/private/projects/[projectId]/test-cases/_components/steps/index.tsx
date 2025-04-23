@@ -232,10 +232,11 @@ export function AddTestStep({ testCaseId }: { testCaseId: string }) {
     }
 
     const pointerSensor = useSensor(PointerSensor, {
-        activationConstraint: {
-            distance: 5,
-        },
-    });
+            activationConstraint: {
+                distance: 5,
+                
+            },
+        });
 
     const sensors = useSensors(pointerSensor);
 
@@ -324,7 +325,7 @@ export function AddTestStep({ testCaseId }: { testCaseId: string }) {
                                         name="description"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel>Description</FormLabel>
+                                                <FormLabel>Step {testCaseSteps.filter(step => step.selectedType).length + 1}</FormLabel>
                                                 <FormControl>
                                                     <Textarea
                                                         {...field}
@@ -387,7 +388,7 @@ export function AddTestStep({ testCaseId }: { testCaseId: string }) {
                                             name="description"
                                             render={({ field }) => (
                                                 <FormItem>
-                                                    <FormLabel>Description</FormLabel>
+                                                    <FormLabel>Step {testCaseSteps.filter(step => step.selectedType).length + 1}</FormLabel>
                                                     <FormControl>
                                                         <Textarea
                                                             {...field}
