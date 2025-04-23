@@ -39,7 +39,7 @@ export default function TestStep({ testCaseResult, onTestStepResult, isAdmin, te
         setLineHeights(heights);
     }, [testCaseResult]);
     return (
-        <div>
+        <div className='max-h-[85vh] overflow-auto'>
             <div className="text-lg font-semibold">
                 Test Step
             </div>
