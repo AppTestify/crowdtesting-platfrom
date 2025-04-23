@@ -64,7 +64,7 @@ export default function DeviceChart({ title, description, dataKey, chartData }: 
                                 tickLine={false}
                                 tickMargin={10}
                                 axisLine={false}
-                                tickFormatter={(value) => value.slice(0, 10)}
+                                tickFormatter={(value) => value.slice(0,7)}
                             />
                             <ChartTooltip
                                 cursor={false}
