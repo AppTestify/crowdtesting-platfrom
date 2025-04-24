@@ -115,13 +115,28 @@ export default function GeneralSettings() {
         setFormDefaultValues(await getWebsiteService());
     };
 
+    // const uniqueTimeZones = Array.from(
+    //     new Set(
+    //         countries.flatMap(country =>
+    //             country.timezone.map(timeZone => timeZone.gmtOffsetName)
+    //         )
+    //     )
+    // );
+
     const uniqueTimeZones = Array.from(
-        new Set(
-            countries.flatMap(country =>
-                country.timezone.map(timeZone => timeZone.zoneName)
-            )
-        )
-    );
+        new Map(
+            countries
+                .flatMap(country =>
+                    country.timezone.map(timeZone => [
+                        timeZone.zoneName,
+                        {
+                            gmtOffsetName: timeZone.gmtOffsetName,
+                            zoneName: timeZone.zoneName,
+                        },
+                    ])
+                )
+        ).values()
+    ).sort((a, b) => a.zoneName.localeCompare(b.zoneName));
 
 
     return (
@@ -187,9 +202,9 @@ export default function GeneralSettings() {
                                             </SelectTrigger>
                                             <SelectContent side='bottom' className="h-80">
                                                 <SelectGroup>
-                                                    {uniqueTimeZones.map((zoneName, index) => (
-                                                        <SelectItem key={index} value={zoneName}>
-                                                            {zoneName}
+                                                    {uniqueTimeZones.map((timezone, index) => (
+                                                        <SelectItem key={index} value={timezone.zoneName}>
+                                                            {`(${timezone.gmtOffsetName}) - ${timezone.zoneName}`}
                                                         </SelectItem>
                                                     ))}
                                                 </SelectGroup>
