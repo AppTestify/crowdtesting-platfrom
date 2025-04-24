@@ -257,6 +257,8 @@ export default function Issues() {
     }
     return 1;
   });
+console.log('selectedTestCycle',selectedTestCycle);
+
   const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
   const [isExcelLoading, setIsExcelLoading] = useState<boolean>(false);
   const { data } = useSession();
@@ -364,6 +366,7 @@ export default function Issues() {
         ];
 
     const response = await getIssuesService(projectId, 1, totalPageCount, globalFilter as unknown as string, "", "", "", "");
+    const selectedTestCycleTitle = testCycles.find(cycle => cycle._id === selectedTestCycle)?.title;
     const data = response?.issues?.map((row: IIssue) => [
       row.customId,
       row.title,
@@ -393,7 +396,7 @@ export default function Issues() {
     generateExcelFile(
       header,
       data,
-      `Issues-${issues[0]?.projectId?.title}-${selectedTestCycle ? issues[0]?.testCycle?.title : "All Test Cycle"}.xlsx`
+      `Issues-${issues[0]?.projectId?.title}${selectedTestCycle ? `-${selectedTestCycleTitle}` : ""}.xlsx`
     );
     setIsExcelLoading(false);
   };
