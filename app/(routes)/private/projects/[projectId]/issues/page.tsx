@@ -298,6 +298,7 @@ export default function Issues() {
     }
   };
 
+
   const refreshIssues = () => {
     getIssues();
     setRowSelection({});
@@ -392,7 +393,7 @@ export default function Issues() {
     generateExcelFile(
       header,
       data,
-      `Issues-${issues[0]?.projectId?.title}.xlsx`
+      `Issues-${issues[0]?.projectId?.title}-${selectedTestCycle ? issues[0]?.testCycle?.title : "All Test Cycle"}.xlsx`
     );
     setIsExcelLoading(false);
   };
