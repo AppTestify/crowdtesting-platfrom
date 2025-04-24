@@ -25,6 +25,8 @@ import { usePathname, useRouter } from "next/navigation";
 export function NavMain({ items }: any) {
   const pathname = usePathname();
 
+  console.log("items: ", items)
+
   return (
     <SidebarGroup>
       <SidebarGroupContent>
@@ -34,7 +36,7 @@ export function NavMain({ items }: any) {
               <SidebarMenuButton
                 disabled={item.disabled}
                 asChild
-                isActive={pathname === item.url}
+                isActive={pathname.startsWith(item.url)}
                 tooltip={item.title}
               >
                 <Link
