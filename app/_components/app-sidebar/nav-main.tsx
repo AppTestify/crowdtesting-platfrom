@@ -25,8 +25,6 @@ import { usePathname, useRouter } from "next/navigation";
 export function NavMain({ items }: any) {
   const pathname = usePathname();
 
-  console.log("items: ", items)
-
   return (
     <SidebarGroup>
       <SidebarGroupContent>
