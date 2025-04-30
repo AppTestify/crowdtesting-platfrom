@@ -10,6 +10,7 @@ import {
   Mail,
   HandCoins,
   ReceiptIndianRupee,
+  BadgePercent,
 } from "lucide-react";
 import { UserRoles } from "./user-roles";
 
@@ -219,11 +220,18 @@ export const adminNavbar = [
     disabled: false,
   },
   {
+    title:"Pricing",
+    url:"/private/pricing",
+    icon:BadgePercent,
+    disabled:false,
+  },
+  {
     title: "Profile",
     url: "/private/profile",
     icon: User,
     disabled: false,
   },
+  
   {
     title: "Settings",
     url: "/private/setting",
