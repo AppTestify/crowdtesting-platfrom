@@ -7,6 +7,8 @@ export enum DBModels {
   PROJECT = "Project",
   REQUIREMENT = "Requirement",
   ISSUE = "Issue",
+  PACKAGE = "Package",
+  ADDON = "AddOn",
   PAYMENT = "Payment",
   ISSUE_ATTACHMENT = "IssueAttachment",
   TEST_SUITE = "TestSuite",
