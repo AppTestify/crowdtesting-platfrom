@@ -29,3 +29,14 @@ export const PaymentCurrencyList = [
   PaymentCurrency.INR,
   PaymentCurrency.EURO,
 ];
+
+
+export const enum AmountType {
+  FLAT = "flat",
+  PERCENTAGE = "percentage"
+}
+
+export const AmountTypeList = [
+  AmountType.FLAT,
+  AmountType.PERCENTAGE
+];
