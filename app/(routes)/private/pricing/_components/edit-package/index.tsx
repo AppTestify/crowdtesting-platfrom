@@ -111,7 +111,7 @@ const EditPackage = ({
 
   return (
     <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-      <SheetContent>
+      <SheetContent className="overflow-y-auto">
         <SheetHeader>
           <SheetTitle>Edit Package</SheetTitle>
         </SheetHeader>

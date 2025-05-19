@@ -92,7 +92,7 @@ export function AddPackage({
         </Button>
       </SheetTrigger>
 
-      <SheetContent>
+      <SheetContent className="overflow-y-auto">
         <SheetHeader>
           <SheetTitle>Add Package Model</SheetTitle>
         </SheetHeader>
