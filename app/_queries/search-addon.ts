@@ -1,16 +1,20 @@
 import "server-only";
-import { ObjectId } from "mongodb";
-import { Package } from "../_models/package.model";
 import { AddOn } from "../_models/addon.model";
 
 export async function filterAddonForAdmin(
   searchString: string,
   skip: number,
   limit: number,
-  status?: boolean
+  status?: boolean | string
 ) {
-    const regex = new RegExp(searchString, "i");
+  const regex = new RegExp(searchString, "i");
 
+  let parsedStatus: boolean | undefined;
+  if (status === "true" || status === true) {
+    parsedStatus = true;
+  } else if (status === "false" || status === false) {
+    parsedStatus = false;
+  }
 
   const pipeline: any[] = [
     {
@@ -18,15 +22,26 @@ export async function filterAddonForAdmin(
         deletedAt: { $exists: false },
       },
     },
-    ...(status !== undefined
+    // ...(status !== undefined
+    //   ? [
+    //       {
+    //         $match: {
+    //           isActive: status,
+    //         },
+    //       },
+    //     ]
+    //   : []),
+
+    ...(parsedStatus !== undefined
       ? [
           {
             $match: {
-              isActive: status,
+              isActive: parsedStatus,
             },
           },
         ]
       : []),
+
     {
       $lookup: {
         from: "users",
@@ -39,6 +54,7 @@ export async function filterAddonForAdmin(
     {
       $addFields: {
         fullName: { $concat: ["$user.firstName", " ", "$user.lastName"] },
+        amountStr: { $toString: "$amount" },
       },
     },
     {
@@ -46,8 +62,8 @@ export async function filterAddonForAdmin(
         $or: [
           { name: regex },
           { description: regex },
-          { amount: regex },
-          { amountType: regex },
+          { amountStr: regex },
+          { currency: regex },
           { "user.firstName": regex },
           { "user.lastName": regex },
           { fullName: regex },
@@ -62,14 +78,12 @@ export async function filterAddonForAdmin(
     {
       $project: {
         user: 0,
+        amountStr:0,
       },
     },
   ];
 
-  const totalAddOns = await AddOn.aggregate([
-    ...pipeline,
-    { $count: "total" },
-  ]);
+  const totalAddOns = await AddOn.aggregate([...pipeline, { $count: "total" }]);
 
   const addOns = await AddOn.aggregate([
     ...pipeline,

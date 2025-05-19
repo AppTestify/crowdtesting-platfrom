@@ -26,6 +26,13 @@ import {
 } from "@/components/ui/form";
 
 import { Loader2, Plus } from "lucide-react";
+import { addPackageService } from "@/app/_services/package.service";
+import { useState } from "react";
+import { HttpStatusCode } from "@/app/_constants/http-status-code";
+import toasterService from "@/app/_services/toaster-service";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { packageSchema } from "@/app/_schemas/package.schema";
 import {
   Select,
   SelectContent,
@@ -34,31 +41,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { addonSchema } from "@/app/_schemas/addon.schema";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { addAddonService } from "@/app/_services/addon.service";
-import toasterService from "@/app/_services/toaster-service";
-import { HttpStatusCode } from "@/app/_constants/http-status-code";
-import { useState } from "react";
 import { PaymentCurrency, PaymentCurrencyList } from "@/app/_constants/payment";
-
-export function AddOnForm({ refreshAddon }: { refreshAddon: () => void }) {
+export function AddPackage({ refreshPackages }: { refreshPackages: () => void }) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [sheetOpen, setSheetOpen] = useState(false);
 
-  const form = useForm<z.infer<typeof addonSchema>>({
-    resolver: zodResolver(addonSchema),
+  const form = useForm<z.infer<typeof packageSchema>>({
+    resolver: zodResolver(packageSchema),
     defaultValues: {
       currency: PaymentCurrency.USD,
       isActive: true,
     },
   });
 
-  async function onSubmit(values: z.infer<typeof addonSchema>) {
+  async function onSubmit(values: z.infer<typeof packageSchema>) {
     setIsLoading(true);
     try {
-      const response = await addAddonService(values);
+      const response = await addPackageService(values);
 
       if (response) {
         if (response.status === HttpStatusCode.BAD_REQUEST) {
@@ -66,7 +65,7 @@ export function AddOnForm({ refreshAddon }: { refreshAddon: () => void }) {
           return;
         }
         toasterService.success(response?.message);
-        refreshAddon();
+        refreshPackages();
       }
     } catch (error) {
       toasterService.error();
@@ -84,29 +83,55 @@ export function AddOnForm({ refreshAddon }: { refreshAddon: () => void }) {
     <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
       <SheetTrigger asChild>
         <Button onClick={() => resetForm()}>
-          <Plus className="mr-2 h-4 w-4" />
-          Add On
+          <Plus />
+          Add Package
         </Button>
       </SheetTrigger>
 
       <SheetContent>
         <SheetHeader>
-          <SheetTitle>AddOn Model Form</SheetTitle>
+          <SheetTitle>Add Package Model</SheetTitle>
         </SheetHeader>
 
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4"
+            className="space-y-4 mt-5"
             method="post"
           >
-            <div className="mt-2">
+            <div className="grid grid-cols-2 gap-2">
+              <FormField
+                control={form.control}
+                name="type"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Package Type</FormLabel>
+                    <Select
+                      value={field.value}
+                      onValueChange={(value) => field.onChange(value)}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="free">Free</SelectItem>
+                        <SelectItem value="premium">Premium </SelectItem>
+                        <SelectItem value="custom">Custom</SelectItem>
+                        <SelectItem value="enterprises">Enterprises</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
+                )}
+              />
+
               <FormField
                 control={form.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Addon Name</FormLabel>
+                    <FormLabel>Package Name</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -116,40 +141,13 @@ export function AddOnForm({ refreshAddon }: { refreshAddon: () => void }) {
               />
             </div>
 
-            {/* <div className="mt-2 grid grid-cols-2 gap-2">
-
-               <FormField
-                control={form.control}
-                name="currency"
-                render={({ field }) => (
-                  <FormItem className="w-full">
-                    <FormLabel>Amount Type</FormLabel>
-                    <Select
-                      value={field.value}
-                      onValueChange={(value) =>
-                        field.onChange(value as "flat" | "percentage")
-                      }
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select Type" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="flat">Flat</SelectItem>
-                        <SelectItem value="percentage">Percentage</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <div className="grid grid-cols-2 gap-2">
               <FormField
                 control={form.control}
-                name="amount"
+                name="testers"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Amount</FormLabel>
+                    <FormLabel>Tester</FormLabel>
                     <FormControl>
                       <Input type="number" {...field} />
                     </FormControl>
@@ -157,7 +155,52 @@ export function AddOnForm({ refreshAddon }: { refreshAddon: () => void }) {
                   </FormItem>
                 )}
               />
-              </div> */}
+
+              <FormField
+                control={form.control}
+                name="durationHours"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Duration (Days)</FormLabel>
+                    <FormControl>
+                      <Input type="number" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+
+             <div className="grid grid-cols-2 gap-2">
+              <FormField
+                control={form.control}
+                name="testCase"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Test Case</FormLabel>
+                    <FormControl>
+                      <Input type="number" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="testExecution"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Test Execution</FormLabel>
+                    <FormControl>
+                      <Input type="number" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <div className="grid grid-cols-[30%,70%] gap-2">
               <FormField
@@ -201,29 +244,69 @@ export function AddOnForm({ refreshAddon }: { refreshAddon: () => void }) {
                 )}
               />
             </div>
+            <div className="w-full">
+              <FormField
+                control={form.control}
+                name="bugs"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Bugs</FormLabel>
+                    <FormControl>
+                      <Input className="w-full" type="number" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
-            {/* <div className="grid  sm:grid-cols-2">
+            <div className="grid grid-cols-3">
+              <div className="">
                 <FormField
                   control={form.control}
-                  name="isActive"
+                  name="moreBugs"
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
                         <div className="flex items-center space-x-2 mt-2">
                           <Checkbox
-                            id="isActive"
+                            id="moreBug"
                             className="h-5 w-5 text-blue-500 border-gray-300 "
                             checked={field.value}
                             onCheckedChange={field.onChange}
                           />
-                          <Label htmlFor="isActive">Active</Label>
+                          <Label htmlFor="moreBug">More Bugs</Label>
                         </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              </div> */}
+              </div>
+
+              <div className="grid  sm:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="isCustom"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <div className="flex items-center space-x-2 mt-2">
+                          <Checkbox
+                            id="isCustom"
+                            className="h-5 w-5 text-blue-500 border-gray-300 "
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                          <Label htmlFor="isCustom">Custom</Label>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
 
             <FormField
               control={form.control}

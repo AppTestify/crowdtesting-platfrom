@@ -14,7 +14,7 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel, 
+  getPaginationRowModel,
   getSortedRowModel,
   SortingState,
   useReactTable,
@@ -23,22 +23,23 @@ import {
 
 import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
 import { Button } from "@/components/ui/button";
-import { getAddonService } from "@/app/_services/addon.service";
 import { Checkbox } from "@/components/ui/checkbox";
-import { AddOnForm } from "../add-on-form";
 import { Input } from "@/components/ui/input";
-import AddonRowAction from "../addon-row-action";
-import { BulkDeleteAddon } from "../bulk-delete-addon";
-import { IAddon } from "@/app/_interface/addon";
-import AddonStatus from "../addon-status";
+import { getPackageService } from "@/app/_services/package.service";
+import { IPackage } from "@/app/_interface/package";
 import { PaymentCurrency } from "@/app/_constants/payment";
+import { AddPackage } from "../add-package";
+import PackageStatus from "../package-status";
+import PackageRowAction from "../package-row-action";
+import { BulkDeletePackage } from "../bulk-delete-package";
 
-function AddOnModel() {
-  const [addon, setAddon] = useState<IAddon[]>([]);
+function PackageModel() {
+  const [packages, setPackage] = useState<IPackage[]>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
+  // const [browsers, setBrowsers] = useState<IBrowser[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [globalFilter, setGlobalFilter] = useState<unknown>([]);
   const [pageIndex, setPageIndex] = useState(1);
@@ -46,34 +47,32 @@ function AddOnModel() {
   const [totalPageCount, setTotalPageCount] = useState(0);
   const [isViewOpen, setIsViewOpen] = useState(false);
 
-  const getAddon = async () => {
+  const getPackage = async () => {
     setIsLoading(true);
-    const addon = await getAddonService(
+    const packages = await getPackageService(
       pageIndex,
       pageSize,
       globalFilter as unknown as string
     );
-    setAddon(addon.addon);
-    setTotalPageCount(addon.total);
+    setPackage(packages.packages);
+    setTotalPageCount(packages.total);
     setIsLoading(false);
   };
 
-  const refreshAddon = () => {
-    getAddon();
+  const refreshPackages = () => {
+    getPackage();
     setRowSelection({});
   };
 
   useEffect(() => {
     const debounceFetch = setTimeout(() => {
-      getAddon();
+      getPackage();
     }, 500);
     return () => clearTimeout(debounceFetch);
   }, [globalFilter, pageIndex, pageSize]);
+  
 
-
-
-
-  let columns: ColumnDef<IAddon>[] = [
+  let columns: ColumnDef<IPackage>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -97,6 +96,13 @@ function AddOnModel() {
       enableHiding: false,
     },
     {
+      accessorKey: "type",
+      header: "Type",
+      cell: ({ row }) => (
+        <div className="capitalize">{row.getValue("type")}</div>
+      ),
+    },
+    {
       accessorKey: "name",
       header: "Name",
       cell: ({ row }) => (
@@ -107,9 +113,39 @@ function AddOnModel() {
       accessorKey: "description",
       header: "Description",
       cell: ({ row }) => (
-        <div className="max-w-[150px] truncate text-sm capitalize">
+        <div className="max-w-[100px] truncate text-sm capitalize">
           {row.getValue("description")}
         </div>
+      ),
+    },
+    {
+      accessorKey: "durationHours",
+      header: "Duration",
+      cell: ({ row }) => (
+        <div className="capitalize">{row.getValue("durationHours")}</div>
+      ),
+    },
+
+    {
+      accessorKey: "bugs",
+      header: "Bugs",
+      cell: ({ row }) => (
+        <div className="capitalize">{row.getValue("bugs")}</div>
+      ),
+    },
+    {
+      accessorKey: "testCase",
+      header: "Test Case",
+      cell: ({ row }) => (
+        <div className="capitalize">{row.getValue("testCase")}</div>
+      ),
+    },
+
+    {
+      accessorKey: "testExecution",
+      header: "Test Execution",
+      cell: ({ row }) => (
+        <div className="capitalize">{row.getValue("testExecution")}</div>
       ),
     },
     {
@@ -126,29 +162,57 @@ function AddOnModel() {
         );
       },
     },
+    {
+      accessorKey: "testers",
+      header: "Testers",
+      cell: ({ row }) => (
+        <div className="capitalize">{row.getValue("testers")}</div>
+      ),
+    },
+
+    // {
+    //   accessorKey: "moreBugs",
+    //   header: "More Bugs",
+    //   cell: ({ row }) => (
+    //     <div className="capitalize">{row.getValue("moreBugs")}</div>
+    //   ),
+    // },
+
+    {
+      accessorKey: "moreBugs",
+      header: "More Bugs",
+      cell: ({ row }) => <div>{row.getValue("moreBugs") ? "Yes" : "No"}</div>,
+    },
+
+    {
+      accessorKey: "isCustom",
+      header: "Custom",
+      cell: ({ row }) => <div>{row.getValue("isCustom") ? "Yes" : "No"}</div>,
+    },
 
     {
       accessorKey: "isActive",
       header: "Status",
       cell: ({ row }: any) => (
-        <AddonStatus
+        <PackageStatus
           status={row.getValue("isActive")}
-          addonId={row.original.id}
-          refreshAddon={refreshAddon}
+          packageId={row.original.id}
+          refreshPackages={refreshPackages}
         />
       ),
     },
+
     {
       id: "actions",
       enableHiding: false,
       cell: ({ row }) => (
-        <AddonRowAction row={row} refreshAddon={refreshAddon} />
+        <PackageRowAction row={row} refreshPackages={refreshPackages} />
       ),
     },
   ];
 
   const table = useReactTable({
-    data: addon,
+    data: packages,
     columns,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
@@ -160,7 +224,7 @@ function AddOnModel() {
     globalFilterFn: "includesString",
     state: {
       sorting,
-      // globalFilter,
+      globalFilter,
       columnVisibility,
       rowSelection,
     },
@@ -179,11 +243,10 @@ function AddOnModel() {
     }
   };
 
-
   const getSelectedRows = () => {
-    return table?.getFilteredSelectedRowModel()?.rows?.map((row) => row.original?.id);
-  };
-
+  const selectedRows = table?.getFilteredSelectedRowModel?.()?.rows;
+  return selectedRows ? selectedRows.map((row) => row.original?.id) : [];
+};
 
   return (
     <>
@@ -195,17 +258,18 @@ function AddOnModel() {
             onChange={(event) => {
               table.setGlobalFilter(event.target.value);
             }}
-            placeholder="Filter Addon model"
+            placeholder="Filter package model"
           />
         </div>
-        <div className="flex gap-2 ml-2">
-          {getSelectedRows()?.length > 0 ? (
-            <BulkDeleteAddon
+
+        <div className="flex justify-end items-center gap-2 mx-1">
+          {getSelectedRows()?.length ? (
+            <BulkDeletePackage
               ids={getSelectedRows()}
-              refreshAddon={refreshAddon}
+              refreshPackages={refreshPackages}
             />
           ) : null}
-          <AddOnForm refreshAddon={refreshAddon} />
+          <AddPackage refreshPackages={refreshPackages} />
         </div>
       </div>
       <div className="rounded-md border mt-3">
@@ -279,4 +343,4 @@ function AddOnModel() {
     </>
   );
 }
-export default AddOnModel;
+export default PackageModel;

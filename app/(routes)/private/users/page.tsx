@@ -265,7 +265,6 @@ export default function Users() {
         } else {
             setIsClientViewOpen(true);
         }
-
     };
 
     return (

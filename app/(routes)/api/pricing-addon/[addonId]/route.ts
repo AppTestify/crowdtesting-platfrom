@@ -66,6 +66,44 @@ export async function PUT(
   }
 }
 
+export async function GET(
+  req: Request,
+  { params }: { params: { addonId: string } }
+) {
+  try {
+    const session = await verifySession();
+
+    if (!session) {
+      return Response.json(
+        { message: USER_UNAUTHORIZED_ERROR_MESSAGE },
+        { status: HttpStatusCode.UNAUTHORIZED }
+      );
+    }
+
+    const isDBConnected = await connectDatabase();
+    if (!isDBConnected) {
+      return Response.json(
+        { message: DB_CONNECTION_ERROR_MESSAGE },
+        { status: HttpStatusCode.INTERNAL_SERVER_ERROR }
+      );
+    }
+
+    const { addonId } = params;
+    const addon = await AddOn.findById(addonId);
+
+    if (!addon) {
+      return Response.json(
+        { message: 'Addon not found' },
+        { status: HttpStatusCode.NOT_FOUND }
+      );
+    }
+
+    return Response.json(addon);
+  } catch (error: any) {
+    return errorHandler(error);
+  }
+}
+
 export async function DELETE(
   req: Request,
   { params }: { params: { addonId: string } }

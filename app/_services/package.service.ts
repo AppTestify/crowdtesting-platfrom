@@ -1,8 +1,12 @@
 import {
+  GET_PRICING_ENPOINT,
+  getPackageByIdEndpoint,
     PACKAGE_ENDPOINT,
     PAGINATION_QUERY_ENDPOINT,
+    PRICING_BULK_DELETE_ENDPOINT,
+    // PRICING_BULK_DELETE_ENDPOINT,
   } from "../_constants/api-endpoints";
-import { IPackagePayload } from "../_interface/package";
+import { IPackagePayload, pricingBulkDeletePayload} from "../_interface/package";
 import { genericDelete, genericGet, genericPost, genericPut } from "./generic-api-methods";
 
 
@@ -24,6 +28,30 @@ import { genericDelete, genericGet, genericPost, genericPut } from "./generic-ap
       throw error;
     }
   };
+
+// View Package services
+
+
+  // export const getViewPricingService = async (pricingId: string): Promise<any> => {
+  //   try {
+  //     const response = await genericGet(`${VIEW_PRICING_PACKAGE_ENDPOINT(pricingId)}`);
+  //     return response || [];
+  //   } catch (error) {
+  //     console.error(`Error > getViewPricingService:`, error);
+  //     throw error;
+  //   }
+  // };
+
+  export const getViewPricingService = async (pricingId: string): Promise<any> => {
+    try {
+      const response = await genericGet(getPackageByIdEndpoint(pricingId));
+      return response || [];
+    } catch (error) {
+      console.error(`Error > getViewPricingService:`, error);
+      throw error;
+    }
+  };
+
   
   export const addPackageService = async (body: IPackagePayload): Promise<any> => {
     try {
@@ -57,3 +85,31 @@ import { genericDelete, genericGet, genericPost, genericPut } from "./generic-ap
       throw error;
     }
   };
+
+  // Bulk delete package service
+export const pricingBulkDeleteService = async (
+  body: pricingBulkDeletePayload
+): Promise<any> => {
+  try {
+    const response = await genericPost(PRICING_BULK_DELETE_ENDPOINT, body);
+    return response || {};
+  } catch (error) {
+    console.error(`Error > pricingBulkDeleteService:`, error);
+    throw error;
+  }
+};
+
+export const updatePricingStatus = async (
+  pricingId: string,
+  isActive: boolean
+): Promise<any> => {
+  try {
+    const response = await genericPut(`${GET_PRICING_ENPOINT(pricingId)}/status`, {
+      isActive,
+    });
+    return response || {};
+  } catch (error) {
+    console.error(`Error > updatePricingStatus:`, error);
+    throw error;
+  }
+};

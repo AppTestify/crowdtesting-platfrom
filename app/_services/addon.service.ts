@@ -1,8 +1,11 @@
 import {
+  ADDON_BULK_DELETE_ENDPOINT,
   ADDON_ENDPOINT,
+  GET_ADDON_ENPOINT,
+  getAddonByIdEndpoint,
   PAGINATION_QUERY_ENDPOINT,
 } from "../_constants/api-endpoints";
-import { IAddonPayload } from "../_interface/addon";
+import { addonBulkDeletePayload, IAddonPayload } from "../_interface/addon";
 
 import {
   genericDelete,
@@ -64,3 +67,46 @@ export const deleteAddonService = async (id: string): Promise<any> => {
     throw error;
   }
 };
+
+
+export const getViewAddonService = async (addonId: string): Promise<any> => {
+    try {
+      const response = await genericGet(getAddonByIdEndpoint(addonId));
+      return response || [];
+    } catch (error) {
+      console.error(`Error > getViewAddonService:`, error);
+      throw error;
+    }
+  };
+
+
+    // Bulk delete Addon service
+  export const addonBulkDeleteService = async (
+    body: addonBulkDeletePayload
+  ): Promise<any> => {
+    try {
+      const response = await genericPost(ADDON_BULK_DELETE_ENDPOINT, body);
+      return response || {};
+    } catch (error) {
+      console.error(`Error > pricingBulkDeleteService:`, error);
+      throw error;
+    }
+  };
+
+
+
+
+  export const updateAddonStatus = async (
+    addonId: string,
+    isActive: boolean
+  ): Promise<any> => {
+    try {
+      const response = await genericPut(`${GET_ADDON_ENPOINT(addonId)}/status`, {
+        isActive,
+      });
+      return response || {};
+    } catch (error) {
+      console.error(`Error > updatePricingStatus:`, error);
+      throw error;
+    }
+  };

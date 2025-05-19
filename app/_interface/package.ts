@@ -8,7 +8,9 @@ export interface IPackage {
   userId: IUserByAdmin;
   durationHours?: number;
   bugs: number;
-  moreBugs: Boolean;
+  moreBugs: boolean;
+  testCase: number;
+  testExecution: number;
   amount: number;
   currency: string;
   description?: string;
@@ -18,15 +20,21 @@ export interface IPackage {
 }
 
 export interface IPackagePayload {
-    type: string;
-    name: string;
-    testers: number;
-    durationHours?: number;
-    bugs: number;
-    moreBugs: Boolean;
-    amount: number;
-    currency: string;
-    description?: string;
-    isCustom?: boolean;
-    isActive: boolean;
+  type: string;
+  name: string;
+  testers: number;
+  durationHours?: number;
+  bugs: number;
+  moreBugs: boolean;
+  amount: number;
+  currency: string;
+  description?: string;
+  isCustom?: boolean;
+  isActive: boolean;
+  testCase: number;
+  testExecution: number;
+}
+
+export interface pricingBulkDeletePayload {
+  ids: string[];
 }

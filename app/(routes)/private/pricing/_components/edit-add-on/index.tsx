@@ -10,10 +10,8 @@ import {
   Sheet,
   SheetClose,
   SheetContent,
-  SheetFooter,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from "@/components/ui/sheet";
 
 import {
@@ -25,7 +23,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
-import { Loader2, Plus } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { updateAddonService } from "@/app/_services/addon.service";
+import toasterService from "@/app/_services/toaster-service";
 import {
   Select,
   SelectContent,
@@ -34,39 +37,44 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { addonSchema } from "@/app/_schemas/addon.schema";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { addAddonService } from "@/app/_services/addon.service";
-import toasterService from "@/app/_services/toaster-service";
-import { HttpStatusCode } from "@/app/_constants/http-status-code";
-import { useState } from "react";
+import { IAddon } from "@/app/_interface/addon";
 import { PaymentCurrency, PaymentCurrencyList } from "@/app/_constants/payment";
+import { addonSchema } from "@/app/_schemas/addon.schema";
 
-export function AddOnForm({ refreshAddon }: { refreshAddon: () => void }) {
+const EditAddOnModel = ({
+  addon,
+  sheetOpen,
+  setSheetOpen,
+  refreshAddOn,
+}: {
+  addon: IAddon;
+  sheetOpen: boolean;
+  setSheetOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  refreshAddOn: () => void;
+}) => {
+  const addonId = addon?.id as string;
+  const { name, description, isActive, amount, currency } = addon;
+
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [sheetOpen, setSheetOpen] = useState(false);
 
   const form = useForm<z.infer<typeof addonSchema>>({
     resolver: zodResolver(addonSchema),
     defaultValues: {
-      currency: PaymentCurrency.USD,
-      isActive: true,
+      name: name || "",
+      currency: currency || PaymentCurrency.USD,
+      description: description || "",
+      isActive: isActive || false,
+      amount: amount || undefined,
     },
   });
 
   async function onSubmit(values: z.infer<typeof addonSchema>) {
     setIsLoading(true);
     try {
-      const response = await addAddonService(values);
-
+      const response = await updateAddonService(addonId, values);
       if (response) {
-        if (response.status === HttpStatusCode.BAD_REQUEST) {
-          toasterService.error(response?.message);
-          return;
-        }
+        refreshAddOn();
         toasterService.success(response?.message);
-        refreshAddon();
       }
     } catch (error) {
       toasterService.error();
@@ -76,22 +84,11 @@ export function AddOnForm({ refreshAddon }: { refreshAddon: () => void }) {
     }
   }
 
-  const resetForm = () => {
-    form.reset();
-  };
-
   return (
     <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-      <SheetTrigger asChild>
-        <Button onClick={() => resetForm()}>
-          <Plus className="mr-2 h-4 w-4" />
-          Add On
-        </Button>
-      </SheetTrigger>
-
       <SheetContent>
         <SheetHeader>
-          <SheetTitle>AddOn Model Form</SheetTitle>
+          <SheetTitle>Edit Add-On</SheetTitle>
         </SheetHeader>
 
         <Form {...form}>
@@ -100,13 +97,13 @@ export function AddOnForm({ refreshAddon }: { refreshAddon: () => void }) {
             className="space-y-4"
             method="post"
           >
-            <div className="mt-2">
+            <div className="grid gap-2">
               <FormField
                 control={form.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Addon Name</FormLabel>
+                    <FormLabel>Add On Name</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -116,35 +113,7 @@ export function AddOnForm({ refreshAddon }: { refreshAddon: () => void }) {
               />
             </div>
 
-            {/* <div className="mt-2 grid grid-cols-2 gap-2">
-
-               <FormField
-                control={form.control}
-                name="currency"
-                render={({ field }) => (
-                  <FormItem className="w-full">
-                    <FormLabel>Amount Type</FormLabel>
-                    <Select
-                      value={field.value}
-                      onValueChange={(value) =>
-                        field.onChange(value as "flat" | "percentage")
-                      }
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select Type" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="flat">Flat</SelectItem>
-                        <SelectItem value="percentage">Percentage</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
+            {/* <FormField
                 control={form.control}
                 name="amount"
                 render={({ field }) => (
@@ -156,8 +125,7 @@ export function AddOnForm({ refreshAddon }: { refreshAddon: () => void }) {
                     <FormMessage />
                   </FormItem>
                 )}
-              />
-              </div> */}
+              /> */}
 
             <div className="grid grid-cols-[30%,70%] gap-2">
               <FormField
@@ -166,14 +134,17 @@ export function AddOnForm({ refreshAddon }: { refreshAddon: () => void }) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Currency</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value ?? PaymentCurrency.USD}
+                    >
                       <SelectTrigger className="w-full">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
                           {PaymentCurrencyList.map((currency) => (
-                            <SelectItem value={currency as string}>
+                            <SelectItem key={currency} value={currency}>
                               <div className="flex items-center">
                                 {currency}
                               </div>
@@ -202,28 +173,28 @@ export function AddOnForm({ refreshAddon }: { refreshAddon: () => void }) {
               />
             </div>
 
-            {/* <div className="grid  sm:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="isActive"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <div className="flex items-center space-x-2 mt-2">
-                          <Checkbox
-                            id="isActive"
-                            className="h-5 w-5 text-blue-500 border-gray-300 "
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                          <Label htmlFor="isActive">Active</Label>
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div> */}
+            <div className="grid  sm:grid-cols-2">
+              <FormField
+                control={form.control}
+                name="isActive"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <div className="flex items-center space-x-2 mt-2">
+                        <Checkbox
+                          id="isActive"
+                          className="h-5 w-5 text-blue-500 border-gray-300 "
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                        <Label htmlFor="isActive">IsActive</Label>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <FormField
               control={form.control}
@@ -233,7 +204,7 @@ export function AddOnForm({ refreshAddon }: { refreshAddon: () => void }) {
                   <FormLabel>Description</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Type your message here."
+                      placeholder="Describe the add-on here."
                       {...field}
                     />
                   </FormControl>
@@ -242,8 +213,8 @@ export function AddOnForm({ refreshAddon }: { refreshAddon: () => void }) {
               )}
             />
 
-            <div className="mt-10 w-full flex justify-end gap-2">
-              <SheetClose asChild>
+            <SheetClose asChild>
+              <div className="flex gap-5 justify-end">
                 <Button
                   disabled={isLoading}
                   type="button"
@@ -253,22 +224,25 @@ export function AddOnForm({ refreshAddon }: { refreshAddon: () => void }) {
                 >
                   Cancel
                 </Button>
-              </SheetClose>
-              <Button
-                disabled={isLoading}
-                type="submit"
-                size="lg"
-                className="w-full md:w-fit"
-              >
-                {isLoading ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : null}
-                {isLoading ? "Saving" : "Save"}
-              </Button>
-            </div>
+
+                <Button
+                  disabled={isLoading}
+                  type="submit"
+                  size="lg"
+                  className="w-full md:w-fit"
+                >
+                  {isLoading ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : null}
+                  {isLoading ? "Updating" : "Update"}
+                </Button>
+              </div>
+            </SheetClose>
           </form>
         </Form>
       </SheetContent>
     </Sheet>
   );
-}
+};
+
+export default EditAddOnModel;
