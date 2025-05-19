@@ -64,18 +64,18 @@ export default function ViewAddOn({
         ) : addonData ? (
           <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5 text-sm bg-gray-50 p-4 rounded-lg shadow-sm">
             <DetailItem label="Package Name" value={addonData.name} />
-            <DetailItem label="Currency" value={addonData.currency} />
-            <DetailItem label="Amount" value={addonData.amount} />
+            <DetailItem
+              label="Amount"
+              value={`${addonData.currency} ${addonData.amount}`}
+            />
             <DetailItem
               label="Active"
               value={addonData.isActive ? "Yes" : "No"}
             />
-            <div className="sm:col-span-2">
-              <DetailItem
-                label="Description"
-                value={addonData.description || "No Description"}
-              />
-            </div>
+            <DetailItem
+              label="Description"
+              value={addonData.description || "No Description"}
+            />
           </div>
         ) : (
           <p className="mt-6 text-center text-sm text-muted-foreground">
