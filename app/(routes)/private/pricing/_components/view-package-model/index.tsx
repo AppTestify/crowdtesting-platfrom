@@ -83,12 +83,11 @@ export default function ViewPacakgeModel({
               label="Custom"
               value={packageData.isCustom ? "Yes" : "No"}
             />
-            <div className="sm:col-span-2">
-              <DetailItem
-                label="Description"
-                value={packageData.description || "No Description"}
-              />
-            </div>
+
+            <DetailItem
+              label="Description"
+              value={packageData.description || "No Description"}
+            />
           </div>
         ) : (
           <p className="mt-6 text-center text-sm text-muted-foreground">
