@@ -32,6 +32,7 @@ import { AddPackage } from "../add-package";
 import PackageStatus from "../package-status";
 import PackageRowAction from "../package-row-action";
 import { BulkDeletePackage } from "../bulk-delete-package";
+import ViewPacakgeModel from "../view-package-model";
 
 function PackageModel() {
   const [packages, setPackage] = useState<IPackage[]>([]);
@@ -46,6 +47,7 @@ function PackageModel() {
   const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
   const [totalPageCount, setTotalPageCount] = useState(0);
   const [isViewOpen, setIsViewOpen] = useState(false);
+  const [singlePackage, setSinglePackage] = useState<IPackage | null>(null);
 
   const getPackage = async () => {
     setIsLoading(true);
@@ -70,7 +72,6 @@ function PackageModel() {
     }, 500);
     return () => clearTimeout(debounceFetch);
   }, [globalFilter, pageIndex, pageSize]);
-  
 
   let columns: ColumnDef<IPackage>[] = [
     {
@@ -106,7 +107,16 @@ function PackageModel() {
       accessorKey: "name",
       header: "Name",
       cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("name")}</div>
+        // <div className="capitalize">{row.getValue("name")}</div>
+        <div
+          className="capitalize cursor-pointer hover:text-green-600 hover:underline "
+          onClick={() => {
+            setSinglePackage(row.original);
+            setIsViewOpen(true);
+          }}
+        >
+          {row.getValue("name")}
+        </div>
       ),
     },
     {
@@ -244,12 +254,18 @@ function PackageModel() {
   };
 
   const getSelectedRows = () => {
-  const selectedRows = table?.getFilteredSelectedRowModel?.()?.rows;
-  return selectedRows ? selectedRows.map((row) => row.original?.id) : [];
-};
+    const selectedRows = table?.getFilteredSelectedRowModel?.()?.rows;
+    return selectedRows ? selectedRows.map((row) => row.original?.id) : [];
+  };
 
   return (
     <>
+      <ViewPacakgeModel
+        sheetOpen={isViewOpen}
+        packages={singlePackage}
+        setSheetOpen={setIsViewOpen}
+      />
+
       <div className="flex justify-between">
         <div className="w-1/2">
           <Input

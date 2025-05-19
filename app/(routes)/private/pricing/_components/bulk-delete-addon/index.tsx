@@ -19,7 +19,6 @@ export function BulkDeleteAddon({
   const deleteAddon = async () => {
     try {
       setIsLoading(true);
-      console.log("delete bulk ids: ", ids);
       const response = await addonBulkDeleteService({ ids });
 
       if (response?.message) {
@@ -31,7 +30,6 @@ export function BulkDeleteAddon({
     } catch (error) {
       toasterService.error();
       setIsDeleteOpen(false);
-      console.log("Error > deleteAddon");
     }
   };
 

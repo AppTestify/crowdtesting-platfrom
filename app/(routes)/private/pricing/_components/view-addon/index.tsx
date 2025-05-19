@@ -16,9 +16,9 @@ export default function ViewAddOn({
   addon,
   sheetOpen,
   setSheetOpen,
-  // refreshAddon,
-}: {
-  addon: IAddon;
+}: // refreshAddon,
+{
+  addon: IAddon | null;
   // refreshAddon: () => void;
   sheetOpen: boolean;
   setSheetOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -49,8 +49,7 @@ export default function ViewAddOn({
   }, [sheetOpen, addonId]);
 
   return (
-
-<Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+    <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
       <SheetContent className="w-full sm:max-w-xl">
         <SheetHeader>
           <SheetTitle className="text-2xl font-semibold">
@@ -64,10 +63,9 @@ export default function ViewAddOn({
           </p>
         ) : addonData ? (
           <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5 text-sm bg-gray-50 p-4 rounded-lg shadow-sm">
-            
             <DetailItem label="Package Name" value={addonData.name} />
             <DetailItem label="Currency" value={addonData.currency} />
-            <DetailItem label="Amount" value={addonData.amount}/>
+            <DetailItem label="Amount" value={addonData.amount} />
             <DetailItem
               label="Active"
               value={addonData.isActive ? "Yes" : "No"}
@@ -102,5 +100,4 @@ function DetailItem({
       <span className="text-base font-medium text-black-500">{value}</span>
     </div>
   );
-
 }

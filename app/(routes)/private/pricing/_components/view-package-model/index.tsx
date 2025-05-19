@@ -13,9 +13,8 @@ export default function ViewPacakgeModel({
   packages,
   sheetOpen,
   setSheetOpen,
-  
 }: {
-  packages: IPackage;
+  packages: IPackage | null;
   sheetOpen: boolean;
   setSheetOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
@@ -23,7 +22,6 @@ export default function ViewPacakgeModel({
   const [packageData, setPackageData] = useState<IPackage>();
   const packageId = packages?.id || (packages?._id as string);
   const [isViewOpen, setIsViewOpen] = useState(false);
-  const [isClientViewOpen, setIsClientViewOpen] = useState(false);
 
   const getPackage = async () => {
     try {
@@ -39,7 +37,7 @@ export default function ViewPacakgeModel({
       setIsViewLoading(false);
     }
   };
-  
+
   useEffect(() => {
     if (sheetOpen && packageId) {
       getPackage();
@@ -64,7 +62,10 @@ export default function ViewPacakgeModel({
             <DetailItem label="Package Type" value={packageData.type} />
             <DetailItem label="Package Name" value={packageData.name} />
             <DetailItem label="Testers" value={packageData.testers} />
-            <DetailItem label="Amount" value={`${packageData.currency} ${packageData.amount}`}/>
+            <DetailItem
+              label="Amount"
+              value={`${packageData.currency} ${packageData.amount}`}
+            />
             <DetailItem
               label="Duration (hrs)"
               value={packageData.durationHours ?? "N/A"}

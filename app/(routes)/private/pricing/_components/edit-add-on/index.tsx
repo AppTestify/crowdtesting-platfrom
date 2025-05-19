@@ -112,21 +112,6 @@ const EditAddOnModel = ({
                 )}
               />
             </div>
-
-            {/* <FormField
-                control={form.control}
-                name="amount"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Amount</FormLabel>
-                    <FormControl>
-                      <Input type="number" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              /> */}
-
             <div className="grid grid-cols-[30%,70%] gap-2">
               <FormField
                 control={form.control}

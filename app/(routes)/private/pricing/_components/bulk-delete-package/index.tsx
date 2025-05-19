@@ -30,7 +30,6 @@ export function BulkDeletePackage({
     } catch (error) {
       toasterService.error();
       setIsDeleteOpen(false);
-      
     }
   };
 

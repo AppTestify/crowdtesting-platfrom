@@ -42,7 +42,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { PaymentCurrency, PaymentCurrencyList } from "@/app/_constants/payment";
-export function AddPackage({ refreshPackages }: { refreshPackages: () => void }) {
+export function AddPackage({
+  refreshPackages,
+}: {
+  refreshPackages: () => void;
+}) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [sheetOpen, setSheetOpen] = useState(false);
 
@@ -171,8 +175,7 @@ export function AddPackage({ refreshPackages }: { refreshPackages: () => void })
               />
             </div>
 
-
-             <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2">
               <FormField
                 control={form.control}
                 name="testCase"

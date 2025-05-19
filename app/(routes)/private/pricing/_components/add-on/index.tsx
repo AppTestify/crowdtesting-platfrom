@@ -14,7 +14,7 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel, 
+  getPaginationRowModel,
   getSortedRowModel,
   SortingState,
   useReactTable,
@@ -32,6 +32,7 @@ import { BulkDeleteAddon } from "../bulk-delete-addon";
 import { IAddon } from "@/app/_interface/addon";
 import AddonStatus from "../addon-status";
 import { PaymentCurrency } from "@/app/_constants/payment";
+import ViewAddOn from "../view-addon";
 
 function AddOnModel() {
   const [addon, setAddon] = useState<IAddon[]>([]);
@@ -45,6 +46,8 @@ function AddOnModel() {
   const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
   const [totalPageCount, setTotalPageCount] = useState(0);
   const [isViewOpen, setIsViewOpen] = useState(false);
+  // const [singleAddon, setSingleAddon] = useState<IAddon>({});
+  const [singleAddon, setSingleAddon] = useState<IAddon | null>(null);
 
   const getAddon = async () => {
     setIsLoading(true);
@@ -69,9 +72,6 @@ function AddOnModel() {
     }, 500);
     return () => clearTimeout(debounceFetch);
   }, [globalFilter, pageIndex, pageSize]);
-
-
-
 
   let columns: ColumnDef<IAddon>[] = [
     {
@@ -100,7 +100,15 @@ function AddOnModel() {
       accessorKey: "name",
       header: "Name",
       cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("name")}</div>
+        <div
+          className="capitalize cursor-pointer hover:text-green-600 hover:underline "
+          onClick={() => {
+            setSingleAddon(row.original);
+            setIsViewOpen(true);
+          }}
+        >
+          {row.getValue("name")}
+        </div>
       ),
     },
     {
@@ -179,14 +187,19 @@ function AddOnModel() {
     }
   };
 
-
   const getSelectedRows = () => {
-    return table?.getFilteredSelectedRowModel()?.rows?.map((row) => row.original?.id);
+    return table
+      ?.getFilteredSelectedRowModel()
+      ?.rows?.map((row) => row.original?.id);
   };
-
 
   return (
     <>
+      <ViewAddOn
+        sheetOpen={isViewOpen}
+        addon={singleAddon}
+        setSheetOpen={setIsViewOpen}
+      />
       <div className="flex justify-between">
         <div className="w-1/2">
           <Input
