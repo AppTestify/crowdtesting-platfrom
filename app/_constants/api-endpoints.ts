@@ -10,6 +10,8 @@ export const LOGOUT = "/api/logout";
 export const UPDATE_ROLE = "/api/users/role";
 export const DEVICES_ENDPOINT = "/api/device";
 export const PACKAGE_ENDPOINT = "/api/pricing-package";
+export const VIEW_PRICING_PACKAGE_ENDPOINT = "/api/pricing-package";
+export const VIEW_ADDON_PACKAGE_ENDPOINT = "/api/pricing-addon";
 export const ADDON_ENDPOINT = "/api/pricing-addon";
 export const PROJECTS_ENDPOINT = "/api/project";
 export const PAYMENTS_ENDPOINT = "/api/payment";
@@ -36,6 +38,9 @@ export const ID_FORMAT_ENDPOINT = "/api/setting/id-format";
 export const DOWNLOAD_FILE_ENDPOINT = "/api/attachment/";
 export const MAIL_ENDPOINT = "/api/mail";
 export const INVOICE_ENDPOINT = "/api/invoice";
+export const PRICING_BULK_DELETE_ENDPOINT="/api/pricing-package/bulk/delete";
+export const ADDON_BULK_DELETE_ENDPOINT="/api/pricing-addon/bulk/delete";
+
 
 export const COMMENT_ENDPOINT = (
   projectId: string,
@@ -127,4 +132,22 @@ export const GET_TASK_ENPOINT = (projectId: string) => {
 
 export const TEST_EXECUTION_ENDPOINT = (projectId: string) => {
   return `/api/project/${projectId}/test-execution`;
+};
+
+
+export const getPackageByIdEndpoint = (pricingId: string): string => {
+  return `${VIEW_PRICING_PACKAGE_ENDPOINT}/${pricingId}`;
+};
+
+export const getAddonByIdEndpoint = (addonId: string): string => {
+  return `${VIEW_ADDON_PACKAGE_ENDPOINT}/${addonId}`;
+};
+
+export const GET_PRICING_ENPOINT = (pricingId: string) => {
+  return `${PACKAGE_ENDPOINT}/${pricingId}`;
+};
+
+
+export const GET_ADDON_ENPOINT = (addonId: string) => {
+  return `${ADDON_ENDPOINT}/${addonId}`;
 };

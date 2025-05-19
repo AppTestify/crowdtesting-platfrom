@@ -4,9 +4,9 @@ export interface IAddon {
   id: string;
   name: string;
   description?: string;
-  amountType: "flat" | "percentage";
+  currency: string;
   amount: number;
-  userId: IUserByAdmin;
+  userId?: IUserByAdmin;
   isActive: boolean;
   _id?: string;
 }
@@ -14,8 +14,12 @@ export interface IAddon {
 export interface IAddonPayload {
   name: string;
   description?: string;
-  amountType: "flat" | "percentage";
+  currency: string;
   amount: number;
-  userId: IUserByAdmin;
+  userId?: IUserByAdmin;
   isActive: boolean;
+}
+
+export interface addonBulkDeletePayload {
+  ids: string[];
 }

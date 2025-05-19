@@ -5,13 +5,10 @@ import {
 } from "@/app/_constants/errors";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
-import { isAdmin, isClient, isTester, verifySession } from "@/app/_lib/dal";
+import { isAdmin, verifySession } from "@/app/_lib/dal";
 import { AddOn } from "@/app/_models/addon.model";
-import { Package } from "@/app/_models/package.model";
 import { filterAddonForAdmin } from "@/app/_queries/search-addon";
-import { filterPackageForAdmin } from "@/app/_queries/search-package";
 import { addonSchema } from "@/app/_schemas/addon.schema";
-import { packageSchema } from "@/app/_schemas/package.schema";
 import { serverSidePagination } from "@/app/_utils/common-server-side";
 import { normaliseIds } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
@@ -56,15 +53,9 @@ export async function POST(req: Request) {
       );
     }
 
-    console.log(response)
+    console.log(response);
 
-    const {
-      name,
-      description,
-      amount,
-      amountType,
-      isActive,
-    } = response.data;
+    const { name, description, amount, currency, isActive } = response.data;
 
     const userId = session?.user?._id;
 
@@ -73,7 +64,7 @@ export async function POST(req: Request) {
       description,
       userId,
       amount,
-      amountType,
+      currency,
       isActive,
     });
     await newAddOn.save();
@@ -115,19 +106,26 @@ export async function GET(req: Request) {
       );
     }
 
-    let response = null;
-    let totalAddons;
-    let filter: any = { deletedAt: { $exists: false } };
-    const url = new URL(req.url);
+    // let response = null;
+    // let totalAddons;
+    // let filter: any = { deletedAt: { $exists: false } };
+    // const url = new URL(req.url);
 
+    const url = new URL(req.url);
+    const searchString = url.searchParams.get("searchString") || "";
     const statusParam = url.searchParams.get("status");
-    const status = statusParam === "true";
-    const searchString = url.searchParams.get("searchString");
     const { skip, limit } = serverSidePagination(req);
 
-    if (statusParam !== null && statusParam !== "") {
-      filter.isActive = status;
-    }
+    const status =
+      statusParam === "true"
+        ? true
+        : statusParam === "false"
+        ? false
+        : undefined;
+
+    // if (statusParam !== null && statusParam !== "") {
+    //   filter.isActive = status;
+    // }
 
     if (searchString) {
       const { addOns, totalAddOns } = await filterAddonForAdmin(
@@ -137,12 +135,17 @@ export async function GET(req: Request) {
         status
       );
       return Response.json({
-        addOns,
+        addon: addOns,
         total: totalAddOns,
       });
     }
 
-    response = normaliseIds(
+    const filter: any = { deletedAt: { $exists: false } };
+    if (status !== undefined) {
+      filter.isActive = status;
+    }
+
+    const response = normaliseIds(
       await AddOn.find(filter)
         .populate("userId")
         .sort({ createdAt: -1 })
@@ -150,10 +153,9 @@ export async function GET(req: Request) {
         .limit(Number(limit))
         .lean()
     );
-    totalAddons = await Package.find(filter).countDocuments();
+    const totalAddons = await AddOn.find(filter).countDocuments();
 
     return Response.json({ addon: response, total: totalAddons });
-
   } catch (error: any) {
     return errorHandler(error);
   }

@@ -8,12 +8,14 @@ export interface IPackage extends Document {
   userId: Types.ObjectId;
   durationHours?: number;
   bugs: number;
-  moreBugs: Boolean;
+  moreBugs: boolean;
   amount: number;
   currency: string;
   description?: string;
   isCustom?: boolean;
-  isActive: boolean;
+  isActive?: boolean;
+  testCase?:number;
+  testExecution:number;
 }
 
 const PackageSchema = new Schema<IPackage>(
@@ -22,6 +24,8 @@ const PackageSchema = new Schema<IPackage>(
     name: { type: String, required: false },
     description: { type: String, required: false },
     testers: { type: Number, required: true },
+    testCase: { type: Number, required: true },
+    testExecution: { type: Number, required: true },
     userId: { type: Schema.Types.ObjectId, ref: DBModels.USER, required: true },
     durationHours: { type: Number, required: true },
     amount: { type: Number, required: true },

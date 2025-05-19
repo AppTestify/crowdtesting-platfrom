@@ -101,3 +101,42 @@ export async function DELETE(
     return errorHandler(error);
   }
 }
+
+
+export async function GET(
+  req: Request,
+  { params }: { params: { packageId: string } }
+) {
+  try {
+    const session = await verifySession();
+
+    if (!session) {
+      return Response.json(
+        { message: USER_UNAUTHORIZED_ERROR_MESSAGE },
+        { status: HttpStatusCode.UNAUTHORIZED }
+      );
+    }
+
+    const isDBConnected = await connectDatabase();
+    if (!isDBConnected) {
+      return Response.json(
+        { message: DB_CONNECTION_ERROR_MESSAGE },
+        { status: HttpStatusCode.INTERNAL_SERVER_ERROR }
+      );
+    }
+
+    const { packageId } = params;
+    const packageData = await Package.findById(packageId);
+
+    if (!packageData) {
+      return Response.json(
+        { message: "Package not found" },
+        { status: HttpStatusCode.NOT_FOUND }
+      );
+    }
+
+    return Response.json({packageData});
+  } catch (error: any) {
+    return errorHandler(error);
+  }
+}
