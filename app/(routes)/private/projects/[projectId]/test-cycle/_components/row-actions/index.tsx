@@ -21,9 +21,13 @@ import TestCycleView from "../view-test-cycle";
 export function TestCycleRowActions({
     row,
     refreshTestCycle,
+    onViewClick,
+    onEditClick,
 }: {
     row: Row<ITestCycle>;
     refreshTestCycle: () => void;
+    onViewClick:(viewCycle:ITestCycle)=>void;
+    onEditClick:(editCycle:ITestCycle)=>void;
 }) {
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [isViewOpen, setIsViewOpen] = useState(false);
@@ -102,6 +106,7 @@ export function TestCycleRowActions({
                     <DropdownMenuItem
                         className="mb-1"
                         onClick={() => {
+                            onViewClick(row.original);
                             setIsViewOpen(true);
                         }}
                     >
@@ -111,6 +116,7 @@ export function TestCycleRowActions({
                     <DropdownMenuItem
                         className="mb-1"
                         onClick={() => {
+                            onEditClick(row.original);
                             setIsEditOpen(true);
                         }}
                     >

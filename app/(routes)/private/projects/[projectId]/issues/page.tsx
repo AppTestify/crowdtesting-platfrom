@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import {
   ColumnDef,
+  Row,
   SortingState,
   VisibilityState,
   flexRender,
@@ -22,9 +23,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import {
-  getIssuesService,
-} from "@/app/_services/issue.service";
+import { getIssuesService } from "@/app/_services/issue.service";
 import { IIssue, IIssueView } from "@/app/_interface/issue";
 import { AddIssue } from "./_components/add-issue";
 import { IssueRowActions } from "./_components/row-actions";
@@ -48,11 +47,26 @@ import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
 import { checkProjectAdmin } from "@/app/_utils/common";
 import { NAME_NOT_SPECIFIED_ERROR_MESSAGE } from "@/app/_constants/errors";
 import { DBModels } from "@/app/_constants";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ISSUE_STATUS_LIST, IssueStatus, Priority, PRIORITY_LIST, Severity, SEVERITY_LIST } from "@/app/_constants/issue";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  ISSUE_STATUS_LIST,
+  IssueStatus,
+  Priority,
+  PRIORITY_LIST,
+  Severity,
+  SEVERITY_LIST,
+} from "@/app/_constants/issue";
 import { getTestCycleListService } from "@/app/_services/test-cycle.service";
 import { ITestCycle } from "@/app/_interface/test-cycle";
 import { formatDateWithoutTime } from "@/app/_constants/date-formatter";
+import EditIssue from "./_components/edit-issue";
 
 export default function Issues() {
   const [issues, setIssues] = useState<IIssueView[]>([]);
@@ -60,6 +74,7 @@ export default function Issues() {
   const [project, setProject] = useState<IProject>();
   const { projectId } = useParams<{ projectId: string }>();
   const checkProjectRole = checkProjectAdmin(project as IProject, userData);
+  
 
   const showIssueRowActions = (issue: IIssue) => {
     return (
@@ -67,7 +82,7 @@ export default function Issues() {
       (project?.isActive &&
         issue.userId?._id?.toString() === userData?._id?.toString()) ||
       userData?.role !== UserRoles.TESTER ||
-      (issue?.assignedTo?._id?.toString() === userData?._id?.toString())
+      issue?.assignedTo?._id?.toString() === userData?._id?.toString()
     );
   };
 
@@ -107,7 +122,8 @@ export default function Issues() {
             >
               <div
                 title={title}
-                className="hover:text-primary cursor-pointer max-w-[500px] truncate">
+                className="hover:text-primary cursor-pointer max-w-[500px] truncate"
+              >
                 {title.length > 50 ? `${title.substring(0, 50)}...` : title}
               </div>
             </Link>
@@ -149,53 +165,56 @@ export default function Issues() {
         const testCycle = row.original?.testCycle?.title;
         return (
           <div className="capitalize" title={testCycle}>
-            {testCycle?.length > 30 ? `${testCycle?.substring(0, 30)}...` : testCycle}
+            {testCycle?.length > 30
+              ? `${testCycle?.substring(0, 30)}...`
+              : testCycle}
           </div>
-        )
+        );
       },
     },
     ...(userData?.role === UserRoles.ADMIN
       ? [
-        {
-          accessorKey: "createdBy",
-          header: "Reporter",
-          cell: ({ row }: { row: any }) => (
-            <div className="">
-              {`${row.original?.userId?.firstName || ""} ${row.original?.userId?.lastName || ""}`}
-            </div>
-          ),
-        },
-      ]
+          {
+            accessorKey: "createdBy",
+            header: "Reporter",
+            cell: ({ row }: { row: any }) => (
+              <div className="">
+                {`${row.original?.userId?.firstName || ""} ${
+                  row.original?.userId?.lastName || ""
+                }`}
+              </div>
+            ),
+          },
+        ]
       : []),
     ...(issues.some((item) => item.assignedTo?._id)
       ? [
-        {
-          accessorKey: "assignedTo",
-          header: "Assignee",
-          cell: ({ row }: { row: any }) => (
-            <div>
-              {row.original?.assignedTo?._id ? (
-                userData?.role === UserRoles.ADMIN ?
-                  `${row.original?.assignedTo?.firstName ||
-                  NAME_NOT_SPECIFIED_ERROR_MESSAGE
-                  } ${row.original?.assignedTo?.lastName || ""}` :
-                  row.original?.assignedTo?.customId
-              ) : (
-                <span className="text-gray-400">Unassigned</span>
-              )}
-            </div>
-          ),
-        },
-      ]
+          {
+            accessorKey: "assignedTo",
+            header: "Assignee",
+            cell: ({ row }: { row: any }) => (
+              <div>
+                {row.original?.assignedTo?._id ? (
+                  userData?.role === UserRoles.ADMIN ? (
+                    `${
+                      row.original?.assignedTo?.firstName ||
+                      NAME_NOT_SPECIFIED_ERROR_MESSAGE
+                    } ${row.original?.assignedTo?.lastName || ""}`
+                  ) : (
+                    row.original?.assignedTo?.customId
+                  )
+                ) : (
+                  <span className="text-gray-400">Unassigned</span>
+                )}
+              </div>
+            ),
+          },
+        ]
       : []),
     {
       accessorKey: "createdAt",
       header: ({ column }) => {
-        return (
-          <div className=" whitespace-nowrap">
-            Raised Date
-          </div>
-        );
+        return <div className=" whitespace-nowrap">Raised Date</div>;
       },
       cell: ({ row }: { row: any }) => (
         <div className="whitespace-nowrap">
@@ -221,21 +240,32 @@ export default function Issues() {
           {statusBadge(row.getValue("status"))}
         </div>
       ),
-      sortingFn: "alphanumeric"
+      sortingFn: "alphanumeric",
     },
     {
       id: "actions",
       enableHiding: false,
       cell: ({ row }: { row: any }) => {
-
-        return (<>
-          {showIssueRowActions(row.original) && checkProjectActiveRole(project?.isActive ?? false, userData) ? (
-            <IssueRowActions row={row} refreshIssues={refreshIssues} />
-          ) : null}
-        </>)
+        return (
+          <>
+            {showIssueRowActions(row.original) &&
+            checkProjectActiveRole(project?.isActive ?? false, userData) ? (
+              <IssueRowActions
+                row={row as unknown as Row<IIssue>}
+                refreshIssues={refreshIssues}
+                onEditClick={(issues) => {
+                  console.log(issues);
+                  setEditIssue(issues);
+                  setIsEditOpen(true);
+                }}
+              />
+            ) : null}
+          </>
+        );
       },
     },
   ];
+
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -250,6 +280,8 @@ export default function Issues() {
   const [selectedStatus, setSelectedStatus] = useState<string>("");
   const [selectedTestCycle, setSelectedTestCycle] = useState<string>("");
   const [testCycles, setTestCycles] = useState<ITestCycle[]>([]);
+  const [editIssue, setEditIssue] = useState<IIssue | null>(null);
+  const [isEditOpen, setIsEditOpen] = useState<boolean>(false);
   const [pageIndex, setPageIndex] = useState<number>(() => {
     const entity = localStorage.getItem("entity");
     if (entity === DBModels.ISSUE) {
@@ -257,7 +289,7 @@ export default function Issues() {
     }
     return 1;
   });
-console.log('selectedTestCycle',selectedTestCycle);
+  console.log("selectedTestCycle", selectedTestCycle);
 
   const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
   const [isExcelLoading, setIsExcelLoading] = useState<boolean>(false);
@@ -290,7 +322,16 @@ console.log('selectedTestCycle',selectedTestCycle);
   const getIssues = async () => {
     setIsLoading(true);
     try {
-      const response = await getIssuesService(projectId, pageIndex, pageSize, globalFilter as unknown as string, selectedSeverity, selectedPriority, selectedStatus, selectedTestCycle);
+      const response = await getIssuesService(
+        projectId,
+        pageIndex,
+        pageSize,
+        globalFilter as unknown as string,
+        selectedSeverity,
+        selectedPriority,
+        selectedStatus,
+        selectedTestCycle
+      );
       setIssues(response?.issues);
       setTotalPageCount(response?.total);
     } catch (error) {
@@ -299,7 +340,6 @@ console.log('selectedTestCycle',selectedTestCycle);
       setIsLoading(false);
     }
   };
-
 
   const refreshIssues = () => {
     getIssues();
@@ -342,31 +382,42 @@ console.log('selectedTestCycle',selectedTestCycle);
     const header =
       userData?.role === UserRoles.ADMIN
         ? [
-          "ID",
-          "Title",
-          "Severity",
-          "Priority",
-          "Issue Type",
-          "Test Cycle",
-          "Devices Name",
-          "Created By",
-          "Status",
-          "Attachments",
-        ]
+            "ID",
+            "Title",
+            "Severity",
+            "Priority",
+            "Issue Type",
+            "Test Cycle",
+            "Devices Name",
+            "Created By",
+            "Status",
+            "Attachments",
+          ]
         : [
-          "ID",
-          "Title",
-          "Severity",
-          "Priority",
-          "Issue Type",
-          "Test Cycle",
-          "Devices Name",
-          "Status",
-          "Attachments",
-        ];
+            "ID",
+            "Title",
+            "Severity",
+            "Priority",
+            "Issue Type",
+            "Test Cycle",
+            "Devices Name",
+            "Status",
+            "Attachments",
+          ];
 
-    const response = await getIssuesService(projectId, 1, totalPageCount, globalFilter as unknown as string, "", "", "", "");
-    const selectedTestCycleTitle = testCycles.find(cycle => cycle._id === selectedTestCycle)?.title;
+    const response = await getIssuesService(
+      projectId,
+      1,
+      totalPageCount,
+      globalFilter as unknown as string,
+      "",
+      "",
+      "",
+      ""
+    );
+    const selectedTestCycleTitle = testCycles.find(
+      (cycle) => cycle._id === selectedTestCycle
+    )?.title;
     const data = response?.issues?.map((row: IIssue) => [
       row.customId,
       row.title,
@@ -381,22 +432,24 @@ console.log('selectedTestCycle',selectedTestCycle);
       userData?.role === UserRoles.ADMIN
         ? row.status || ""
         : row.attachments && row?.attachments?.length > 0
-          ? process.env.NEXT_PUBLIC_URL +
+        ? process.env.NEXT_PUBLIC_URL +
           `/download/${projectId}/issue?issue=` +
           row.id
-          : "",
+        : "",
       userData?.role === UserRoles.ADMIN
         ? row.attachments && row?.attachments?.length > 0
           ? process.env.NEXT_PUBLIC_URL +
-          `/download/${projectId}/issue?issue=` +
-          row.id
+            `/download/${projectId}/issue?issue=` +
+            row.id
           : ""
         : "",
     ]);
     generateExcelFile(
       header,
       data,
-      `Issues-${issues[0]?.projectId?.title}${selectedTestCycle ? `-${selectedTestCycleTitle}` : ""}.xlsx`
+      `Issues-${issues[0]?.projectId?.title}${
+        selectedTestCycle ? `-${selectedTestCycleTitle}` : ""
+      }.xlsx`
     );
     setIsExcelLoading(false);
   };
@@ -445,7 +498,7 @@ console.log('selectedTestCycle',selectedTestCycle);
     } catch (error) {
       toasterService.error();
     }
-  }
+  };
 
   useEffect(() => {
     getProject();
@@ -457,10 +510,21 @@ console.log('selectedTestCycle',selectedTestCycle);
       getIssues();
     }, 500);
     return () => clearTimeout(debounceFetch);
-  }, [globalFilter, pageIndex, pageSize, selectedSeverity, selectedPriority, selectedStatus, selectedTestCycle]);
+  }, [
+    globalFilter,
+    pageIndex,
+    pageSize,
+    selectedSeverity,
+    selectedPriority,
+    selectedStatus,
+    selectedTestCycle,
+  ]);
 
   useEffect(() => {
-    if ((Array.isArray(globalFilter) && globalFilter.length > 0) || (typeof globalFilter === 'string' && globalFilter.trim() !== "")) {
+    if (
+      (Array.isArray(globalFilter) && globalFilter.length > 0) ||
+      (typeof globalFilter === "string" && globalFilter.trim() !== "")
+    ) {
       setPageIndex(1);
     }
   }, [globalFilter]);
@@ -472,6 +536,17 @@ console.log('selectedTestCycle',selectedTestCycle);
         sheetOpen={isViewOpen}
         setSheetOpen={setIsViewOpen}
       />
+
+      {editIssue && (
+        <EditIssue
+          key={editIssue.id}
+          issue={editIssue as IIssue}
+          sheetOpen={isEditOpen}
+          setSheetOpen={setIsEditOpen}
+          refreshIssues={refreshIssues}
+        />
+      )}
+
       <div className="">
         <h2 className="text-medium">Issues</h2>
         <span className="text-xs text-gray-600">
@@ -555,16 +630,16 @@ console.log('selectedTestCycle',selectedTestCycle);
                   <SelectItem value="All" key="all-status">
                     All Status
                   </SelectItem>
-                  {
-                    (userData?.role === UserRoles.CLIENT
-                      ? ISSUE_STATUS_LIST.filter((status) => status !== IssueStatus.NEW)
-                      : ISSUE_STATUS_LIST
-                    ).map((status) => (
-                      <SelectItem value={status} key={status}>
-                        {status}
-                      </SelectItem>
-                    ))
-                  }
+                  {(userData?.role === UserRoles.CLIENT
+                    ? ISSUE_STATUS_LIST.filter(
+                        (status) => status !== IssueStatus.NEW
+                      )
+                    : ISSUE_STATUS_LIST
+                  ).map((status) => (
+                    <SelectItem value={status} key={status}>
+                      {status}
+                    </SelectItem>
+                  ))}
                 </SelectGroup>
               </SelectContent>
             </Select>
@@ -586,7 +661,10 @@ console.log('selectedTestCycle',selectedTestCycle);
                     All Test Cycle
                   </SelectItem>
                   {testCycles.map((testCycle) => (
-                    <SelectItem value={testCycle?._id || ""} key={testCycle?._id}>
+                    <SelectItem
+                      value={testCycle?._id || ""}
+                      key={testCycle?._id}
+                    >
                       {testCycle?.title}
                     </SelectItem>
                   ))}
@@ -596,8 +674,13 @@ console.log('selectedTestCycle',selectedTestCycle);
           </div>
 
           <div className="flex items-end justify-end gap-2 ml-auto">
-            <div>{ExportExcelFile(generateExcel, hasData, isExcelLoading, false)}</div>
-            {userData?.role !== UserRoles.CLIENT && userData?.role !== UserRoles.MANAGER && userData?.role !== UserRoles.DEVELOPER && checkProjectActiveRole(project?.isActive ?? false, userData) &&
+            <div>
+              {ExportExcelFile(generateExcel, hasData, isExcelLoading, false)}
+            </div>
+            {userData?.role !== UserRoles.CLIENT &&
+              userData?.role !== UserRoles.MANAGER &&
+              userData?.role !== UserRoles.DEVELOPER &&
+              checkProjectActiveRole(project?.isActive ?? false, userData) &&
               (project?.isActive === true ||
                 userData?.role === UserRoles.ADMIN ||
                 userData?.role === UserRoles.TESTER) && (
@@ -617,9 +700,9 @@ console.log('selectedTestCycle',selectedTestCycle);
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}
@@ -657,7 +740,6 @@ console.log('selectedTestCycle',selectedTestCycle);
           </Table>
         </div>
         <div className="flex items-center justify-end space-x-2 py-4">
-
           <div className="flex space-x-2">
             <Button
               variant="outline"

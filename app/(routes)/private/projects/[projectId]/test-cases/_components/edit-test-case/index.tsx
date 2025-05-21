@@ -59,7 +59,7 @@ export function EditTestCase({
     testSuites: ITestSuite[];
     refreshTestCases: () => void;
 }) {
-    const testCaseId = testCases.id;
+    const testCaseId = testCases?.id;
     const { title, expectedResult, projectId, testSuite, requirements, testType, severity } = testCases;
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [requirementsList, setRequirementsList] = useState<IRequirement[]>(requirements || []);
