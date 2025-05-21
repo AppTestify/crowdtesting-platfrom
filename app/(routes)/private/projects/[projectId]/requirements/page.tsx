@@ -36,10 +36,14 @@ import { UserRoles } from "@/app/_constants/user-roles";
 import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
 import { DBModels } from "@/app/_constants";
 import { NAME_NOT_SPECIFIED_ERROR_MESSAGE } from "@/app/_constants/errors";
-import { checkProjectActiveRole, taskStatusBadge } from "@/app/_utils/common-functionality";
+import {
+  checkProjectActiveRole,
+  taskStatusBadge,
+} from "@/app/_utils/common-functionality";
 import { IProject } from "@/app/_interface/project";
 import { getProjectService } from "@/app/_services/project.service";
 import toasterService from "@/app/_services/toaster-service";
+import EditRequirement from "./_components/edit-requirement";
 
 export default function Issues() {
   const [requirements, setRequirements] = useState<IRequirement[]>([]);
@@ -85,37 +89,43 @@ export default function Issues() {
     },
     ...(userData?.role === UserRoles.ADMIN
       ? [
-        {
-          accessorKey: "createdBy",
-          header: "Reporter",
-          cell: ({ row }: { row: any }) => (
-            <div className="">
-              {`${row.original?.userId?.firstName || ""} ${row.original?.userId?.lastName || ""}`}
-            </div>
-          ),
-        },
-      ]
+          {
+            accessorKey: "createdBy",
+            header: "Reporter",
+            cell: ({ row }: { row: any }) => (
+              <div className="">
+                {`${row.original?.userId?.firstName || ""} ${
+                  row.original?.userId?.lastName || ""
+                }`}
+              </div>
+            ),
+          },
+        ]
       : []),
-    ...(Array.isArray(requirements) && requirements?.some((item) => item.assignedTo?._id)
+    ...(Array.isArray(requirements) &&
+    requirements?.some((item) => item.assignedTo?._id)
       ? [
-        {
-          accessorKey: "assignedTo",
-          header: "Assignee",
-          cell: ({ row }: { row: any }) => (
-            <div>
-              {row.original?.assignedTo?._id ? (
-                userData?.role === UserRoles.ADMIN ?
-                  `${row.original?.assignedTo?.firstName ||
-                  NAME_NOT_SPECIFIED_ERROR_MESSAGE
-                  } ${row.original?.assignedTo?.lastName || ""}` :
-                  row.original?.assignedTo?.customId
-              ) : (
-                <span className="text-gray-400">Unassigned</span>
-              )}
-            </div>
-          ),
-        },
-      ]
+          {
+            accessorKey: "assignedTo",
+            header: "Assignee",
+            cell: ({ row }: { row: any }) => (
+              <div>
+                {row.original?.assignedTo?._id ? (
+                  userData?.role === UserRoles.ADMIN ? (
+                    `${
+                      row.original?.assignedTo?.firstName ||
+                      NAME_NOT_SPECIFIED_ERROR_MESSAGE
+                    } ${row.original?.assignedTo?.lastName || ""}`
+                  ) : (
+                    row.original?.assignedTo?.customId
+                  )
+                ) : (
+                  <span className="text-gray-400">Unassigned</span>
+                )}
+              </div>
+            ),
+          },
+        ]
       : []),
     {
       accessorKey: "updatedAt",
@@ -137,20 +147,38 @@ export default function Issues() {
         </div>
       ),
     },
-    ...(
-      userData?.role != UserRoles.TESTER && checkProjectActiveRole(project?.isActive ?? false, userData) ?
-        [{
-          id: "actions",
-          enableHiding: false,
-          cell: ({ row }: { row: any }) => (
-            <RequirementRowActions
-              row={row as Row<IRequirement>}
-              refreshRequirements={refreshRequirements}
-            />
-          ),
-        }] : [])
+    ...(userData?.role != UserRoles.TESTER &&
+    checkProjectActiveRole(project?.isActive ?? false, userData)
+      ? [
+          {
+            id: "actions",
+            enableHiding: false,
+            cell: ({ row }: { row: any }) => (
+              <RequirementRowActions
+                row={row as Row<IRequirement>}
+                onViewClick={(viewReq) => {
+                  // console.log(viewIssue);
+                  setRequirement(viewReq);
+                  setIsViewOpen(true);
+                }}
+
+                onEditClick={(editReq) => {
+                  // console.log(editReq);
+                  setEditRequirement(editReq);
+                  setIsEditOpen(true);
+                }}
+                refreshRequirements={refreshRequirements}
+              />
+            ),
+          },
+        ]
+      : []),
   ];
 
+  const [isEditOpen, setIsEditOpen] = useState<boolean>(false);
+  const [editRequirement, setEditRequirement] = useState<IRequirement | null>(
+    null
+  );
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
@@ -269,6 +297,16 @@ export default function Issues() {
         sheetOpen={isViewOpen}
         setSheetOpen={setIsViewOpen}
       />
+
+      { editRequirement && (
+        <EditRequirement
+        key={editRequirement.id}
+        requirement={editRequirement as IRequirement}
+        sheetOpen={isEditOpen}
+        setSheetOpen={setIsEditOpen}
+        refreshRequirements={refreshRequirements}
+      />
+      )}
       <div className="">
         <h2 className="text-medium">Requirements</h2>
       </div>
@@ -282,11 +320,12 @@ export default function Issues() {
             }}
             className="max-w-sm"
           />
-          {userData?.role != UserRoles.TESTER && checkProjectActiveRole(project?.isActive ?? false, userData) &&
-            <div className="flex gap-2 ml-2">
-              <AddRequirement refreshRequirements={refreshRequirements} />
-            </div>
-          }
+          {userData?.role != UserRoles.TESTER &&
+            checkProjectActiveRole(project?.isActive ?? false, userData) && (
+              <div className="flex gap-2 ml-2">
+                <AddRequirement refreshRequirements={refreshRequirements} />
+              </div>
+            )}
         </div>
         <div className="rounded-md border">
           <Table>
@@ -299,9 +338,9 @@ export default function Issues() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}
@@ -316,8 +355,11 @@ export default function Issues() {
                     data-state={row.getIsSelected() && "selected"}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}
-                        className={`${userData?.role != UserRoles.TESTER ? "" : "py-3"}`}
+                      <TableCell
+                        key={cell.id}
+                        className={`${
+                          userData?.role != UserRoles.TESTER ? "" : "py-3"
+                        }`}
                       >
                         {flexRender(
                           cell.column.columnDef.cell,
@@ -341,7 +383,6 @@ export default function Issues() {
           </Table>
         </div>
         <div className="flex items-center justify-end space-x-2 py-4">
-
           <div className="flex space-x-2">
             <Button
               variant="outline"

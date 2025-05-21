@@ -14,7 +14,6 @@ import {
 import { Row } from "@tanstack/react-table";
 import { Edit, Eye, MoreHorizontal, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
-import EditIssue from "../edit-issue";
 import ViewIssue from "../view-issue";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
@@ -25,11 +24,13 @@ import { useParams } from "next/navigation";
 export function IssueRowActions({
   row,
   refreshIssues,
+  onEditClick,
 }: {
   row: Row<IIssue>;
   refreshIssues: () => void;
+  onEditClick: (issues: IIssue) => void;
 }) {
-  const [isEditOpen, setIsEditOpen] = useState(false);
+  // const [isEditOpen, setIsEditOpen] = useState(false);
   const [isEditStatusOpen, setIsEditStatusOpen] = useState(false);
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -66,12 +67,12 @@ export function IssueRowActions({
 
   return (
     <>
-      <EditIssue
+      {/* <EditIssue
         issue={row.original as IIssue}
         sheetOpen={isEditOpen}
         setSheetOpen={setIsEditOpen}
         refreshIssues={refreshIssues}
-      />
+      /> */}
 
       <EditIssueStatus
         issue={row.original as IIssue}
@@ -107,9 +108,7 @@ export function IssueRowActions({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <Link href={`/private/browse/${projectId}/issue/${issueId}`}>
-            <DropdownMenuItem
-              className="mb-1"
-            >
+            <DropdownMenuItem className="mb-1">
               <Eye className="h-2 w-2" /> View
             </DropdownMenuItem>
           </Link>
@@ -124,16 +123,16 @@ export function IssueRowActions({
               <Edit className="h-2 w-2" /> Edit Issue
             </DropdownMenuItem>
             : */}
-            <DropdownMenuItem
-              className="mb-1"
-              onClick={() => {
-                setIsEditOpen(true);
-              }}
-            >
-              <Edit className="h-2 w-2" /> Edit
-            </DropdownMenuItem>
+          <DropdownMenuItem
+            className="mb-1"
+            onClick={() => {
+              onEditClick(row.original);
+            }}
+          >
+            <Edit className="h-2 w-2" /> Edit
+          </DropdownMenuItem>
           {/* } */}
-          {userData?.role != UserRoles.TESTER &&
+          {userData?.role != UserRoles.TESTER && (
             <>
               <DropdownMenuSeparator className="border-b" />
               <DropdownMenuItem
@@ -147,7 +146,7 @@ export function IssueRowActions({
                 <span className="text-destructive">Delete</span>
               </DropdownMenuItem>
             </>
-          }
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
     </>

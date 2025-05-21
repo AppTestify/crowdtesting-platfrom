@@ -19,9 +19,11 @@ import TestExecutionView from "../view-test-execution";
 export function TestExecutionRowActions({
     row,
     refreshTestExecution,
+    onViewClick,
 }: {
     row: Row<ITestExecution>;
     refreshTestExecution: () => void;
+    onViewClick:(viewExecution:ITestExecution)=>void;
 }) {
     const [isViewOpen, setIsViewOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -78,6 +80,7 @@ export function TestExecutionRowActions({
                     <DropdownMenuItem
                         className="mb-1"
                         onClick={() => {
+                            onViewClick(row.original);
                             setIsViewOpen(true);
                         }}
                     >

@@ -32,7 +32,7 @@ export function TestCaseRowActions({
     testSuites: ITestSuite[];
     refreshTestCases: () => void;
 }) {
-    const [isEditOpen, setIsEditOpen] = useState(false);
+    // const [isEditOpen, setIsEditOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const testSuiteId = row.original.id as string;
