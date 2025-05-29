@@ -46,7 +46,6 @@ function AddOnModel() {
   const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
   const [totalPageCount, setTotalPageCount] = useState(0);
   const [isViewOpen, setIsViewOpen] = useState(false);
-  // const [singleAddon, setSingleAddon] = useState<IAddon>({});
   const [singleAddon, setSingleAddon] = useState<IAddon | null>(null);
 
   const getAddon = async () => {

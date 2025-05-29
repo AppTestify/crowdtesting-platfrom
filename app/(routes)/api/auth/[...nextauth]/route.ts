@@ -126,6 +126,7 @@ const handleSignIn = async (user: any) => {
     return await createUserAndSession({ ...user, role: role });
   } else {
     await createSession(user);
+
     return user;
   }
 };
