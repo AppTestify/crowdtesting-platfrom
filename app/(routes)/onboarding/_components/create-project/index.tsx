@@ -60,15 +60,17 @@ export default function Project({
   };
 
   return (
-    <div className="min-h-[80vh] items-center justify-center px-8 rounded-xl py-5">
-      <div className="w-full max-w-2xl space-y-4">
+    <div className="min-h-[80vh] flex justify-center md:bg-transparent px-4 sm:px-6  md:px-8 lg:px-10  rounded-xl py-5">
+      <div className="w-full max-w-full sm:max-w-xl md:max-w-2xl lg:max-w-3xl space-y-2">
         <p className="text-sm font-semibold text-green-600 uppercase">
           Step 1 of 3
         </p>
 
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Add Your Project</h1>
-          <p className="mt-2 text-gray-600">
+          <h1 className=" text-[14px] sm:text-2xl lg:text-3xl  font-bold text-gray-900">
+            Add Your Project
+          </h1>
+          <p style={{lineHeight: 1.2}} className=" text-[11px] mt-1 text-gray-600 text-sm sm:text-base lg:text-[14px] space-y-1">
             Set up your workspace to receive and respond to customer messages.
             This workspace will handle your email communications, with DNS
             support ensuring smooth management of customer inquiries.
@@ -95,7 +97,7 @@ export default function Project({
               )}
             />
 
-            <div className="grid grid-cols-2 gap-2 mt-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
               <FormField
                 control={form.control}
                 name="startDate"
@@ -172,7 +174,7 @@ export default function Project({
                           }
                           onSelect={(date) => {
                             field.onChange(date?.toISOString() ?? null);
-                            setEndOpen(false); // 👈 Close on date select
+                            setEndOpen(false); 
                           }}
                           disabled={(date) => {
                             const start = form.watch("startDate");

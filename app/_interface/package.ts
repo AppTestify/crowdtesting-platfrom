@@ -1,11 +1,31 @@
 import { IUserByAdmin } from "./user";
 
+// export interface IPackage {
+//   id: string;
+//   type: string;
+//   name: string;
+//   testers: number;
+//   userId: IUserByAdmin;
+//   durationHours?: number;
+//   bugs: number;
+//   moreBugs: boolean;
+//   testCase: number;
+//   testExecution: number;
+//   amount: number;
+//   currency: string;
+//   description?: string;
+//   isCustom?: boolean;
+//   isActive: boolean;
+//   _id?: string;
+// }
+
 export interface IPackage {
   id: string;
+  _id?: string;
   type: string;
   name: string;
   testers: number;
-  userId: IUserByAdmin;
+  userId?: IUserByAdmin; // make optional if sometimes missing
   durationHours?: number;
   bugs: number;
   moreBugs: boolean;
@@ -16,7 +36,8 @@ export interface IPackage {
   description?: string;
   isCustom?: boolean;
   isActive: boolean;
-  _id?: string;
+  features?: string[];
+  isPopular?: boolean;
 }
 
 export interface IPackagePayload {

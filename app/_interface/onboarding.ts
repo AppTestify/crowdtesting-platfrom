@@ -11,6 +11,5 @@ interface ProjectData {
 export interface OnboardingData {
   project: ProjectData; 
   users: INewUser[];           
-  // pricingData: IPackage; 
-  pricingId:string;             
+  pricingId?: string;             
 }

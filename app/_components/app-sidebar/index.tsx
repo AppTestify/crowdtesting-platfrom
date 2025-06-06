@@ -63,7 +63,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       });
     } else {
       setIdentity({
-        name: toTitleCase(user.name), 
+        name: toTitleCase(user.name),
         email: user.email,
         profilePicture: user.profilePicture || null,
       });

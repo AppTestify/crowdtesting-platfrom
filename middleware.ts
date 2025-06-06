@@ -35,7 +35,7 @@ export async function middleware(req: NextRequest) {
     const session = await decrypt(cookie);
     const user: any = session?.user;
 
-    // console.log("projects: ", user.projects);
+    console.log("Users Data: ", user);
 
     if (user) {
       console.log("user: ", user)

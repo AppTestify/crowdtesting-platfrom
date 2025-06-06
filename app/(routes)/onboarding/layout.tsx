@@ -1,7 +1,8 @@
+"use client";
 import React from "react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import OnboardingHeader from "./_components/header";
-import StatusBar from "./_components/status-bar";
+import { SessionProvider } from "next-auth/react";
 
 export default function layout({
   children,
@@ -9,12 +10,13 @@ export default function layout({
   children: React.ReactNode;
 }>) {
   return (
-    <TooltipProvider>
-      <div>
-        <OnboardingHeader />
-
-        <div className="min-h-[calc(99.9vh-4rem)] ">{children}</div>
-      </div>
-    </TooltipProvider>
+    <SessionProvider>
+      <TooltipProvider>
+        <div>
+          <OnboardingHeader />
+          <div className="h-[88vh]">{children}</div>
+        </div>
+      </TooltipProvider>
+    </SessionProvider>
   );
 }

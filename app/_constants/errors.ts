@@ -5,6 +5,7 @@ export const USER_UNAUTHORIZED_ERROR_MESSAGE =
   "User unauthorized, try signing up first";
 export const EMAIL_REQUIRED_ERROR_MESSAGE = "Email is required";
 export const USER_EXISTS_ERROR_MESSAGE = "Email already exists, try signing in";
+export const USER_ALREADY_EXISTS_ERROR_MESSAGE = "User already exists, try signing in";
 export const ONLY_BUSSINESS_EMAIL_ALLOWED = "Only business emails are allowed";
 export const INVALID_PASSWORD_ERROR_MESSAGE = "Invalid password or email";
 export const INVALID_OLD_PASSWORD_ERROR_MESSAGE = "Invalid old password";

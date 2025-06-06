@@ -9,3 +9,15 @@ export const enum EmailSubjects {
   DOCUMENT_APPROVAL = "Document approval",
   TEST_CYCLE_COUNTRY = "Confirm Your Participation - New Paid Test Cycle Available!",
 }
+
+
+// Its Uses only for email validation like business email
+
+export const publicEmailDomains = [
+  "gmail.com",
+  "yahoo.com",
+  "outlook.com",
+  "hotmail.com",
+  "icloud.com",
+  // "yopmail.com"
+];

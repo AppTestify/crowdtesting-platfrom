@@ -40,6 +40,7 @@ export const MAIL_ENDPOINT = "/api/mail";
 export const INVOICE_ENDPOINT = "/api/invoice";
 export const PRICING_BULK_DELETE_ENDPOINT="/api/pricing-package/bulk/delete";
 export const ADDON_BULK_DELETE_ENDPOINT="/api/pricing-addon/bulk/delete";
+export const ONBOARDING_ENDPOINT="/api/onboarding";
 
 
 export const COMMENT_ENDPOINT = (
