@@ -6,6 +6,8 @@ import { HttpStatusCode } from "@/app/_constants/http-status-code";
 import { connectDatabase } from "@/app/_db";
 import { User } from "@/app/_models/user.model";
 import { errorHandler } from "@/app/_utils/error-handler";
+import { Project } from "@/app/_models/project.model";
+const ObjectId = require("mongodb").ObjectId;
 
 export async function GET(
   req: Request,
@@ -36,9 +38,17 @@ export async function GET(
       );
     }
 
+    const userProjectIds = await Project.find(
+      { userId: new ObjectId(existingUser.id) },
+      { _id: 1 }
+    ).lean();
+
     const { password: _, ...userWithoutPassword } = existingUser.toObject();
 
-    return Response.json(userWithoutPassword);
+    return Response.json({
+      ...userWithoutPassword,
+      projects: userProjectIds || [],
+    });
   } catch (error: any) {
     return errorHandler(error);
   }

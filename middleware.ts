@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { decrypt } from "./app/_lib/session";
 import { CookieKey } from "./app/_constants/cookie-keys";
+import { UserRoles } from "./app/_constants/user-roles";
 
 const protectedRoutePattern = "/private";
 const onboardingRoutePattern = "/onboarding";
@@ -9,6 +10,7 @@ const authRoutePattern = "/auth";
 const verificationRoutePattern = "/auth/verify";
 const publicRoutes = ["/auth", "/"];
 const forgotPasswordRoutes = "/auth/reset-password";
+const ponboardingRoutePattern = "/onboarding";
 
 export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
@@ -21,42 +23,38 @@ export async function middleware(req: NextRequest) {
   const isOnboardingRoute = path.startsWith(onboardingRoutePattern);
   const isAuthRoute = path.startsWith(authRoutePattern);
   const isVerificationRoute = path.startsWith(verificationRoutePattern);
-  const isPublicRoute = publicRoutes.includes(path);
   const isForgotPasswordRoute = path.startsWith(forgotPasswordRoutes);
-
-  
 
   if (isForgotPasswordRoute) {
     return NextResponse.next();
   }
 
+  const cookie = cookies().get(CookieKey.SESSION)?.value;
+  const session = await decrypt(cookie);
+  const user: any =
+    (session?.user && JSON.parse(session?.user?.toString())) || null;
+
   if (isAuthRoute && !isVerificationRoute) {
-    const cookie = cookies().get(CookieKey.SESSION)?.value;
-    const session = await decrypt(cookie);
-    const user: any = session?.user;
-
-    console.log("Users Data: ", user);
-
     if (user) {
-      console.log("user: ", user)
-      if (user?.projects?.length === 0) {
-        return NextResponse.redirect(
-          new URL("/onboarding/project", req.nextUrl)
-        );
-      } else {
-        return NextResponse.redirect(
-          new URL("/private/dashboard", req.nextUrl)
-        );
-      }
+      return NextResponse.redirect(new URL("/private/dashboard", req.nextUrl));
     }
   }
 
-  if (isProtectedRoute || isOnboardingRoute) {
-    const cookie = cookies().get(CookieKey.SESSION)?.value;
-    const session = await decrypt(cookie);
-
-    if (!session?.user) {
+  if (isOnboardingRoute) {
+    if (!user) {
       return NextResponse.redirect(new URL("/auth/sign-in", req.nextUrl));
+    } else if (user?.projects?.length) {
+      return NextResponse.redirect(new URL("/private/dashboard", req.nextUrl));
+    }
+  }
+
+  if (isProtectedRoute) {
+    if (!user) {
+      return NextResponse.redirect(new URL("/auth/sign-in", req.nextUrl));
+    } else if (!user?.projects?.length && user.role === UserRoles.CLIENT) {
+      return NextResponse.redirect(new URL("/onboarding/project", req.nextUrl));
+    } else {
+      return NextResponse.redirect(new URL("/private/dashboard", req.nextUrl));
     }
   }
 
