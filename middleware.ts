@@ -53,8 +53,6 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(new URL("/auth/sign-in", req.nextUrl));
     } else if (!user?.projects?.length && user.role === UserRoles.CLIENT) {
       return NextResponse.redirect(new URL("/onboarding/project", req.nextUrl));
-    } else {
-      return NextResponse.redirect(new URL("/private/dashboard", req.nextUrl));
     }
   }
 
