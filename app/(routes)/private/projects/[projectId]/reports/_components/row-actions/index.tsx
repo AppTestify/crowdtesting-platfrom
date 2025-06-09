@@ -22,10 +22,14 @@ import { UserRoles } from "@/app/_constants/user-roles";
 export function ReportRowActions({
     row,
     refreshReports,
-    projectAdmin
+    projectAdmin,
+    onEditClick,
+    onViewClick,
 }: {
     row: Row<IReport>;
     refreshReports: () => void;
+    onViewClick:(viewReport:IReport)=>void;
+    onEditClick:(editReport:IReport)=>void;
     projectAdmin: boolean
 }) {
     const [isEditOpen, setIsEditOpen] = useState(false);
@@ -103,6 +107,7 @@ export function ReportRowActions({
                             <DropdownMenuItem
                                 className="mb-1"
                                 onClick={() => {
+                                    onViewClick(row.original);
                                     setIsViewOpen(true);
                                 }}
                             >
@@ -112,6 +117,7 @@ export function ReportRowActions({
                             <DropdownMenuItem
                                 className="mb-1"
                                 onClick={() => {
+                                    onEditClick(row.original);
                                     setIsEditOpen(true);
                                 }}
                             >

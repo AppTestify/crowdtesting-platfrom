@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import {
   ColumnDef,
+  Row,
   SortingState,
   VisibilityState,
   flexRender,
@@ -65,6 +66,7 @@ import {
 import { getTestCycleListService } from "@/app/_services/test-cycle.service";
 import { ITestCycle } from "@/app/_interface/test-cycle";
 import { formatDateWithoutTime } from "@/app/_constants/date-formatter";
+import EditIssue from "./_components/edit-issue";
 
 export default function Issues() {
   const [issues, setIssues] = useState<IIssueView[]>([]);
@@ -72,6 +74,7 @@ export default function Issues() {
   const [project, setProject] = useState<IProject>();
   const { projectId } = useParams<{ projectId: string }>();
   const checkProjectRole = checkProjectAdmin(project as IProject, userData);
+  
 
   const showIssueRowActions = (issue: IIssue) => {
     return (
@@ -247,13 +250,22 @@ export default function Issues() {
           <>
             {showIssueRowActions(row.original) &&
             checkProjectActiveRole(project?.isActive ?? false, userData) ? (
-              <IssueRowActions row={row} refreshIssues={refreshIssues} />
+              <IssueRowActions
+                row={row as unknown as Row<IIssue>}
+                refreshIssues={refreshIssues}
+                onEditClick={(issues) => {
+                  console.log(issues);
+                  setEditIssue(issues);
+                  setIsEditOpen(true);
+                }}
+              />
             ) : null}
           </>
         );
       },
     },
   ];
+
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -268,6 +280,8 @@ export default function Issues() {
   const [selectedStatus, setSelectedStatus] = useState<string>("");
   const [selectedTestCycle, setSelectedTestCycle] = useState<string>("");
   const [testCycles, setTestCycles] = useState<ITestCycle[]>([]);
+  const [editIssue, setEditIssue] = useState<IIssue | null>(null);
+  const [isEditOpen, setIsEditOpen] = useState<boolean>(false);
   const [pageIndex, setPageIndex] = useState<number>(() => {
     const entity = localStorage.getItem("entity");
     if (entity === DBModels.ISSUE) {
@@ -522,6 +536,17 @@ export default function Issues() {
         sheetOpen={isViewOpen}
         setSheetOpen={setIsViewOpen}
       />
+
+      {editIssue && (
+        <EditIssue
+          key={editIssue.id}
+          issue={editIssue as IIssue}
+          sheetOpen={isEditOpen}
+          setSheetOpen={setIsEditOpen}
+          refreshIssues={refreshIssues}
+        />
+      )}
+
       <div className="">
         <h2 className="text-medium">Issues</h2>
         <span className="text-xs text-gray-600">
