@@ -17,20 +17,24 @@ import { ITestCase } from "@/app/_interface/test-case";
 import { EditTestCase } from "../edit-test-case";
 import { ITestSuite } from "@/app/_interface/test-suite";
 import ViewTestCase from "../view-test-case";
+import { TestCase } from "@/app/_constants/test-case";
 
 export function TestCaseRowActions({
     row,
+    onEditClick,
+    onViewClick,
     testSuites,
     refreshTestCases,
 }: {
     row: Row<ITestCase>;
+    onEditClick: (testCase: ITestCase) => void;
+    onViewClick: (testCase: ITestCase) => void;
     testSuites: ITestSuite[];
     refreshTestCases: () => void;
 }) {
-    const [isEditOpen, setIsEditOpen] = useState(false);
+    // const [isEditOpen, setIsEditOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [isViewOpen, setIsViewOpen] = useState(false);
     const testSuiteId = row.original.id as string;
     const projectId = row.original.projectId as string;
     const deleteCaseSuite = async () => {
@@ -52,19 +56,7 @@ export function TestCaseRowActions({
     };
     return (
         <>
-            <EditTestCase
-                testCases={row.original as ITestCase}
-                sheetOpen={isEditOpen}
-                setSheetOpen={setIsEditOpen}
-                testSuites={testSuites}
-                refreshTestCases={refreshTestCases}
-            />
-
-            <ViewTestCase
-                testCase={row.original as ITestCase}
-                sheetOpen={isViewOpen}
-                setSheetOpen={setIsViewOpen}
-            />
+            
 
             <ConfirmationDialog
                 isOpen={isDeleteOpen}
@@ -89,9 +81,8 @@ export function TestCaseRowActions({
                     <DropdownMenuItem
                         className="mb-1"
                         onClick={() => {
-                            setIsViewOpen(true);
-                        }
-                        }
+                            onViewClick(row.original);
+                        }}
                     >
                         <Eye className="h-2 w-2" /> View
                     </DropdownMenuItem>
@@ -99,7 +90,7 @@ export function TestCaseRowActions({
                     <DropdownMenuItem
                         className="mb-1"
                         onClick={() => {
-                            setIsEditOpen(true);
+                            onEditClick(row.original);
                         }}
                     >
                         <Edit className="h-2 w-2" /> Edit

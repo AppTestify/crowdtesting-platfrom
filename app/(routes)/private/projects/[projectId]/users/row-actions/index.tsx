@@ -20,10 +20,12 @@ export function ProjectUserRowActions({
     row,
     projectId,
     refreshProjectUsers,
+    onEditClick,
 }: {
     row: Row<IProjectUserDisplay>;
     projectId: string,
     refreshProjectUsers: () => void;
+    onEditClick: (editUsers: IProjectUserDisplay) => void;
 }) {
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -80,6 +82,7 @@ export function ProjectUserRowActions({
                     <DropdownMenuItem
                         className="mb-1"
                         onClick={() => {
+                            onEditClick(row.original);
                             setIsEditOpen(true);
                         }}
                     >
