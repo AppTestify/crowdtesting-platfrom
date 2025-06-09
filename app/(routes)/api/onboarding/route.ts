@@ -16,6 +16,7 @@ import { UserRoles } from "@/app/_constants/user-roles";
 import { connectDatabase } from "@/app/_db";
 import SendCredentials from "@/app/_helpers/sendEmailCredentials.helper";
 import { isClient, verifySession } from "@/app/_lib/dal";
+import { createSession, deleteSession } from "@/app/_lib/session";
 import { Counter } from "@/app/_models/counter.model";
 import { ProjectTabAccess } from "@/app/_models/project-tab-access.model";
 import { Project } from "@/app/_models/project.model";
@@ -26,6 +27,7 @@ import toasterService from "@/app/_services/toaster-service";
 import { errorHandler } from "@/app/_utils/error-handler";
 import mongoose from "mongoose";
 import { z } from "zod";
+const ObjectId = require("mongodb").ObjectId;
 
 // export async function POST(req: Request) {
 //   try {
@@ -253,6 +255,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const projectValidation = projectSchema.safeParse(body.project);
     const userValidation = z.array(adminUserCreateSchema).safeParse(body.users);
+    let projectId = null;
 
     if (!projectValidation.success || !userValidation.success) {
       return Response.json(
@@ -286,6 +289,7 @@ export async function POST(req: Request) {
       });
 
       const savedProject = await newProject.save({ session });
+      projectId = savedProject._id;
 
       const projectTabAccess = await ProjectTabAccess.create(
         [
@@ -369,6 +373,16 @@ export async function POST(req: Request) {
         );
       }
     });
+
+    deleteSession();
+
+    await createSession(
+      {
+        ...sessionAuth?.user,
+        projects: [projectId],
+      },
+      false
+    );
 
     return Response.json({
       message: "Onboarding completed successfully",
