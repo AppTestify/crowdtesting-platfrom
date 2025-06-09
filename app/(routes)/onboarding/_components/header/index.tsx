@@ -1,11 +1,22 @@
 // components/Header.tsx
 
+import { logOutUserService } from "@/app/_services/auth-service";
+import toasterService from "@/app/_services/toaster-service";
 import { LogOut, HelpCircle } from "lucide-react";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function OnboardingHeader() {
   const { data: session } = useSession();
+    const router = useRouter();
+
+  const logOutUser = async () => {
+    signOut();
+    await logOutUserService();
+    router.push("/auth/sign-in");
+    toasterService.success("Logged out successfully");
+  };
 
   return (
     <header className="w-full border-b bg-white shadow-sm">
@@ -30,7 +41,7 @@ export default function OnboardingHeader() {
             <HelpCircle size={16} />
             <span className="hidden sm:inline">Help Assistance</span>
           </button>
-          <button className="flex items-center space-x-1 hover:text-black">
+          <button className="flex items-center space-x-1 hover:text-black" onClick={() => logOutUser()}>
             <LogOut size={16} />
             <span>Log out</span>
           </button>
