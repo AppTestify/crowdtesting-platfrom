@@ -49,8 +49,10 @@ export async function POST(req: Request) {
       );
     }
 
-    const { email, password, role, firstName, lastName, country } =
+    // const { email, password, role, firstName, lastName, country } = response.data;
+    const { email, password, role, firstName, lastName, country, userCount } =
       response.data;
+
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
@@ -74,13 +76,12 @@ export async function POST(req: Request) {
     }
 
     const newUser = new User({
-      ...(role === UserRoles.TESTER && {
-        firstName: firstName,
-        lastName: lastName,
-      }),
+      firstName: firstName,
+      lastName: lastName,
       email,
       password: hashedPassword,
       role,
+      userCount,
       accountActivationMailSentAt: new Date(),
       isActive: true,
     });

@@ -16,7 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { UserRoles } from "@/app/_constants/user-roles";
 import toasterService from "@/app/_services/toaster-service";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { CookieKey } from "@/app/_constants/cookie-keys";
 import { AuthIntent } from "@/app/_constants";
@@ -43,52 +43,49 @@ export function SignUpForm({
   role: UserRoles;
   setIsGoogleSignInDisable: (value: boolean) => void;
 }) {
-  const formSchema = z
-    .object({
-      email: z
-        .string()
-        .min(1, "Email is required")
-        .email({ message: "Invalid email address" }),
-      password: z
-        .string()
-        .min(8, { message: "Password must be at least 8 characters" }),
-      firstName: z.string().min(1, { message: "First name is required" }),
-      lastName: z.string().min(1, { message: "Last name is required" }),
-      companyName: z.string().min(1, { message: "Company name is required" }),
+  const pathname = usePathname();
+  const isClientPage = pathname === "/auth/sign-up";
 
-      phoneNumber: z.string().optional(),
-
-      country: z.string().optional(),
-    })
-    .extend(
-      role === UserRoles.TESTER
-        ? {
-            country: z.string().min(1, { message: "Country is required" }),
-          }
-        : {}
-    );
+  const formSchema = isClientPage
+    ? z.object({
+        email: z.string().email(),
+        password: z.string().min(8),
+        firstName: z.string().min(1),
+        lastName: z.string().min(1),
+        country: z.string().optional(),
+        userCount: z.enum(["1", "2", "3", "4", "5+"]).optional(),
+        companyName: z.string().min(1),
+      })
+    : z.object({
+        email: z.string().email(),
+        password: z.string().min(8),
+        firstName: z.string().min(1),
+        lastName: z.string().min(1),
+        country: z.string().optional(),
+        companyName: z.string().optional(),
+      });
 
   const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const defaultValues =
-    role === UserRoles.CLIENT
-      ? {
-          email: "",
-          password: "",
-          firstName: "",
-          lastName: "",
-          country: "",
-          phone: "",
-          companyName: "",
-        }
-      : {
-          email: "",
-          password: "",
-          firstName: "",
-          lastName: "",
-          country: "",
-        };
+  const defaultValues = isClientPage
+    ? {
+        email: "",
+        password: "",
+        firstName: "",
+        lastName: "",
+        country: "",
+        userCount: "",
+        companyName: "",
+      }
+    : {
+        email: "",
+        password: "",
+        firstName: "",
+        lastName: "",
+        country: "",
+        companyName: "",
+      };
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: defaultValues,
@@ -142,7 +139,7 @@ export function SignUpForm({
     <div className="min-h-screen flex flex-col md:flex-row bg-green-50 px-4">
       {/* Left Section */}
       <div className="md:w-1/2 w-full px-4 md:px-10 py-4 flex flex-col justify-center">
-        <NewBrandLogo  className="mb-6" />
+        <NewBrandLogo className="mb-6" />
         <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4">
           Get Started with QTM - Quality Test Manager
         </h1>
@@ -180,7 +177,14 @@ export function SignUpForm({
       {/* Right Section (Form Card) */}
       <div className="md:w-1/2 w-full flex justify-center items-center p-6">
         <div className="w-full max-w-xl bg-green-100 rounded-2xl shadow-xl p-8">
-          <h2 className="text-2xl font-bold text-gray-800 mb-2 flex justify-center">
+          <h1 className="text-2xl font-bold text-center mb-2">
+            {role === UserRoles.TESTER
+              ? "Sign up as Tester"
+              : role === UserRoles.CLIENT
+              ? "Sign up as Client"
+              : "Sign Up"}
+          </h1>
+          <h2 className="text-xl font-bold text-gray-800 mb-2 flex justify-center">
             Get Started
           </h2>
           <p className="text-sm text-gray-600 mb-6 flex justify-center">
@@ -189,40 +193,6 @@ export function SignUpForm({
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              {/* Country for Tester */}
-              {role === UserRoles.TESTER && (
-                <FormField
-                  control={form.control}
-                  name="country"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Country</FormLabel>
-                      <FormControl>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <SelectTrigger className="bg-white">
-                            <SelectValue placeholder="Select your country" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {countries.map((country: ICountry) => (
-                              <SelectItem
-                                key={country.description}
-                                value={country.description}
-                              >
-                                {country.description}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-
               {/* Name Fields */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
@@ -264,7 +234,6 @@ export function SignUpForm({
                   )}
                 />
               </div>
-
               {/* Email & Phone */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
@@ -305,77 +274,133 @@ export function SignUpForm({
                   )}
                 />
               </div>
+              {/* Company Name (Client only) */}
+              {isClientPage && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="companyName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Company Name<span className="text-red-500">*</span>
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            className="bg-white"
+                            placeholder="Company name"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-              {/* Company & Country */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="companyName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Company Name<span className="text-red-500">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          className="bg-white"
-                          placeholder="Company name"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="country"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Country<span className="text-red-500">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <SelectTrigger className="bg-white">
-                            <SelectValue placeholder="Select country" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="India">India</SelectItem>
-                            <SelectItem value="USA">USA</SelectItem>
-                            <SelectItem value="UK">UK</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {/* Team Size */}
-              <div>
-                <Select>
-                  <SelectTrigger className="bg-white">
-                    <SelectValue placeholder="How many users will access? *" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1-5">1-5</SelectItem>
-                    <SelectItem value="6-10">6-10</SelectItem>
-                    <SelectItem value="10+">10+</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Web Address
-              <div className="flex items-center">
-                <Input placeholder="Enter web address" className="bg-white" />
-                <span className="ml-2 text-gray-700">.apptestify.io</span>
-              </div> */}
-
+                  {/* Country (Shown on both pages) */}
+                  <FormField
+                    control={form.control}
+                    name="country"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Country</FormLabel>
+                        <FormControl>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <SelectTrigger className="bg-white">
+                              <SelectValue placeholder="Select your country" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {countries.map((country: ICountry) => (
+                                <SelectItem
+                                  key={country.description}
+                                  value={country.description}
+                                >
+                                  {country.description}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              )}
+              
+              {/* Country only (if not Client) */}
+              {!isClientPage && (
+                <div className="grid grid-cols-1 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="country"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Country</FormLabel>
+                        <FormControl>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <SelectTrigger className="bg-white">
+                              <SelectValue placeholder="Select your country" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {countries.map((country: ICountry) => (
+                                <SelectItem
+                                  key={country.description}
+                                  value={country.description}
+                                >
+                                  {country.description}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              )}
+              {/* Team Size (Client only) */}
+              {isClientPage && (
+                <div>
+                  <FormField
+                    control={form.control}
+                    name="userCount"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          {/* How many users will access?
+                          <span className="text-red-500">*</span> */}
+                        </FormLabel>
+                        <FormControl>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <SelectTrigger className="bg-white">
+                              <SelectValue placeholder="How many users will access? *" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="1">1</SelectItem>
+                              <SelectItem value="2">2</SelectItem>
+                              <SelectItem value="3">3</SelectItem>
+                              <SelectItem value="4">4</SelectItem>
+                              <SelectItem value="5+">5+</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              )}
               {/* Submit */}
               <Button
                 type="submit"

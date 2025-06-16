@@ -6,9 +6,11 @@ export const signUpSchema = z.object({
     .string()
     .min(8, { message: "Password must be at least 8 characters" }),
   role: z.string(),
-  firstName: z.string().optional(),
-  lastName: z.string().optional(),
-  country: z.string().optional(),
+  firstName: z.string(),
+  lastName: z.string(),
+  country: z.string().min(1, { message: "Country is required" }),
+  companyName: z.string().optional(),
+  userCount: z.enum(["1", "2", "3", "4", "5+"]).optional(),
 });
 
 export const signInSchema = z.object({

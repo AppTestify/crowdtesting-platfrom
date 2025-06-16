@@ -30,6 +30,10 @@ export default function AuthLayout({
     return <div className="w-full min-h-screen bg-[#F0F2F5]">{children}</div>;
   }
 
+   if (pathname === "/auth/tester/sign-up") {
+    return <div className="w-full min-h-screen bg-[#F0F2F5]">{children}</div>;
+  }
+
   return (
     <div className="w-full lg:grid bg-[#F0F2F5] min-h-[100vh] lg:grid-cols-2 ">
       <div className={` ${pathname == "/auth/sign-in" ? "" : ""}`}>
