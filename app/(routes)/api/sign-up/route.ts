@@ -103,7 +103,7 @@ export async function POST(req: Request) {
 
     await createSession(userWithoutPassword);
 
-    sendVerificationEmail(userWithoutPassword);
+    await sendVerificationEmail(userWithoutPassword);
 
     return Response.json({
       message: "Signed up successfully",

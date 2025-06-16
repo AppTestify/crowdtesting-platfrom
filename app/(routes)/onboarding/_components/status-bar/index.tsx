@@ -3,21 +3,21 @@ import React from "react";
 
 const allSteps = [
   {
-    title: "Add Project",
+    title: "Project Setup Made Easy",
     description:
-      "Create a new project workspace. Set key details like title, start and end dates, and a description to kick things off.",
+      "Kickstart your testing journey by creating your first project. This helps QTM structure your requirements, test cases, executions, and reports in one place.",
     icon: FolderCheck,
   },
   {
-    title: "Pricing",
+    title: "Choose the Plan That Fits Your Team Size and Needs",
     description:
-      "Define your pricing model and add-ons. Choose how you want to charge clients for your services or features.",
+      "Select the right subscription model before proceeding to manage your projects.",
     icon: BadgePercent,
   },
   {
-    title: "Invite",
+    title: "Collaborate Better. Involve Your Entire QA, Development, and Product Teams.",
     description:
-      "Invite your team members or collaborators. Give them access to contribute and manage the project with you.",
+      "Set up your team so you can assign tasks, review progress, and collaborate effectively.",
     icon: Send,
   },
 ];

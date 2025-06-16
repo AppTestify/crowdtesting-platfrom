@@ -25,7 +25,7 @@ export interface IPackage {
   type: string;
   name: string;
   testers: number;
-  userId?: IUserByAdmin; // make optional if sometimes missing
+  userId?: IUserByAdmin; 
   durationHours?: number;
   bugs: number;
   moreBugs: boolean;
@@ -36,7 +36,6 @@ export interface IPackage {
   description?: string;
   isCustom?: boolean;
   isActive: boolean;
-  features?: string[];
   isPopular?: boolean;
 }
 

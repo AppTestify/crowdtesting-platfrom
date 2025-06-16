@@ -70,8 +70,6 @@ const CreateProject = () => {
     }
   };
 
-  // console.log("FormData", formData);
-
   const getPricing = async () => {
     try {
       const { packages } = await getPackageForClientService();
@@ -88,15 +86,13 @@ const CreateProject = () => {
   }, []);
 
   return (
-    <div className="flex justify-center mt-2 md:px-8 lg:px-10 w-full ">
+    <div className="flex justify-center mt-2 md:px-5 lg:px-5 w-full ">
       {/* Always show SetupSteps except on mobile */}
       {!isMobile && <SetupSteps step={steps} />}
 
       <div className="overflow-y-scroll no-scrollbar h-[85vh] w-full">
-        {isMobile && (
-          <MobileStatusBar step={steps}/>
-        ) }
-        
+        {isMobile && <MobileStatusBar step={steps} />}
+
         {steps === 1 ? (
           <Project
             formData={formData}

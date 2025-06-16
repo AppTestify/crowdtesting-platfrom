@@ -40,6 +40,7 @@ import { checkProjectAdmin } from "@/app/_utils/common";
 import toasterService from "@/app/_services/toaster-service";
 import UserVerify from "./user-verify";
 import EditProjectUser from "./edit-user";
+import { AddClientUser } from "./add-client-user";
 
 export default function ProjectUsers() {
   const [userData, setUserData] = useState<any>();
@@ -158,7 +159,7 @@ export default function ProjectUsers() {
               <ProjectUserRowActions
                 row={row}
                 onEditClick={(editUsers) => {
-                //   console.log(editReq);
+                  //   console.log(editReq);
                   setEditUser(editUsers);
                   setIsEditOpen(true);
                 }}
@@ -274,14 +275,14 @@ export default function ProjectUsers() {
 
   return (
     <main className="mx-4 mt-2">
-     { editUser && (
-       <EditProjectUser
-        projectUser={editUser as IProjectUserDisplay}
-        sheetOpen={isEditOpen}
-        setSheetOpen={setIsEditOpen}
-        refreshProjectUsers={refreshProjectUsers}
-      />
-     )}
+      {editUser && (
+        <EditProjectUser
+          projectUser={editUser as IProjectUserDisplay}
+          sheetOpen={isEditOpen}
+          setSheetOpen={setIsEditOpen}
+          refreshProjectUsers={refreshProjectUsers}
+        />
+      )}
       <div className="">
         <h2 className="text-medium">Users</h2>
       </div>
@@ -298,6 +299,12 @@ export default function ProjectUsers() {
           {userData?.role === UserRoles.ADMIN && (
             <div className="flex gap-2 ml-2">
               <AddProjectUser refreshProjectUsers={refreshProjectUsers} />
+            </div>
+          )}
+
+          {userData?.role === UserRoles.CLIENT && (
+            <div className="flex gap-2 ml-2">
+              <AddClientUser refreshUsers={refreshProjectUsers} />
             </div>
           )}
         </div>

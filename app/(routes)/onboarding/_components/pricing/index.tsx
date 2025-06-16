@@ -35,32 +35,77 @@ export default function PricingCards({
     setSteps(3);
   };
 
-  const getFeatureList = (plan: IPackage) => {
-    const defaultFeatures = [
-      `Up to ${plan.testers} Users`,
-      `${plan.testCase} test cases`,
-      // "Basic Dashboard, Requirements, Test Plans, Suites",
-      `Limited ${plan.testExecution} Test Executions`,
-      "Basic Issues & Tasks",
-      "Limited Reports (summary only)",
-      "Community support",
-    ];
+  const getFeatureList = (plan: IPackage): string[] => {
+    if (plan.type === "free") {
+      return [
+        `Up to ${plan.testers} Users`,
+        " 1 Project",
+        `${plan.testCase} Test Cases`,
+        " 5 Test Cycles",
+        " Requirements, Test Plans, Test Suites, Executions",
+        " Issues & Tasks Tracking",
+        " Basic RTM & Reports",
+        " Community Support",
+      ];
+    }
 
-    return plan.features && plan.features.length > 0
-      ? plan.features
-      : defaultFeatures;
+    if (plan.type === "premium") {
+      return [
+        ` Up to ${plan.testers} Users`,
+        " 5 Projects",
+        ` ${plan.testCase} Test Cases`,
+        " 50 Test Cycles",
+        " All Starter Features",
+        " Custom Issue Types & Severities",
+        " Device-wise & Severity-wise Reporting",
+        " Task Management & Assignment",
+        " RTM with Traceability Matrix",
+        " Email Support",
+      ];
+    }
+
+    if (plan.type === "enterprises") {
+      return [
+        // "Contact Us",
+        " Unlimited Users",
+        " Unlimited Projects",
+        " Unlimited Test Cases & Cycles",
+        " All Professional Features",
+        " Advanced Reports & Dashboards",
+        " SLA-based Issue Management",
+        " Custom Workflows & Permissions",
+        " Single Sign-On (SSO)",
+        " Dedicated Account Manager",
+        " Priority Support",
+      ];
+    }
+
+    return [];
   };
 
+  const order: Record<string, number> = {
+    free: 0,
+    premium: 1,
+    enterprise: 2,
+  };
+
+  const sortedPricingData = [...pricingData].sort((a, b) => {
+    const aType = a.type?.toLowerCase() || "";
+    const bType = b.type?.toLowerCase() || "";
+
+    return (order[aType] ?? 99) - (order[bType] ?? 99);
+  });
+
   return (
-    <div className="min-h-screen px-4 sm:px-6  lg:px-10 xl:px-10 2xl:px-16">
+    <div className="min-h-screen px-4 sm:px-6 lg:px-10 xl:px-10 2xl:px-16">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-10">
+        <div className="mb-5">
           <p className="text-sm font-semibold text-green-600 uppercase tracking-wide mb-1 pt-3">
             Step 2 of 3
           </p>
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-1">
-            Choose Your Plan
+            Select Your Pricing Plan
           </h1>
           <p className="text-sm text-gray-600 leading-relaxed">
             Select the pricing plan that best fits your needs to continue
@@ -69,15 +114,15 @@ export default function PricingCards({
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 p-3 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
-          {pricingData?.map((plan, index) => {
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
+          {sortedPricingData.map((plan, index) => {
             const isSelected = plan._id === selectedPricing;
 
             return (
               <Card
                 key={plan._id || index}
                 onClick={() => onSelect(plan)}
-                className={`relative cursor-pointer transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 ${
+                className={`flex flex-col h-full relative cursor-pointer transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 ${
                   isSelected
                     ? "ring-2 ring-green-500 shadow-2xl transform -translate-y-1"
                     : "hover:ring-1 hover:ring-green-200"
@@ -99,7 +144,7 @@ export default function PricingCards({
                   </div>
                 )}
 
-                <CardContent className="p-6 sm:p-8">
+                <CardContent className="flex flex-col flex-grow p-6 sm:p-8">
                   {/* Plan Type */}
                   <div className="mb-3">
                     <h3 className="text-sm sm:text-base font-semibold uppercase tracking-wide mb-4 text-gray-500">
@@ -107,39 +152,88 @@ export default function PricingCards({
                     </h3>
 
                     {/* Price */}
-                    <div className="flex items-baseline mb-2">
+                    {/* <div className="flex items-baseline mb-2">
                       <span className="text-3xl sm:text-4xl font-bold text-gray-900">
                         {plan.currency}
                         {plan.amount}
                       </span>
                       <span className="ml-2 text-sm text-gray-500">
-                        /{plan.durationHours} months
+                        /{plan.durationHours} month
                       </span>
+                    </div> */}
+
+                    <div className="flex items-baseline mb-2">
+                      {plan.type === "enterprises" ? (
+                        <span className="text-xl sm:text-2xl font-semibold text-gray-900">
+                          Contact Us
+                        </span>
+                      ) : (
+                        <>
+                          <span className="text-3xl sm:text-4xl font-bold text-gray-900">
+                            {plan.currency}
+                            {plan.amount}
+                          </span>
+                          <span className="ml-2 text-sm text-gray-500">
+                            {plan.type === "premium" ? "/user/month" : "/month"}
+                          </span>
+                        </>
+                      )}
                     </div>
                   </div>
 
                   {/* Features */}
-                  <div className="space-y-4 mb-8">
+                  {/* <div className="space-y-2 mb-6">
                     {getFeatureList(plan).map((feature, featureIndex) => (
                       <div
                         key={featureIndex}
                         className="flex items-start space-x-3"
                       >
-                        <div className="flex-shrink-0 mt-1">
+                        <div className="flex-shrink-0">
                           <div className="w-5 h-5 rounded-full bg-green-100 border border-green-300 flex items-center justify-center">
                             <Check className="w-3 h-3 text-green-600" />
                           </div>
                         </div>
-                        <span className="text-sm leading-relaxed text-gray-700">
+                        <span className="text-xs leading-relaxed text-gray-900">
+                          {feature}
+                        </span>
+                      </div>
+                    ))}
+                  </div> */}
+
+                  <div className="space-y-2 mb-6">
+                    {getFeatureList(plan).map((feature, featureIndex) => (
+                      <div
+                        key={featureIndex}
+                        className="flex items-start space-x-3"
+                      >
+                        <div className="flex-shrink-0">
+                          <div className="w-5 h-5 rounded-full bg-green-100 border border-green-300 flex items-center justify-center">
+                            <Check className="w-3 h-3 text-green-600" />
+                          </div>
+                        </div>
+                        <span className="text-xs leading-relaxed text-gray-900">
                           {feature}
                         </span>
                       </div>
                     ))}
                   </div>
 
+                  {/* 👉 Add this block right after the feature list */}
+                  {plan.type === "enterprises" && (
+                    <div className="mb-6 text-xs text-gray-700">
+                      <span className="font-medium">Contact: </span>
+                      <a
+                        href="mailto:contact@apptestify.com"
+                        className="text-green-600 underline"
+                      >
+                        contact@apptestify.com
+                      </a>
+                    </div>
+                  )}
+
                   {/* CTA Button */}
                   <Button
-                    className={`w-full py-2 sm:py-3 px-2 font-semibold text-sm sm:text-base transition-all duration-200 ${
+                    className={`mt-auto w-full py-2 sm:py-3 px-2 font-semibold text-sm sm:text-base transition-all duration-200 ${
                       isSelected
                         ? "bg-green-600 text-white hover:bg-green-700"
                         : "bg-gray-900 text-white hover:bg-gray-800"

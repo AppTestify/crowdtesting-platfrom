@@ -43,6 +43,8 @@ export const ADDON_BULK_DELETE_ENDPOINT="/api/pricing-addon/bulk/delete";
 export const ONBOARDING_ENDPOINT="/api/onboarding";
 
 
+
+
 export const COMMENT_ENDPOINT = (
   projectId: string,
   entityName: string,
@@ -71,8 +73,13 @@ export const PAGINATION_QUERY_ENDPOINT = (index: Number, pageSize: Number) => {
   return `?page=${index}&limit=${pageSize}`;
 };
 
+
 export const PROJECT_USER_ENPOINT = (projectId: string) => {
   return `${PROJECTS_ENDPOINT}/${projectId}/users`;
+};
+
+export const PROJECT_CLIENT_USER_ENPOINT = (projectId: string) => {
+  return `${PROJECTS_ENDPOINT}/${projectId}/users/client`;
 };
 
 export const PROJECT_REQUIREMENT_ENPOINT = (projectId: string) => {

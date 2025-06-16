@@ -60,7 +60,7 @@ export default function Project({
   };
 
   return (
-    <div className="min-h-[80vh] flex justify-center md:bg-transparent px-4 sm:px-6  md:px-8 lg:px-10  rounded-xl py-5">
+    <div className="min-h-[80vh] flex justify-center md:bg-transparent px-4 sm:px-6  md:px-8 lg:px-10  rounded-xl pt-3">
       <div className="w-full max-w-full sm:max-w-xl md:max-w-2xl lg:max-w-3xl space-y-2">
         <p className="text-sm font-semibold text-green-600 uppercase">
           Step 1 of 3
@@ -68,9 +68,12 @@ export default function Project({
 
         <div>
           <h1 className=" text-[14px] sm:text-2xl lg:text-3xl  font-bold text-gray-900">
-            Add Your Project
+            Add Your First Project
           </h1>
-          <p style={{lineHeight: 1.2}} className=" text-[11px] mt-1 text-gray-600 text-sm sm:text-base lg:text-[14px] space-y-1">
+          <p
+            style={{ lineHeight: 1.2 }}
+            className=" text-[11px] mt-1 text-gray-600 text-sm sm:text-base lg:text-[14px] space-y-1"
+          >
             Set up your workspace to receive and respond to customer messages.
             This workspace will handle your email communications, with DNS
             support ensuring smooth management of customer inquiries.
@@ -174,7 +177,7 @@ export default function Project({
                           }
                           onSelect={(date) => {
                             field.onChange(date?.toISOString() ?? null);
-                            setEndOpen(false); 
+                            setEndOpen(false);
                           }}
                           disabled={(date) => {
                             const start = form.watch("startDate");

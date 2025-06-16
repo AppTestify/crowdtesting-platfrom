@@ -12,3 +12,14 @@ export function BrandLogo({ className }: { className: string }) {
         </div>
     )
 }
+
+export function NewBrandLogo({ className }: { className: string }) {
+    return (
+        <div className="flex items-center gap-2">
+            <img
+                src="/assets/images/newLogo.png"
+                className={`w-40 ${className}`}
+            />
+        </div>
+    )
+}

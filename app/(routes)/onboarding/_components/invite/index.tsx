@@ -123,32 +123,44 @@ export function InvitePage({
     }
   }, [fields.length, testers, hasShownLimitToast, remove]);
 
+  // async function onSubmit(data: any) {
+  //   setIsLoading(true);
+  //   try {
+  //     setFormData((prev) => ({ ...prev, users: data.users }));
+  //     await addOnboarding();
+  //   } catch {
+  //     toast.error("Something went wrong while saving.");
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // }
+
   async function onSubmit(data: any) {
     setIsLoading(true);
     try {
       setFormData((prev) => ({ ...prev, users: data.users }));
       await addOnboarding();
     } catch {
-      toast.error("Something went wrong while saving.");
+      toast.error("Users not saved");
     } finally {
       setIsLoading(false);
     }
   }
 
   return (
-    <div className="px-4 md:mt-4 sm:px-6 md:px-10 lg:px-10 xl:px-10 max-w-[1440px] mx-auto">
+    <div className="px-4 md:mt-3 sm:px-6 md:px-10 lg:px-10 xl:px-10 max-w-[1440px] mx-auto">
       <p className="text-sm font-semibold text-green-600 uppercase">
         Step 3 of 3
       </p>
       <h2 className="text-lg sm:text-xl font-semibold mb-4 mt-2">
-        Invite Users
+        Invite Your Team Members
       </h2>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {fields.map((field, index) => (
             <div
               key={field.id}
-              className="relative border bg-gray-50 rounded-lg p-4"
+              className="relative border bg-gray-100 rounded-lg p-4"
             >
               {index > 0 && (
                 <button
@@ -167,7 +179,7 @@ export function InvitePage({
                     <FormItem>
                       <FormLabel>First Name</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input {...field} className="bg-white" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -180,7 +192,7 @@ export function InvitePage({
                     <FormItem>
                       <FormLabel>Last Name</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input {...field} className="bg-white" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -193,13 +205,13 @@ export function InvitePage({
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input {...field} className="bg-white" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <FormField
+                {/* <FormField
                   control={form.control}
                   name={`users.${index}.role`}
                   render={({ field }) => (
@@ -212,7 +224,42 @@ export function InvitePage({
                         value={field.value}
                       >
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger className="bg-white">
+                            <SelectValue placeholder="Select a role" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectGroup>
+                            {USER_ROLE_LIST.map((role) => (
+                              <SelectItem key={role} value={role}>
+                                {role}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                /> */}
+
+                <FormField
+                  control={form.control}
+                  name={`users.${index}.role`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Role</FormLabel>
+                      <Select
+                        onValueChange={(value) =>
+                          form.setValue(`users.${index}.role`, value, {
+                            shouldValidate: true,
+                            shouldDirty: true,
+                          })
+                        }
+                        value={field.value || ""}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="bg-white">
                             <SelectValue placeholder="Select a role" />
                           </SelectTrigger>
                         </FormControl>
@@ -236,6 +283,7 @@ export function InvitePage({
                 {...form.register(`users.${index}.sendCredentials`)}
                 value="true"
               />
+
               {index === fields.length - 1 && (
                 <div className="mt-4">
                   <Button

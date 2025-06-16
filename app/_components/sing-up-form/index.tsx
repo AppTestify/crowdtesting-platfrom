@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -12,194 +12,383 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { UserRoles } from "@/app/_constants/user-roles"
-import toasterService from "@/app/_services/toaster-service"
-import { useRouter } from "next/navigation"
-import Cookies from 'js-cookie';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { UserRoles } from "@/app/_constants/user-roles";
+import toasterService from "@/app/_services/toaster-service";
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 import { CookieKey } from "@/app/_constants/cookie-keys";
 import { AuthIntent } from "@/app/_constants";
-import { NextAuthProviders } from "@/app/_constants/next-auth-providers"
-import { signIn } from "next-auth/react"
-import { ErrorCode } from "@/app/_constants/error-codes"
-import { Loader2 } from "lucide-react"
-import { useState } from "react"
-import Link from "next/link"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { countries, ICountry } from "@/app/_constants/countries"
+import { NextAuthProviders } from "@/app/_constants/next-auth-providers";
+import { signIn } from "next-auth/react";
+import { ErrorCode } from "@/app/_constants/error-codes";
+import { Loader2 } from "lucide-react";
+import { useState } from "react";
+import Link from "next/link";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { countries, ICountry } from "@/app/_constants/countries";
+import { BrandLogo, NewBrandLogo } from "../brand-logo";
 
-export function SignUpForm({ role, setIsGoogleSignInDisable }: { role: UserRoles, setIsGoogleSignInDisable: (value: boolean) => void; }) {
-  const formSchema = z.object({
-    email: z.string().min(1, "Email is required").email({ message: "Invalid email address" }),
-    password: z.string().min(8, { message: "Password must be at least 8 characters" }),
-    firstName: z.string().min(1, { message: "First name is required" }),
-    lastName: z.string().min(1, { message: "Last name is required" }),
-  }).extend(
-    role === UserRoles.TESTER ?
-      {
-        country: z.string().min(1, { message: "Country is required" }),
-      } : {}
-  );
+export function SignUpForm({
+  role,
+  setIsGoogleSignInDisable,
+}: {
+  role: UserRoles;
+  setIsGoogleSignInDisable: (value: boolean) => void;
+}) {
+  const formSchema = z
+    .object({
+      email: z
+        .string()
+        .min(1, "Email is required")
+        .email({ message: "Invalid email address" }),
+      password: z
+        .string()
+        .min(8, { message: "Password must be at least 8 characters" }),
+      firstName: z.string().min(1, { message: "First name is required" }),
+      lastName: z.string().min(1, { message: "Last name is required" }),
+      companyName: z.string().min(1, { message: "Company name is required" }),
+
+      phoneNumber: z.string().optional(),
+
+      country: z.string().optional(),
+    })
+    .extend(
+      role === UserRoles.TESTER
+        ? {
+            country: z.string().min(1, { message: "Country is required" }),
+          }
+        : {}
+    );
 
   const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const defaultValues = role === UserRoles.CLIENT ?
-    {
-      email: "",
-      password: "",
-      firstName: "",
-      lastName: "",
-      country: ""
-    } :
-    {
-      email: "",
-      password: "",
-      firstName: "",
-      lastName: "",
-    }
+  const defaultValues =
+    role === UserRoles.CLIENT
+      ? {
+          email: "",
+          password: "",
+          firstName: "",
+          lastName: "",
+          country: "",
+          phone: "",
+          companyName: "",
+        }
+      : {
+          email: "",
+          password: "",
+          firstName: "",
+          lastName: "",
+          country: "",
+        };
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: defaultValues,
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    startLoading()
+    startLoading();
 
     Cookies.set(CookieKey.ROLE, role);
     const response = await signIn(NextAuthProviders.CREDENTIALS, {
-      email: values.email, password: values.password, firstName: values.firstName, lastName: values.lastName, country: values.country
-      , authIntent: AuthIntent.SIGN_UP_CREDS, redirect: false, callbackUrl: `/auth/sign-up?e=${ErrorCode.ERR_SIGN_UP}`
+      email: values.email,
+      password: values.password,
+      firstName: values.firstName,
+      lastName: values.lastName,
+      country: values.country,
+      authIntent: AuthIntent.SIGN_UP_CREDS,
+      redirect: false,
+      callbackUrl: `/auth/sign-up?e=${ErrorCode.ERR_SIGN_UP}`,
     });
 
     if (response?.error) {
       stopLoading();
-      toasterService.error(response.error)
+      toasterService.error(response.error);
     } else {
-      router.push('private/dashboard')
+      router.push("private/dashboard");
     }
   }
 
   const startLoading = () => {
     setIsLoading(true);
     setIsGoogleSignInDisable(true);
-  }
+  };
 
   const stopLoading = () => {
     setIsLoading(false);
     setIsGoogleSignInDisable(false);
-  }
+  };
+
+  const brands = [
+    { name: "AUDIT360", logo: "/assets/images/audit360.png", isWhite: true },
+    { name: "MERCER", logo: "/assets/images/Mercer.png", isWhite: false },
+    {
+      name: "ENCollect",
+      logo: "/assets/images/Enterprise.png",
+      isWhite: false,
+    },
+    { name: "OKTO", logo: "/assets/images/OKTO.png", isWhite: false },
+  ];
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4 mt-4 mb-4">
-
-        {role === UserRoles.TESTER &&
-          (
-            <>
-              <FormField
-                control={form.control}
-                name="country"
-                render={({ field }) => (
-                  <FormItem className={"flex-[2]"}>
-                    <FormLabel>Country</FormLabel>
-                    <FormControl>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <SelectTrigger>
-                          {field.value}
-                          {!field.value ? <SelectValue /> : null}
-                        </SelectTrigger>
-                        <SelectContent>
-                          {countries.map((country: ICountry) => (
-                            <SelectItem
-                              key={country.description}
-                              value={country.description}
-                            >
-                              {country.description}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+    <div className="min-h-screen flex flex-col md:flex-row bg-green-50 px-4">
+      {/* Left Section */}
+      <div className="md:w-1/2 w-full px-4 md:px-10 py-4 flex flex-col justify-center">
+        <NewBrandLogo  className="mb-6" />
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4">
+          Get Started with QTM - Quality Test Manager
+        </h1>
+        <p className="text-gray-700 mb-4 text-base">
+          <b>Simplify Your Test Management. Accelerate Your Releases</b> <br />{" "}
+          Create your free account and experience seamless test planning,
+          execution, and issue tracking — all in one place.
+        </p>
+        <ul className="text-gray-700 space-y-3 mb-10 text-sm">
+          <li>✅ Easy to Use & Intuitive Dashboard</li>
+          <li>✅ End-to-End Test Lifecycle Management</li>
+          <li>✅ Requirement to Defect Traceability (RTM)</li>
+          <li>✅ Real-time Reports & Metrics</li>
+          <li>✅ Scalable for Teams of All Sizes</li>
+        </ul>
+        <p className="text-sm text-gray-600">Trusted by over 100+ QA teams</p>
+        <div className="flex flex-wrap gap-8 items-center">
+          {brands.map((brand) => (
+            <div
+              key={brand.name}
+              className="flex flex-col items-center w-28 bg-transparent"
+            >
+              <img
+                src={brand.logo}
+                alt={brand.name}
+                className={`w-28 h-28 object-contain ${
+                  brand.isWhite ? "invert" : ""
+                }`}
               />
-            </>)
-        }
-
-        <div className="grid grid-cols-1 xs:grid-cols-2 gap-2">
-          <FormField
-            control={form.control}
-            name="firstName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>First name</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="lastName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Last name</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            </div>
+          ))}
         </div>
+      </div>
 
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input placeholder="name@example.com" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input type="password" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      {/* Right Section (Form Card) */}
+      <div className="md:w-1/2 w-full flex justify-center items-center p-6">
+        <div className="w-full max-w-xl bg-green-100 rounded-2xl shadow-xl p-8">
+          <h2 className="text-2xl font-bold text-gray-800 mb-2 flex justify-center">
+            Get Started
+          </h2>
+          <p className="text-sm text-gray-600 mb-6 flex justify-center">
+            30-day free trial. No credit card required.
+          </p>
 
-        <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-          Create an account
-        </Button>
-        <div className="text-center">
-          <span className="mr-0">Already have an account?</span>
-          <Link href={'/auth/sign-in'}>
-            <span className="text-primary ml-2">Sign in!</span>
-          </Link>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              {/* Country for Tester */}
+              {role === UserRoles.TESTER && (
+                <FormField
+                  control={form.control}
+                  name="country"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Country</FormLabel>
+                      <FormControl>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <SelectTrigger className="bg-white">
+                            <SelectValue placeholder="Select your country" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {countries.map((country: ICountry) => (
+                              <SelectItem
+                                key={country.description}
+                                value={country.description}
+                              >
+                                {country.description}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
+              {/* Name Fields */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="firstName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        First Name<span className="text-red-500">*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          className="bg-white"
+                          placeholder="First name"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="lastName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Last Name<span className="text-red-500">*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          className="bg-white"
+                          placeholder="Last name"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Email & Phone */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Email<span className="text-red-500">*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          className="bg-white"
+                          placeholder="name@example.com"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          className="bg-white"
+                          placeholder="Enter password"
+                          type="password"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Company & Country */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="companyName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Company Name<span className="text-red-500">*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          className="bg-white"
+                          placeholder="Company name"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="country"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Country<span className="text-red-500">*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <SelectTrigger className="bg-white">
+                            <SelectValue placeholder="Select country" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="India">India</SelectItem>
+                            <SelectItem value="USA">USA</SelectItem>
+                            <SelectItem value="UK">UK</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Team Size */}
+              <div>
+                <Select>
+                  <SelectTrigger className="bg-white">
+                    <SelectValue placeholder="How many users will access? *" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1-5">1-5</SelectItem>
+                    <SelectItem value="6-10">6-10</SelectItem>
+                    <SelectItem value="10+">10+</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Web Address
+              <div className="flex items-center">
+                <Input placeholder="Enter web address" className="bg-white" />
+                <span className="ml-2 text-gray-700">.apptestify.io</span>
+              </div> */}
+
+              {/* Submit */}
+              <Button
+                type="submit"
+                className="w-fulll flex justify-center"
+                disabled={isLoading}
+              >
+                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Create an account
+              </Button>
+            </form>
+          </Form>
         </div>
-      </form>
-    </Form>
-  )
+      </div>
+    </div>
+  );
 }
