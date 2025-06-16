@@ -43,31 +43,12 @@ function SignUpWrapper() {
   };
 
   return (
-    <div className="flex flex-col p-5 md:p-10 h-full">
-      <BrandLogo className="text-white" />
-      <div className="flex items-center justify-center h-4/5">
-        <div className="mx-auto grid w-full md:w-[380px] gap-6">
-          <div className="grid gap-2 text-left md:text-center">
-            <h1 className="text-3xl font-bold">Sign up as client</h1>
-            <p className="text-balance text-muted-foreground">
-              Getting started is easy
-            </p>
-          </div>
-          <div className="w-full">
-            <SignUpForm role={UserRoles.CLIENT} setIsGoogleSignInDisable={setIsGoogleSignInDisable} />
-            {/* <Button variant="outline" className="w-full" disabled={isGoogleSignInDisable || isLoading} onClick={() => handleGoogleSignUp()}>
-                            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                            Sign up with Google
-                        </Button> */}
-          </div>
-        </div>
-      </div>
-      <div className="mt-8 text-muted-foreground text-left md:text-center">
-        By continuing you indicate that you read and  <a target="_blank" href="https://apptestify.com/legal/Privacy_Personal%20Data_Protection_Policy.html" className="underline cursor-pointer">agree to the Terms of Use</a>
-      </div>
+    <div>
+      <SignUpForm
+        role={UserRoles.CLIENT}
+        setIsGoogleSignInDisable={setIsGoogleSignInDisable}
+      />
     </div>
-    //   </div>
-    // </div>
   );
 }
 
