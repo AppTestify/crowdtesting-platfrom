@@ -15,7 +15,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "AppTestify Platform",
+  title: "Quality Test Manager",
+  //  title: "AppTestify Platform",
   description: "Test Management",
 };
 
