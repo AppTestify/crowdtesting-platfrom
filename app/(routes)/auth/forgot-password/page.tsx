@@ -14,7 +14,7 @@ import { FormControl, FormField, FormItem, FormMessage } from "@/components/ui/f
 import { Loader2 } from "lucide-react";
 import { forgotPasswordService } from "@/app/_services/auth-service";
 import { HttpStatusCode } from "@/app/_constants/http-status-code";
-import { BrandLogo } from "@/app/_components/brand-logo";
+import { BrandLogo, NewBrandLogo } from "@/app/_components/brand-logo";
 
 const forgotPasswordSchema = z.object({
     email: z.string().min(1, "Required").email('Invalid email address'),
@@ -54,7 +54,7 @@ export default function ForgotPassword() {
 
     return (
         <div className="flex flex-col p-10 h-full">
-            <BrandLogo className="text-white" />
+            <NewBrandLogo className="text-white" />
             <div className="flex items-center justify-center h-4/5 mt-8 md:mt-16 xl:mt-0">
                 <FormProvider {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} method="post">

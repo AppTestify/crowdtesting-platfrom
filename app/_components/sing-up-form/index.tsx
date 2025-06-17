@@ -180,7 +180,7 @@ export function SignUpForm({
           <li>✅ Scalable for Teams of All Sizes</li>
         </ul>
         <p className="text-sm text-gray-600">Trusted by over 100+ QA teams</p>
-        <div className="flex flex-wrap gap-8 items-center">
+        <div className="flex flex-wrap gap-4 items-center">
           {brands.map((brand) => (
             <div
               key={brand.name}
