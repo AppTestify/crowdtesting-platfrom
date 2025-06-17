@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const signUpSchema = z.object({
-  email: z.string().email({ message: "Invalid email address" }),
+  email: z.string().email({ message: "please enter valid email address" }),
   password: z
     .string()
     .min(8, { message: "Password must be at least 8 characters" }),
@@ -10,7 +10,7 @@ export const signUpSchema = z.object({
   lastName: z.string(),
   country: z.string().min(1, { message: "Country is required" }),
   companyName: z.string().optional(),
-  userCount: z.enum(["1", "2", "3", "4", "5+"]).optional(),
+  userCount: z.enum(["Please select user "]).optional(),
 });
 
 export const signInSchema = z.object({

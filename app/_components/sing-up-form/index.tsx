@@ -25,7 +25,6 @@ import { signIn } from "next-auth/react";
 import { ErrorCode } from "@/app/_constants/error-codes";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
-import Link from "next/link";
 import {
   Select,
   SelectContent,
@@ -48,20 +47,44 @@ export function SignUpForm({
 
   const formSchema = isClientPage
     ? z.object({
-        email: z.string().email(),
-        password: z.string().min(8),
-        firstName: z.string().min(1),
-        lastName: z.string().min(1),
-        country: z.string().optional(),
-        userCount: z.enum(["1", "2", "3", "4", "5+"]).optional(),
-        companyName: z.string().min(1),
+        email: z
+          .string()
+          .email({ message: "Please enter a valid email address" }),
+
+        password: z
+          .string()
+          .min(8, { message: "Password must be at least 8 characters" }),
+
+        firstName: z.string().min(1, { message: "First name is required" }),
+
+        lastName: z.string().min(1, { message: "Last name is required" }),
+
+        country: z
+          .string()
+          .min(1, { message: "Please select country" })
+          .optional(),
+
+        userCount: z.string().optional(),
+        companyName: z.string().min(1, { message: "Company name is required" }),
       })
     : z.object({
-        email: z.string().email(),
-        password: z.string().min(8),
-        firstName: z.string().min(1),
-        lastName: z.string().min(1),
-        country: z.string().optional(),
+        email: z
+          .string()
+          .email({ message: "Please enter a valid email address" }),
+
+        password: z
+          .string()
+          .min(8, { message: "Password must be at least 8 characters" }),
+
+        firstName: z.string().min(1, { message: "First name is required" }),
+
+        lastName: z.string().min(1, { message: "Last name is required" }),
+
+        country: z
+          .string()
+          .min(1, { message: "Please select country" })
+          .optional(),
+
         companyName: z.string().optional(),
       });
 
@@ -139,7 +162,7 @@ export function SignUpForm({
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-green-50 px-4">
       {/* Left Section */}
-      <div className="md:w-1/2 w-full px-4 md:px-10 py-4 flex flex-col justify-center">
+      <div className="md:w-1/2 w-full px-4 md:px-10 flex flex-col justify-center">
         <NewBrandLogo className="mb-6" />
         <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4">
           Get Started with QTM - Quality Test Manager
@@ -261,7 +284,9 @@ export function SignUpForm({
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <FormLabel>
+                        Password <span className="text-red-500">*</span>
+                      </FormLabel>
                       <FormControl>
                         <Input
                           {...field}
@@ -304,7 +329,9 @@ export function SignUpForm({
                     name="country"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Country</FormLabel>
+                        <FormLabel>
+                          Country<span className="text-red-500">*</span>
+                        </FormLabel>
                         <FormControl>
                           <Select
                             onValueChange={field.onChange}
@@ -331,7 +358,7 @@ export function SignUpForm({
                   />
                 </div>
               )}
-              
+
               {/* Country only (if not Client) */}
               {!isClientPage && (
                 <div className="grid grid-cols-1 gap-4">
@@ -340,7 +367,9 @@ export function SignUpForm({
                     name="country"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Country</FormLabel>
+                        <FormLabel>
+                          Country<span className="text-red-500">*</span>
+                        </FormLabel>
                         <FormControl>
                           <Select
                             onValueChange={field.onChange}

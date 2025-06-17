@@ -1,8 +1,5 @@
 "use client";
 
-import { BrandLogo } from "@/app/_components/brand-logo";
-import { Navbar } from "@/app/_components/navbar";
-import { Icons } from "@/components/icons";
 import { usePathname, useRouter } from "next/navigation";
 
 export default function AuthLayout({
@@ -27,6 +24,10 @@ export default function AuthLayout({
   })();
 
   if (pathname === "/auth/sign-up") {
+    return <div className="w-full min-h-screen bg-[#F0F2F5]">{children}</div>;
+  }
+
+  if (pathname === "/auth/sign-in") {
     return <div className="w-full min-h-screen bg-[#F0F2F5]">{children}</div>;
   }
 
