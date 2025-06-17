@@ -23,7 +23,7 @@ import { AuthIntent } from "@/app/_constants";
 import { NextAuthProviders } from "@/app/_constants/next-auth-providers";
 import { signIn } from "next-auth/react";
 import { ErrorCode } from "@/app/_constants/error-codes";
-import { Loader2 } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 import {
   Select,
@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/select";
 import { countries, ICountry } from "@/app/_constants/countries";
 import { NewBrandLogo } from "../brand-logo";
+import { Loader2 } from "lucide-react";
 
 export function SignUpForm({
   role,
@@ -160,15 +161,17 @@ export function SignUpForm({
   ];
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-green-50 px-4">
-      {/* Left Section */}
-      <div className="md:w-1/2 w-full px-4 md:px-10 flex flex-col justify-center">
-        <NewBrandLogo className="mb-6" />
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4">
+    <div className="min-h-screen bg-green-50 relative flex flex-col lg:flex-row px-4">
+      <NewBrandLogo className="absolute top-4 left-4 w-24 sm:w-24 md:w-36 z-10" />
+
+      {/* left side — Only visible on large screen */}
+      <div className="hidden lg:flex lg:w-1/2 px-10 py-16 flex-col justify-center">
+        <h1 className="text-3xl font-bold text-gray-800 mb-4">
           Get Started with QTM - Quality Test Manager
         </h1>
         <p className="text-gray-700 mb-4 text-base">
-          <b>Simplify Your Test Management. Accelerate Your Releases</b> <br />{" "}
+          <b>Simplify Your Test Management. Accelerate Your Releases</b>
+          <br />
           Create your free account and experience seamless test planning,
           execution, and issue tracking — all in one place.
         </p>
@@ -179,17 +182,19 @@ export function SignUpForm({
           <li>✅ Real-time Reports & Metrics</li>
           <li>✅ Scalable for Teams of All Sizes</li>
         </ul>
-        <p className="text-sm text-gray-600">Trusted by over 100+ QA teams</p>
+        <p className="text-sm text-gray-600 mb-4">
+          Trusted by over 100+ QA teams
+        </p>
         <div className="flex flex-wrap gap-4 items-center">
           {brands.map((brand) => (
             <div
               key={brand.name}
-              className="flex flex-col items-center w-28 bg-transparent"
+              className="w-24 flex items-center justify-center"
             >
               <img
                 src={brand.logo}
                 alt={brand.name}
-                className={`w-28 h-28 object-contain ${
+                className={`h-16 object-contain ${
                   brand.isWhite ? "invert" : ""
                 }`}
               />
@@ -198,8 +203,8 @@ export function SignUpForm({
         </div>
       </div>
 
-      {/* Right Section (Form Card) */}
-      <div className="md:w-1/2 w-full flex justify-center items-center p-6">
+      {/* RIGHT SIDE (Form section) */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center py-10">
         <div className="w-full max-w-xl bg-green-100 rounded-2xl shadow-xl p-8">
           <h1 className="text-2xl font-bold text-center mb-2">
             {role === UserRoles.TESTER
@@ -208,10 +213,10 @@ export function SignUpForm({
               ? "Sign up as Client"
               : "Sign Up"}
           </h1>
-          <h2 className="text-xl font-bold text-gray-800 mb-2 flex justify-center">
+          <h2 className="text-xl font-bold text-gray-800 mb-2 text-center">
             Get Started
           </h2>
-          <p className="text-sm text-gray-600 mb-6 flex justify-center">
+          <p className="text-sm text-gray-600 mb-6 text-center">
             30-day free trial. No credit card required.
           </p>
 
@@ -220,8 +225,8 @@ export function SignUpForm({
               {/* Name Fields */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
-                  control={form.control}
                   name="firstName"
+                  control={form.control}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
@@ -229,9 +234,9 @@ export function SignUpForm({
                       </FormLabel>
                       <FormControl>
                         <Input
-                          {...field}
-                          className="bg-white"
                           placeholder="First name"
+                          className="bg-white"
+                          {...field}
                         />
                       </FormControl>
                       <FormMessage />
@@ -239,8 +244,8 @@ export function SignUpForm({
                   )}
                 />
                 <FormField
-                  control={form.control}
                   name="lastName"
+                  control={form.control}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
@@ -248,9 +253,9 @@ export function SignUpForm({
                       </FormLabel>
                       <FormControl>
                         <Input
-                          {...field}
-                          className="bg-white"
                           placeholder="Last name"
+                          className="bg-white"
+                          {...field}
                         />
                       </FormControl>
                       <FormMessage />
@@ -258,11 +263,12 @@ export function SignUpForm({
                   )}
                 />
               </div>
-              {/* Email & Phone */}
+
+              {/* Email and Password */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
-                  control={form.control}
                   name="email"
+                  control={form.control}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
@@ -270,9 +276,9 @@ export function SignUpForm({
                       </FormLabel>
                       <FormControl>
                         <Input
-                          {...field}
-                          className="bg-white"
                           placeholder="name@example.com"
+                          className="bg-white"
+                          {...field}
                         />
                       </FormControl>
                       <FormMessage />
@@ -280,19 +286,19 @@ export function SignUpForm({
                   )}
                 />
                 <FormField
-                  control={form.control}
                   name="password"
+                  control={form.control}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Password <span className="text-red-500">*</span>
+                        Password<span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
                         <Input
-                          {...field}
-                          className="bg-white"
-                          placeholder="Enter password"
                           type="password"
+                          placeholder="Password"
+                          className="bg-white"
+                          {...field}
                         />
                       </FormControl>
                       <FormMessage />
@@ -300,12 +306,13 @@ export function SignUpForm({
                   )}
                 />
               </div>
-              {/* Company Name (Client only) */}
+
+              {/* Company & Country (Client only) */}
               {isClientPage && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
-                    control={form.control}
                     name="companyName"
+                    control={form.control}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
@@ -313,20 +320,18 @@ export function SignUpForm({
                         </FormLabel>
                         <FormControl>
                           <Input
-                            {...field}
-                            className="bg-white"
                             placeholder="Company name"
+                            className="bg-white"
+                            {...field}
                           />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-
-                  {/* Country (Shown on both pages) */}
                   <FormField
-                    control={form.control}
                     name="country"
+                    control={form.control}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
@@ -341,12 +346,12 @@ export function SignUpForm({
                               <SelectValue placeholder="Select your country" />
                             </SelectTrigger>
                             <SelectContent>
-                              {countries.map((country: ICountry) => (
+                              {countries.map((c) => (
                                 <SelectItem
-                                  key={country.description}
-                                  value={country.description}
+                                  key={c.description}
+                                  value={c.description}
                                 >
-                                  {country.description}
+                                  {c.description}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -359,87 +364,84 @@ export function SignUpForm({
                 </div>
               )}
 
-              {/* Country only (if not Client) */}
+              {/* Country for non-client */}
               {!isClientPage && (
-                <div className="grid grid-cols-1 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="country"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          Country<span className="text-red-500">*</span>
-                        </FormLabel>
-                        <FormControl>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
-                            <SelectTrigger className="bg-white">
-                              <SelectValue placeholder="Select your country" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {countries.map((country: ICountry) => (
-                                <SelectItem
-                                  key={country.description}
-                                  value={country.description}
-                                >
-                                  {country.description}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                <FormField
+                  name="country"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Country<span className="text-red-500">*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <SelectTrigger className="bg-white">
+                            <SelectValue placeholder="Select your country" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {countries.map((c) => (
+                              <SelectItem
+                                key={c.description}
+                                value={c.description}
+                              >
+                                {c.description}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               )}
-              {/* Team Size (Client only) */}
+
+              {/* Team Size */}
               {isClientPage && (
-                <div>
-                  <FormField
-                    control={form.control}
-                    name="userCount"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          {/* How many users will access?
-                          <span className="text-red-500">*</span> */}
-                        </FormLabel>
-                        <FormControl>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
-                            <SelectTrigger className="bg-white">
-                              <SelectValue placeholder="How many users will access? *" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="1">1</SelectItem>
-                              <SelectItem value="2">2</SelectItem>
-                              <SelectItem value="3">3</SelectItem>
-                              <SelectItem value="4">4</SelectItem>
-                              <SelectItem value="5+">5+</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                <FormField
+                  name="userCount"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <SelectTrigger className="bg-white">
+                            <SelectValue placeholder="How many users will access? *" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="1">1</SelectItem>
+                            <SelectItem value="2">2</SelectItem>
+                            <SelectItem value="3">3</SelectItem>
+                            <SelectItem value="4">4</SelectItem>
+                            <SelectItem value="5+">5+</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               )}
-              {/* Submit */}
-              <Button
-                type="submit"
-                className="w-fulll flex justify-center"
-                disabled={isLoading}
-              >
+
+              <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Create an account
               </Button>
+              <div className="text-center text-sm sm:text-base">
+                <span>Already have an account? </span>
+                <Link href="/auth/sign-in">
+                  <span className="ml-2 text-green-600">
+                    Sign In!
+                  </span>
+                </Link>
+              </div>
             </form>
           </Form>
         </div>

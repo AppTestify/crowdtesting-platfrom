@@ -98,14 +98,14 @@ export default function ForgotPassword() {
                                 </Button>
                             </div>
                             <div className="flex justify-center mt-2">
-                                <Link href={'/auth/sign-in'}>
+                                {/* <Link href={'/auth/sign-in'}> */}
                                     <div>
                                         <span className="mr-0">Remember password?</span>
                                         <Link href={'/auth/sign-in'}>
                                             <span className="text-primary ml-2">Sign in!</span>
                                         </Link>
                                     </div>
-                                </Link>
+                                {/* </Link> */}
                             </div>
                         </div>
                     </form>
