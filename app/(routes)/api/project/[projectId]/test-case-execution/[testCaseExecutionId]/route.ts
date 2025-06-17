@@ -10,6 +10,7 @@ import { IssueStatus } from "@/app/_constants/issue";
 import { connectDatabase } from "@/app/_db";
 import AttachmentService from "@/app/_helpers/attachment.helper";
 import { verifySession } from "@/app/_lib/dal";
+import { IssueAttachment } from "@/app/_models/issue-attachment.model";
 import { Issue } from "@/app/_models/issue.model";
 import { TestCaseResultAttachment } from "@/app/_models/test-case-result-attachment.model";
 import { TestCaseResult } from "@/app/_models/test-case-result.model";
@@ -100,6 +101,7 @@ export async function POST(
         projectId: projectId,
         status: IssueStatus.NEW,
         testCycle: response?.data?.testCycleId,
+        description: response?.data?.remarks ? response?.data?.remarks : "",
       });
       await newIssue.save();
     }
@@ -147,6 +149,42 @@ export async function POST(
     );
 
     const validAttachmentIds = attachmentIds.filter((id) => id !== null);
+
+    // Add attachment in issue if exists
+    if (newIssue) {
+      const issueAttachmentIds = await Promise.all(
+        attachments.map(async (file) => {
+          if (file) {
+            const { name, contentType } = await getFileMetaData(file);
+            const cloudId =
+              await attachmentService.uploadFileInGivenFolderInDrive(
+                file,
+                AttachmentFolder.ISSUES
+              );
+            const newAttachment = new IssueAttachment({
+              cloudId: cloudId,
+              name,
+              contentType,
+              issueId: newIssue._id,
+            });
+
+            const savedAttachment = await newAttachment.save();
+            return savedAttachment._id;
+          }
+          return null;
+        })
+      );
+
+      const validIssueAttachmentIds = issueAttachmentIds.filter(
+        (id) => id !== null
+      );
+
+      await Issue.findByIdAndUpdate(
+        newIssue._id,
+        { $push: { attachments: { $each: validIssueAttachmentIds } } },
+        { new: true }
+      );
+    }
 
     await TestCaseResult.findByIdAndUpdate(
       updateResponse._id,
