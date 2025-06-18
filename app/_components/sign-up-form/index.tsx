@@ -160,12 +160,12 @@ export function SignUpForm({
     { name: "OKTO", logo: "/assets/images/OKTO.png", isWhite: false },
   ];
 
-  return (
-    <div className="min-h-screen bg-green-50 relative flex flex-col lg:flex-row px-4">
-      <NewBrandLogo className="absolute top-4 left-4 w-24 sm:w-24 md:w-36 z-10" />
+  const [isAgreed, setIsAgreed] = useState(false);
 
+  return (
+    <div className="min-h-screen flex flex-col lg:flex-row px-4 py-8 lg:py-0">
       {/* left side — Only visible on large screen */}
-      <div className="hidden lg:flex lg:w-1/2 px-10 py-16 flex-col justify-center">
+      <div className="hidden lg:flex lg:w-1/2 px-10 py-5 flex-col justify-center">
         <h1 className="text-3xl font-bold text-gray-800 mb-4">
           Get Started with QTM - Quality Test Manager
         </h1>
@@ -204,8 +204,8 @@ export function SignUpForm({
       </div>
 
       {/* RIGHT SIDE (Form section) */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center py-10">
-        <div className="w-full max-w-xl bg-green-100 rounded-2xl shadow-xl p-8">
+      <div className="w-full lg:w-1/2 flex items-center justify-center py-8">
+        <div className="w-full max-w-xl bg-white lg:bg-green-100 md:lg-bg-green-100 rounded-2xl shadow-xl p-6 md:m-6">
           <h1 className="text-2xl font-bold text-center mb-2">
             {role === UserRoles.TESTER
               ? "Sign up as Tester"
@@ -430,16 +430,53 @@ export function SignUpForm({
                 />
               )}
 
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <div className="flex items-start space-x-2 text-sm text-muted-foreground">
+                <input
+                  type="checkbox"
+                  id="agreement"
+                  checked={isAgreed}
+                  onChange={(e) => setIsAgreed(e.target.checked)}
+                  className="mt-1 accent-green-600"
+                />
+                <label htmlFor="agreement">
+                  I agree to the{" "}
+                  <Link
+                    href="https://apptestify.com/qtm-terms-and-conditions"
+                    className="text-green-600 "
+                    target="_blank"
+                  >
+                    terms of use
+                  </Link>
+                  ,{" "}
+                  <Link
+                    href="https://apptestify.com/qtm-terms-and-conditions"
+                    className="text-green-600 "
+                    target="_blank"
+                  >
+                    non-disclosure agreement
+                  </Link>
+                    {" "}and{" "}
+                  <Link
+                    href="https://apptestify.com/qtm-terms-and-conditions"
+                    className="text-green-600"
+                    target="_blank"
+                  >
+                    privacy policy
+                  </Link>
+                </label>
+              </div>
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={!isAgreed || isLoading}
+              >
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Create an account
               </Button>
               <div className="text-center text-sm sm:text-base">
                 <span>Already have an account? </span>
                 <Link href="/auth/sign-in">
-                  <span className="ml-2 text-green-600">
-                    Sign In!
-                  </span>
+                  <span className="ml-2 text-green-600">Sign In!</span>
                 </Link>
               </div>
             </form>

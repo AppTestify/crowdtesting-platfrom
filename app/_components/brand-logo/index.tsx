@@ -1,25 +1,23 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 
 export function BrandLogo({ className }: { className: string }) {
-    return (
-        <div className="flex items-center gap-2">
-            <img
-                src="/assets/images/logo.png"
-                className={`w-40 ${className}`}
-            />
-        </div>
-    )
+  return (
+    <div className="flex items-center gap-2">
+      <img src="/assets/images/logo.png" className={`w-40 ${className}`} />
+    </div>
+  );
 }
 
 export function NewBrandLogo({ className }: { className: string }) {
-    return (
-        <div className="flex items-center gap-2">
-            <img
-                src="/assets/images/newLogo.png"
-                className={`w-40 ${className}`}
-            />
-        </div>
-    )
+  return (
+    <div>
+      <img
+        src="/assets/images/newLogo.png"
+        className={className}
+        alt="AppTestify Logo"
+      />
+    </div>
+  );
 }
