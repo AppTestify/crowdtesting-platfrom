@@ -457,7 +457,7 @@ export function SignUpForm({
                   </Link>
                     {" "}and{" "}
                   <Link
-                    href="https://apptestify.com/qtm-terms-and-conditions"
+                    href="https://apptestify.com/qtm-privacy-policy"
                     className="text-green-600"
                     target="_blank"
                   >
