@@ -61,9 +61,10 @@ export const PARENT_EMAIL_TEMPLATE = `<!doctype html>
       padding: 0;
     }
 
-    .logo {
-  max-width: 150px; /* Default size */
-  width: 100%;
+  
+
+.logo {
+  max-width: 100px; /* Smaller size */
   height: auto;
   display: block;
 }
@@ -73,9 +74,12 @@ export const PARENT_EMAIL_TEMPLATE = `<!doctype html>
     HEADER, FOOTER, MAIN
     ------------------------------------- */
 
+    
     .header {
-    margin-top: 24px;
-    }
+      margin-top: 24px;
+      text-align: left; 
+      padding-left: 20px; 
+}
         
     .main {
       background: #ffffff;
@@ -181,6 +185,8 @@ export const PARENT_EMAIL_TEMPLATE = `<!doctype html>
         border-color: #419641 !important;
       }
     }
+
+    
 
     @media only screen and (max-width: 640px) {
   .logo {
@@ -340,7 +346,7 @@ export const PARENT_EMAIL_TEMPLATE = `<!doctype html>
         <td class="container">
             <!-- START HEADER -->
                 <div class="header">
-                <img class="logo" src="https://platform.apptestify.com/assets/images/logo.png" alt="AppTestify Logo" />
+                <img class="logo" src="https://platform.apptestify.com/assets/images/newLogo.png" width=100 alt="QTM Logo" />
                 </div>
             <!-- END HEADER -->
           <div class="content">

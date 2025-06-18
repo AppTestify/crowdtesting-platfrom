@@ -1,6 +1,5 @@
 "use client";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+
 import { signIn } from "next-auth/react";
 import { NextAuthProviders } from "@/app/_constants/next-auth-providers";
 import { Suspense, useEffect, useState } from "react";
@@ -8,13 +7,11 @@ import { UserRoles } from "@/app/_constants/user-roles";
 import Cookies from "js-cookie";
 import { CookieKey } from "@/app/_constants/cookie-keys";
 import { AuthIntent } from "@/app/_constants";
-import { SignUpForm } from "@/app/_components/sing-up-form";
+import { SignUpForm } from "@/app/_components/sign-up-form";
 import { ErrorCode } from "@/app/_constants/error-codes";
 import { useRouter, useSearchParams } from "next/navigation";
 import toasterService from "@/app/_services/toaster-service";
 import { USER_EXISTS_ERROR_MESSAGE } from "@/app/_constants/errors";
-import { Loader2 } from "lucide-react";
-import { BrandLogo } from "@/app/_components/brand-logo";
 
 function SignUpWrapper() {
   const searchParams = useSearchParams();
