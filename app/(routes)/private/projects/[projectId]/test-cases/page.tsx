@@ -118,14 +118,14 @@ export default function TestCases() {
     },
     ...(testCases.some((item) => item?.userId?._id)
       ? [
-          {
-            accessorKey: "createdBy",
-            header: "Created By",
-            cell: ({ row }: { row: any }) => (
-              <div className="">{`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}</div>
-            ),
-          },
-        ]
+        {
+          accessorKey: "createdBy",
+          header: "Created By",
+          cell: ({ row }: { row: any }) => (
+            <div className="">{`${row.original?.userId?.firstName} ${row.original?.userId?.lastName}`}</div>
+          ),
+        },
+      ]
       : []),
     {
       accessorKey: "testType",
@@ -144,28 +144,28 @@ export default function TestCases() {
       ),
     },
     ...(userData?.role != UserRoles.TESTER &&
-    checkProjectActiveRole(project?.isActive ?? false, userData)
+      checkProjectActiveRole(project?.isActive ?? false, userData)
       ? [
-          {
-            id: "actions",
-            enableHiding: false,
-            cell: ({ row }: { row: any }) => (
-              <TestCaseRowActions
-                row={row as unknown as Row<ITestCase>}
-                onEditClick={(testCase) => {
-                  setEditTestCase(testCase);
-                  setIsEditOpen(true);
-                }}
-                onViewClick={(testCase) => {
-                  setTestCase(testCase);
-                  setIsViewOpen(true);
-                }}
-                testSuites={testSuites}
-                refreshTestCases={refreshTestCases}
-              />
-            ),
-          },
-        ]
+        {
+          id: "actions",
+          enableHiding: false,
+          cell: ({ row }: { row: any }) => (
+            <TestCaseRowActions
+              row={row as unknown as Row<ITestCase>}
+              onEditClick={(testCase) => {
+                setEditTestCase(testCase);
+                setIsEditOpen(true);
+              }}
+              onViewClick={(testCase) => {
+                setTestCase(testCase);
+                setIsViewOpen(true);
+              }}
+              testSuites={testSuites}
+              refreshTestCases={refreshTestCases}
+            />
+          ),
+        },
+      ]
       : []),
   ];
 
@@ -227,6 +227,7 @@ export default function TestCases() {
   };
 
   const handleRequirementChange = (requirment: string) => {
+    setPageIndex(1);
     setSelectedRequirment(requirment);
   };
 
@@ -406,9 +407,9 @@ export default function TestCases() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}
@@ -417,8 +418,8 @@ export default function TestCases() {
             </TableHeader>
             <TableBody>
               {table &&
-              table.getRowModel() &&
-              table?.getRowModel()?.rows?.length ? (
+                table.getRowModel() &&
+                table?.getRowModel()?.rows?.length ? (
                 table.getRowModel().rows.map((row) => (
                   <TableRow
                     key={row.id}
