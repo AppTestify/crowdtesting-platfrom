@@ -436,7 +436,7 @@ export function SignUpForm({
                   id="agreement"
                   checked={isAgreed}
                   onChange={(e) => setIsAgreed(e.target.checked)}
-                  className="mt-1"
+                  className="mt-1 accent-green-600"
                 />
                 <label htmlFor="agreement">
                   I agree to the{" "}
