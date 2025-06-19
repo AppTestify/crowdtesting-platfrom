@@ -4,7 +4,7 @@ export const TESTER_INFORMATION_TEMPLATE = `
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to AppTestify</title>
+    <title>Welcome to QTM</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -70,14 +70,14 @@ export const TESTER_INFORMATION_TEMPLATE = `
 <body>
     <div>
     <h1>{greeting} <span class="highlight">{name}</span>,</h1>
-    <p>Thank you for registering on AppTestify, the premier crowd-testing platform! We're excited to have you onboard as a tester. To get started and begin participating in testing projects, we kindly ask you to complete your profile.</p>
+    <p>Thank you for registering on QTM, the premier crowd-testing platform! We're excited to have you onboard as a tester. To get started and begin participating in testing projects, we kindly ask you to complete your profile.</p>
 
     <p>Please follow the steps below to complete your registration:</p>
     <ul>
         <li>
             <strong>Complete Your Profile:</strong> 
             <span style="margin-right: 8px;">📋</span>
-            Log in to your AppTestify account and update your personal details, such as your name, location, and contact information.
+            Log in to your QTM account and update your personal details, such as your name, location, and contact information.
         </li>
         <li>
             <strong>Add Your Skills & Expertise:</strong> 
@@ -110,7 +110,7 @@ export const TESTER_INFORMATION_TEMPLATE = `
     <p>We're looking forward to seeing your valuable contributions in our testing community.</p>
 
     <p>Best regards,</p>
-    <p class="highlight">The AppTestify Team</p>
+    <p class="highlight">Team QTM</p>
 </div>
 </body>
 </html>

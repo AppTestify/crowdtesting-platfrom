@@ -4,7 +4,7 @@ export const WELCOME_TESTER_MESSAGE_TEMPLATE = `
 <head> 
     <meta charset="UTF-8"> 
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-    <title>Welcome to AppTestify</title> 
+    <title>Welcome to QTM</title> 
     <style> 
         body { 
             font-family: Arial, sans-serif; 
@@ -70,7 +70,7 @@ export const WELCOME_TESTER_MESSAGE_TEMPLATE = `
 <body> 
     <div> 
         <h1>{greeting} <span class="highlight">{name}</span>,</h1> 
-        <p>🎉 You've just taken the first step toward a rewarding testing journey - welcome to AppTestify!</p> 
+        <p>🎉 You've just taken the first step toward a rewarding testing journey - Welcome to QTM by AppTestify!</p> 
 
         <p>Here's what's in store for you:</p> 
         <ul> 
@@ -88,7 +88,7 @@ export const WELCOME_TESTER_MESSAGE_TEMPLATE = `
         <p>The world of software needs talented testers like you - let's make it better, together!</p> 
 
         <p>Here's to finding bugs, earning rewards, and leveling up,</p> 
-        <p class="highlight">The AppTestify Team</p> 
+        <p class="highlight">Team QTM</p> 
     </div> 
 </body> 
 </html> 

@@ -42,29 +42,7 @@ function SignInWrapper() {
   };
 
   return (
-    // <div className="min-h-screen flex flex-col md:flex-row bg-gray-50">
-    //   {/* Left: Login */}
-    //   <div className="w-full md:w-1/2 flex flex-col md:p-8 bg-white shadow-md">
-    //     {/* Logo aligned left */}
-    //     <div className="w-full flex justify-start mb-8">
-    //       <NewBrandLogo className="text-black" />
-    //     </div>
-
-    //     {/* Centered form content */}
-    //     <div className="w-full max-w-sm mx-auto">
-    //       <h1 className="text-3xl font-bold mb-2 text-center">Welcome Back</h1>
-    //       <p className="text-center text-muted-foreground mb-6">
-    //         Login into your account
-    //       </p>
-    //       <SignInForm setIsGoogleSignInDisable={setIsGoogleSignInDisable} />
-    //     </div>
-    //   </div>
-
-    //   {/* Right: Role Highlights */}
-    //   <SignInSideContent />
-    // </div>
-
-    <div className="min-h-screen flex flex-col lg:flex-row bg-gray-50 max-w-screen-2xl mx-auto">
+    <div className="min-h-[90vh] flex flex-col lg:flex-row bg-gray-50 max-w-screen-2xl mx-auto">
       {/* Left Side: SignInForm */}
       <div className="w-full lg:w-1/2 flex flex-col p-6 sm:p-6 bg-white shadow-md ">
         {/* Logo */}
