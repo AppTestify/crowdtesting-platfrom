@@ -310,7 +310,7 @@ export const ACTIVATE_ACOUNT_LINK_TEMPLATE = `<!doctype html>
               <!-- START MAIN CONTENT AREA -->
               <tr>
                 <td class="wrapper">
-                  <p>Hello</p>
+                  <p>Hello <span class="highlight">{name}</span></p>
                   <p>Please click on the below button to activate your account.</p>
                   <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-primary">
                     <tbody>

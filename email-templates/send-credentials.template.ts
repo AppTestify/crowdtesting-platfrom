@@ -61,7 +61,7 @@ export const SEND_CREDENTIALS_TEMPLATE = `
 <body>
     <div class="container">
         <h1>Your Account Credentials</h1>
-        <p class="content">Dear {role},</p>
+        <p class="content">Dear {name},</p>
         <p class="content">Below are your account credentials:</p>
 
         <div class="credentials">

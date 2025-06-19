@@ -163,6 +163,7 @@ export function SignUpForm({
   const [isAgreed, setIsAgreed] = useState(false);
 
   return (
+    <>
     <div className="min-h-screen flex flex-col lg:flex-row px-4 py-8 lg:py-0">
       {/* left side — Only visible on large screen */}
       <div className="hidden lg:flex lg:w-1/2 px-10 py-5 flex-col justify-center">
@@ -204,7 +205,7 @@ export function SignUpForm({
       </div>
 
       {/* RIGHT SIDE (Form section) */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center py-8">
+      <div className="w-full lg:w-1/2 flex items-center justify-center pt-8">
         <div className="w-full max-w-xl bg-white lg:bg-green-100 md:lg-bg-green-100 rounded-2xl shadow-xl p-6 md:m-6">
           <h1 className="text-2xl font-bold text-center mb-2">
             {role === UserRoles.TESTER
@@ -457,7 +458,7 @@ export function SignUpForm({
                   </Link>
                     {" "}and{" "}
                   <Link
-                    href="https://apptestify.com/qtm-terms-and-conditions"
+                    href="https://apptestify.com/qtm-privacy-policy"
                     className="text-green-600"
                     target="_blank"
                   >
@@ -484,5 +485,33 @@ export function SignUpForm({
         </div>
       </div>
     </div>
+    <div className="text-center text-[10px]  md:text-xs text-gray-500 flex flex-wrap justify-center items-center gap-x-4 gap-y-1 px-5">
+        <p>
+          &copy; 2025 AppTestify Global Services Pvt. Ltd. • Built with care in
+          India
+        </p>
+        <div className="flex flex-wrap items-center gap-x-4 text-green-600">
+          <Link
+            href="https://apptestify.com/qtm-privacy-policy"
+            target="_blank"
+          >
+            Privacy Policy
+          </Link>
+          <span className="text-gray-300">|</span>
+          <Link
+            href="https://apptestify.com/qtm-terms-and-conditions"
+            target="_blank"
+          >
+            Terms of Use
+          </Link>
+          <span className="text-gray-300">|</span>
+          <Link href="https://apptestify.com/#contact" target="_blank">
+            Contact Us
+          </Link>
+        </div>
+        {/* <span className="hidden sm:inline mx-2"></span> */}
+        <p>QTM is a product of AppTestify Global Services Pvt. Ltd.</p>
+      </div>
+      </>
   );
 }

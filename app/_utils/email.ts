@@ -71,6 +71,7 @@ export const sendVerificationEmail = async (user: any) => {
 
   const templateTags = {
     accountActivationLink: generateVerificationLink(user._id, user.role),
+    name:user.firstName+' '+user.lastName
   };
   emailService.sendEmail({
     to: user.email,
