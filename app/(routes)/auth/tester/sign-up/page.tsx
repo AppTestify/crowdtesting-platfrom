@@ -12,6 +12,8 @@ import { ErrorCode } from "@/app/_constants/error-codes";
 import { useRouter, useSearchParams } from "next/navigation";
 import toasterService from "@/app/_services/toaster-service";
 import { USER_EXISTS_ERROR_MESSAGE } from "@/app/_constants/errors";
+import { NewBrandLogo } from "@/app/_components/brand-logo";
+import { Button } from "@/components/ui/button";
 
 function SignUpWrapper() {
   const searchParams = useSearchParams();
@@ -41,8 +43,11 @@ function SignUpWrapper() {
   };
 
   return (
-    <div className="w-full">
-      <SignUpForm
+    <div className="min-h-screen relative bg-transparent lg:bg-green-50">
+          <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-10">
+            <NewBrandLogo className="w-28 sm:w-32 md:w-36 lg:w-40 mb:10" />
+          </div>
+          <SignUpForm
         role={UserRoles.TESTER}
         setIsGoogleSignInDisable={setIsGoogleSignInDisable}
       />
@@ -51,6 +56,8 @@ function SignUpWrapper() {
                             Sign up with Google
                         </Button> */}
     </div>
+    
+      
   );
 }
 

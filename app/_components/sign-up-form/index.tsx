@@ -217,7 +217,7 @@ export function SignUpForm({
             Get Started
           </h2>
           <p className="text-sm text-gray-600 mb-6 text-center">
-            30-day free trial. No credit card required.
+            Unlimited free trial. No credit card required.
           </p>
 
           <Form {...form}>
