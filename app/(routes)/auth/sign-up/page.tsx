@@ -1,20 +1,18 @@
 "use client";
-import Link from "next/link";
 import Cookies from "js-cookie";
 import toasterService from "@/app/_services/toaster-service";
-import { Button } from "@/components/ui/button";
 import { signIn } from "next-auth/react";
 import { Suspense, useEffect, useState } from "react";
 import { UserRoles } from "@/app/_constants/user-roles";
 import { CookieKey } from "@/app/_constants/cookie-keys";
 import { AuthIntent } from "@/app/_constants";
-import { SignUpForm } from "@/app/_components/sing-up-form";
+import { SignUpForm } from "@/app/_components/sign-up-form";
 import { ErrorCode } from "@/app/_constants/error-codes";
 import { NextAuthProviders } from "@/app/_constants/next-auth-providers";
 import { useRouter, useSearchParams } from "next/navigation";
 import { USER_EXISTS_ERROR_MESSAGE } from "@/app/_constants/errors";
-import { Loader2 } from "lucide-react";
-import { BrandLogo } from "@/app/_components/brand-logo";
+import { NewBrandLogo } from "@/app/_components/brand-logo";
+import Link from "next/link";
 
 function SignUpWrapper() {
   const searchParams = useSearchParams();
@@ -43,7 +41,10 @@ function SignUpWrapper() {
   };
 
   return (
-    <div>
+    <div className="min-h-screen relative bg-transparent lg:bg-green-50">
+      <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-10">
+        <NewBrandLogo className="w-28 sm:w-32 md:w-36 lg:w-40 mb:10" />
+      </div>
       <SignUpForm
         role={UserRoles.CLIENT}
         setIsGoogleSignInDisable={setIsGoogleSignInDisable}

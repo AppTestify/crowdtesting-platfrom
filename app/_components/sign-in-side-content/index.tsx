@@ -56,21 +56,21 @@ const roles = [
 export default function SignInSideContent() {
   return (
     <div className="w-full px-4 xl:px-10">
-      <h2 className="text-xl xl:text-2xl font-semibold text-center mb-6 leading-snug">
+      <h2 className="text-lg xl:text-2xl font-semibold text-center mb-6 leading-snug">
         QTM is built for every role in your QA process
       </h2>
 
-      <ul className="space-y-1">
+      <ul className="">
         {roles.map((role, index) => (
           <li
             key={index}
             className="flex items-start gap-4 p-3 rounded-md transition"
           >
-            <div className="w-8 h-8 flex items-center justify-center bg-gray-100 rounded-full">
+            <div className="w-6 h-6 flex items-center justify-center bg-gray-100 rounded-full">
               {role.icon}
             </div>
             <div>
-              <p className="text-sm xl:text-base text-gray-900">
+              <p className="sm:text-xs md:text-sm lg:text-base xl:text-base text-gray-900">
                 {role.title}
               </p>
               <p className="text-xs xl:text-sm text-gray-600">
@@ -81,5 +81,32 @@ export default function SignInSideContent() {
         ))}
       </ul>
     </div>
+
+    // <div className="w-full px-4 xl:px-10">
+    //   <h2 className="text-sm sm:text-base md:text-lg xl:text-xl font-semibold text-center mb-6 leading-snug">
+    //     QTM is built for every role in your QA process
+    //   </h2>
+
+    //   <ul>
+    //     {roles.map((role, index) => (
+    //       <li
+    //         key={index}
+    //         className="flex items-start gap-3 p-2 rounded-md transition"
+    //       >
+    //         <div className="w-5 h-5 flex items-center justify-center bg-gray-100 rounded-full">
+    //           {role.icon}
+    //         </div>
+    //         <div>
+    //           <p className="text-[11px] sm:text-xs md:text-sm lg:text-base text-gray-900">
+    //             {role.title}
+    //           </p>
+    //           <p className="text-[10px] sm:text-xs md:text-sm text-gray-600">
+    //             {role.description}
+    //           </p>
+    //         </div>
+    //       </li>
+    //     ))}
+    //   </ul>
+    // </div>
   );
 }

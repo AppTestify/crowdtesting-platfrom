@@ -240,6 +240,7 @@ async function countresults(
             userIdFormat.idFormat,
             user.customId
           );
+          // console.log("customId", customId);
           userDetails = {
             customId,
             fullName: `${user.firstName || ""} ${user.lastName || ""}`,
@@ -250,7 +251,12 @@ async function countresults(
       }
 
       userDetails = userMap[result.assignedTo.toString()];
-      assignedTo = userDetails.customId;
+      if (userDetails) {
+        assignedTo = userDetails.customId;
+      } else {
+        assignedTo = "Unassigned";
+        userDetails = { customId: "", fullName: "", role: "" };
+      }
     }
     assignedIssueCounts[assignedTo] = {
       noOfAssigned: (assignedIssueCounts[assignedTo]?.noOfAssigned || 0) + 1,
@@ -311,7 +317,12 @@ async function countresults(
       }
 
       userDetails = requirementUserMap[result.assignedTo.toString()];
-      assignedTo = userDetails.customId;
+      if (userDetails) {
+        assignedTo = userDetails.customId;
+      } else {
+        assignedTo = "Unassigned";
+        userDetails = { customId: "", fullName: "", role: "" };
+      }
     }
 
     assignedRequirementCounts[assignedTo] = {

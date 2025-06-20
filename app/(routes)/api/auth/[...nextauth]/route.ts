@@ -75,7 +75,7 @@ const handler = NextAuth({
       // profile image
       // if (dbUser?.profilePicture && dbUser?.profilePicture?.cloudId) {
       //   try {
-      //     const fileResponse = await attachmentService.fetchFileAsBase64(
+      //     const fileResponse = await AttachmentService.fetchFileAsBase64(
       //       dbUser?.profilePicture?.cloudId
       //     );
       //     dbUser.profilePicture.data = fileResponse;
@@ -119,7 +119,7 @@ const handleSignIn = async (user: any) => {
   const activeRole: RequestCookie | undefined = cookieStore.get(CookieKey.ROLE);
   const intent = authIntent?.value ?? AuthIntent.SIGN_IN;
   const role = activeRole?.value ?? UserRoles.TESTER;
-
+  // console.log("user", user);
   if (intent === AuthIntent.SIGN_IN) {
     return await createSessionAndSignInUser(user);
   } else if (intent === AuthIntent.SIGN_UP) {

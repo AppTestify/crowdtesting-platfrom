@@ -4,7 +4,7 @@ export const WELCOME_CLIENT_MESSAGE_TEMPLATE = `
 <head> 
     <meta charset="UTF-8"> 
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-    <title>Welcome to AppTestify</title> 
+    <title>Welcome to QTM</title> 
 <style> 
         body { 
             font-family: Arial, sans-serif; 
@@ -44,7 +44,7 @@ export const WELCOME_CLIENT_MESSAGE_TEMPLATE = `
             padding: 12px 25px; 
             background-color: #4CAF50; 
             color: white !important; 
-            text-decoration: none; 
+            text-decoration: none !important; 
             border-radius: 4px; 
             font-size: 16px; 
             margin-top: 20px; 
@@ -70,25 +70,25 @@ export const WELCOME_CLIENT_MESSAGE_TEMPLATE = `
     <body>
     <div> 
         <h1>{greeting} <span class="highlight">{name}</span>,</h1> 
-        <p>Congratulations on joining AppTestify - the ultimate platform to elevate your software quality! We're thrilled to have you on board and can't wait to help you bring your vision to life.</p> 
+        <p>Welcome to <strong>QTM by AppTestify</strong> – your all-in-one platform to plan, manage, automate, and report QA efficiently.</p> 
 
-        <p>Here's what awaits you:</p> 
+        <p>Here’s what you can do next:</p> 
         <ul> 
-            <li>✅ Effortless Project Setup - Create projects, define goals, and assign test cycles in just a few clicks.</li> 
-            <li>✅ Expert Testers at Your Fingertips - Access a network of skilled professionals who ensure comprehensive coverage.</li> 
-            <li>✅ Data-Driven Insights - Stay on top of progress with detailed dashboards and real-time defect tracking.</li> 
+            <li>🚀 Start instantly with pre-built templates</li> 
+            <li>🔄 Integrate with Jira, Jenkins, GitHub & more</li> 
+            <li>📊 Visualize quality with real-time dashboards</li> 
         </ul> 
 
-        <p>💡 Ready to Get Started?</p> 
+        <p>👉 Get Started Now</p> 
         <p>Log in now and create your first project today:</p> 
         <a href="{link}" class="button">Log in to AppTestify</a> 
 
-        <p>📚 Need assistance? Write to <a href="mailto:contact@appTestify.com">contact@appTestify.com</a>.</p> 
+        <p>Need help? We’re just an email away or you can Book a Quick Demo. <a href="mailto:contact@appTestify.com">contact@appTestify.com</a>.</p> 
 
-        <p>Let's work together to create software that's flawless and user-friendly. We're here every step of the way!</p> 
-
-        <p>Cheers to a successful testing journey,</p> 
-        <p class="highlight">The AppTestify Team</p> 
+        <p>Let’s elevate your QA game!</p> 
+        <p>_____<p>
+        <p class="highlight">Team QTM</p> 
+        <address>Built for modern QA teams, by QA experts.</address>
     </div>  
     </body> 
 </html>

@@ -42,42 +42,20 @@ function SignInWrapper() {
   };
 
   return (
-    // <div className="min-h-screen flex flex-col md:flex-row bg-gray-50">
-    //   {/* Left: Login */}
-    //   <div className="w-full md:w-1/2 flex flex-col md:p-8 bg-white shadow-md">
-    //     {/* Logo aligned left */}
-    //     <div className="w-full flex justify-start mb-8">
-    //       <NewBrandLogo className="text-black" />
-    //     </div>
-
-    //     {/* Centered form content */}
-    //     <div className="w-full max-w-sm mx-auto">
-    //       <h1 className="text-3xl font-bold mb-2 text-center">Welcome Back</h1>
-    //       <p className="text-center text-muted-foreground mb-6">
-    //         Login into your account
-    //       </p>
-    //       <SignInForm setIsGoogleSignInDisable={setIsGoogleSignInDisable} />
-    //     </div>
-    //   </div>
-
-    //   {/* Right: Role Highlights */}
-    //   <SignInSideContent />
-    // </div>
-
-    <div className="min-h-screen flex flex-col lg:flex-row bg-gray-50 max-w-screen-2xl mx-auto">
+    <div className="min-h-[90vh] flex flex-col lg:flex-row bg-gray-50 max-w-screen-2xl mx-auto">
       {/* Left Side: SignInForm */}
-      <div className="w-full lg:w-1/2 flex flex-col p-6 sm:p-6 bg-white shadow-md border-1 border-red-400">
+      <div className="w-full lg:w-1/2 flex flex-col p-6 sm:p-6 bg-white shadow-md ">
         {/* Logo */}
         <div className="w-full flex justify-start mb-10">
-          <NewBrandLogo className="text-black w-24 sm:w-28" />
+          <NewBrandLogo className="text-black w-24 md:w-28 lg:w-40" />
         </div>
 
         {/* Content */}
         <div className="w-full max-w-md mx-auto">
-          <h1 className="text-2xl lg:text-3xl font-bold mb-2 text-center">
+          <h1 className="md:text-2xl lg:text-3xl font-bold mb-2 text-center text-lg">
             Welcome Back
           </h1>
-          <p className="text-center text-muted-foreground mb-6 text-sm sm:text-base">
+          <p className="text-center text-muted-foreground text-sm sm:text-base">
             Login into your account
           </p>
           <SignInForm setIsGoogleSignInDisable={setIsGoogleSignInDisable} />
