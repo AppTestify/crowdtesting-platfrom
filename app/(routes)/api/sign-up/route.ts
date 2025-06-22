@@ -24,6 +24,8 @@ import { signUpSchema } from "@/app/_schemas/auth.schema";
 import { sendVerificationEmail } from "@/app/_utils/email";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { Project } from "@/app/_models/project.model";
+const ObjectId = require("mongodb").ObjectId;
 
 export async function POST(req: Request) {
   try {
@@ -96,6 +98,13 @@ export async function POST(req: Request) {
     }
 
     const { password: _, ...userWithoutPassword } = newUser.toObject();
+    const userProjectIds = await Project.find(
+      { userId: new ObjectId(existingUser.id) },
+      { _id: 1 }
+    ).lean();
+
+    userWithoutPassword.projects = userProjectIds || [];
+
     const token = jwt.sign(
       { userId: newUser._id, email: newUser.email },
       JWT_SECRET,
