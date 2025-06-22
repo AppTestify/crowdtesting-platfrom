@@ -27,13 +27,15 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useRouter } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { logOutUserService } from "@/app/_services/auth-service";
 import toasterService from "@/app/_services/toaster-service";
 import {
   getAvatarFallbackText,
   getFormattedBase64ForSrc,
 } from "@/app/_utils/string-formatters";
+import { Badge } from "@/components/ui/badge";
+import { useEffect, useState } from "react";
 
 export function NavUser({
   user,
@@ -46,8 +48,19 @@ export function NavUser({
   } | null;
   profile: any;
 }) {
-  const { isMobile } = useSidebar();
+  const { isMobile, state } = useSidebar();
   const router = useRouter();
+  const { data } = useSession();
+  const [isAccountActive, setIsAccountActive] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (data) {
+      const sessionUser: any = data?.user;
+      if (sessionUser?.isVerified) {
+        setIsAccountActive(true);
+      }
+    }
+  }, [data]);
 
   const logOutUser = async () => {
     signOut();
@@ -56,8 +69,22 @@ export function NavUser({
     toasterService.success("Logged out successfully");
   };
 
+  const isCollapsed = state === "collapsed";
+
   return (
     <SidebarMenu>
+      {/* Account Status Badge - Only show when sidebar is expanded */}
+      {data?.user && !isCollapsed && (
+        <div className="px-3 pb-2">
+          <Badge 
+            className="font-medium w-full justify-center text-xs" 
+            variant={isAccountActive ? "default" : "secondary"}
+          >
+            {isAccountActive ? "Account Active" : "Account Inactive"}
+          </Badge>
+        </div>
+      )}
+      
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -97,6 +124,20 @@ export function NavUser({
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            {/* Show account status in dropdown when sidebar is collapsed */}
+            {isCollapsed && data?.user && (
+              <>
+                <DropdownMenuItem disabled>
+                  <Badge 
+                    className="font-medium text-xs mr-2" 
+                    variant={isAccountActive ? "default" : "secondary"}
+                  >
+                    {isAccountActive ? "Account Active" : "Account Inactive"}
+                  </Badge>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+              </>
+            )}
             <DropdownMenuItem onClick={() => logOutUser()}>
               <LogOut />
               Log out

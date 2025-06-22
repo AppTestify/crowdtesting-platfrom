@@ -115,11 +115,11 @@ export default function ProjectLayouts({ onLoaded }: { onLoaded: () => void }) {
 
     return (
         <div className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-200 shadow-sm'>
-            <div className='px-6 py-4'>
+            <div className='px-6 pt-1 pb-4'>
                 {!isLoading && (
                     <>
                         {/* Enhanced Header Section */}
-                        <div className='flex items-center justify-between mb-4'>
+                        <div className='flex items-center justify-between mb-3'>
                             <div className='flex items-center space-x-4'>
                                 <Link 
                                     href={`/private/projects`}
@@ -129,14 +129,14 @@ export default function ProjectLayouts({ onLoaded }: { onLoaded: () => void }) {
                                 </Link>
                                 
                                 <div className='flex items-center space-x-3'>
-                                    <div className='w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-md'>
-                                        <FileText className='h-5 w-5 text-white' />
+                                    <div className='w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg'>
+                                        <FileText className='h-6 w-6 text-white' />
                                     </div>
                                     <div>
-                                        <h1 className='text-2xl font-bold text-gray-900 tracking-tight'>
+                                        <h1 className='text-2xl font-bold text-gray-900 tracking-tight leading-tight'>
                                             {projectTitle}
                                         </h1>
-                                        <p className='text-sm text-gray-500 font-medium'>
+                                        <p className='text-sm text-gray-500 font-medium mt-0.5'>
                                             Project Overview & Management
                                         </p>
                                     </div>
@@ -214,7 +214,7 @@ export default function ProjectLayouts({ onLoaded }: { onLoaded: () => void }) {
                         </div>
 
                         {/* Separator */}
-                        <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-6"></div>
+                        <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-4"></div>
 
                         {/* Enhanced Tabs */}
                         <div className=''>

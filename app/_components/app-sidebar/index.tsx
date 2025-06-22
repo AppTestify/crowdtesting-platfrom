@@ -11,6 +11,7 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { getSidebarItems, teams } from "@/app/_constants/sidebar";
 import { useSession } from "next-auth/react";
@@ -74,7 +75,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <>
       <Sidebar collapsible="icon" {...props}>
         <SidebarHeader>
-          {sessionData && <TeamSwitcher teams={teams} website={sessionData.website} />}
+          <div className="flex items-center justify-between">
+            {sessionData && <TeamSwitcher teams={teams} website={sessionData.website} />}
+            <SidebarTrigger className="ml-auto" />
+          </div>
         </SidebarHeader>
         <SidebarContent>
           <NavMain items={getSidebarItems(user)} />
