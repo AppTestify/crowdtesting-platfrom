@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import {
   ColumnDef,
@@ -30,7 +30,7 @@ import { getTestPlanService } from "@/app/_services/test-plan.service";
 import { AddTestPlan } from "./_components/add-test-plan";
 import { TestPlansRowActions } from "./_components/row-actions";
 import ViewTestPlan from "./_components/view-test-plan";
-import { ArrowUpDown } from "lucide-react";
+import { ArrowUpDown, Search, Filter, Plus, FileText, Users, Calendar, ChevronLeft, ChevronRight, ClipboardList, User, Clock, Loader2 } from "lucide-react";
 import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
 import { DBModels } from "@/app/_constants";
 import { useSession } from "next-auth/react";
@@ -41,13 +41,42 @@ import { getProjectService } from "@/app/_services/project.service";
 import toasterService from "@/app/_services/toaster-service";
 import { IProject } from "@/app/_interface/project";
 import { EditTestPlan } from "./_components/edit-test-plan";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
 
 export default function TestPlan() {
   const [testPlans, setTestPlans] = useState<ITestPlanPayload[]>([]);
   const [userData, setUserData] = useState<any>();
   const [project, setProject] = useState<IProject>();
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const columns: ColumnDef<ITestPlanPayload>[] = [
+  // Statistics calculations
+  const statistics = useMemo(() => {
+    const total = testPlans.length;
+    const assigned = testPlans.filter(plan => plan.assignedTo?._id).length;
+    const unassigned = total - assigned;
+    const recentlyCreated = testPlans.filter(plan => {
+      // Type assertion to handle the createdAt property that exists in the actual data
+      const planWithDate = plan as any;
+      if (!planWithDate.createdAt) return false;
+      const planDate = new Date(planWithDate.createdAt);
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      return planDate >= weekAgo;
+    }).length;
+
+    return {
+      total,
+      assigned,
+      unassigned,
+      recentlyCreated
+    };
+  }, [testPlans]);
+
+  // Enhanced columns with better styling
+  const columns: ColumnDef<ITestPlanPayload>[] = useMemo(() => [
     {
       accessorKey: "customId",
       header: ({ column }) => {
@@ -56,31 +85,35 @@ export default function TestPlan() {
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(isSorted === "asc")}
+            className="hover:bg-blue-50 transition-colors"
           >
-            ID
-            <ArrowUpDown />
+            <span className="font-semibold text-gray-700">ID</span>
+            <ArrowUpDown className="ml-2 h-4 w-4" />
           </Button>
         );
       },
       cell: ({ row }) => (
         <div
-          className="text-primary cursor-pointer ml-4"
+          className="text-blue-600 cursor-pointer ml-4 font-mono font-semibold hover:text-blue-800 transition-colors"
           onClick={() => getTestPlan(row.original as unknown as ITestPlan)}
         >
-          {row.getValue("customId")}
+          #{row.getValue("customId")}
         </div>
       ),
       sortingFn: "alphanumeric",
     },
     {
       accessorKey: "title",
-      header: "Title",
+      header: () => <span className="font-semibold text-gray-700">Title</span>,
       cell: ({ row }) => (
         <div
-          className="capitalize hover:text-primary cursor-pointer"
+          className="font-medium hover:text-blue-600 cursor-pointer transition-colors max-w-[300px]"
           onClick={() => getTestPlan(row.original as unknown as ITestPlan)}
         >
-          {row.getValue("title")}
+          <div className="truncate">{row.getValue("title")}</div>
+          <div className="text-xs text-gray-500 mt-1">
+            {row.original.parameters?.length || 0} parameters
+          </div>
         </div>
       ),
     },
@@ -88,12 +121,25 @@ export default function TestPlan() {
       ? [
           {
             accessorKey: "createdBy",
-            header: "Reporter",
+            header: () => <span className="font-semibold text-gray-700">Reporter</span>,
             cell: ({ row }: { row: any }) => (
-              <div className="">
-                {`${row.original?.userId?.firstName || ""} ${
-                  row.original?.userId?.lastName || ""
-                }`}
+              <div className="flex items-center gap-2">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={row.original?.userId?.profilePicture} />
+                  <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-semibold">
+                    {`${row.original?.userId?.firstName?.[0] || ''}${row.original?.userId?.lastName?.[0] || ''}`}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <div className="font-medium text-sm">
+                    {`${row.original?.userId?.firstName || ""} ${
+                      row.original?.userId?.lastName || ""
+                    }`}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {row.original?.userId?.customId}
+                  </div>
+                </div>
               </div>
             ),
           },
@@ -103,20 +149,45 @@ export default function TestPlan() {
       ? [
           {
             accessorKey: "assignedTo",
-            header: "Assignee",
+            header: () => <span className="font-semibold text-gray-700">Assignee</span>,
             cell: ({ row }: { row: any }) => (
               <div>
                 {row.original?.assignedTo?._id ? (
-                  userData?.role === UserRoles.ADMIN ? (
-                    `${
-                      row.original?.assignedTo?.firstName ||
-                      NAME_NOT_SPECIFIED_ERROR_MESSAGE
-                    } ${row.original?.assignedTo?.lastName || ""}`
-                  ) : (
-                    row.original?.assignedTo?.customId
-                  )
+                  <div className="flex items-center gap-2">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={row.original?.assignedTo?.profilePicture} />
+                      <AvatarFallback className="bg-gradient-to-r from-green-500 to-teal-600 text-white text-sm font-semibold">
+                        {userData?.role === UserRoles.ADMIN 
+                          ? `${row.original?.assignedTo?.firstName?.[0] || ''}${row.original?.assignedTo?.lastName?.[0] || ''}`
+                          : row.original?.assignedTo?.customId?.[0] || 'U'
+                        }
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <div className="font-medium text-sm">
+                        {userData?.role === UserRoles.ADMIN ? (
+                          `${
+                            row.original?.assignedTo?.firstName ||
+                            NAME_NOT_SPECIFIED_ERROR_MESSAGE
+                          } ${row.original?.assignedTo?.lastName || ""}`
+                        ) : (
+                          row.original?.assignedTo?.customId
+                        )}
+                      </div>
+                      {userData?.role === UserRoles.ADMIN && (
+                        <div className="text-xs text-gray-500">
+                          {row.original?.assignedTo?.customId}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 ) : (
-                  <span className="text-gray-400">Unassigned</span>
+                  <div className="flex items-center gap-2 text-gray-400">
+                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+                      <User className="h-4 w-4" />
+                    </div>
+                    <span className="text-sm">Unassigned</span>
+                  </div>
                 )}
               </div>
             ),
@@ -125,10 +196,33 @@ export default function TestPlan() {
       : []),
     {
       accessorKey: "createdAt",
-      header: "Created On",
+      header: ({ column }) => {
+        const isSorted = column.getIsSorted();
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(isSorted === "asc")}
+            className="hover:bg-blue-50 transition-colors"
+          >
+            <span className="font-semibold text-gray-700">Created On</span>
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
       cell: ({ row }) => (
-        <div className="capitalize">
-          {formatDate(row.getValue("createdAt"))}
+        <div className="flex items-center gap-2">
+          <Calendar className="h-4 w-4 text-gray-400" />
+          <div>
+            <div className="text-sm font-medium">
+              {formatDate(row.getValue("createdAt"))}
+            </div>
+            <div className="text-xs text-gray-500">
+              {new Date(row.getValue("createdAt")).toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit'
+              })}
+            </div>
+          </div>
         </div>
       ),
     },
@@ -141,8 +235,8 @@ export default function TestPlan() {
             cell: ({ row }: { row: any }) => (
               <TestPlansRowActions
                 row={row as Row<ITestPlan>}
-                onEditClick={(editPaln) => {
-                  setEditPlan(editPaln);
+                onEditClick={(editPlan) => {
+                  setEditPlan(editPlan);
                   setIsEditOpen(true);
                 }}
                 onViewClick={(viewPlan) => {
@@ -155,7 +249,7 @@ export default function TestPlan() {
           },
         ]
       : []),
-  ];
+  ], [userData, testPlans, project]);
 
   const [isEditOpen, setIsEditOpen] = useState<boolean>(false);
   const [editPlan, setEditPlan] = useState<ITestPlan | null>(null);
@@ -198,8 +292,8 @@ export default function TestPlan() {
       pageSize,
       globalFilter as unknown as string
     );
-    setTestPlans(response?.testPlans);
-    setTotalPageCount(response?.total);
+    setTestPlans(response?.testPlans || []);
+    setTotalPageCount(response?.total || 0);
     setIsLoading(false);
   };
 
@@ -270,7 +364,7 @@ export default function TestPlan() {
   }, [data]);
 
   return (
-    <main className="mx-4 mt-2">
+    <div className="min-h-screen bg-gray-50/30">
       <ViewTestPlan
         testPlan={testPlan as ITestPlan}
         sheetOpen={isViewOpen}
@@ -285,102 +379,249 @@ export default function TestPlan() {
           refreshTestPlans={refreshTestPlans}
         />
       )}
-      <div className="">
-        <h2 className="text-medium">Test plans</h2>
-      </div>
-      <div className="w-full">
-        <div className="flex py-4 justify-between">
-          <Input
-            placeholder="Filter test plans"
-            value={(globalFilter as string) ?? ""}
-            onChange={(event) => {
-              table.setGlobalFilter(String(event.target.value));
-            }}
-            className="max-w-sm"
-          />
+
+      <div className="p-6 space-y-6">
+        {/* Header Section */}
+        <div className="flex flex-col space-y-2 md:flex-row md:items-center md:justify-between md:space-y-0">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                <ClipboardList className="h-6 w-6 text-blue-600" />
+              </div>
+              Test Plans
+            </h1>
+            <p className="text-gray-600 mt-1">
+              Manage and organize your testing strategies and procedures
+            </p>
+          </div>
           {userData?.role !== UserRoles.TESTER &&
             checkProjectActiveRole(project?.isActive ?? false, userData) && (
-              <div className="flex gap-2 ml-2">
-                <AddTestPlan
-                  refreshTestPlans={refreshTestPlans}
-                  userData={userData}
-                />
-              </div>
+              <AddTestPlan
+                refreshTestPlans={refreshTestPlans}
+                userData={userData}
+              />
             )}
         </div>
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <TableHead key={header.id}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                      </TableHead>
-                    );
-                  })}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table &&
-              table.getRowModel() &&
-              table?.getRowModel()?.rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
+
+        {/* Statistics Dashboard */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <Card className="border-l-4 border-l-blue-500 hover:shadow-md transition-shadow">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+                <ClipboardList className="h-4 w-4 text-blue-500" />
+                Total Test Plans
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-gray-900">{statistics.total}</div>
+              <p className="text-xs text-gray-500 mt-1">
+                All test plans in project
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-l-4 border-l-green-500 hover:shadow-md transition-shadow">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+                <Users className="h-4 w-4 text-green-500" />
+                Assigned Plans
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-gray-900">{statistics.assigned}</div>
+              <p className="text-xs text-gray-500 mt-1">
+                Plans with assignees
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-l-4 border-l-orange-500 hover:shadow-md transition-shadow">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+                <User className="h-4 w-4 text-orange-500" />
+                Unassigned Plans
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-gray-900">{statistics.unassigned}</div>
+              <p className="text-xs text-gray-500 mt-1">
+                Plans awaiting assignment
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-l-4 border-l-purple-500 hover:shadow-md transition-shadow">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+                <Clock className="h-4 w-4 text-purple-500" />
+                Recent Plans
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-gray-900">{statistics.recentlyCreated}</div>
+              <p className="text-xs text-gray-500 mt-1">
+                Created this week
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Main Content Card */}
+        <Card className="shadow-sm">
+          <CardHeader className="border-b border-gray-200 bg-white">
+            <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
+              <div>
+                <CardTitle className="text-xl font-semibold text-gray-900">
+                  Test Plans Overview
+                </CardTitle>
+                <CardDescription>
+                  {totalPageCount > 0 
+                    ? `Showing ${((pageIndex - 1) * pageSize) + 1} to ${Math.min(pageIndex * pageSize, totalPageCount)} of ${totalPageCount} test plans`
+                    : "No test plans found"
+                  }
+                </CardDescription>
+              </div>
+              
+              {/* Search Bar */}
+              <div className="flex items-center space-x-2">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Input
+                    placeholder="Search test plans..."
+                    value={(globalFilter as string) ?? ""}
+                    onChange={(event) => {
+                      table.setGlobalFilter(String(event.target.value));
+                    }}
+                    className="pl-10 w-64 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+            </div>
+          </CardHeader>
+
+          <CardContent className="p-0">
+            {/* Table */}
+            <div className="overflow-hidden">
+              <Table className="table-fixed">
+                <TableHeader className="bg-gray-50/50">
+                  {table.getHeaderGroups().map((headerGroup) => (
+                    <TableRow key={headerGroup.id} className="border-b border-gray-200">
+                      {headerGroup.headers.map((header) => (
+                        <TableHead key={header.id} className="font-semibold text-gray-700 bg-gray-50/50">
+                          {header.isPlaceholder
+                            ? null
+                            : flexRender(
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
+                        </TableHead>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableHeader>
+                <TableBody>
+                  {isLoading ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={columns.length}
+                        className="h-32 text-center"
+                      >
+                        <div className="flex items-center justify-center space-x-2">
+                          <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+                          <span className="text-gray-500">Loading test plans...</span>
+                        </div>
                       </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
+                    </TableRow>
+                  ) : table.getRowModel().rows?.length ? (
+                    table.getRowModel().rows.map((row) => (
+                      <TableRow
+                        key={row.id}
+                        data-state={row.getIsSelected() && "selected"}
+                        className="hover:bg-gray-50/50 transition-colors border-b border-gray-100"
+                      >
+                        {row.getVisibleCells().map((cell) => (
+                          <TableCell key={cell.id} className="py-4">
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
+                            )}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell
+                        colSpan={columns.length}
+                        className="h-32 text-center"
+                      >
+                        <div className="flex flex-col items-center justify-center space-y-3">
+                          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
+                            <ClipboardList className="h-8 w-8 text-gray-400" />
+                          </div>
+                          <div className="text-center">
+                            <h3 className="text-lg font-medium text-gray-900">No test plans found</h3>
+                            <p className="text-gray-500 mt-1">
+                              {(globalFilter as string) 
+                                ? "Try adjusting your search criteria" 
+                                : "Get started by creating your first test plan"
+                              }
+                            </p>
+                          </div>
+                          {userData?.role !== UserRoles.TESTER &&
+                            checkProjectActiveRole(project?.isActive ?? false, userData) && 
+                            !(globalFilter as string) && (
+                              <AddTestPlan
+                                refreshTestPlans={refreshTestPlans}
+                                userData={userData}
+                              />
+                            )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+
+            {/* Pagination */}
+            {!isLoading && table.getRowModel().rows?.length > 0 && (
+              <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-gray-50/30">
+                <div className="text-sm text-gray-500">
+                  Showing {((pageIndex - 1) * pageSize) + 1} to {Math.min(pageIndex * pageSize, totalPageCount)} of {totalPageCount} results
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handlePreviousPage}
+                    disabled={pageIndex === 1}
+                    className="border-gray-300 hover:bg-gray-50"
                   >
-                    {!isLoading ? "No results" : "Loading"}
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
-        <div className="flex items-center justify-end space-x-2 py-4">
-          <div className="flex space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handlePreviousPage}
-              disabled={pageIndex === 1}
-            >
-              Previous
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleNextPage}
-              disabled={pageIndex >= Math.ceil(totalPageCount / pageSize)}
-            >
-              Next
-            </Button>
-          </div>
-        </div>
+                    <ChevronLeft className="h-4 w-4 mr-1" />
+                    Previous
+                  </Button>
+                  <div className="flex items-center space-x-1">
+                    <span className="text-sm font-medium text-gray-700">
+                      Page {pageIndex} of {Math.ceil(totalPageCount / pageSize)}
+                    </span>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleNextPage}
+                    disabled={pageIndex >= Math.ceil(totalPageCount / pageSize)}
+                    className="border-gray-300 hover:bg-gray-50"
+                  >
+                    Next
+                    <ChevronRight className="h-4 w-4 ml-1" />
+                  </Button>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
-    </main>
+    </div>
   );
 }

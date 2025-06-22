@@ -34,7 +34,7 @@ const formSchema = z.object({
 export function SignInForm({
   setIsGoogleSignInDisable,
 }: {
-  setIsGoogleSignInDisable: (value: boolean) => void;
+  setIsGoogleSignInDisable?: (value: boolean) => void;
 }) {
   const router = useRouter();
 
@@ -71,12 +71,12 @@ export function SignInForm({
 
   const startLoading = () => {
     setIsLoading(true);
-    setIsGoogleSignInDisable(true);
+    setIsGoogleSignInDisable?.(true);
   };
 
   const stopLoading = () => {
     setIsLoading(false);
-    setIsGoogleSignInDisable(false);
+    setIsGoogleSignInDisable?.(false);
   };
 
   const handlePasswordVisibility = () => {
@@ -88,22 +88,22 @@ export function SignInForm({
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="w-full max-w-md mx-auto px-4 sm:px-6 md:px-8 lg:px-10 py-6 grid gap-5"
+          className="w-full space-y-4"
         >
           <FormField
             control={form.control}
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel className="text-sm font-semibold text-gray-700">Email Address</FormLabel>
                 <FormControl>
                   <Input
                     placeholder="name@example.com"
                     {...field}
-                    className="text-base"
+                    className="h-12 text-base border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200"
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-red-500" />
               </FormItem>
             )}
           />
@@ -112,67 +112,83 @@ export function SignInForm({
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Password</FormLabel>
+                <FormLabel className="text-sm font-semibold text-gray-700">Password</FormLabel>
                 <FormControl>
                   <div className="relative">
                     <Input
                       type={isVisible ? "text" : "password"}
                       {...field}
-                      className="pr-10"
+                      className="h-12 pr-12 text-base border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200"
                     />
                     <button
                       type="button"
                       onClick={handlePasswordVisibility}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                     >
                       {isVisible ? (
-                        <EyeOffIcon className="h-5 w-5 text-gray-500" />
+                        <EyeOffIcon className="h-5 w-5" />
                       ) : (
-                        <EyeIcon className="h-5 w-5 text-gray-500" />
+                        <EyeIcon className="h-5 w-5" />
                       )}
                     </button>
                   </div>
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-red-500" />
               </FormItem>
             )}
           />
 
-          <div className="flex justify-end text-sm text-primary text-red-500">
-            <Link href="/auth/forgot-password">Recover Password</Link>
+          <div className="flex justify-between items-center">
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="rememberMe"
+                {...form.register("rememberMe")}
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              <label htmlFor="rememberMe" className="text-sm text-gray-600">
+                Remember me
+              </label>
+            </div>
+            <Link href="/auth/forgot-password" className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors">
+              Forgot password?
+            </Link>
           </div>
 
           <Button
             type="submit"
-            className="w-full text-base"
+            className="w-full h-12 text-base bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
             disabled={isLoading}
           >
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Login
+            Sign In
           </Button>
 
-          <div className="text-center text-sm sm:text-base">
-            <span>New here? Create Account </span>
-            <Link href="/auth/sign-up">
-              <span className="ml-2 text-green-600">Sign Up!</span>
+          <div className="text-center">
+            <span className="text-gray-600">Don't have an account? </span>
+            <Link href="/auth/sign-up" className="text-blue-600 hover:text-blue-800 font-semibold transition-colors">
+              Sign up
             </Link>
           </div>
         </form>
       </Form>
-      <div className="mt-10 text-center text-xs text-gray-500 space-y-1 ">
-        <p>&copy; 2025 AppTestify Global Services Pvt. Ltd. Built with care in India in</p>
-        <div className="flex justify-center gap-4 text-green-600">
-          <Link href="https://apptestify.com/qtm-privacy-policy" target="_blank">
-            Privacy Policy
-          </Link>
-          <Link href="https://apptestify.com/qtm-terms-and-conditions" target="_blank">
-            Terms of Use
-          </Link>
-          <Link href="https://apptestify.com/#contact" target="_blank">
-            Contact Us
-          </Link>
+      
+      <div className="mt-8 pt-6 border-t border-gray-200">
+        <div className="text-center text-xs text-gray-500 space-y-2">
+          <p>&copy; 2025 AppTestify Global Services Pvt. Ltd.</p>
+          <div className="flex justify-center gap-4 text-blue-600">
+            <Link href="https://apptestify.com/qtm-privacy-policy" target="_blank" className="hover:text-blue-800 transition-colors">
+              Privacy Policy
+            </Link>
+            <Link href="https://apptestify.com/qtm-terms-and-conditions" target="_blank" className="hover:text-blue-800 transition-colors">
+              Terms of Use
+            </Link>
+            <Link href="https://apptestify.com/#contact" target="_blank" className="hover:text-blue-800 transition-colors">
+              Contact Us
+            </Link>
+          </div>
+          <p className="text-gray-400">QTM is a product of AppTestify Global Services Pvt. Ltd.</p>
         </div>
-        <p>QTM is a product of AppTestify Global Services Pvt. Ltd.</p>
       </div>
     </>
   );

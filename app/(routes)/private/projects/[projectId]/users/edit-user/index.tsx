@@ -58,8 +58,8 @@ const EditProjectUser = ({
     const form = useForm<z.infer<typeof projectUserSchema>>({
         resolver: zodResolver(projectUserSchema),
         defaultValues: {
-            userId: userId?._id || "",
-            role: role || ""
+            userId: userId?._id || undefined,
+            role: role || undefined
         },
     });
 
@@ -114,15 +114,15 @@ const EditProjectUser = ({
                                             <FormLabel>Project user role</FormLabel>
                                             <Select
                                                 onValueChange={field.onChange}
-                                                value={field.value}
+                                                value={field.value || undefined}
                                             >
                                                 <SelectTrigger className="w-full">
-                                                    <SelectValue />
+                                                    <SelectValue placeholder="Select role (optional)" />
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     <SelectGroup>
                                                         {PROJECT_USER_ROLE_LIST.map((role) => (
-                                                            <SelectItem value={role}>
+                                                            <SelectItem key={role} value={role}>
                                                                 <div className="flex items-center">
                                                                     {role}
                                                                 </div>

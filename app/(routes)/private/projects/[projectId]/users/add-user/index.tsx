@@ -58,8 +58,8 @@ export function AddProjectUser({ refreshProjectUsers }: { refreshProjectUsers: (
     const form = useForm<z.infer<typeof projectSchema>>({
         resolver: zodResolver(projectSchema),
         defaultValues: {
-            userId: "",
-            role: ""
+            userId: undefined,
+            role: undefined
         },
     });
 
@@ -161,10 +161,10 @@ export function AddProjectUser({ refreshProjectUsers }: { refreshProjectUsers: (
                                             <FormLabel>Select user</FormLabel>
                                             <Select
                                                 onValueChange={field.onChange}
-                                                value={field.value || storedUserId}
+                                                value={field.value || storedUserId || undefined}
                                             >
                                                 <SelectTrigger className="w-full">
-                                                    <SelectValue>
+                                                    <SelectValue placeholder="Select user">
                                                         {
                                                             users
                                                                 .filter(user => user.id === (field.value || storedUserId))
@@ -210,15 +210,15 @@ export function AddProjectUser({ refreshProjectUsers }: { refreshProjectUsers: (
                                             <FormLabel>Project user role</FormLabel>
                                             <Select
                                                 onValueChange={field.onChange}
-                                                value={field.value}
+                                                value={field.value || undefined}
                                             >
                                                 <SelectTrigger className="w-full">
-                                                    <SelectValue />
+                                                    <SelectValue placeholder="Select role (optional)" />
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     <SelectGroup>
                                                         {PROJECT_USER_ROLE_LIST.map((role) => (
-                                                            <SelectItem value={role}>
+                                                            <SelectItem key={role} value={role}>
                                                                 <div className="flex items-center">
                                                                     {role}
                                                                 </div>

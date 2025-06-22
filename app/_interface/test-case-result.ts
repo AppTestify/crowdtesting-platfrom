@@ -24,6 +24,8 @@ export interface ITestCaseResult {
   original: ITestCaseResult;
   testExecutionId?: ITestExecution;
   testSteps: any[];
+  isIssue?: boolean;
+  issueId?: any;
 }
 
 export interface ITestCaseResultPayload {
@@ -31,6 +33,7 @@ export interface ITestCaseResultPayload {
   result: string;
   remarks?: string;
   isIssue?: boolean;
+  linkedIssueId?: string;
   testCycle?: string;
   attachments?: any[];
   testSteps?: any[];

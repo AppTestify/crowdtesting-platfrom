@@ -733,11 +733,13 @@ const ViewRequirement = ({
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <RequirementAttachments
-                      requirementId={requirementId}
-                      isUpdate={true}
-                      isView={true}
-                    />
+                    {requirementId && (
+                      <RequirementAttachments
+                        requirementId={requirementId}
+                        isUpdate={true}
+                        isView={true}
+                      />
+                    )}
                   </CardContent>
                 </Card>
               </TabsContent>

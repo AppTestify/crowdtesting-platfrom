@@ -69,11 +69,19 @@ export async function POST(
       typeof isIssueRaw === "string" &&
       isIssueRaw.trim().toLowerCase() === "true";
 
+    // Linked Issue ID
+    const linkedIssueIdRaw = body.get("linkedIssueId");
+    const linkedIssueIdValue =
+      typeof linkedIssueIdRaw === "string" && linkedIssueIdRaw.trim() !== ""
+        ? linkedIssueIdRaw.trim()
+        : null;
+
     const formData = {
       result: body.get("result"),
       actualResult: body.get("actualResult"),
       remarks: body.get("remarks"),
       isIssue: isIssue,
+      linkedIssueId: linkedIssueIdValue,
       testCycleId: testCycleData,
       testSteps: testSteps,
     };
@@ -90,8 +98,11 @@ export async function POST(
     }
     const { testCaseExecutionId, projectId } = params;
     let newIssue;
+    let issueIdToLink;
 
+    // Handle issue creation or linking
     if (response.data.isIssue) {
+      // Create new issue
       const TestExecution = await TestCaseResult.findById(
         testCaseExecutionId
       ).populate("testCaseId", "_id title");
@@ -104,12 +115,29 @@ export async function POST(
         description: response?.data?.remarks ? response?.data?.remarks : "",
       });
       await newIssue.save();
+      issueIdToLink = newIssue._id;
+    } else if (response.data.linkedIssueId) {
+      // Link to existing issue
+      issueIdToLink = response.data.linkedIssueId;
+      
+      // Verify the issue exists and belongs to the project
+      const existingIssue = await Issue.findOne({
+        _id: response.data.linkedIssueId,
+        projectId: projectId
+      });
+      
+      if (!existingIssue) {
+        return Response.json(
+          { message: "Selected issue not found or doesn't belong to this project" },
+          { status: HttpStatusCode.BAD_REQUEST }
+        );
+      }
     }
 
-    const { testCycleId, ...restData } = response.data;
+    const { testCycleId, linkedIssueId, ...restData } = response.data;
     const updatePayload: any = {
       ...restData,
-      issueId: response.data.isIssue ? newIssue._id : null,
+      issueId: issueIdToLink || null,
       updatedBy: session.user._id,
       updatedAt: Date.now(),
     };

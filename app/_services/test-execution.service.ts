@@ -47,6 +47,9 @@ export const testModerateService = async (
     formData.append("remarks", body?.remarks || "");
     formData.append("isIssue", (body?.isIssue || false).toString());
     formData.append("testCycle", body?.testCycle || "");
+    if (body?.linkedIssueId) {
+      formData.append("linkedIssueId", body.linkedIssueId);
+    }
     body?.testSteps?.forEach((testStep) => {
       formData.append("testSteps[]", JSON.stringify(testStep));
     });
