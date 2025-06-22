@@ -117,3 +117,51 @@ export const getRequirementsWithoutPaginationService = async (
     throw error;
   }
 };
+
+export const exportRequirementsService = async (projectId: string, format: 'excel' | 'csv' = 'excel') => {
+  try {
+    if (format === 'csv') {
+      // For CSV, make a direct request to get the CSV file
+      const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/project/${projectId}/requirements/export?format=csv`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to export requirements as CSV');
+      }
+
+      // Trigger download
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `requirements-export-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      return { message: 'CSV export completed successfully' };
+    } else {
+      // For Excel, get the data and use the existing Excel generation
+      const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/project/${projectId}/requirements/export`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to export requirements');
+      }
+
+      return await response.json();
+    }
+  } catch (error) {
+    console.error('Export requirements error:', error);
+    throw error;
+  }
+};
