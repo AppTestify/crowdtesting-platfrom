@@ -7,6 +7,12 @@ import {
     Loader2,
     Plus,
     Trash,
+    FileText,
+    User,
+    Calendar,
+    Upload,
+    X,
+    Paperclip,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -20,13 +26,14 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import {
-    Sheet,
-    SheetClose,
-    SheetContent,
-    SheetHeader,
-    SheetTitle,
-    SheetTrigger,
-} from "@/components/ui/sheet";
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+    DialogFooter,
+} from "@/components/ui/dialog";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -49,17 +56,21 @@ import { TASK_STATUS_LIST } from "@/app/_constants/issue";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { Calendar } from "@/components/ui/calendar";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import AIRefinement from "@/app/_components/ai-refinement";
 
 const projectSchema = z.object({
-    title: z.string().min(1, "Required"),
-    description: z.string().min(1, "Required"),
+    title: z.string().min(1, "Title is required").max(100, "Title must be less than 100 characters"),
+    description: z.string().min(1, "Description is required"),
     projectId: z.string().optional(),
     attachments: z
         .array(z.instanceof(File))
         .optional(),
     assignedTo: z.string().optional(),
-    status: z.string().min(1, 'Required'),
+    status: z.string().min(1, 'Status is required'),
     startDate: z.date().nullable(),
     endDate: z.date().nullable(),
 });
@@ -76,7 +87,7 @@ export function AddRequirement({ refreshRequirements }: { refreshRequirements: (
     ];
 
     const { data } = useSession();
-    const [sheetOpen, setSheetOpen] = useState(false);
+    const [dialogOpen, setDialogOpen] = useState(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const { projectId } = useParams<{ projectId: string }>();
     const [attachments, setAttachments] = useState<File[]>([]);
@@ -109,12 +120,13 @@ export function AddRequirement({ refreshRequirements }: { refreshRequirements: (
             if (response) {
                 refreshRequirements();
                 toasterService.success(response.message);
+                resetForm();
+                setDialogOpen(false);
             }
         } catch (error) {
             toasterService.error();
         } finally {
             setIsLoading(false);
-            setSheetOpen(false);
         }
     }
 
@@ -126,6 +138,7 @@ export function AddRequirement({ refreshRequirements }: { refreshRequirements: (
 
     const resetForm = () => {
         form.reset();
+        setAttachments([]);
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -138,14 +151,15 @@ export function AddRequirement({ refreshRequirements }: { refreshRequirements: (
                 getValue: (key: string) => (key === "contentType" ? file.type : undefined),
             }));
             const fileArray = Array.from(e.target.files);
-            setAttachments(files);
-            form.setValue("attachments", fileArray);
+            setAttachments(prev => [...prev, ...files]);
+            form.setValue("attachments", [...attachments, ...fileArray]);
         }
     };
 
     const handleRemoveFile = (index: number) => {
-        setAttachments((prevAttachments) => prevAttachments?.filter((_, i) => i !== index));
-        form.setValue("attachments", attachments?.filter((_, i) => i !== index));
+        const newAttachments = attachments.filter((_, i) => i !== index);
+        setAttachments(newAttachments);
+        form.setValue("attachments", newAttachments);
     };
 
     const getSelectedUser = (field: any) => {
@@ -167,12 +181,11 @@ export function AddRequirement({ refreshRequirements }: { refreshRequirements: (
     };
 
     useEffect(() => {
-        if (sheetOpen) {
-            setAttachments([]);
+        if (dialogOpen) {
+            resetForm();
             getProjectUsers();
-            form.setValue("attachments", []);
         }
-    }, [sheetOpen]);
+    }, [dialogOpen]);
 
     useEffect(() => {
         if (data && users?.length) {
@@ -192,301 +205,389 @@ export function AddRequirement({ refreshRequirements }: { refreshRequirements: (
     }, [data, users]);
 
     return (
-        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-            <SheetTrigger asChild>
-                <Button onClick={() => resetForm()}>
-                    <Plus /> Add requirement
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+                <Button className="bg-blue-600 hover:bg-blue-700 transition-colors" onClick={() => resetForm()}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Requirement
                 </Button>
-            </SheetTrigger>
-            <SheetContent
-                className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto"
-            >
-                <SheetHeader>
-                    <SheetTitle className="text-left">Add new requirement</SheetTitle>
-                </SheetHeader>
+            </DialogTrigger>
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader className="space-y-3">
+                    <DialogTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                        <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <FileText className="h-5 w-5 text-blue-600" />
+                        </div>
+                        Create New Requirement
+                    </DialogTitle>
+                    <DialogDescription className="text-gray-600">
+                        Add a new requirement to track project specifications and deliverables.
+                    </DialogDescription>
+                </DialogHeader>
 
-                <div className="mt-4">
-                    <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} method="post">
-                            <div className="grid grid-cols-1 gap-2">
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                        {/* Basic Information Card */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                                    <FileText className="h-5 w-5 text-blue-600" />
+                                    Basic Information
+                                </CardTitle>
+                                <CardDescription>
+                                    Provide the essential details for this requirement
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
                                 <FormField
                                     control={form.control}
                                     name="title"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Requirement title</FormLabel>
+                                            <FormLabel className="text-sm font-medium text-gray-700">
+                                                Title *
+                                            </FormLabel>
                                             <FormControl>
-                                                <Input {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
-
-                            <div className={`grid grid-cols-${userProjectRole === ProjectUserRoles.ADMIN ||
-                                userProjectRole === ProjectUserRoles.CLIENT ? 2 : 1} gap-2 mt-3`}>
-                                <FormField
-                                    control={form.control}
-                                    name="status"
-                                    render={({ field }) => (
-                                        <FormItem className="flex flex-col">
-                                            <FormLabel>Status</FormLabel>
-                                            <Select
-                                                onValueChange={field.onChange}
-                                                value={field.value}
-                                            >
-                                                <SelectTrigger className="w-full">
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectGroup>
-                                                        {TASK_STATUS_LIST.map((status) => (
-                                                            <SelectItem
-                                                                key={status}
-                                                                value={status as string}
-                                                            >
-                                                                <div className="flex items-center">
-                                                                    {status}
-                                                                </div>
-                                                            </SelectItem>
-                                                        ))
-                                                        }
-                                                    </SelectGroup>
-                                                </SelectContent>
-                                            </Select>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-
-                                {userProjectRole === ProjectUserRoles.ADMIN ||
-                                    userProjectRole === ProjectUserRoles.CLIENT ? (
-                                    <div className="grid grid-cols-1 gap-2 ">
-                                        <FormField
-                                            control={form.control}
-                                            name="assignedTo"
-                                            render={({ field }) => (
-                                                <FormItem className="flex flex-col">
-                                                    <FormLabel>Assignee</FormLabel>
-                                                    <Select
-                                                        onValueChange={field.onChange}
-                                                        value={field.value}
-                                                    >
-                                                        <SelectTrigger className="w-full">
-                                                            <SelectValue>{getSelectedUser(field)}</SelectValue>
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            <SelectGroup>
-                                                                {users.length > 0 ? (
-                                                                    users.map((user) => (
-                                                                        <SelectItem
-                                                                            key={user._id}
-                                                                            value={user?.userId?._id as string}
-                                                                        >
-                                                                            {getUsernameWithUserId(user)}
-                                                                        </SelectItem>
-                                                                    ))
-                                                                ) : (
-                                                                    <div className="p-1 text-center text-gray-500">
-                                                                        Users not found
-                                                                    </div>
-                                                                )}
-                                                            </SelectGroup>
-                                                        </SelectContent>
-                                                    </Select>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </div>
-                                ) : null}
-                            </div>
-                            <div className="grid grid-cols-2 gap-2 mt-3">
-                                <FormField
-                                    control={form.control}
-                                    name="startDate"
-                                    render={({ field }) => (
-                                        <FormItem className="flex flex-col">
-                                            <FormLabel>Start date</FormLabel>
-                                            <Popover>
-                                                <PopoverTrigger asChild>
-                                                    <FormControl>
-                                                        <Button
-                                                            variant={"outline"}
-                                                            className={cn(
-                                                                "w-full pl-3 text-left font-normal",
-                                                                !field.value && "text-muted-foreground"
-                                                            )}
-                                                        >
-                                                            {field.value ? (
-                                                                format(field.value, "PPP")
-                                                            ) : (
-                                                                <span>Start date</span>
-                                                            )}
-                                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                                        </Button>
-                                                    </FormControl>
-                                                </PopoverTrigger>
-                                                <PopoverContent className="w-auto p-0" align="start">
-                                                    <Calendar
-                                                        mode="single"
-                                                        selected={field.value || undefined}
-                                                        onSelect={field.onChange}
-                                                        disabled={(date) => date < new Date("1900-01-01")}
-                                                        initialFocus
-                                                    />
-                                                </PopoverContent>
-                                            </Popover>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-
-                                <FormField
-                                    control={form.control}
-                                    name="endDate"
-                                    render={({ field }) => (
-                                        <FormItem className="flex flex-col">
-                                            <FormLabel>End date</FormLabel>
-                                            <Popover>
-                                                <PopoverTrigger asChild>
-                                                    <FormControl>
-                                                        <Button
-                                                            variant={"outline"}
-                                                            className={cn(
-                                                                "w-full pl-3 text-left font-normal",
-                                                                !field.value && "text-muted-foreground"
-                                                            )}
-                                                        >
-                                                            {field.value ? (
-                                                                format(field.value, "PPP")
-                                                            ) : (
-                                                                <span>End date</span>
-                                                            )}
-                                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                                        </Button>
-                                                    </FormControl>
-                                                </PopoverTrigger>
-                                                <PopoverContent className="w-auto p-0" align="start">
-                                                    <Calendar
-                                                        mode="single"
-                                                        selected={field.value || undefined}
-                                                        onSelect={field.onChange}
-                                                        disabled={(date) =>
-                                                            date < (form.watch("startDate") ?? new Date("1900-01-01")) ||
-                                                            date < new Date("1900-01-01")
-                                                        }
-                                                        initialFocus
-                                                    />
-                                                </PopoverContent>
-                                            </Popover>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-1 gap-2 mt-4">
-                                <FormField
-                                    control={form.control}
-                                    name="description"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Description</FormLabel>
-                                            <FormControl>
-                                                <TextEditor
-                                                    markup={field.value || ""}
-                                                    onChange={(value) => {
-                                                        form.setValue("description", value);
-                                                        form.trigger("description");
-                                                    }}
+                                                <Input
+                                                    placeholder="Enter requirement title..."
+                                                    {...field}
+                                                    className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                                                 />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
                                     )}
                                 />
-                            </div>
-                            <div className="grid grid-cols-1 gap-2 ">
-                                <div className="w-full mt-3">
-                                    <Label htmlFor="attachments">Attachments</Label>
+
+                                {/* Description Card */}
+                                <Card className="border-l-4 border-l-blue-500">
+                                    <CardHeader className="pb-3">
+                                        <div className="flex items-center justify-between">
+                                            <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                                                <FileText className="h-5 w-5 text-blue-600" />
+                                                Description
+                                            </CardTitle>
+                                            <AIRefinement
+                                                currentDescription={form.watch("description") || ""}
+                                                onApplyRefinement={(refinedDescription) => {
+                                                    form.setValue("description", refinedDescription);
+                                                }}
+                                                context={`New requirement for project`}
+                                            />
+                                        </div>
+                                        <CardDescription>
+                                            Provide a detailed description of what needs to be implemented
+                                        </CardDescription>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <FormField
+                                            control={form.control}
+                                            name="description"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormControl>
+                                                        <TextEditor
+                                                            markup={field.value}
+                                                            onChange={field.onChange}
+                                                            placeholder="Describe the requirement in detail..."
+                                                        />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </CardContent>
+                                </Card>
+                            </CardContent>
+                        </Card>
+
+                        {/* Assignment & Status Card */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                                    <User className="h-5 w-5 text-green-600" />
+                                    Assignment & Status
+                                </CardTitle>
+                                <CardDescription>
+                                    Set the assignee and current status of the requirement
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <FormField
+                                        control={form.control}
+                                        name="assignedTo"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className="text-sm font-medium text-gray-700">
+                                                    Assign to
+                                                </FormLabel>
+                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                    <FormControl>
+                                                        <SelectTrigger className="border-gray-300 focus:border-blue-500">
+                                                            <SelectValue placeholder="Select team member..." />
+                                                        </SelectTrigger>
+                                                    </FormControl>
+                                                    <SelectContent>
+                                                        <SelectGroup>
+                                                            {users?.map((user, index) => (
+                                                                <SelectItem
+                                                                    key={index}
+                                                                    value={user?.userId?._id || ""}
+                                                                >
+                                                                    <div className="flex items-center gap-2">
+                                                                        <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xs font-semibold">
+                                                                            {`${user?.userId?.firstName?.[0] || ''}${user?.userId?.lastName?.[0] || ''}`}
+                                                                        </div>
+                                                                        {getUsernameWithUserId(user)}
+                                                                    </div>
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectGroup>
+                                                    </SelectContent>
+                                                </Select>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+
+                                    <FormField
+                                        control={form.control}
+                                        name="status"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className="text-sm font-medium text-gray-700">
+                                                    Status *
+                                                </FormLabel>
+                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                    <FormControl>
+                                                        <SelectTrigger className="border-gray-300 focus:border-blue-500">
+                                                            <SelectValue placeholder="Select status..." />
+                                                        </SelectTrigger>
+                                                    </FormControl>
+                                                    <SelectContent>
+                                                        <SelectGroup>
+                                                            {TASK_STATUS_LIST.map((status, index) => (
+                                                                <SelectItem key={index} value={status}>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <div className={`w-3 h-3 rounded-full ${
+                                                                            status === 'Done' ? 'bg-green-500' :
+                                                                            status === 'In progress' ? 'bg-yellow-500' :
+                                                                            'bg-gray-400'
+                                                                        }`}></div>
+                                                                        {status}
+                                                                    </div>
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectGroup>
+                                                    </SelectContent>
+                                                </Select>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Timeline Card */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                                    <Calendar className="h-5 w-5 text-purple-600" />
+                                    Timeline
+                                </CardTitle>
+                                <CardDescription>
+                                    Set start and end dates for this requirement
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <FormField
+                                        control={form.control}
+                                        name="startDate"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className="text-sm font-medium text-gray-700">
+                                                    Start Date
+                                                </FormLabel>
+                                                <Popover>
+                                                    <PopoverTrigger asChild>
+                                                        <FormControl>
+                                                            <Button
+                                                                variant={"outline"}
+                                                                className={cn(
+                                                                    "w-full pl-3 text-left font-normal border-gray-300 hover:border-blue-500",
+                                                                    !field.value && "text-muted-foreground"
+                                                                )}
+                                                            >
+                                                                {field.value ? (
+                                                                    format(field.value, "PPP")
+                                                                ) : (
+                                                                    <span>Pick a start date</span>
+                                                                )}
+                                                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                            </Button>
+                                                        </FormControl>
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="w-auto p-0" align="start">
+                                                        <CalendarComponent
+                                                            mode="single"
+                                                            selected={field.value || undefined}
+                                                            onSelect={field.onChange}
+                                                            initialFocus
+                                                        />
+                                                    </PopoverContent>
+                                                </Popover>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+
+                                    <FormField
+                                        control={form.control}
+                                        name="endDate"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className="text-sm font-medium text-gray-700">
+                                                    End Date
+                                                </FormLabel>
+                                                <Popover>
+                                                    <PopoverTrigger asChild>
+                                                        <FormControl>
+                                                            <Button
+                                                                variant={"outline"}
+                                                                className={cn(
+                                                                    "w-full pl-3 text-left font-normal border-gray-300 hover:border-blue-500",
+                                                                    !field.value && "text-muted-foreground"
+                                                                )}
+                                                            >
+                                                                {field.value ? (
+                                                                    format(field.value, "PPP")
+                                                                ) : (
+                                                                    <span>Pick an end date</span>
+                                                                )}
+                                                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                            </Button>
+                                                        </FormControl>
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="w-auto p-0" align="start">
+                                                        <CalendarComponent
+                                                            mode="single"
+                                                            selected={field.value || undefined}
+                                                            onSelect={field.onChange}
+                                                            initialFocus
+                                                        />
+                                                    </PopoverContent>
+                                                </Popover>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Attachments Card */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                                    <Paperclip className="h-5 w-5 text-orange-600" />
+                                    Attachments
+                                </CardTitle>
+                                <CardDescription>
+                                    Upload supporting documents, images, or files
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
+                                    <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                                    <Label htmlFor="file-upload" className="cursor-pointer">
+                                        <span className="text-sm font-medium text-blue-600 hover:text-blue-500">
+                                            Click to upload files
+                                        </span>
+                                        <span className="text-sm text-gray-500 ml-1">or drag and drop</span>
+                                    </Label>
+                                    <p className="text-xs text-gray-500 mt-2">PNG, JPG, PDF up to 10MB</p>
                                     <Input
-                                        className="mt-2 opacity-0 cursor-pointer absolute w-0 h-0"
-                                        id="attachments"
+                                        id="file-upload"
                                         type="file"
                                         multiple
                                         onChange={handleFileChange}
+                                        className="sr-only"
+                                        accept=".png,.jpg,.jpeg,.pdf,.doc,.docx"
                                     />
-                                    <label
-                                        htmlFor="attachments"
-                                        className="flex mt-2 h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors cursor-pointer"
-                                    >
-                                        Choose Files
-                                    </label>
-                                    {attachments?.length > 0 &&
-                                        <div className="mt-2">
-                                            New attachments
-                                            <div className="mt-4 rounded-md border">
-                                                <Table>
-                                                    <TableBody>
-                                                        {attachments?.length ? (
-                                                            attachments.map((attachment, index) => (
-                                                                <TableRow key={index}>
-                                                                    <TableCell><DocumentName document={attachment} /></TableCell>
-                                                                    <TableCell className="flex justify-end items-end mr-6">
-                                                                        <Button type="button" onClick={() => handleRemoveFile(index)}
-                                                                            variant="ghost"
-                                                                            size="icon">
-                                                                            <Trash className="h-4 w-4 text-destructive" />
-                                                                        </Button>
-                                                                    </TableCell>
-                                                                </TableRow>
-                                                            ))
-                                                        ) : (
-                                                            <TableRow>
-                                                                <TableCell colSpan={columns.length} className="h-24 text-center">
-                                                                    No attachments found
-                                                                </TableCell>
-                                                            </TableRow>
-                                                        )}
-                                                    </TableBody>
-                                                </Table>
-                                            </div>
-                                        </div>
-                                    }
                                 </div>
-                            </div>
-                            <div className="mt-6 w-full flex justify-end gap-2">
-                                <SheetClose asChild>
-                                    <Button
-                                        disabled={isLoading}
-                                        type="button"
-                                        variant={"outline"}
-                                        size="lg"
-                                        className="w-full md:w-fit"
-                                    >
-                                        Cancel
-                                    </Button>
-                                </SheetClose>
-                                <Button
-                                    disabled={isLoading}
-                                    type="submit"
-                                    size="lg"
-                                    onClick={() => validateRequirement()}
-                                    className="w-full md:w-fit"
-                                >
-                                    {isLoading ? (
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    ) : null}
-                                    {isLoading ? "Saving" : "Save"}
-                                </Button>
-                            </div>
-                        </form>
-                    </Form>
-                </div>
 
-            </SheetContent>
-        </Sheet>
+                                {attachments.length > 0 && (
+                                    <div className="space-y-2">
+                                        <h4 className="text-sm font-medium text-gray-700">Uploaded Files:</h4>
+                                        <div className="grid grid-cols-1 gap-2">
+                                            {attachments.map((file, index) => (
+                                                <div
+                                                    key={index}
+                                                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200"
+                                                >
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                                            <Paperclip className="h-4 w-4 text-blue-600" />
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-sm font-medium text-gray-900 truncate max-w-[200px]">
+                                                                {file.name}
+                                                            </p>
+                                                            <p className="text-xs text-gray-500">
+                                                                {(file.size / 1024 / 1024).toFixed(2)} MB
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => handleRemoveFile(index)}
+                                                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                                                    >
+                                                        <X className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+
+                        <DialogFooter className="flex gap-3 pt-6 border-t border-gray-200">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setDialogOpen(false)}
+                                className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                type="submit"
+                                disabled={isLoading}
+                                className="bg-blue-600 hover:bg-blue-700 transition-colors"
+                            >
+                                {isLoading ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        Creating...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Plus className="mr-2 h-4 w-4" />
+                                        Create Requirement
+                                    </>
+                                )}
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </Form>
+            </DialogContent>
+        </Dialog>
     );
 }

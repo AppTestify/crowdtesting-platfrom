@@ -24,6 +24,8 @@ import { ISSUE_ASSIGN_TEMPLATE } from "@/email-templates/issue-assign.template";
 import { TASK_ASSIGN_TEMPLATE } from "@/email-templates/task-assign.template";
 import { ITestCycleCountryMailPayload } from "../_interface/test-cycle";
 import { TEST_CYCLE_COUNTRY_TEMPLATE } from "@/email-templates/test-cycle-country.template";
+import { IRequirementAssignMailPayload } from "../_interface/requirement";
+import { REQUIREMENT_ASSIGN_TEMPLATE } from "@/email-templates/requirement-assign.template";
 
 interface IReplaceTemplateTags {
   tagValuesObject: any;
@@ -231,6 +233,20 @@ export const testCycleCountryMail = async (
     subject: templateTags?.subject,
     body: replaceEmailTemplateTagsInternalService({
       emailBody: prepareEmailTemplate(TEST_CYCLE_COUNTRY_TEMPLATE),
+      tagValuesObject: templateTags,
+    }),
+  });
+};
+
+export const requirementAssignMail = async (
+  templateTags: IRequirementAssignMailPayload
+) => {
+  const emailService = new EmailService();
+  await emailService.sendEmail({
+    to: templateTags?.email,
+    subject: EmailSubjects.REQUIREMENT_ASSIGNED,
+    body: replaceEmailTemplateTagsInternalService({
+      emailBody: prepareEmailTemplate(REQUIREMENT_ASSIGN_TEMPLATE),
       tagValuesObject: templateTags,
     }),
   });

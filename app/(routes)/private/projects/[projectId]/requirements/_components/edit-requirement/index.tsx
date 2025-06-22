@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CalendarIcon, Loader2 } from "lucide-react";
+import { CalendarIcon, Loader2, User, Calendar as CalendarLucide, FileText, Settings, X, Users } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -16,12 +16,13 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import {
-    Sheet,
-    SheetClose,
-    SheetContent,
-    SheetHeader,
-    SheetTitle,
-} from "@/components/ui/sheet";
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import TextEditor from "@/app/(routes)/private/projects/_components/text-editor";
 import { useSession } from "next-auth/react";
 import { updateRequirementService } from "@/app/_services/requirement.service";
@@ -37,8 +38,21 @@ import { getUsernameWithUserId } from "@/app/_utils/common";
 import { TASK_STATUS_LIST } from "@/app/_constants/issue";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
+import { Separator } from "@/components/ui/separator";
+import AIRefinement from "@/app/_components/ai-refinement";
+
+// Use dynamic import for date-fns to avoid potential SSR issues
+import dynamic from "next/dynamic";
+
+// Helper function for date formatting
+const formatDate = (date: Date) => {
+    return new Intl.DateTimeFormat('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    }).format(date);
+};
 
 const requirementSchema = z.object({
     title: z.string().min(1, "Required"),
@@ -68,10 +82,10 @@ const EditRequirement = ({
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [attachments, setAttachments] = useState<any[]>([]);
     const [userData, setUserData] = useState<any>();
-    const [userProjectRole, setUserProjectRole] =
-        useState<ProjectUserRoles | null>(null);
+    const [userProjectRole, setUserProjectRole] = useState<ProjectUserRoles | null>(null);
     const [users, setUsers] = useState<IProjectUserDisplay[]>([]);
     const { data } = useSession();
+    
     const form = useForm<z.infer<typeof requirementSchema>>({
         resolver: zodResolver(requirementSchema),
         defaultValues: {
@@ -127,11 +141,6 @@ const EditRequirement = ({
         await uploadAttachment();
     };
 
-    useEffect(() => {
-        form.register("status");
-    }, [form]);
-
-
     const getProjectUsers = async () => {
         try {
             const projectUsers = await getProjectUsersListService(projectId as unknown as string);
@@ -150,16 +159,41 @@ const EditRequirement = ({
         return getUsernameWithUserId(selectedUser);
     };
 
+    const getStatusBadgeColor = (status: string) => {
+        switch (status) {
+            case 'Done':
+                return 'bg-green-100 text-green-800 border-green-200';
+            case 'In progress':
+                return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+            case 'Blocked':
+                return 'bg-red-100 text-red-800 border-red-200';
+            default:
+                return 'bg-gray-100 text-gray-800 border-gray-200';
+        }
+    };
+
+    useEffect(() => {
+        form.register("status");
+    }, [form]);
+
     useEffect(() => {
         if (sheetOpen) {
             if (data) {
-                form.reset();
+                form.reset({
+                    title: requirement?.title || "",
+                    description: requirement?.description || "",
+                    projectId: requirement?.projectId as unknown as string || "",
+                    assignedTo: requirement?.assignedTo?._id || "",
+                    status: requirement?.status || "",
+                    startDate: requirement?.startDate ? new Date(requirement.startDate) : null,
+                    endDate: requirement?.endDate ? new Date(requirement.endDate) : null
+                });
                 const { user } = data;
                 setUserData(user);
                 getProjectUsers();
             }
         }
-    }, [sheetOpen]);
+    }, [sheetOpen, requirement]);
 
     useEffect(() => {
         if (data && users?.length) {
@@ -179,256 +213,393 @@ const EditRequirement = ({
     }, [data, users]);
 
     return (
-        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-            <SheetContent
-                className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto"
-            >
-                <SheetHeader>
-                    <SheetTitle className="text-left">Edit requirement</SheetTitle>
-                </SheetHeader>
+        <Dialog open={sheetOpen} onOpenChange={setSheetOpen}>
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader className="pb-4">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <DialogTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                                <Settings className="h-6 w-6 text-blue-600" />
+                                Edit Requirement
+                            </DialogTitle>
+                            <p className="text-gray-600 mt-1">Update requirement details and assignments</p>
+                        </div>
+                        <Badge variant="outline" className="text-blue-600 border-blue-200 bg-blue-50">
+                            #{requirement?.customId}
+                        </Badge>
+                    </div>
+                </DialogHeader>
 
-                <div className="mt-4">
-                    <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} method="post">
-                            <div className="grid grid-cols-1 gap-2">
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                        {/* Basic Information Card */}
+                        <Card className="border-l-4 border-l-blue-500">
+                            <CardHeader className="pb-4">
+                                <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                                    <FileText className="h-5 w-5 text-blue-600" />
+                                    Basic Information
+                                </CardTitle>
+                                <CardDescription>
+                                    Update the requirement title and description
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
                                 <FormField
                                     control={form.control}
                                     name="title"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Issue title</FormLabel>
+                                            <FormLabel className="text-sm font-medium text-gray-700">
+                                                Requirement Title *
+                                            </FormLabel>
                                             <FormControl>
-                                                <Input {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
-
-                            <div className={`grid grid-cols-${userProjectRole === ProjectUserRoles.ADMIN ||
-                                userProjectRole === ProjectUserRoles.CLIENT ? 2 : 1} gap-2 mt-3`}>
-                                <FormField
-                                    control={form.control}
-                                    name="status"
-                                    render={({ field }) => (
-                                        <FormItem className="flex flex-col">
-                                            <FormLabel>Status</FormLabel>
-                                            <Select
-                                                onValueChange={(value) => {
-                                                    field.onChange(value);
-                                                    form.clearErrors("status");
-                                                }}
-                                                value={field.value || ""}
-                                                defaultValue={field.value || ""}
-                                            >
-                                                <SelectTrigger className="w-full">
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectGroup>
-                                                        {TASK_STATUS_LIST.map((status) => (
-                                                            <SelectItem
-                                                                key={status}
-                                                                value={status as string}
-                                                            >
-                                                                <div className="flex items-center">
-                                                                    {status}
-                                                                </div>
-                                                            </SelectItem>
-                                                        ))
-                                                        }
-                                                    </SelectGroup>
-                                                </SelectContent>
-                                            </Select>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-
-                                {userProjectRole === ProjectUserRoles.ADMIN ||
-                                    userProjectRole === ProjectUserRoles.CLIENT ? (
-                                    <div className="grid grid-cols-1 gap-2 ">
-                                        <FormField
-                                            control={form.control}
-                                            name="assignedTo"
-                                            render={({ field }) => (
-                                                <FormItem className="flex flex-col">
-                                                    <FormLabel>Assignee</FormLabel>
-                                                    <Select
-                                                        onValueChange={field.onChange}
-                                                        value={field.value ?? undefined}
-                                                    >
-                                                        <SelectTrigger className="w-full">
-                                                            <SelectValue>{getSelectedUser(field)}</SelectValue>
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            <SelectGroup>
-                                                                {users.length > 0 ? (
-                                                                    users.map((user) => (
-                                                                        <SelectItem
-                                                                            key={user._id}
-                                                                            value={user?.userId?._id as string}
-                                                                        >
-                                                                            {getUsernameWithUserId(user)}
-                                                                        </SelectItem>
-                                                                    ))
-                                                                ) : (
-                                                                    <div className="p-1 text-center text-gray-500">
-                                                                        Users not found
-                                                                    </div>
-                                                                )}
-                                                            </SelectGroup>
-                                                        </SelectContent>
-                                                    </Select>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </div>
-                                ) : null}
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-2 mt-3">
-                                <FormField
-                                    control={form.control}
-                                    name="startDate"
-                                    render={({ field }) => (
-                                        <FormItem className="flex flex-col">
-                                            <FormLabel>Start date</FormLabel>
-                                            <Popover>
-                                                <PopoverTrigger asChild>
-                                                    <FormControl>
-                                                        <Button
-                                                            variant={"outline"}
-                                                            className={cn(
-                                                                "w-full pl-3 text-left font-normal",
-                                                                !field.value && "text-muted-foreground"
-                                                            )}
-                                                        >
-                                                            {field.value ? (
-                                                                format(field.value, "PPP")
-                                                            ) : (
-                                                                <span>Start date</span>
-                                                            )}
-                                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                                        </Button>
-                                                    </FormControl>
-                                                </PopoverTrigger>
-                                                <PopoverContent className="w-auto p-0" align="start">
-                                                    <Calendar
-                                                        mode="single"
-                                                        selected={field.value || undefined}
-                                                        onSelect={field.onChange}
-                                                        disabled={(date) => date < new Date("1900-01-01")}
-                                                        initialFocus
-                                                    />
-                                                </PopoverContent>
-                                            </Popover>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-
-                                <FormField
-                                    control={form.control}
-                                    name="endDate"
-                                    render={({ field }) => (
-                                        <FormItem className="flex flex-col">
-                                            <FormLabel>End date</FormLabel>
-                                            <Popover>
-                                                <PopoverTrigger asChild>
-                                                    <FormControl>
-                                                        <Button
-                                                            variant={"outline"}
-                                                            className={cn(
-                                                                "w-full pl-3 text-left font-normal",
-                                                                !field.value && "text-muted-foreground"
-                                                            )}
-                                                        >
-                                                            {field.value ? (
-                                                                format(field.value, "PPP")
-                                                            ) : (
-                                                                <span>End date</span>
-                                                            )}
-                                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                                        </Button>
-                                                    </FormControl>
-                                                </PopoverTrigger>
-                                                <PopoverContent className="w-auto p-0" align="start">
-                                                    <Calendar
-                                                        mode="single"
-                                                        selected={field.value || undefined}
-                                                        onSelect={field.onChange}
-                                                        disabled={(date) =>
-                                                            date < (form.watch("startDate") ?? new Date("1900-01-01")) ||
-                                                            date < new Date("1900-01-01")
-                                                        }
-                                                        initialFocus
-                                                    />
-                                                </PopoverContent>
-                                            </Popover>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-1 gap-2 mt-4">
-                                <FormField
-                                    control={form.control}
-                                    name="description"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Description</FormLabel>
-                                            <FormControl>
-                                                <TextEditor
-                                                    markup={field.value || ""}
-                                                    onChange={(value) => {
-                                                        form.setValue("description", value);
-                                                        form.trigger("description");
-                                                    }}
+                                                <Input 
+                                                    {...field} 
+                                                    placeholder="Enter requirement title..."
+                                                    className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                                                 />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
                                     )}
                                 />
-                            </div>
-                            <RequirementAttachments requirementId={requirementId} isUpdate={true} isView={false}
-                                setAttachmentsData={setAttachments} />
 
-                            <div className="mt-6 w-full flex justify-end gap-2">
-                                <SheetClose asChild>
-                                    <Button
-                                        disabled={isLoading}
-                                        type="button"
-                                        variant={"outline"}
-                                        size="lg"
-                                        className="w-full md:w-fit"
-                                    >
-                                        Cancel
-                                    </Button>
-                                </SheetClose>
-                                <Button
-                                    disabled={isLoading}
-                                    type="submit"
-                                    size="lg"
-                                    className="w-full md:w-fit"
-                                    onClick={handleSubmit}
-                                >
-                                    {isLoading ? (
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    ) : null}
-                                    {isLoading ? "Updating" : "Update"}
-                                </Button>
-                            </div>
-                        </form>
-                    </Form>
-                </div>
+                                {/* Description Card */}
+                                <Card className="border-l-4 border-l-blue-500">
+                                    <CardHeader className="pb-3">
+                                        <div className="flex items-center justify-between">
+                                            <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                                                <FileText className="h-5 w-5 text-blue-600" />
+                                                Description
+                                            </CardTitle>
+                                            <AIRefinement
+                                                currentDescription={form.watch("description") || ""}
+                                                onApplyRefinement={(refinedDescription) => {
+                                                    form.setValue("description", refinedDescription);
+                                                }}
+                                                context={`Editing requirement: ${requirement?.title || "Untitled"}`}
+                                            />
+                                        </div>
+                                        <CardDescription>
+                                            Update the detailed description of this requirement
+                                        </CardDescription>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <FormField
+                                            control={form.control}
+                                            name="description"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormControl>
+                                                        <TextEditor
+                                                            markup={field.value}
+                                                            onChange={field.onChange}
+                                                            placeholder="Describe the requirement in detail..."
+                                                        />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </CardContent>
+                                </Card>
+                            </CardContent>
+                        </Card>
 
-            </SheetContent>
-        </Sheet >
+                        {/* Assignment & Status Card */}
+                        <Card className="border-l-4 border-l-green-500">
+                            <CardHeader className="pb-4">
+                                <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                                    <Users className="h-5 w-5 text-green-600" />
+                                    Assignment & Status
+                                </CardTitle>
+                                <CardDescription>
+                                    Manage assignee and current status
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <FormField
+                                        control={form.control}
+                                        name="status"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className="text-sm font-medium text-gray-700">
+                                                    Status *
+                                                </FormLabel>
+                                                <Select
+                                                    onValueChange={(value) => {
+                                                        field.onChange(value);
+                                                        form.clearErrors("status");
+                                                    }}
+                                                    value={field.value || ""}
+                                                >
+                                                    <SelectTrigger className="border-gray-300 focus:border-green-500 focus:ring-green-500">
+                                                        <SelectValue placeholder="Select status">
+                                                            {field.value && (
+                                                                <Badge className={getStatusBadgeColor(field.value)}>
+                                                                    {field.value}
+                                                                </Badge>
+                                                            )}
+                                                        </SelectValue>
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectGroup>
+                                                            {TASK_STATUS_LIST.map((status) => (
+                                                                <SelectItem key={status} value={status}>
+                                                                    <Badge className={getStatusBadgeColor(status)}>
+                                                                        {status}
+                                                                    </Badge>
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectGroup>
+                                                    </SelectContent>
+                                                </Select>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+
+                                    <FormField
+                                        control={form.control}
+                                        name="assignedTo"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className="text-sm font-medium text-gray-700">
+                                                    Assignee
+                                                </FormLabel>
+                                                <Select
+                                                    onValueChange={(value) => {
+                                                        field.onChange(value === "unassigned" ? "" : value);
+                                                    }}
+                                                    value={field.value || "unassigned"}
+                                                >
+                                                    <SelectTrigger className="border-gray-300 focus:border-green-500 focus:ring-green-500">
+                                                        <SelectValue placeholder="Select assignee">
+                                                            {field.value ? (
+                                                                <div className="flex items-center gap-2">
+                                                                    <div className="w-6 h-6 bg-gradient-to-r from-green-500 to-teal-600 rounded-full flex items-center justify-center text-white text-xs font-semibold">
+                                                                        {getSelectedUser(field)?.charAt(0) || 'U'}
+                                                                    </div>
+                                                                    <span>{getSelectedUser(field) || 'Select assignee'}</span>
+                                                                </div>
+                                                            ) : (
+                                                                <div className="flex items-center gap-2 text-gray-500">
+                                                                    <User className="h-4 w-4" />
+                                                                    <span>Unassigned</span>
+                                                                </div>
+                                                            )}
+                                                        </SelectValue>
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectGroup>
+                                                            <SelectItem value="unassigned">
+                                                                <div className="flex items-center gap-2 text-gray-500">
+                                                                    <User className="h-4 w-4" />
+                                                                    <span>Unassigned</span>
+                                                                </div>
+                                                            </SelectItem>
+                                                            {users.length > 0 ? (
+                                                                users.map((user) => (
+                                                                    <SelectItem
+                                                                        key={user._id}
+                                                                        value={user?.userId?._id as string}
+                                                                    >
+                                                                        <div className="flex items-center gap-2">
+                                                                            <div className="w-6 h-6 bg-gradient-to-r from-green-500 to-teal-600 rounded-full flex items-center justify-center text-white text-xs font-semibold">
+                                                                                {getUsernameWithUserId(user)?.charAt(0) || 'U'}
+                                                                            </div>
+                                                                            <span>{getUsernameWithUserId(user)}</span>
+                                                                        </div>
+                                                                    </SelectItem>
+                                                                ))
+                                                            ) : (
+                                                                <div className="p-2 text-center text-gray-500 text-sm">
+                                                                    No users found
+                                                                </div>
+                                                            )}
+                                                        </SelectGroup>
+                                                    </SelectContent>
+                                                </Select>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Timeline Card */}
+                        <Card className="border-l-4 border-l-purple-500">
+                            <CardHeader className="pb-4">
+                                <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                                    <CalendarLucide className="h-5 w-5 text-purple-600" />
+                                    Timeline
+                                </CardTitle>
+                                <CardDescription>
+                                    Set start and end dates for the requirement
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <FormField
+                                        control={form.control}
+                                        name="startDate"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className="text-sm font-medium text-gray-700">
+                                                    Start Date
+                                                </FormLabel>
+                                                <Popover>
+                                                    <PopoverTrigger asChild>
+                                                        <FormControl>
+                                                            <Button
+                                                                variant="outline"
+                                                                className={cn(
+                                                                    "w-full pl-3 text-left font-normal border-gray-300 focus:border-purple-500 focus:ring-purple-500",
+                                                                    !field.value && "text-muted-foreground"
+                                                                )}
+                                                            >
+                                                                {field.value ? (
+                                                                    <div className="flex items-center gap-2">
+                                                                        <CalendarIcon className="h-4 w-4 text-purple-600" />
+                                                                        {formatDate(field.value)}
+                                                                    </div>
+                                                                ) : (
+                                                                    <div className="flex items-center gap-2">
+                                                                        <CalendarIcon className="h-4 w-4 text-gray-400" />
+                                                                        <span>Select start date</span>
+                                                                    </div>
+                                                                )}
+                                                            </Button>
+                                                        </FormControl>
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="w-auto p-0" align="start">
+                                                        <Calendar
+                                                            mode="single"
+                                                            selected={field.value || undefined}
+                                                            onSelect={field.onChange}
+                                                            disabled={(date) => date < new Date("1900-01-01")}
+                                                            initialFocus
+                                                        />
+                                                    </PopoverContent>
+                                                </Popover>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+
+                                    <FormField
+                                        control={form.control}
+                                        name="endDate"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className="text-sm font-medium text-gray-700">
+                                                    End Date
+                                                </FormLabel>
+                                                <Popover>
+                                                    <PopoverTrigger asChild>
+                                                        <FormControl>
+                                                            <Button
+                                                                variant="outline"
+                                                                className={cn(
+                                                                    "w-full pl-3 text-left font-normal border-gray-300 focus:border-purple-500 focus:ring-purple-500",
+                                                                    !field.value && "text-muted-foreground"
+                                                                )}
+                                                            >
+                                                                {field.value ? (
+                                                                    <div className="flex items-center gap-2">
+                                                                        <CalendarIcon className="h-4 w-4 text-purple-600" />
+                                                                        {formatDate(field.value)}
+                                                                    </div>
+                                                                ) : (
+                                                                    <div className="flex items-center gap-2">
+                                                                        <CalendarIcon className="h-4 w-4 text-gray-400" />
+                                                                        <span>Select end date</span>
+                                                                    </div>
+                                                                )}
+                                                            </Button>
+                                                        </FormControl>
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="w-auto p-0" align="start">
+                                                        <Calendar
+                                                            mode="single"
+                                                            selected={field.value || undefined}
+                                                            onSelect={field.onChange}
+                                                            disabled={(date) =>
+                                                                date < (form.watch("startDate") ?? new Date("1900-01-01")) ||
+                                                                date < new Date("1900-01-01")
+                                                            }
+                                                            initialFocus
+                                                        />
+                                                    </PopoverContent>
+                                                </Popover>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Attachments Card */}
+                        <Card className="border-l-4 border-l-orange-500">
+                            <CardHeader className="pb-4">
+                                <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                                    <FileText className="h-5 w-5 text-orange-600" />
+                                    Attachments
+                                </CardTitle>
+                                <CardDescription>
+                                    Upload or manage requirement attachments
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <RequirementAttachments 
+                                    requirementId={requirementId} 
+                                    isUpdate={true} 
+                                    isView={false}
+                                    setAttachmentsData={setAttachments} 
+                                />
+                            </CardContent>
+                        </Card>
+
+                        <Separator />
+
+                        {/* Action Buttons */}
+                        <div className="flex flex-col sm:flex-row gap-3 pt-4">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setSheetOpen(false)}
+                                disabled={isLoading}
+                                className="flex-1 sm:flex-none border-gray-300 hover:bg-gray-50"
+                            >
+                                <X className="h-4 w-4 mr-2" />
+                                Cancel
+                            </Button>
+                            <Button
+                                type="submit"
+                                onClick={handleSubmit}
+                                disabled={isLoading}
+                                className="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 text-white"
+                            >
+                                {isLoading ? (
+                                    <>
+                                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                        Updating...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Settings className="h-4 w-4 mr-2" />
+                                        Update Requirement
+                                    </>
+                                )}
+                            </Button>
+                        </div>
+                    </form>
+                </Form>
+            </DialogContent>
+        </Dialog>
     );
 };
 

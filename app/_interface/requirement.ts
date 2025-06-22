@@ -47,3 +47,15 @@ export interface RequirementAttachmentsProps {
 export interface IRequirementAttachment {
   attachments: File[];
 }
+
+export interface IRequirementAssignMailPayload {
+  email: string;
+  fullName: string;
+  title: string;
+  description: string;
+  assignedBy: string;
+  status: string;
+  projectName: string;
+  startDate?: string;
+  endDate?: string;
+}

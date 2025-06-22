@@ -13,6 +13,8 @@ import { isAdmin, verifySession } from "@/app/_lib/dal";
 import { IdFormat } from "@/app/_models/id-format.model";
 import { RequirementAttachment } from "@/app/_models/requirement-attachment.model";
 import { Requirement } from "@/app/_models/requirement.model";
+import { User } from "@/app/_models/user.model";
+import { Project } from "@/app/_models/project.model";
 import {
   filterRequirementsForAdmin,
   filterRequirementsNotForAdmin,
@@ -24,6 +26,7 @@ import {
 } from "@/app/_utils/common-server-side";
 import { addCustomIds, replaceCustomId } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
+import { requirementAssignMail } from "@/app/_utils/email";
 
 export async function POST(
   req: Request,
@@ -110,6 +113,34 @@ export async function POST(
       { $push: { attachments: { $each: validAttachmentIds } } },
       { new: true }
     );
+
+    // Send email notification if requirement is assigned to someone
+    if (response.data.assignedTo) {
+      try {
+        const assignedUser = await User.findById(response.data.assignedTo).select("firstName lastName email");
+        const project = await Project.findById(response.data.projectId).select("title");
+        const assignedByUser = await User.findById(session.user._id).select("firstName lastName");
+
+        if (assignedUser && assignedUser.email && project) {
+          const emailPayload = {
+            email: assignedUser.email,
+            fullName: `${assignedUser.firstName || ''} ${assignedUser.lastName || ''}`.trim(),
+            title: response.data.title,
+            description: response.data.description || 'No description provided',
+            assignedBy: `${assignedByUser?.firstName || ''} ${assignedByUser?.lastName || ''}`.trim(),
+            status: response.data.status,
+            projectName: project.title,
+            startDate: response.data.startDate || 'Not specified',
+            endDate: response.data.endDate || 'Not specified',
+          };
+
+          await requirementAssignMail(emailPayload);
+        }
+      } catch (emailError) {
+        console.error('Failed to send requirement assignment email:', emailError);
+        // Don't fail the entire request if email fails
+      }
+    }
 
     return Response.json({
       message: "Requirement added successfully",
