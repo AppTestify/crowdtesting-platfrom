@@ -5,18 +5,32 @@ import { getProjectService, updateProjectTabAccessService } from '@/app/_service
 import toasterService from '@/app/_services/toaster-service';
 import { DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ChevronLeft, GalleryVertical } from 'lucide-react'
+import { ChevronLeft, Settings2, BarChart3, FileText, Users, Target, FlaskConical, TestTube, Play, Bug, CheckSquare, Repeat, FileBarChart, GitBranch, Badge, Activity } from 'lucide-react'
 import { useSession } from 'next-auth/react';
 import Link from 'next/link'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
-import { getProjectTabs } from './_constants';
+import { getProjectTabs, getTabIconComponent } from './_constants';
 import { Checkbox } from '@/components/ui/checkbox';
 import { UserRoles } from '@/app/_constants/user-roles';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Label } from '@/components/ui/label';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+
+// Function to extract text content from HTML strings
+const extractTextContent = (htmlString: string): string => {
+    if (!htmlString) return '';
+    // Remove HTML tags and decode HTML entities
+    return htmlString
+        .replace(/<[^>]*>/g, '') // Remove HTML tags
+        .replace(/&nbsp;/g, ' ') // Replace &nbsp; with space
+        .replace(/&amp;/g, '&')  // Replace &amp; with &
+        .replace(/&lt;/g, '<')   // Replace &lt; with <
+        .replace(/&gt;/g, '>')   // Replace &gt; with >
+        .replace(/&quot;/g, '"') // Replace &quot; with "
+        .trim();
+};
 
 export default function ProjectLayouts({ onLoaded }: { onLoaded: () => void }) {
     const { data } = useSession();
@@ -83,95 +97,191 @@ export default function ProjectLayouts({ onLoaded }: { onLoaded: () => void }) {
 
     if (isLoading || !project) {
         return (
-            <div className='p-4'>
+            <div className='p-6'>
+                <div className="animate-pulse">
+                    <div className="h-8 bg-gray-200 rounded-lg w-1/3 mb-4"></div>
+                    <div className="h-px bg-gray-200 mb-4"></div>
+                    <div className="flex space-x-2">
+                        {[1, 2, 3, 4, 5].map((i) => (
+                            <div key={i} className="h-10 bg-gray-200 rounded-lg w-24"></div>
+                        ))}
+                    </div>
+                </div>
             </div>
         );
     }
 
+    const projectTitle = extractTextContent(project?.title || '');
+
     return (
-        <div className='px-4 py-3'>
-            {!isLoading ?
-                <>
-                    <div className='mt-1 mb-3'>
-                        <div className='text-2xl text-green-600 flex items-center'>
-                            <Link href={`/private/projects`}>
-                                <ChevronLeft className='text-black' />
-                            </Link>
-                            <p className='ml-2 capitalize'>
-                                {project?.title}
-                            </p>
-                            <div className='flex justify-end items-end ml-2'>
-                                {userData?.role === UserRoles.ADMIN && (
+        <div className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-200 shadow-sm'>
+            <div className='px-6 py-4'>
+                {!isLoading && (
+                    <>
+                        {/* Enhanced Header Section */}
+                        <div className='flex items-center justify-between mb-4'>
+                            <div className='flex items-center space-x-4'>
+                                <Link 
+                                    href={`/private/projects`}
+                                    className='flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 transition-colors duration-200 group'
+                                >
+                                    <ChevronLeft className='h-5 w-5 text-gray-600 group-hover:text-gray-900 transition-colors' />
+                                </Link>
+                                
+                                <div className='flex items-center space-x-3'>
+                                    <div className='w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-md'>
+                                        <FileText className='h-5 w-5 text-white' />
+                                    </div>
+                                    <div>
+                                        <h1 className='text-2xl font-bold text-gray-900 tracking-tight'>
+                                            {projectTitle}
+                                        </h1>
+                                        <p className='text-sm text-gray-500 font-medium'>
+                                            Project Overview & Management
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Enhanced Tab Access Control */}
+                            {userData?.role === UserRoles.ADMIN && (
+                                <div className='flex items-center space-x-2'>
                                     <Popover>
                                         <TooltipProvider>
-                                            <Tooltip delayDuration={10}>
+                                            <Tooltip delayDuration={100}>
                                                 <TooltipTrigger asChild>
                                                     <PopoverTrigger asChild>
-                                                        <Button variant={"ghost"} size={"icon"}>
-                                                            <GalleryVertical className="h-4 w-4 text-black" />
+                                                        <Button 
+                                                            variant="outline" 
+                                                            size="sm"
+                                                            className="hover:bg-gray-50 border-gray-200 shadow-sm"
+                                                        >
+                                                            <Settings2 className="h-4 w-4 mr-2 text-gray-600" />
+                                                            Tab Access
                                                         </Button>
                                                     </PopoverTrigger>
                                                 </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p>Tab access</p>
+                                                <TooltipContent side="bottom">
+                                                    <p>Configure tab visibility and access permissions</p>
                                                 </TooltipContent>
                                             </Tooltip>
                                         </TooltipProvider>
 
-                                        <PopoverContent className="w-auto h-72 overflow-y-auto rounded-lg shadow-lg bg-white" align="start">
-                                            <div className="flex flex-col p-0">
-                                                {accessTabs?.map((tab: any, index: number) => (
-                                                    <div
-                                                        key={index}
-                                                        className="flex items-center gap-2 px-2 py-2 rounded-md hover:bg-gray-100 transition duration-200 cursor-pointer"
-                                                    >
-                                                        <Checkbox
-                                                            id={`checkbox-${index}`}
-                                                            className="h-5 w-5 border-gray-300 rounded-md"
-                                                            checked={tab?.access}
-                                                            onCheckedChange={(isChecked) => handleCheckboxChange(tab, isChecked as boolean)}
-                                                        />
-                                                        <Label htmlFor={`checkbox-${index}`} className="w-full text-center text-sm text-gray-600">
-                                                            {tab.label}
-                                                        </Label>
-                                                    </div>
-                                                ))}
+                                        <PopoverContent className="w-80 max-h-96 overflow-y-auto rounded-xl shadow-xl bg-white border border-gray-200" align="end">
+                                            <div className="p-4">
+                                                <div className="flex items-center space-x-2 mb-4">
+                                                    <Settings2 className="h-5 w-5 text-gray-700" />
+                                                    <h3 className="font-semibold text-gray-900">Tab Access Control</h3>
+                                                </div>
+                                                <p className="text-sm text-gray-600 mb-4">
+                                                    Manage which tabs are visible to team members
+                                                </p>
+                                                
+                                                <div className="space-y-3">
+                                                    {accessTabs?.map((tab: any, index: number) => {
+                                                        const IconComponent = getTabIconComponent(tab.label);
+                                                        return (
+                                                            <div
+                                                                key={index}
+                                                                className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 border border-gray-100 transition-colors duration-150"
+                                                            >
+                                                                <div className="flex items-center space-x-3">
+                                                                    <div className="flex items-center justify-center w-8 h-8 rounded-md bg-blue-50">
+                                                                        <IconComponent className="h-4 w-4 text-blue-600" />
+                                                                    </div>
+                                                                    <Label 
+                                                                        htmlFor={`checkbox-${index}`} 
+                                                                        className="font-medium text-gray-800 cursor-pointer"
+                                                                    >
+                                                                        {tab.label}
+                                                                    </Label>
+                                                                </div>
+                                                                <Checkbox
+                                                                    id={`checkbox-${index}`}
+                                                                    className="h-5 w-5 border-gray-300 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                                                                    checked={tab?.access}
+                                                                    onCheckedChange={(isChecked) => handleCheckboxChange(tab, isChecked as boolean)}
+                                                                />
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
                                             </div>
                                         </PopoverContent>
                                     </Popover>
-                                )}
-                            </div>
+                                </div>
+                            )}
                         </div>
-                    </div>
-                    <DropdownMenuSeparator className="border-b" />
-                    <div className='mt-4'>
-                        <Tabs value={activeTab} onValueChange={handleTabChange} defaultValue="overview" className="w-fit">
-                            {accessTabs?.length ?
-                                <>
-                                    <TabsList className={`flex w-full`}>
-                                        {accessTabs
-                                            ?.filter((tab: any) =>
-                                                userData?.role === UserRoles.ADMIN
-                                                    ? tab.roles.includes(userData?.role)
-                                                    : tab.roles.includes(userData?.role) && tab.access === true
-                                            ).map((tab: any, index: number) => (
-                                                <TabsTrigger key={index} className="w-fit" value={tab?.label === "RTM" ? "RTM" : tab?.label.toLowerCase().replace(/ /g, '-')}>
-                                                    {tab?.label}
-                                                </TabsTrigger>
-                                            ))}
-                                    </TabsList>
-                                    {roleBasedTab?.map((tab, index) => (
-                                        <TabsContent key={index} value={tab}>
-                                        </TabsContent>
-                                    ))}
-                                </>
-                                : null}
-                        </Tabs>
-                    </div>
-                </>
-                :
-                <div>Loading</div>
-            }
+
+                        {/* Separator */}
+                        <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-6"></div>
+
+                        {/* Enhanced Tabs */}
+                        <div className=''>
+                            <Tabs value={activeTab} onValueChange={handleTabChange} defaultValue="dashboard" className="w-full">
+                                {accessTabs?.length ? (
+                                    <>
+                                        <TabsList className="bg-gray-100/80 p-1 rounded-xl border border-gray-200 shadow-sm backdrop-blur-sm w-full h-auto flex-wrap gap-1 justify-start">
+                                            {accessTabs
+                                                ?.filter((tab: any) =>
+                                                    userData?.role === UserRoles.ADMIN
+                                                        ? tab.roles.includes(userData?.role)
+                                                        : tab.roles.includes(userData?.role) && tab.access === true
+                                                ).map((tab: any, index: number) => {
+                                                    const tabValue = tab?.label === "RTM" ? "RTM" : tab?.label.toLowerCase().replace(/ /g, '-');
+                                                    const isActive = activeTab === tabValue;
+                                                    const IconComponent = getTabIconComponent(tab.label);
+                                                    
+                                                    return (
+                                                        <TooltipProvider key={index}>
+                                                            <Tooltip delayDuration={200}>
+                                                                <TooltipTrigger asChild>
+                                                                    <TabsTrigger 
+                                                                        value={tabValue}
+                                                                        className={`
+                                                                            flex items-center justify-center min-w-0 transition-all duration-200
+                                                                            ${isActive 
+                                                                                ? 'bg-white text-blue-700 shadow-md border border-blue-100' 
+                                                                                : 'text-gray-600 hover:text-gray-900 hover:bg-white/60'
+                                                                            }
+                                                                            sm:space-x-2 sm:px-3 sm:py-2 sm:rounded-lg
+                                                                            px-2 py-2 rounded-md
+                                                                        `}
+                                                                    >
+                                                                        <span className={`transition-colors duration-200 ${isActive ? 'text-blue-600' : 'text-gray-500'}`}>
+                                                                            <IconComponent className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
+                                                                        </span>
+                                                                        <span className="hidden lg:inline text-xs font-medium whitespace-nowrap">
+                                                                            {tab?.label}
+                                                                        </span>
+                                                                    </TabsTrigger>
+                                                                </TooltipTrigger>
+                                                                <TooltipContent side="bottom" className="lg:hidden">
+                                                                    <p className="text-xs">{tab?.label}</p>
+                                                                </TooltipContent>
+                                                            </Tooltip>
+                                                        </TooltipProvider>
+                                                    );
+                                                })}
+                                        </TabsList>
+                                        {roleBasedTab?.map((tab, index) => (
+                                            <TabsContent key={index} value={tab} className="mt-0">
+                                            </TabsContent>
+                                        ))}
+                                    </>
+                                ) : (
+                                    <div className="flex items-center justify-center py-8">
+                                        <div className="text-center">
+                                            <Activity className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                                            <p className="text-gray-500 text-sm">No tabs available</p>
+                                        </div>
+                                    </div>
+                                )}
+                            </Tabs>
+                        </div>
+                    </>
+                )}
+            </div>
         </div>
     )
 }

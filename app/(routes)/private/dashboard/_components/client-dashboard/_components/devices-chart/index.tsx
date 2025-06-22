@@ -1,8 +1,7 @@
 import { Priority } from '@/app/_constants/issue';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import React from 'react';
-import { Bar, BarChart, CartesianGrid, Cell, LabelList, XAxis } from 'recharts';
+import { Bar, BarChart, CartesianGrid, Cell, LabelList, XAxis, YAxis } from 'recharts';
 
 const chartConfig = {
     severity: {
@@ -14,14 +13,35 @@ const chartConfig = {
 const getColorForPriority = (level: string) => {
     switch (level) {
         case Priority.LOW:
-            return 'hsl(var(--primary))';
+            return '#3B82F6'; // Blue
         case Priority.NORMAL:
-            return '#FACC15';
+            return '#10B981'; // Green
         case Priority.HIGH:
-            return '#F87171';
+            return '#EF4444'; // Red
         default:
-            return 'hsl(var(--chart-2))';
+            return '#8B5CF6'; // Purple
     }
+};
+
+// Custom label component for inside bars
+const CustomLabel = (props: any) => {
+    const { x, y, width, height, value } = props;
+    const labelX = x + width / 2;
+    const labelY = y + height / 2;
+    
+    return (
+        <text
+            x={labelX}
+            y={labelY}
+            fill="white"
+            textAnchor="middle"
+            dominantBaseline="middle"
+            fontSize="12"
+            fontWeight="600"
+        >
+            {value}
+        </text>
+    );
 };
 
 interface HorizontalBarChartProps {
@@ -42,44 +62,51 @@ export default function DeviceChart({ title, description, dataKey, chartData }: 
     const isEmpty = Object.values(chartData || {}).every((value) => value === 0);
 
     return (
-        <Card className="mt-2 w-full shadow-none">
-            <CardHeader>
-                <CardTitle>{title}</CardTitle>
-                <CardDescription>{description}</CardDescription>
-            </CardHeader>
-            <CardContent>
-                {isEmpty ? (
-                    <div className='flex justify-center items-center h-40'>
-                        <div className="text-center text-xl text-gray-500">No data found</div>
+        <div className="h-full">
+            {isEmpty ? (
+                <div className='flex justify-center items-center h-[280px]'>
+                    <div className="text-center">
+                        <div className="text-gray-400 text-sm">No device data available</div>
                     </div>
-                ) : (
-                    <ChartContainer config={chartConfig}>
-                        <BarChart accessibilityLayer data={formattedData}
-                            margin={{ top: 20 }}
-                            barSize={40}
+                </div>
+            ) : (
+                <div className="h-[280px]">
+                    <ChartContainer config={chartConfig} className="h-full w-full">
+                        <BarChart 
+                            accessibilityLayer 
+                            data={formattedData}
+                            margin={{ 
+                                top: 20, 
+                                right: 20, 
+                                bottom: 20, 
+                                left: 20 
+                            }}
+                            barSize={32}
                         >
-                            <CartesianGrid vertical={false} />
+                            <CartesianGrid vertical={false} stroke="#f1f5f9" />
                             <XAxis
                                 dataKey="level"
                                 tickLine={false}
-                                tickMargin={10}
+                                tickMargin={8}
                                 axisLine={false}
-                                tickFormatter={(value) => value.slice(0,7)}
+                                tick={{ fontSize: 11, fill: '#64748b' }}
+                                tickFormatter={(value) => value.length > 8 ? value.slice(0, 8) + '...' : value}
                             />
+                            <YAxis hide />
                             <ChartTooltip
-                                cursor={false}
-                                content={<ChartTooltipContent nameKey="level" />}
+                                cursor={{ fill: 'rgba(0, 0, 0, 0.1)' }}
+                                content={<ChartTooltipContent 
+                                    nameKey="level" 
+                                    className="bg-white border border-gray-200 shadow-lg rounded-lg"
+                                />}
                             />
                             <Bar
                                 dataKey={dataKey}
                                 fill="hsl(var(--chart-2))"
-                                radius={8}
+                                radius={[6, 6, 0, 0]}
                             >
                                 <LabelList
-                                    position="top"
-                                    offset={10}
-                                    className="fill-foreground"
-                                    fontSize={12}
+                                    content={<CustomLabel />}
                                 />
                                 {formattedData.map((entry, index) => (
                                     <Cell key={`cell-${index}`} fill={entry.color} />
@@ -87,8 +114,8 @@ export default function DeviceChart({ title, description, dataKey, chartData }: 
                             </Bar>
                         </BarChart>
                     </ChartContainer>
-                )}
-            </CardContent>
-        </Card>
+                </div>
+            )}
+        </div>
     );
 }
