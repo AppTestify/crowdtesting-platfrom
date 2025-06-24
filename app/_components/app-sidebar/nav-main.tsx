@@ -17,6 +17,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import { useState } from "react";
@@ -34,6 +35,7 @@ interface NavItem {
 
 export function NavMain({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
+  const { isMobile, setOpenMobile } = useSidebar();
 
   // Group navigation items logically
   const groupedItems = {
@@ -49,6 +51,13 @@ export function NavMain({ items }: { items: NavItem[] }) {
     account: items?.filter(item => 
       ["Profile", "Settings"].includes(item.title)
     ) || [],
+  };
+
+  const handleNavClick = () => {
+    // Close mobile sidebar when navigation item is clicked
+    if (isMobile) {
+      setOpenMobile(false);
+    }
   };
 
   const renderNavGroup = (groupItems: NavItem[], groupName: string, groupLabel?: string) => {
@@ -86,7 +95,13 @@ export function NavMain({ items }: { items: NavItem[] }) {
                   >
                     <Link
                       href={item.disabled ? "#" : item.url}
-                      onClick={(e) => item.disabled && e.preventDefault()}
+                      onClick={(e) => {
+                        if (item.disabled) {
+                          e.preventDefault();
+                        } else {
+                          handleNavClick();
+                        }
+                      }}
                       className={`flex items-center gap-3 w-full ${
                         item.disabled
                           ? "text-sidebar-foreground/40 pointer-events-none"
