@@ -70,6 +70,8 @@ import EditIssue from "./_components/edit-issue";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 export default function Issues() {
   const [issues, setIssues] = useState<IIssueView[]>([]);
@@ -77,6 +79,7 @@ export default function Issues() {
   const [project, setProject] = useState<IProject>();
   const { projectId } = useParams<{ projectId: string }>();
   const checkProjectRole = checkProjectAdmin(project as IProject, userData);
+  const [allIssues, setAllIssues] = useState<IIssueView[]>([]);
   
 
   const showIssueRowActions = (issue: IIssue) => {
@@ -117,7 +120,7 @@ export default function Issues() {
         </Link>
       ),
       sortingFn: "alphanumeric",
-      size: 100,
+      size: 70,
     },
     {
       accessorKey: "title",
@@ -143,7 +146,8 @@ export default function Issues() {
             >
               <div
                 title={title}
-                className="hover:text-primary cursor-pointer text-xs truncate max-w-[200px] sm:max-w-[300px]"
+                className="hover:text-primary cursor-pointer text-xs max-w-[600px] sm:max-w-[800px] whitespace-normal break-words"
+                style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
               >
                 {title}
               </div>
@@ -151,7 +155,6 @@ export default function Issues() {
           );
         }
       },
-      size: 300,
     },
     {
       accessorKey: "severity",
@@ -172,10 +175,14 @@ export default function Issues() {
       cell: ({ row }) => {
         const severity = row.getValue("severity") as string;
         const severityColors = {
+          Blocker: "bg-red-900 text-red-100 border-red-700",
           Critical: "bg-red-100 text-red-800 border-red-200",
+          Major: "bg-purple-100 text-purple-800 border-purple-200",
           High: "bg-orange-100 text-orange-800 border-orange-200",
           Medium: "bg-yellow-100 text-yellow-800 border-yellow-200",
+          Minor: "bg-blue-100 text-blue-800 border-blue-200",
           Low: "bg-green-100 text-green-800 border-green-200",
+          Trivial: "bg-gray-100 text-gray-800 border-gray-200",
         };
         return (
           <Badge 
@@ -186,7 +193,7 @@ export default function Issues() {
           </Badge>
         );
       },
-      size: 100,
+      size: 90,
     },
     {
       accessorKey: "priority",
@@ -210,7 +217,7 @@ export default function Issues() {
           <span className="text-xs capitalize">{row.getValue("priority")}</span>
         </div>
       ),
-      size: 100,
+      size: 90,
     },
     {
       accessorKey: "Test Cycle",
@@ -367,7 +374,7 @@ export default function Issues() {
         </div>
       ),
       sortingFn: "alphanumeric",
-      size: 120,
+      size: 90,
     },
     {
       id: "actions",
@@ -390,7 +397,7 @@ export default function Issues() {
           </>
         );
       },
-      size: 80,
+      size: 60,
     },
   ];
 
@@ -506,6 +513,27 @@ export default function Issues() {
 
   const generateExcel = async () => {
     setIsExcelLoading(true);
+    
+    // Fetch all issues without pagination for export
+    let allIssues: IIssueView[] = [];
+    try {
+      const response = await getIssuesService(
+        projectId,
+        1, // Start from page 1
+        999999, // Large number to get all data
+        globalFilter as unknown as string,
+        selectedSeverity,
+        selectedPriority,
+        selectedStatus,
+        selectedTestCycle
+      );
+      allIssues = response?.issues || [];
+    } catch (error) {
+      toasterService.error();
+      setIsExcelLoading(false);
+      return;
+    }
+
     const header =
       userData?.role === UserRoles.ADMIN
         ? [
@@ -532,7 +560,7 @@ export default function Issues() {
             "Attachments",
           ];
 
-    const excelData = issues.map((issue) =>
+    const excelData = allIssues.map((issue) =>
       userData?.role === UserRoles.ADMIN
         ? [
             issue.customId || "",
@@ -561,11 +589,15 @@ export default function Issues() {
           ]
     );
 
-    await generateExcelFile(
-      header,
-      excelData,
-      `${project?.title || "Project"} Issues`
-    );
+    const ws = XLSX.utils.aoa_to_sheet([header, ...excelData]);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+    const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    const blob = new Blob([wbout], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    const safeFileName = `${project?.title || "Project"} Issues.xlsx`;
+    saveAs(blob, safeFileName);
     setIsExcelLoading(false);
   };
 
@@ -612,14 +644,35 @@ export default function Issues() {
     }
   };
 
+  // Fetch all issues for dashboard stats
+  const getAllIssues = async () => {
+    try {
+      const response = await getIssuesService(
+        projectId,
+        1, // page 1
+        999999, // large page size to get all
+        globalFilter as unknown as string,
+        selectedSeverity,
+        selectedPriority,
+        selectedStatus,
+        selectedTestCycle
+      );
+      setAllIssues(response?.issues || []);
+    } catch (error) {
+      setAllIssues([]);
+    }
+  };
+
   useEffect(() => {
     getProject();
     getTestCycle();
+    getAllIssues();
   }, []);
 
   useEffect(() => {
     const debounceFetch = setTimeout(() => {
       getIssues();
+      getAllIssues();
     }, 500);
     return () => clearTimeout(debounceFetch);
   }, [
@@ -641,11 +694,11 @@ export default function Issues() {
     }
   }, [globalFilter]);
 
-  // Calculate statistics
-  const criticalIssues = issues.filter(issue => issue.severity === 'Critical').length;
-  const openIssues = issues.filter(issue => issue.status === 'Open' || issue.status === 'New').length;
-  const resolvedIssues = issues.filter(issue => issue.status === 'Resolved' || issue.status === 'Closed').length;
-  const highPriorityIssues = issues.filter(issue => issue.priority === 'High').length;
+  // Calculate statistics from allIssues
+  const criticalIssues = allIssues.filter(issue => issue.severity === 'Critical').length;
+  const openIssues = allIssues.filter(issue => issue.status === 'Open' || issue.status === 'New').length;
+  const resolvedIssues = allIssues.filter(issue => issue.status === 'Resolved' || issue.status === 'Closed').length;
+  const highPriorityIssues = allIssues.filter(issue => issue.priority === 'High').length;
 
   return (
     <div className="w-full max-w-full overflow-hidden">
@@ -700,7 +753,7 @@ export default function Issues() {
               <Bug className="h-4 w-4 text-muted-foreground flex-shrink-0" />
             </CardHeader>
             <CardContent>
-              <div className="text-xl sm:text-2xl font-bold">{totalPageCount}</div>
+              <div className="text-xl sm:text-2xl font-bold">{allIssues.length}</div>
               <p className="text-xs text-muted-foreground">All reported issues</p>
             </CardContent>
           </Card>
@@ -863,13 +916,13 @@ export default function Issues() {
         <Card>
           <CardContent className="p-0">
             <div className="w-full">
-              <Table className="w-full table-fixed">
+              <Table className="w-full">
                 <TableHeader>
                   {table.getHeaderGroups().map((headerGroup) => (
                     <TableRow key={headerGroup.id} className="border-b bg-muted/50">
                       {headerGroup.headers.map((header) => {
                         return (
-                          <TableHead key={header.id} className="h-12 px-1 sm:px-2 whitespace-nowrap overflow-hidden">
+                          <TableHead key={header.id} className="h-12 px-1 sm:px-2 whitespace-nowrap overflow-hidden" style={{ width: header.column.getSize() }}>
                             {header.isPlaceholder
                               ? null
                               : flexRender(
@@ -891,7 +944,7 @@ export default function Issues() {
                         className="hover:bg-muted/50 transition-colors border-b last:border-b-0"
                       >
                         {row.getVisibleCells().map((cell) => (
-                          <TableCell key={cell.id} className="px-1 sm:px-2 py-3 whitespace-nowrap overflow-hidden">
+                          <TableCell key={cell.id} className="px-1 sm:px-2 py-3 whitespace-nowrap overflow-hidden" style={{ width: cell.column.getSize() }}>
                             {flexRender(
                               cell.column.columnDef.cell,
                               cell.getContext()
