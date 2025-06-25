@@ -14,7 +14,7 @@ import {
     getSortedRowModel, SortingState, useReactTable, VisibilityState
 } from '@tanstack/react-table';
 import { ArrowUpDown, ChevronRight, X, Search, Filter, Download, Loader2, PlayCircle, CheckCircle2, XCircle, AlertTriangle, Clock, Users, FileText, BarChart3, TrendingUp, ChevronDown, FileSpreadsheet } from 'lucide-react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import React, { useEffect, useState, useMemo } from 'react'
 import Moderate from './_components/moderate';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator }
@@ -30,6 +30,7 @@ import { UserRoles } from '@/app/_constants/user-roles';
 import { generateExcelFile } from '@/app/_helpers/generate-excel.helper';
 import { TestCaseResult } from '@/app/_models/test-case-result.model';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export default function TestCasesInTestExecution() {
     const { data } = useSession();
@@ -51,6 +52,7 @@ export default function TestCasesInTestExecution() {
     const [isCsvLoading, setIsCsvLoading] = useState<boolean>(false);
     const [selectedResult, setSelectedResult] = useState<TestCaseExecutionResult | any>("");
     const [userData, setUserData] = useState<any>();
+    const router = useRouter();
 
     // Statistics calculations
     const statistics = useMemo(() => {
@@ -201,10 +203,32 @@ export default function TestCasesInTestExecution() {
                 const result = row.original?.result;
                 if (!result) {
                     return (
-                        <Badge className="bg-gray-100 text-gray-800 border-gray-200">
-                            <Clock className="h-3 w-3 mr-1" />
-                            Pending
-                        </Badge>
+                        <div className="flex items-center gap-2">
+                            <Badge className="bg-gray-100 text-gray-800 border-gray-200">
+                                <Clock className="h-3 w-3 mr-1" />
+                                Pending
+                            </Badge>
+                            <TooltipProvider>
+                                <Tooltip delayDuration={100}>
+                                    <TooltipTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="h-8 w-8 p-0 hover:bg-blue-50 hover:border-blue-300"
+                                            onClick={() => {
+                                                // Navigate to test execution page
+                                                router.push(`/private/browse/${projectId}/test-execution/${row.original._id}`);
+                                            }}
+                                        >
+                                            <PlayCircle className="h-4 w-4 text-blue-600" />
+                                        </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>Execute Test Case</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                        </div>
                     );
                 }
                 return showTestCaseResultStatusBadge(result as string);
@@ -245,7 +269,7 @@ export default function TestCasesInTestExecution() {
                                     className="text-xs font-mono cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition-colors"
                                     onClick={() => {
                                         // Navigate to specific issue
-                                        window.open(`/private/browse/${projectId}/issue/${issueId._id}`, '_blank');
+                                        router.push(`/private/browse/${projectId}/issue/${issueId._id}`);
                                     }}
                                 >
                                     {issueId.customId || `#${issueId._id?.slice(-6)}`}
@@ -262,7 +286,7 @@ export default function TestCasesInTestExecution() {
                                 className="text-xs bg-green-50 text-green-700 border-green-200 cursor-pointer hover:bg-green-100 transition-colors"
                                 onClick={() => {
                                     // Navigate to issues page
-                                    window.open(`/private/projects/${projectId}/issues`, '_blank');
+                                    router.push(`/private/projects/${projectId}/issues`);
                                 }}
                             >
                                 Issue created
@@ -299,6 +323,11 @@ export default function TestCasesInTestExecution() {
     }
 
     const getTestExecution = async () => {
+        if (!projectId || !testCycleId) {
+            console.log('Missing required params:', { projectId, testCycleId });
+            return;
+        }
+        
         setIsLoading(true);
         try {
             const response = await getTestExecutionsService(projectId, testCycleId, pageIndex, pageSize, selectedResult);
@@ -588,8 +617,10 @@ export default function TestCasesInTestExecution() {
     const hasData = table.getRowModel().rows?.length > 0;
 
     useEffect(() => {
-        getTestExecution();
-    }, [pageIndex, pageSize, selectedResult]);
+        if (projectId && testCycleId) {
+            getTestExecution();
+        }
+    }, [projectId, testCycleId, pageIndex, pageSize, selectedResult]);
 
     useEffect(() => {
         if (data) {

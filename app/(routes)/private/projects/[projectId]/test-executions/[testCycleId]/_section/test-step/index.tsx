@@ -191,11 +191,31 @@ export default function TestStep({ testCaseResult, onTestStepResult, onBulkTestS
                                                         className="flex gap-6"
                                                     >
                                                         <div className="flex items-center space-x-2">
-                                                            <RadioGroupItem 
-                                                                value="Passed" 
-                                                                id={`passed-${index}`}
-                                                                className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
-                                                            />
+                                                            <div className="relative">
+                                                                <input
+                                                                    type="radio"
+                                                                    id={`passed-${index}`}
+                                                                    name={`status-${index}`}
+                                                                    value="Passed"
+                                                                    checked={selectedStatuses[index] === "Passed"}
+                                                                    onChange={(e) => handleStatusChange(index, e.target.value)}
+                                                                    className="sr-only"
+                                                                />
+                                                                <label
+                                                                    htmlFor={`passed-${index}`}
+                                                                    className={`block w-4 h-4 rounded-full border-2 cursor-pointer transition-all duration-200 ${
+                                                                        selectedStatuses[index] === "Passed"
+                                                                            ? "bg-green-600 border-green-600"
+                                                                            : "border-green-600 bg-white"
+                                                                    }`}
+                                                                >
+                                                                    {selectedStatuses[index] === "Passed" && (
+                                                                        <div className="w-full h-full rounded-full bg-green-600 flex items-center justify-center">
+                                                                            <div className="w-2 h-2 bg-white rounded-full"></div>
+                                                                        </div>
+                                                                    )}
+                                                                </label>
+                                                            </div>
                                                             <Label 
                                                                 htmlFor={`passed-${index}`}
                                                                 className="text-sm font-medium text-green-700 cursor-pointer"
@@ -204,11 +224,31 @@ export default function TestStep({ testCaseResult, onTestStepResult, onBulkTestS
                                                             </Label>
                                                         </div>
                                                         <div className="flex items-center space-x-2">
-                                                            <RadioGroupItem 
-                                                                value="Failed" 
-                                                                id={`failed-${index}`}
-                                                                className="data-[state=checked]:bg-red-600 data-[state=checked]:border-red-600"
-                                                            />
+                                                            <div className="relative">
+                                                                <input
+                                                                    type="radio"
+                                                                    id={`failed-${index}`}
+                                                                    name={`status-${index}`}
+                                                                    value="Failed"
+                                                                    checked={selectedStatuses[index] === "Failed"}
+                                                                    onChange={(e) => handleStatusChange(index, e.target.value)}
+                                                                    className="sr-only"
+                                                                />
+                                                                <label
+                                                                    htmlFor={`failed-${index}`}
+                                                                    className={`block w-4 h-4 rounded-full border-2 cursor-pointer transition-all duration-200 ${
+                                                                        selectedStatuses[index] === "Failed"
+                                                                            ? "bg-red-600 border-red-600"
+                                                                            : "border-red-600 bg-white"
+                                                                    }`}
+                                                                >
+                                                                    {selectedStatuses[index] === "Failed" && (
+                                                                        <div className="w-full h-full rounded-full bg-red-600 flex items-center justify-center">
+                                                                            <div className="w-2 h-2 bg-white rounded-full"></div>
+                                                                        </div>
+                                                                    )}
+                                                                </label>
+                                                            </div>
                                                             <Label 
                                                                 htmlFor={`failed-${index}`}
                                                                 className="text-sm font-medium text-red-700 cursor-pointer"
