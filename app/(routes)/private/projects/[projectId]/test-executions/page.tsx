@@ -470,6 +470,8 @@ export default function TestExecution() {
         </div>
         {(userData?.role === UserRoles.ADMIN ||
           userData?.role === UserRoles.PROJECT_ADMIN ||
+          userData?.role === UserRoles.CLIENT ||
+          userData?.role === UserRoles.TESTER ||
           checkProjectRole) && (
           <AddTestExecution refreshTestExecution={refreshTestExecution} />
         )}
