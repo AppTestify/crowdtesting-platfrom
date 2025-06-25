@@ -174,10 +174,14 @@ export default function Issues() {
       cell: ({ row }) => {
         const severity = row.getValue("severity") as string;
         const severityColors = {
+          Blocker: "bg-red-900 text-red-100 border-red-700",
           Critical: "bg-red-100 text-red-800 border-red-200",
+          Major: "bg-purple-100 text-purple-800 border-purple-200",
           High: "bg-orange-100 text-orange-800 border-orange-200",
           Medium: "bg-yellow-100 text-yellow-800 border-yellow-200",
+          Minor: "bg-blue-100 text-blue-800 border-blue-200",
           Low: "bg-green-100 text-green-800 border-green-200",
+          Trivial: "bg-gray-100 text-gray-800 border-gray-200",
         };
         return (
           <Badge 
