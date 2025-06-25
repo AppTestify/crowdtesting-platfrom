@@ -79,6 +79,7 @@ export default function Issues() {
   const [project, setProject] = useState<IProject>();
   const { projectId } = useParams<{ projectId: string }>();
   const checkProjectRole = checkProjectAdmin(project as IProject, userData);
+  const [allIssues, setAllIssues] = useState<IIssueView[]>([]);
   
 
   const showIssueRowActions = (issue: IIssue) => {
@@ -643,14 +644,35 @@ export default function Issues() {
     }
   };
 
+  // Fetch all issues for dashboard stats
+  const getAllIssues = async () => {
+    try {
+      const response = await getIssuesService(
+        projectId,
+        1, // page 1
+        999999, // large page size to get all
+        globalFilter as unknown as string,
+        selectedSeverity,
+        selectedPriority,
+        selectedStatus,
+        selectedTestCycle
+      );
+      setAllIssues(response?.issues || []);
+    } catch (error) {
+      setAllIssues([]);
+    }
+  };
+
   useEffect(() => {
     getProject();
     getTestCycle();
+    getAllIssues();
   }, []);
 
   useEffect(() => {
     const debounceFetch = setTimeout(() => {
       getIssues();
+      getAllIssues();
     }, 500);
     return () => clearTimeout(debounceFetch);
   }, [
@@ -672,11 +694,11 @@ export default function Issues() {
     }
   }, [globalFilter]);
 
-  // Calculate statistics
-  const criticalIssues = issues.filter(issue => issue.severity === 'Critical').length;
-  const openIssues = issues.filter(issue => issue.status === 'Open' || issue.status === 'New').length;
-  const resolvedIssues = issues.filter(issue => issue.status === 'Resolved' || issue.status === 'Closed').length;
-  const highPriorityIssues = issues.filter(issue => issue.priority === 'High').length;
+  // Calculate statistics from allIssues
+  const criticalIssues = allIssues.filter(issue => issue.severity === 'Critical').length;
+  const openIssues = allIssues.filter(issue => issue.status === 'Open' || issue.status === 'New').length;
+  const resolvedIssues = allIssues.filter(issue => issue.status === 'Resolved' || issue.status === 'Closed').length;
+  const highPriorityIssues = allIssues.filter(issue => issue.priority === 'High').length;
 
   return (
     <div className="w-full max-w-full overflow-hidden">
@@ -731,7 +753,7 @@ export default function Issues() {
               <Bug className="h-4 w-4 text-muted-foreground flex-shrink-0" />
             </CardHeader>
             <CardContent>
-              <div className="text-xl sm:text-2xl font-bold">{totalPageCount}</div>
+              <div className="text-xl sm:text-2xl font-bold">{allIssues.length}</div>
               <p className="text-xs text-muted-foreground">All reported issues</p>
             </CardContent>
           </Card>
