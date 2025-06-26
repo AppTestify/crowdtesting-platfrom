@@ -13,7 +13,6 @@ import toasterService from "@/app/_services/toaster-service";
 import { USER_UNAUTHORIZED_ERROR_MESSAGE } from "@/app/_constants/errors";
 import { SignInForm } from "@/app/_components/sign-in-form";
 import { BrandLogo, NewBrandLogo } from "@/app/_components/brand-logo";
-import SignInSideContent from "@/app/_components/sign-in-side-content";
 import { Button } from "@/components/ui/button";
 import { Shield, Users, Zap, CheckCircle, Star, ArrowRight } from "lucide-react";
 
@@ -35,10 +34,10 @@ function SignInWrapper() {
   }, []);
 
   return (
-    <div className="h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 overflow-hidden">
-      <div className="h-screen flex">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
+      <div className="min-h-screen flex flex-col lg:flex-row">
         {/* Left Side: Enhanced Content */}
-        <div className="hidden lg:flex w-7/12 xl:w-3/5 relative overflow-hidden">
+        <div className="hidden lg:flex lg:w-7/12 xl:w-3/5 relative overflow-hidden">
           {/* Background Gradient */}
           <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-blue-700 to-green-600"></div>
           
@@ -146,26 +145,26 @@ function SignInWrapper() {
           {/* Background Pattern */}
           <div className="absolute inset-0 bg-gradient-to-br from-white via-blue-50/30 to-green-50/30"></div>
           
-          <div className="relative z-10 flex flex-col h-full">
+          <div className="relative z-10 flex flex-col min-h-screen lg:min-h-0 lg:h-full">
             {/* Header */}
-            <div className="px-6 pt-6 pb-2 flex-shrink-0">
-              <NewBrandLogo className="text-gray-800 w-28 md:w-32 lg:w-36" />
+            <div className="px-4 sm:px-6 pt-4 sm:pt-6 pb-2 flex-shrink-0">
+              <NewBrandLogo className="text-gray-800 w-24 sm:w-28 md:w-32 lg:w-36" />
             </div>
 
             {/* Main Content */}
-            <div className="flex-1 flex flex-col justify-center px-6 pb-6 min-h-0">
+            <div className="flex-1 flex flex-col justify-center px-4 sm:px-6 pb-6 min-h-0">
               <div className="w-full max-w-sm mx-auto">
                 {/* Welcome Section */}
                 <div className="text-center mb-6">
-                  <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
+                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
                     Welcome Back
                   </h1>
-                  <p className="text-base text-gray-600 mb-4">
+                  <p className="text-sm sm:text-base text-gray-600 mb-4">
                     Sign in to your QTM account
                   </p>
                   
                   {/* Trust Indicators */}
-                  <div className="flex items-center justify-center gap-4 mb-6">
+                  <div className="flex items-center justify-center gap-2 sm:gap-4 mb-6 flex-wrap">
                     <div className="flex items-center gap-1 text-xs text-gray-600">
                       <Shield className="h-3 w-3 text-green-600" />
                       <span>Secure</span>
