@@ -5,6 +5,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 
 export function TeamSwitcher({
@@ -19,30 +20,56 @@ export function TeamSwitcher({
   website: any;
 }) {
   const [activeTeam, setActiveTeam] = React.useState(teams[0]);
+  const { state } = useSidebar();
+  const isCollapsed = state === "collapsed";
+  
   return (
     <SidebarMenu>
       <SidebarMenuItem>
         <SidebarMenuButton
-          size="lg"
-          className="pointer-events-none data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+          className={`
+            group relative w-full pointer-events-none hover:bg-transparent
+            ${isCollapsed ? 'h-12 p-2 justify-center' : 'h-14 p-3'}
+          `}
         >
-          <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-            {website?.logo?.data ? (
-              <img
-                src={`data:${website?.logo?.contentType};base64,${website?.logo?.data}`}
-                alt={website?.logo.name || "Website Logo"}
-                className=" size-9"
-              />
-            ) : (
-              <activeTeam.logo className="size-4" />
-            )}
-          </div>
-          <div className="grid flex-1 text-left text-sm leading-tight">
-            <span className="truncate font-semibold">
-              {website?.websiteName ? website?.websiteName : activeTeam?.name}
-            </span>
-            <span className="truncate text-xs">{activeTeam.plan}</span>
-          </div>
+          {isCollapsed ? (
+            // Collapsed state - show only logo
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+              {website?.logo?.data ? (
+                <img
+                  src={`data:${website?.logo?.contentType};base64,${website?.logo?.data}`}
+                  alt={website?.logo.name || "Website Logo"}
+                  className="h-5 w-5 object-contain"
+                />
+              ) : (
+                <activeTeam.logo className="h-4 w-4" />
+              )}
+            </div>
+          ) : (
+            // Expanded state - show logo and text
+            <div className="flex items-center gap-3 w-full">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground flex-shrink-0">
+                {website?.logo?.data ? (
+                  <img
+                    src={`data:${website?.logo?.contentType};base64,${website?.logo?.data}`}
+                    alt={website?.logo.name || "Website Logo"}
+                    className="h-6 w-6 object-contain"
+                  />
+                ) : (
+                  <activeTeam.logo className="h-5 w-5" />
+                )}
+              </div>
+              
+              <div className="flex flex-col min-w-0 flex-1">
+                <span className="font-semibold text-sidebar-foreground text-sm leading-tight">
+                  {website?.websiteName ? website?.websiteName : activeTeam?.name}
+                </span>
+                <span className="text-xs text-sidebar-foreground/60 font-normal">
+                  {activeTeam.plan}
+                </span>
+              </div>
+            </div>
+          )}
         </SidebarMenuButton>
       </SidebarMenuItem>
     </SidebarMenu>

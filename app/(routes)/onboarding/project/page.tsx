@@ -27,9 +27,7 @@ const CreateProject = () => {
     users: [],
   });
 
-  const [selectedPricing, setSelectedPricing] = useState<string>(
-    formData.pricingId || ""
-  );
+  const [selectedPricing, setSelectedPricing] = useState<string>("");
   const [testers, setTesters] = useState<number>(1);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -53,10 +51,16 @@ const CreateProject = () => {
       if (selectedPackage) {
         const testers = selectedPackage.testers;
         setTesters(testers);
-        // console.log("Numbers of Tester", testers);
       }
     }
   }, [selectedPricing]);
+
+  // Sync selectedPricing with formData.pricingId
+  useEffect(() => {
+    if (formData.pricingId && formData.pricingId !== selectedPricing) {
+      setSelectedPricing(formData.pricingId);
+    }
+  }, [formData.pricingId, selectedPricing]);
 
   const router = useRouter();
 

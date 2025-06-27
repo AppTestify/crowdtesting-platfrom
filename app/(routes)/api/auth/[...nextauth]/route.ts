@@ -204,8 +204,15 @@ const handleAuthorization = async (credentials: any) => {
       role: role,
     });
     if (response?.user) {
-      const adminUsers = await Website.findOne();
-      sendSignUpEmailToAdmin(response?.user as any, adminUsers?.emails);
+      try {
+        const adminUsers = await Website.findOne();
+        if (adminUsers?.emails && adminUsers.emails.length > 0) {
+          sendSignUpEmailToAdmin(response?.user as any, adminUsers?.emails);
+        }
+      } catch (error) {
+        console.error("Error sending admin notification email:", error);
+        // Don't fail the sign-up process if admin email fails
+      }
 
       return response.user;
     } else {

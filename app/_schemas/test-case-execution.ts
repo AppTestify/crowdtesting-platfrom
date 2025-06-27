@@ -5,6 +5,7 @@ export const testCaseExecutionSchema = z.object({
   // actualResult: z.string().min(1, "Actual result is required"),
   remarks: z.string().optional(),
   isIssue: z.coerce.boolean().optional(),
+  linkedIssueId: z.string().nullable().optional(),
   testCycleId: z.string().nullable().optional(),
   testSteps: z.array(
     z.object({

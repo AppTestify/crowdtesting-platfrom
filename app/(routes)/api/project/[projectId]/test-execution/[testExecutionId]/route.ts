@@ -66,6 +66,7 @@ export async function GET(
     const response = await TestCaseResult.find(filter)
       .populate("testCycleId", "_id customId title")
       .populate("testCaseId")
+      .populate("issueId", "_id customId title severity priority status")
       .skip(skip)
       .limit(Number(limit))
       .lean();

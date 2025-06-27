@@ -115,7 +115,7 @@ export function InvitePage({
       setHasShownLimitToast(true);
     } else if (fields.length === testers && !hasShownLimitToast) {
       toast.warning(
-        `You've reached your plan’s user limit. Upgrade your plan.`
+        `You've reached your plan's user limit. Upgrade your plan.`
       );
       setHasShownLimitToast(true);
     } else if (fields.length < testers && hasShownLimitToast) {

@@ -102,8 +102,8 @@ export function AddRequirement({ refreshRequirements }: { refreshRequirements: (
             description: "",
             projectId: projectId,
             attachments: [],
-            assignedTo: "",
-            status: "",
+            assignedTo: undefined,
+            status: undefined,
             startDate: null,
             endDate: null
         },
@@ -330,10 +330,10 @@ export function AddRequirement({ refreshRequirements }: { refreshRequirements: (
                                                     </FormControl>
                                                     <SelectContent>
                                                         <SelectGroup>
-                                                            {users?.map((user, index) => (
+                                                            {users?.filter(user => user?.userId?._id).map((user, index) => (
                                                                 <SelectItem
-                                                                    key={index}
-                                                                    value={user?.userId?._id || ""}
+                                                                    key={user?.userId?._id || index}
+                                                                    value={user?.userId?._id as string}
                                                                 >
                                                                     <div className="flex items-center gap-2">
                                                                         <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xs font-semibold">

@@ -90,20 +90,30 @@ export async function POST(req: Request) {
     await newUser.save();
 
     if (role === UserRoles.TESTER) {
-      const newTesterCountry = new Tester({
-        "address.country": country,
-        user: newUser._id,
-      });
-      await newTesterCountry.save();
+      try {
+        const newTesterCountry = new Tester({
+          "address.country": country,
+          user: newUser._id,
+        });
+        await newTesterCountry.save();
+      } catch (error) {
+        console.error("Error creating tester record:", error);
+        // Don't fail the sign-up process if tester creation fails
+      }
     }
 
     const { password: _, ...userWithoutPassword } = newUser.toObject();
-    const userProjectIds = await Project.find(
-      { userId: new ObjectId(existingUser.id) },
-      { _id: 1 }
-    ).lean();
-
-    userWithoutPassword.projects = userProjectIds || [];
+    
+    try {
+      const userProjectIds = await Project.find(
+        { userId: new ObjectId(newUser._id) },
+        { _id: 1 }
+      ).lean();
+      userWithoutPassword.projects = userProjectIds || [];
+    } catch (error) {
+      console.error("Error fetching user projects:", error);
+      userWithoutPassword.projects = [];
+    }
 
     const token = jwt.sign(
       { userId: newUser._id, email: newUser.email },
@@ -111,9 +121,19 @@ export async function POST(req: Request) {
       { expiresIn: JWT_TOKEN_EXPIRE_LIMIT }
     );
 
-    await createSession(userWithoutPassword);
+    try {
+      await createSession(userWithoutPassword);
+    } catch (error) {
+      console.error("Error creating session:", error);
+      // Don't fail the sign-up process if session creation fails
+    }
 
-    await sendVerificationEmail(userWithoutPassword);
+    try {
+      await sendVerificationEmail(userWithoutPassword);
+    } catch (error) {
+      console.error("Error sending verification email:", error);
+      // Don't fail the sign-up process if verification email fails
+    }
 
     return Response.json({
       message: "Signed up successfully",

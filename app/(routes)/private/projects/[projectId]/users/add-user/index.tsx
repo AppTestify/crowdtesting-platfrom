@@ -56,13 +56,13 @@ export function AddProjectUser({
   const { projectId } = useParams<{ projectId: string }>();
   const storedUserId = localStorage.getItem("userId") || "";
 
-  const form = useForm<z.infer<typeof projectSchema>>({
-    resolver: zodResolver(projectSchema),
-    defaultValues: {
-      userId: undefined,
-      role: undefined,
-    },
-  });
+    const form = useForm<z.infer<typeof projectSchema>>({
+        resolver: zodResolver(projectSchema),
+        defaultValues: {
+            userId: undefined,
+            role: undefined
+        },
+    });
 
   async function onSubmit(values: z.infer<typeof projectSchema>) {
     setIsLoading(true);
@@ -149,92 +149,89 @@ export function AddProjectUser({
           </div>
         </SheetHeader>
 
-        <div>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} method="post">
-              <div className="grid grid-cols-1 gap-2 mt-3">
-                <FormField
-                  control={form.control}
-                  name="userId"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>Select user</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value || storedUserId}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select user">
-                            {users
-                              .filter(
-                                (user) =>
-                                  user.id === (field.value || storedUserId)
-                              )
-                              .map((user) => getUsernameWithUserId(user))[0] ||
-                              "Select user"}
-                          </SelectValue>
-                        </SelectTrigger>
-                        <SelectContent>
-                          {!isViewLoading ? (
-                            <SelectGroup>
-                              {(Array.isArray(users) ? users : []).filter(
-                                (user) => user.customId
-                              ).length > 0 ? (
-                                (Array.isArray(users) ? users : [])
-                                  .filter((user) => user.customId)
-                                  .map((user) => (
-                                    <SelectItem
-                                      key={user.id}
-                                      value={user.id as string}
-                                    >
-                                      {getUsernameWithUserId(user)}
-                                    </SelectItem>
-                                  ))
-                              ) : (
-                                <p className="text-center">No tester found</p>
-                              )}
-                            </SelectGroup>
-                          ) : (
-                            <p className="text-center h-12 flex items-center justify-center">
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            </p>
-                          )}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="grid grid-cols-1 mt-4">
-                <FormField
-                  control={form.control}
-                  name="role"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>Project user role</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            {PROJECT_USER_ROLE_LIST.map((role) => (
-                              <SelectItem key={role} value={role}>
-                                <div className="flex items-center">{role}</div>
-                              </SelectItem>
-                            ))}
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                <div>
+                    <Form {...form}>
+                        <form onSubmit={form.handleSubmit(onSubmit)} method="post">
+                            <div className="grid grid-cols-1 gap-2 mt-3">
+                                <FormField
+                                    control={form.control}
+                                    name="userId"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-col">
+                                            <FormLabel>Select user</FormLabel>
+                                            <Select
+                                                onValueChange={field.onChange}
+                                                value={field.value || storedUserId || undefined}
+                                            >
+                                                <SelectTrigger className="w-full">
+                                                    <SelectValue placeholder="Select user">
+                                                        {
+                                                            users
+                                                                .filter(user => user.id === (field.value || storedUserId))
+                                                                .map(user => getUsernameWithUserId(user))[0] || "Select user"
+                                                        }
+                                                    </SelectValue>
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {!isViewLoading ? (
+                                                        <SelectGroup>
+                                                            {(Array.isArray(users) ? users : [])
+                                                                .filter(user => user.customId)
+                                                                .length > 0 ? (
+                                                                (Array.isArray(users) ? users : [])
+                                                                    .filter(user => user.customId)
+                                                                    .map(user => (
+                                                                        <SelectItem key={user.id} value={user.id as string}>
+                                                                            {getUsernameWithUserId(user)}
+                                                                        </SelectItem>
+                                                                    ))
+                                                            ) : (
+                                                                <p className="text-center">No tester found</p>
+                                                            )}
+                                                        </SelectGroup>
+                                                    ) : (
+                                                        <p className="text-center h-12 flex items-center justify-center">
+                                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                                        </p>
+                                                    )}
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                            <div className="grid grid-cols-1 mt-4">
+                                <FormField
+                                    control={form.control}
+                                    name="role"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-col">
+                                            <FormLabel>Project user role</FormLabel>
+                                            <Select
+                                                onValueChange={field.onChange}
+                                                value={field.value || undefined}
+                                            >
+                                                <SelectTrigger className="w-full">
+                                                    <SelectValue placeholder="Select role (optional)" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectGroup>
+                                                        {PROJECT_USER_ROLE_LIST.map((role) => (
+                                                            <SelectItem key={role} value={role}>
+                                                                <div className="flex items-center">
+                                                                    {role}
+                                                                </div>
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectGroup>
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
 
               <div className="mt-6 w-full flex justify-end gap-2">
                 <SheetClose asChild>

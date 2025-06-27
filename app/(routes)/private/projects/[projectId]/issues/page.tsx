@@ -73,7 +73,6 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 
-
 export default function Issues() {
   const [issues, setIssues] = useState<IIssueView[]>([]);
   const [userData, setUserData] = useState<any>();

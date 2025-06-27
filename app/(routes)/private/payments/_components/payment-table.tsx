@@ -1,59 +1,44 @@
 "use client";
 
-import { FileType } from '@/app/(routes)/private/profile/_components/tester-profile/_components/documents/_components/file-type';
-import { DocumentName } from '@/app/_components/document-name';
-import { IDocument } from '@/app/_interface/document';
-import { getApprovalFilesService } from '@/app/_services/file.service';
+import React, { useEffect, useState } from 'react';
+import { IPayment } from '@/app/_interface/payment';
+import { getPaymentsByUserService } from '@/app/_services/payment.service';
 import toasterService from '@/app/_services/toaster-service';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ColumnDef, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, Row, SortingState, useReactTable, VisibilityState } from '@tanstack/react-table';
-import React, { useEffect, useState } from 'react'
-import NonVerifiedRowActions from '../non-verified-row-actions';
-import { IUserByAdmin } from '@/app/_interface/user';
-import ViewTesterIssue from '../../../users/_components/view-user';
-import { DocumentBulkNonVerified } from '../bulk-non-verify';
-import { PAGINATION_LIMIT } from '@/app/_constants/pagination-limit';
+import { PaymentRowActions } from '../../users/_components/payment/_components/row-actions';
+import { paymentStatusBadge } from '@/app/_utils/common-functionality';
+import { PaymentCurrency } from '@/app/_constants/payment';
+import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { DBModels } from '@/app/_constants';
+import { PAGINATION_LIMIT } from '@/app/_constants/pagination-limit';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
-import { Search, FileText, User, UserCheck, ChevronLeft, ChevronRight, ArrowUpDown, Clock } from 'lucide-react';
+import { Search, DollarSign, User, FileText, ChevronLeft, ChevronRight, ArrowUpDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export default function NonVerifiedDocument() {
-    const [documents, setDocuments] = useState<IDocument[]>([]);
+interface PaymentTableProps {
+    userId: string;
+    isAdmin: boolean;
+    refreshStats: () => void;
+}
 
-    const columns: ColumnDef<IDocument>[] = [
+export default function PaymentTable({ userId, isAdmin, refreshStats }: PaymentTableProps) {
+    const [payments, setPayments] = useState<IPayment[]>([]);
+    const [sorting, setSorting] = useState<SortingState>([]);
+    const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+    const [rowSelection, setRowSelection] = useState({});
+    const [globalFilter, setGlobalFilter] = useState<unknown>([]);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [pageIndex, setPageIndex] = useState(1);
+    const [totalPageCount, setTotalPageCount] = useState(0);
+    const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
+
+    const columns: ColumnDef<IPayment>[] = [
         {
-            id: "select",
-            header: ({ table }) => (
-                <Checkbox
-                    checked={
-                        table.getIsAllPageRowsSelected() ||
-                        (table.getIsSomePageRowsSelected() && "indeterminate")
-                    }
-                    onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-                    aria-label="Select all"
-                    className="translate-y-[2px]"
-                />
-            ),
-            cell: ({ row }) => (
-                <Checkbox
-                    checked={row.getIsSelected()}
-                    onCheckedChange={(value) => row.toggleSelected(!!value)}
-                    aria-label="Select row"
-                    className="translate-y-[2px]"
-                />
-            ),
-            enableSorting: false,
-            enableHiding: false,
-        },
-        {
-            accessorKey: "name",
+            accessorKey: "description",
             header: ({ column }) => (
                 <Button
                     variant="ghost"
@@ -61,142 +46,154 @@ export default function NonVerifiedDocument() {
                     className="h-8 px-2 lg:px-3 hover:bg-muted/50"
                 >
                     <FileText className="mr-2 h-4 w-4" />
-                    File Name
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            ),
-            cell: ({ row }) => (
-                <div className="flex items-center space-x-2">
-                    <DocumentName document={row} />
-                </div>
-            ),
-        },
-        {
-            accessorKey: "fileType",
-            header: "Type",
-            cell: ({ row }) => (
-                <div className="flex items-center">
-                    <FileType document={row} />
-                </div>
-            ),
-        },
-        {
-            accessorKey: "verifiedBy",
-            header: ({ column }) => (
-                <Button
-                    variant="ghost"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                    className="h-8 px-2 lg:px-3 hover:bg-muted/50"
-                >
-                    <UserCheck className="mr-2 h-4 w-4" />
-                    <span className="hidden sm:inline">Verified By</span>
-                    <span className="sm:hidden">Verifier</span>
+                    Description
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             ),
             cell: ({ row }) => {
-                const verifier = row.original?.verifyBy;
-                if (!verifier) {
-                    return (
-                        <div className="flex items-center space-x-2 text-muted-foreground">
-                            <Clock className="h-4 w-4" />
-                            <span className="text-sm">Pending</span>
-                        </div>
-                    );
-                }
-
-                const firstName = verifier?.firstName || "";
-                const lastName = verifier?.lastName || "";
-                const initials = `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`.toUpperCase();
-                const displayName = `${firstName} ${lastName}`.trim() || verifier?.email;
-
+                const description = row.getValue("description") as string;
                 return (
-                    <div 
-                        className='flex items-center space-x-2 hover:text-primary cursor-pointer transition-colors'
-                        onClick={() => getUser(verifier as IUserByAdmin)}
-                    >
-                        <Avatar className="h-8 w-8">
-                            <AvatarFallback className="text-xs bg-muted">
-                                {initials || 'V'}
-                            </AvatarFallback>
-                        </Avatar>
-                        <div className="min-w-0">
-                            <p className="text-sm font-medium truncate">{displayName}</p>
-                            <p className="text-xs text-muted-foreground truncate">{verifier?.email}</p>
+                    <div className="flex items-center space-x-2">
+                        <div 
+                            title={description}
+                            className="font-medium truncate max-w-[200px]"
+                        >
+                            {description || "No description"}
                         </div>
                     </div>
                 );
             },
         },
         {
-            accessorKey: "createdBy",
+            accessorKey: "amount",
             header: ({ column }) => (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                    className="h-8 px-2 lg:px-3 hover:bg-muted/50"
+                >
+                    <DollarSign className="mr-2 h-4 w-4" />
+                    Amount
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            ),
+            cell: ({ row }) => {
+                const amount = row.original?.amount as any;
+                const currency = row.original?.currency as string;
+                const displayAmount = amount?.$numberDecimal ? parseFloat(amount.$numberDecimal) : 0;
+                
+                return (
+                    <div className="flex items-center space-x-1">
+                        <Badge variant="outline" className="text-xs font-mono">
+                            {currency || PaymentCurrency.USD}
+                        </Badge>
+                        <span className="font-semibold">
+                            {displayAmount.toLocaleString()}
+                        </span>
+                    </div>
+                );
+            },
+        },
+        ...(isAdmin ? [{
+            accessorKey: "senderId",
+            header: ({ column }: any) => (
                 <Button
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     className="h-8 px-2 lg:px-3 hover:bg-muted/50"
                 >
                     <User className="mr-2 h-4 w-4" />
-                    <span className="hidden sm:inline">Created By</span>
-                    <span className="sm:hidden">Creator</span>
+                    <span className="hidden sm:inline">Sender</span>
+                    <span className="sm:hidden">From</span>
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             ),
-            cell: ({ row }) => {
-                const user = row.original?.userId;
-                const firstName = user?.firstName || "";
-                const lastName = user?.lastName || "";
+            cell: ({ row }: { row: any }) => {
+                const sender = row.original?.senderId;
+                const firstName = sender?.firstName || "";
+                const lastName = sender?.lastName || "";
                 const initials = `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`.toUpperCase();
-                const displayName = `${firstName} ${lastName}`.trim() || user?.email;
+                const displayName = `${firstName} ${lastName}`.trim() || sender?.email;
 
                 return (
-                    <div 
-                        className='flex items-center space-x-2 hover:text-primary cursor-pointer transition-colors'
-                        onClick={() => getUser(user as IUserByAdmin)}
-                    >
+                    <div className="flex items-center space-x-2">
                         <Avatar className="h-8 w-8">
                             <AvatarFallback className="text-xs bg-muted">
-                                {initials || 'U'}
+                                {initials || 'S'}
                             </AvatarFallback>
                         </Avatar>
                         <div className="min-w-0">
                             <p className="text-sm font-medium truncate">{displayName}</p>
-                            <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                            <p className="text-xs text-muted-foreground truncate">{sender?.email}</p>
                         </div>
                     </div>
                 );
             },
-        },
+        }] : []),
+        ...(isAdmin ? [{
+            accessorKey: "receiverId",
+            header: ({ column }: any) => (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                    className="h-8 px-2 lg:px-3 hover:bg-muted/50"
+                >
+                    <User className="mr-2 h-4 w-4" />
+                    <span className="hidden sm:inline">Receiver</span>
+                    <span className="sm:hidden">To</span>
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            ),
+            cell: ({ row }: { row: any }) => {
+                const receiver = row.original?.receiverId;
+                const firstName = receiver?.firstName || "";
+                const lastName = receiver?.lastName || "";
+                const initials = `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`.toUpperCase();
+                const displayName = `${firstName} ${lastName}`.trim() || receiver?.email;
+
+                return (
+                    <div className="flex items-center space-x-2">
+                        <Avatar className="h-8 w-8">
+                            <AvatarFallback className="text-xs bg-muted">
+                                {initials || 'R'}
+                            </AvatarFallback>
+                        </Avatar>
+                        <div className="min-w-0">
+                            <p className="text-sm font-medium truncate">{displayName}</p>
+                            <p className="text-xs text-muted-foreground truncate">{receiver?.email}</p>
+                        </div>
+                    </div>
+                );
+            },
+        }] : []),
         {
-            id: "actions",
-            enableHiding: false,
-            cell: ({ row }) => (
-                <NonVerifiedRowActions row={row as Row<IDocument>} refreshDocuments={refreshDocuments} />
+            accessorKey: "status",
+            header: "Status",
+            cell: ({ row }: { row: any }) => (
+                <div className="flex items-center">
+                    {paymentStatusBadge(row.original?.status)}
+                </div>
             ),
         },
+        ...(isAdmin ? [{
+            id: "actions",
+            enableHiding: false,
+            cell: ({ row }: { row: any }) => (
+                <PaymentRowActions row={row as Row<IPayment>} refreshPayment={refreshPayments} />
+            ),
+        }] : []),
     ];
 
-    const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-    const [rowSelection, setRowSelection] = useState({});
-    const [sorting, setSorting] = useState<SortingState>([]);
-    const [globalFilter, setGlobalFilter] = useState<unknown>([]);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [user, setUser] = useState<IUserByAdmin>();
-    const [isViewOpen, setIsViewOpen] = useState(false);
-    const [totalPageCount, setTotalPageCount] = useState(0);
-    const [pageIndex, setPageIndex] = useState<number>(1);
-    const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
-
     const table = useReactTable({
-        data: documents,
+        data: payments,
         columns,
+        onSortingChange: setSorting,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         onColumnVisibilityChange: setColumnVisibility,
         onRowSelectionChange: setRowSelection,
-        onSortingChange: setSorting,
         globalFilterFn: "includesString",
         state: {
             sorting,
@@ -210,23 +207,25 @@ export default function NonVerifiedDocument() {
     useEffect(() => {
         const handleResize = () => {
             const width = window.innerWidth;
-            setColumnVisibility({
-                verifiedBy: width >= 768, // Hide on smaller screens
-            });
+            if (isAdmin) {
+                setColumnVisibility({
+                    senderId: width >= 1024, // Hide on smaller screens
+                    receiverId: width >= 768,
+                });
+            }
         };
 
         handleResize();
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
-    }, []);
+    }, [isAdmin]);
 
-    const verifyDocument = async () => {
+    const getPayments = async () => {
         setIsLoading(true);
         try {
-            const response = await getApprovalFilesService(true, pageIndex, pageSize, globalFilter as unknown as string);
+            const response = await getPaymentsByUserService(userId, pageIndex, pageSize, globalFilter as unknown as string);
             if (response) {
-                setDocuments(response.documents);
-                setRowSelection({});
+                setPayments(response?.payments);
                 setTotalPageCount(response?.total);
             }
         } catch (error) {
@@ -234,27 +233,11 @@ export default function NonVerifiedDocument() {
         } finally {
             setIsLoading(false);
         }
-    }
-
-    const getSelectedRows = () => {
-        return table.getFilteredSelectedRowModel().rows.map((row) => row.original?.id)
-            .filter((id): id is string => id !== undefined);
     };
 
-    const refreshDocuments = () => {
-        verifyDocument();
-    }
-
-    useEffect(() => {
-        const debounceFetch = setTimeout(() => {
-            verifyDocument();
-        }, 500);
-        return () => clearTimeout(debounceFetch);
-    }, [globalFilter, pageIndex, pageSize]);
-
-    const getUser = async (data: IUserByAdmin) => {
-        setUser(data as IUserByAdmin);
-        setIsViewOpen(true);
+    const refreshPayments = () => {
+        getPayments();
+        refreshStats();
     };
 
     const handlePreviousPage = () => {
@@ -269,22 +252,23 @@ export default function NonVerifiedDocument() {
         }
     };
 
+    useEffect(() => {
+        const debounceFetch = setTimeout(() => {
+            getPayments();
+        }, 500);
+        return () => clearTimeout(debounceFetch);
+    }, [pageIndex, pageSize, globalFilter]);
+
     const totalPages = Math.ceil(totalPageCount / pageSize);
 
     return (
-        <div className="w-full max-w-full overflow-hidden">
-            <ViewTesterIssue
-                user={user as IUserByAdmin}
-                sheetOpen={isViewOpen}
-                setSheetOpen={setIsViewOpen}
-            />
-            
-            {/* Search and Actions */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 py-4">
+        <div className="w-full max-w-full overflow-hidden space-y-4">
+            {/* Search */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="relative flex-1 max-w-sm">
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
-                        placeholder="Search pending documents..."
+                        placeholder="Search payments..."
                         value={(globalFilter as string) ?? ""}
                         onChange={(event) => {
                             table.setGlobalFilter(String(event.target.value));
@@ -292,18 +276,6 @@ export default function NonVerifiedDocument() {
                         className="pl-9"
                     />
                 </div>
-                
-                {getSelectedRows().length > 0 && (
-                    <div className="flex items-center gap-2">
-                        <Badge variant="secondary" className="text-xs">
-                            {getSelectedRows().length} selected
-                        </Badge>
-                        <DocumentBulkNonVerified
-                            ids={getSelectedRows()}
-                            refreshDocuments={refreshDocuments}
-                        />
-                    </div>
-                )}
             </div>
 
             {/* Table */}
@@ -320,11 +292,11 @@ export default function NonVerifiedDocument() {
                                                     key={header.id}
                                                     className={cn(
                                                         "bg-muted/50 font-semibold text-foreground",
-                                                        header.id === "select" && "w-12",
-                                                        header.id === "name" && "min-w-[200px]",
-                                                        header.id === "fileType" && "w-24",
-                                                        header.id === "verifiedBy" && "min-w-[160px]",
-                                                        header.id === "createdBy" && "min-w-[160px]",
+                                                        header.id === "description" && "min-w-[200px]",
+                                                        header.id === "amount" && "w-32",
+                                                        header.id === "senderId" && "min-w-[180px]",
+                                                        header.id === "receiverId" && "min-w-[180px]",
+                                                        header.id === "status" && "w-24",
                                                         header.id === "actions" && "w-20"
                                                     )}
                                                 >
@@ -345,10 +317,9 @@ export default function NonVerifiedDocument() {
                                     // Loading skeleton
                                     [...Array(5)].map((_, index) => (
                                         <TableRow key={index}>
-                                            <TableCell><Skeleton className="h-4 w-4" /></TableCell>
                                             <TableCell><Skeleton className="h-4 w-full" /></TableCell>
-                                            <TableCell><Skeleton className="h-4 w-16" /></TableCell>
-                                            {columnVisibility.verifiedBy && (
+                                            <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+                                            {columnVisibility.senderId && (
                                                 <TableCell>
                                                     <div className="flex items-center space-x-2">
                                                         <Skeleton className="h-8 w-8 rounded-full" />
@@ -359,16 +330,19 @@ export default function NonVerifiedDocument() {
                                                     </div>
                                                 </TableCell>
                                             )}
-                                            <TableCell>
-                                                <div className="flex items-center space-x-2">
-                                                    <Skeleton className="h-8 w-8 rounded-full" />
-                                                    <div className="space-y-1">
-                                                        <Skeleton className="h-3 w-24" />
-                                                        <Skeleton className="h-3 w-32" />
+                                            {columnVisibility.receiverId && (
+                                                <TableCell>
+                                                    <div className="flex items-center space-x-2">
+                                                        <Skeleton className="h-8 w-8 rounded-full" />
+                                                        <div className="space-y-1">
+                                                            <Skeleton className="h-3 w-24" />
+                                                            <Skeleton className="h-3 w-32" />
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell><Skeleton className="h-4 w-8" /></TableCell>
+                                                </TableCell>
+                                            )}
+                                            <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+                                            {isAdmin && <TableCell><Skeleton className="h-4 w-8" /></TableCell>}
                                         </TableRow>
                                     ))
                                 ) : table.getRowModel().rows?.length ? (
@@ -398,9 +372,9 @@ export default function NonVerifiedDocument() {
                                             className="h-32 text-center"
                                         >
                                             <div className="flex flex-col items-center justify-center space-y-2">
-                                                <Clock className="h-8 w-8 text-muted-foreground" />
-                                                <p className="text-sm text-muted-foreground">No pending documents found</p>
-                                                <p className="text-xs text-muted-foreground">Documents awaiting verification will appear here</p>
+                                                <DollarSign className="h-8 w-8 text-muted-foreground" />
+                                                <p className="text-sm text-muted-foreground">No payments found</p>
+                                                <p className="text-xs text-muted-foreground">Payment transactions will appear here</p>
                                             </div>
                                         </TableCell>
                                     </TableRow>
@@ -415,7 +389,7 @@ export default function NonVerifiedDocument() {
             {totalPageCount > 0 && (
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-4">
                     <div className="text-sm text-muted-foreground">
-                        Showing {((pageIndex - 1) * pageSize) + 1} to {Math.min(pageIndex * pageSize, totalPageCount)} of {totalPageCount} documents
+                        Showing {((pageIndex - 1) * pageSize) + 1} to {Math.min(pageIndex * pageSize, totalPageCount)} of {totalPageCount} payments
                     </div>
                     
                     <div className="flex items-center space-x-2">
@@ -450,5 +424,5 @@ export default function NonVerifiedDocument() {
                 </div>
             )}
         </div>
-    )
-}
+    );
+} 

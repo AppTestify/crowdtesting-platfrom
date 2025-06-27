@@ -92,8 +92,8 @@ const EditRequirement = ({
             title: requirement?.title || "",
             description: requirement?.description || "",
             projectId: requirement?.projectId as unknown as string || "",
-            assignedTo: requirement?.assignedTo?._id || "",
-            status: requirement?.status || "",
+            assignedTo: requirement?.assignedTo?._id || undefined,
+            status: requirement?.status || undefined,
             startDate: requirement?.startDate ? new Date(requirement.startDate) : null,
             endDate: requirement?.endDate ? new Date(requirement.endDate) : null
         },
@@ -183,8 +183,8 @@ const EditRequirement = ({
                     title: requirement?.title || "",
                     description: requirement?.description || "",
                     projectId: requirement?.projectId as unknown as string || "",
-                    assignedTo: requirement?.assignedTo?._id || "",
-                    status: requirement?.status || "",
+                    assignedTo: requirement?.assignedTo?._id || undefined,
+                    status: requirement?.status || undefined,
                     startDate: requirement?.startDate ? new Date(requirement.startDate) : null,
                     endDate: requirement?.endDate ? new Date(requirement.endDate) : null
                 });
@@ -400,7 +400,7 @@ const EditRequirement = ({
                                                                 </div>
                                                             </SelectItem>
                                                             {users.length > 0 ? (
-                                                                users.map((user) => (
+                                                                users.filter(user => user?.userId?._id).map((user) => (
                                                                     <SelectItem
                                                                         key={user._id}
                                                                         value={user?.userId?._id as string}
