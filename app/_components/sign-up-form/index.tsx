@@ -45,8 +45,52 @@ export function SignUpForm({
   const pathname = usePathname();
   const isClientPage = pathname === "/auth/sign-up";
 
+  // const formSchema = isClientPage
+  //   ? z.object({
+  //       email: z
+  //         .string()
+  //         .email({ message: "Please enter a valid email address" }),
+
+  //       password: z
+  //         .string()
+  //         .min(8, { message: "Password must be at least 8 characters" }),
+
+  //       firstName: z.string().min(1, { message: "First name is required" }),
+
+  //       lastName: z.string().min(1, { message: "Last name is required" }),
+
+  //       country: z
+  //         .string()
+  //         .min(1, { message: "Please select country" })
+  //         .optional(),
+
+  //       userCount: z.string().optional(),
+  //       companyName: z.string().min(1, { message: "Company name is required" }),
+  //     })
+  //   : z.object({
+  //       email: z
+  //         .string()
+  //         .email({ message: "Please enter a valid email address" }),
+
+  //       password: z
+  //         .string()
+  //         .min(8, { message: "Password must be at least 8 characters" }),
+
+  //       firstName: z.string().min(1, { message: "First name is required" }),
+
+  //       lastName: z.string().min(1, { message: "Last name is required" }),
+
+  //       country: z
+  //         .string()
+  //         .min(1, { message: "Please select country" })
+  //         .optional(),
+
+  //       companyName: z.string().optional(),
+  //     });
+
   const formSchema = isClientPage
-    ? z.object({
+    ? z
+      .object({
         email: z
           .string()
           .email({ message: "Please enter a valid email address" }),
@@ -54,6 +98,8 @@ export function SignUpForm({
         password: z
           .string()
           .min(8, { message: "Password must be at least 8 characters" }),
+
+        confirmPassword: z.string(),
 
         firstName: z.string().min(1, { message: "First name is required" }),
 
@@ -65,9 +111,21 @@ export function SignUpForm({
           .optional(),
 
         userCount: z.string().optional(),
-        companyName: z.string().min(1, { message: "Company name is required" }),
+        companyName: z
+          .string()
+          .min(1, { message: "Company name is required" }),
       })
-    : z.object({
+      .refine(
+        (data) =>
+          data.confirmPassword.length < data.password.length ||
+          data.password === data.confirmPassword,
+        {
+          path: ["confirmPassword"],
+          message: "Passwords do not match",
+        }
+      )
+    : z
+      .object({
         email: z
           .string()
           .email({ message: "Please enter a valid email address" }),
@@ -75,6 +133,8 @@ export function SignUpForm({
         password: z
           .string()
           .min(8, { message: "Password must be at least 8 characters" }),
+
+        confirmPassword: z.string(),
 
         firstName: z.string().min(1, { message: "First name is required" }),
 
@@ -86,32 +146,43 @@ export function SignUpForm({
           .optional(),
 
         companyName: z.string().optional(),
-      });
+      })
+      .refine(
+        (data) =>
+          data.confirmPassword.length < data.password.length ||
+          data.password === data.confirmPassword,
+        {
+          path: ["confirmPassword"],
+          message: "Passwords do not match",
+        }
+      );
 
   const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const [isAgreed, setIsAgreed] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const defaultValues = isClientPage
     ? {
-        email: "",
-        password: "",
-        firstName: "",
-        lastName: "",
-        country: "",
-        userCount: "",
-        companyName: "",
-      }
+      email: "",
+      password: "",
+      firstName: "",
+      lastName: "",
+      country: "",
+      userCount: "",
+      companyName: "",
+    }
     : {
-        email: "",
-        password: "",
-        firstName: "",
-        lastName: "",
-        country: "",
-        companyName: "",
-      };
-  
+      email: "",
+      password: "",
+      firstName: "",
+      lastName: "",
+      country: "",
+      companyName: "",
+    };
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: defaultValues,
@@ -223,7 +294,7 @@ export function SignUpForm({
           />
 
           {/* Password */}
-          <FormField
+          {/* <FormField
             name="password"
             control={form.control}
             render={({ field }) => (
@@ -255,7 +326,86 @@ export function SignUpForm({
                 <FormMessage className="text-red-500 text-xs" />
               </FormItem>
             )}
-          />
+          /> */}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Password Field */}
+            <FormField
+              name="password"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Password<span className="text-red-500">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Password"
+                        className="bg-white pr-10"
+                        {...field}
+                      />
+                      <button
+                        type="button"
+                        className="absolute top-1/2 right-2 transform -translate-y-1/2 text-gray-500"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? (
+                          <EyeOffIcon className="w-5 h-5" />
+                        ) : (
+                          <EyeIcon className="w-5 h-5" />
+                        )}
+                      </button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Confirm Password Field */}
+            <FormField
+              name="confirmPassword"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Confirm Password
+                    <span className="text-red-500">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Input
+                        type={showConfirmPassword ? "text" : "password"}
+                        placeholder="Confirm password"
+                        className="bg-white pr-10"
+                        {...field}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          form.trigger("confirmPassword");
+                        }}
+                      />
+                      <button
+                        type="button"
+                        className="absolute top-1/2 right-2 transform -translate-y-1/2 text-gray-500"
+                        onClick={() =>
+                          setShowConfirmPassword(!showConfirmPassword)
+                        }
+                      >
+                        {showConfirmPassword ? (
+                          <EyeOffIcon className="w-5 h-5" />
+                        ) : (
+                          <EyeIcon className="w-5 h-5" />
+                        )}
+                      </button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
 
           {/* Company & Country (Client only) */}
           {isClientPage && (
@@ -279,7 +429,7 @@ export function SignUpForm({
                   </FormItem>
                 )}
               />
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 <FormField
                   name="country"
@@ -438,7 +588,7 @@ export function SignUpForm({
           </div>
         </form>
       </Form>
-      
+
       <div className="mt-3 pt-2 border-t border-gray-200">
         <div className="text-center text-xs text-gray-500 space-y-1">
           <p>&copy; 2025 AppTestify Global Services Pvt. Ltd.</p>
