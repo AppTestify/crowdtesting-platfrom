@@ -74,7 +74,6 @@ export default function Issues() {
   const [project, setProject] = useState<IProject>();
   const { projectId } = useParams<{ projectId: string }>();
   const checkProjectRole = checkProjectAdmin(project as IProject, userData);
-  
 
   const showIssueRowActions = (issue: IIssue) => {
     return (
@@ -265,7 +264,6 @@ export default function Issues() {
       },
     },
   ];
-
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
