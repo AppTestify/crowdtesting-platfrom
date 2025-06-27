@@ -172,8 +172,8 @@ function SignUpWrapper() {
               <div className="w-full max-w-sm mx-auto">
                 {/* Welcome Section */}
                 <div className="text-center mb-4 sm:mb-6 lg:mb-8">
-                  <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 mb-2 sm:mb-3">
-                    Create Account
+                  <h1 className="text-xl sm:text-xl lg:text-3xl xl:text-4xl font-bold text-gray-900 mb-2 sm:mb-3">
+                   Sign Up as Client
                   </h1>
                   <p className="text-sm sm:text-base lg:text-lg text-gray-600 mb-3 sm:mb-4 lg:mb-6">
                     Start with our free tier or choose a plan that fits your needs
