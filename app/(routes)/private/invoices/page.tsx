@@ -43,6 +43,7 @@ export default function Invoices() {
     const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
     const [totalPageCount, setTotalPageCount] = useState(0);
     const [userData, setUserData] = useState<any>();
+    const [allInvoices, setAllInvoices] = useState<IInvoice[]>([]);
     const [date, setDate] = React.useState<DateRange | undefined>({
         from: undefined,
         to: undefined,
@@ -189,6 +190,27 @@ export default function Invoices() {
         }
     }
 
+    // Fetch all invoices for dashboard stats
+    const getAllInvoices = async () => {
+        try {
+            let formattedFromDate, formattedToDate;
+            if (date) {
+                formattedFromDate = date?.from ? format(date.from, "yyyy-MM-dd") : "";
+                formattedToDate = date?.to ? format(date.to, "yyyy-MM-dd") : "";
+            }
+            const response = await getInvoiceService(
+                1, // page 1
+                999999, // large page size to get all
+                globalFilter,
+                formattedFromDate,
+                formattedToDate
+            );
+            setAllInvoices(response?.invoices || []);
+        } catch (error) {
+            setAllInvoices([]);
+        }
+    };
+
     const handlePreviousPage = () => {
         if (pageIndex > 1) {
             setPageIndex(pageIndex - 1);
@@ -203,11 +225,13 @@ export default function Invoices() {
 
     const refreshDocuments = () => {
         getInvoice();
+        getAllInvoices();
     }
 
     useEffect(() => {
         const debounceFetch = setTimeout(() => {
             getInvoice();
+            getAllInvoices();
         }, 500);
         return () => clearTimeout(debounceFetch);
     }, [pageIndex, pageSize, globalFilter, date]);
@@ -219,8 +243,12 @@ export default function Invoices() {
         }
     }, [data]);
 
-    // Calculate statistics
-    const recentInvoices = invoices.filter(invoice => {
+    useEffect(() => {
+        getAllInvoices();
+    }, []);
+
+    // Calculate statistics from allInvoices
+    const recentInvoices = allInvoices.filter(invoice => {
         if (!invoice.createdAt) return false;
         const created = new Date(invoice.createdAt);
         const thirtyDaysAgo = new Date();
@@ -228,7 +256,7 @@ export default function Invoices() {
         return created > thirtyDaysAgo;
     }).length;
 
-    const todayInvoices = invoices.filter(invoice => {
+    const todayInvoices = allInvoices.filter(invoice => {
         if (!invoice.createdAt) return false;
         const created = new Date(invoice.createdAt);
         const today = new Date();
@@ -301,12 +329,20 @@ export default function Invoices() {
                     </Card>
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-xs sm:text-sm font-medium">Current Page</CardTitle>
+                            <CardTitle className="text-xs sm:text-sm font-medium">This Week</CardTitle>
                             <FileText className="h-4 w-4 text-purple-600 flex-shrink-0" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-xl sm:text-2xl font-bold text-purple-600">{invoices.length}</div>
-                            <p className="text-xs text-muted-foreground">Showing now</p>
+                            <div className="text-xl sm:text-2xl font-bold text-purple-600">
+                                {allInvoices.filter(invoice => {
+                                    if (!invoice.createdAt) return false;
+                                    const created = new Date(invoice.createdAt);
+                                    const sevenDaysAgo = new Date();
+                                    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                                    return created > sevenDaysAgo;
+                                }).length}
+                            </div>
+                            <p className="text-xs text-muted-foreground">Last 7 days</p>
                         </CardContent>
                     </Card>
                 </div>

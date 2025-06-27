@@ -300,6 +300,7 @@ export default function ProjectUsers() {
   });
   const [totalPageCount, setTotalPageCount] = useState(0);
   const [projectUsers, setProjectUsers] = useState<IProjectUserDisplay[]>([]);
+  const [allProjectUsers, setAllProjectUsers] = useState<IProjectUserDisplay[]>([]);
   const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
   const { projectId } = useParams<{ projectId: string }>();
   const { data } = useSession();
@@ -349,9 +350,14 @@ export default function ProjectUsers() {
   useEffect(() => {
     const debounceFetch = setTimeout(() => {
       getProjectUsers();
+      getAllProjectUsers();
     }, 500);
     return () => clearTimeout(debounceFetch);
   }, [pageIndex, pageSize, globalFilter]);
+
+  useEffect(() => {
+    getAllProjectUsers();
+  }, []);
 
   const calculateStats = (users: IProjectUserDisplay[]) => {
     const verifiedUsers = users.filter(user => (user as any).isVerify !== false).length;
@@ -394,11 +400,26 @@ export default function ProjectUsers() {
       const users = projectUsers?.data?.users || [];
       setProjectUsers(users);
       setTotalPageCount(projectUsers?.data?.total || 0);
-      calculateStats(users);
     } catch (error) {
       toasterService.error();
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Fetch all project users for dashboard stats
+  const getAllProjectUsers = async () => {
+    try {
+      const response = await getProjectUsersPaginationService(
+        projectId,
+        1, // page 1
+        999999 // large page size to get all
+      );
+      const allUsers = response?.data?.users || [];
+      setAllProjectUsers(allUsers);
+      calculateStats(allUsers);
+    } catch (error) {
+      setAllProjectUsers([]);
     }
   };
 
@@ -416,11 +437,13 @@ export default function ProjectUsers() {
 
   const refreshProjectUsers = () => {
     getProjectUsers();
+    getAllProjectUsers();
     setRowSelection({});
   };
 
   const refreshStats = () => {
     getProjectUsers();
+    getAllProjectUsers();
   };
 
   const table = useReactTable({

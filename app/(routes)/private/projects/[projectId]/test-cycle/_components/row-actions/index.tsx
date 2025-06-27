@@ -11,6 +11,13 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 import { Row } from "@tanstack/react-table";
 import { ChartNoAxesGantt, Edit, Eye, MoreHorizontal, Trash } from "lucide-react";
 import { useState } from "react";
@@ -21,13 +28,9 @@ import TestCycleView from "../view-test-cycle";
 export function TestCycleRowActions({
     row,
     refreshTestCycle,
-    onViewClick,
-    onEditClick,
 }: {
     row: Row<ITestCycle>;
     refreshTestCycle: () => void;
-    onViewClick:(viewCycle:ITestCycle)=>void;
-    onEditClick:(editCycle:ITestCycle)=>void;
 }) {
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [isViewOpen, setIsViewOpen] = useState(false);
@@ -56,17 +59,42 @@ export function TestCycleRowActions({
 
     return (
         <>
-            <TestCycleView
-                sheetOpen={isViewOpen}
-                setSheetOpen={setIsViewOpen}
-                testCycle={row.original as ITestCycle}
-            />
-            <EditTestCycle
-                testCycle={row.original as ITestCycle}
-                sheetOpen={isEditOpen}
-                setSheetOpen={setIsEditOpen}
-                refreshTestCycle={refreshTestCycle}
-            />
+            <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>View Test Cycle</DialogTitle>
+                        <DialogDescription>
+                            View the test cycle details and configuration.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="mt-4">
+                        <TestCycleView
+                            sheetOpen={isViewOpen}
+                            setSheetOpen={setIsViewOpen}
+                            testCycle={row.original as ITestCycle}
+                        />
+                    </div>
+                </DialogContent>
+            </Dialog>
+            
+            <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>Edit Test Cycle</DialogTitle>
+                        <DialogDescription>
+                            Update the test cycle details and configuration.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="mt-4">
+                        <EditTestCycle
+                            testCycle={row.original as ITestCycle}
+                            sheetOpen={isEditOpen}
+                            setSheetOpen={setIsEditOpen}
+                            refreshTestCycle={refreshTestCycle}
+                        />
+                    </div>
+                </DialogContent>
+            </Dialog>
 
             {/* <AssignTestCase
                 sheetOpen={isActionOpen}
@@ -106,7 +134,6 @@ export function TestCycleRowActions({
                     <DropdownMenuItem
                         className="mb-1"
                         onClick={() => {
-                            onViewClick(row.original);
                             setIsViewOpen(true);
                         }}
                     >
@@ -116,7 +143,6 @@ export function TestCycleRowActions({
                     <DropdownMenuItem
                         className="mb-1"
                         onClick={() => {
-                            onEditClick(row.original);
                             setIsEditOpen(true);
                         }}
                     >
