@@ -47,15 +47,16 @@ import { Separator } from "@/components/ui/separator";
 
 export default function TestSuite() {
   const [testSuite, setTestSuite] = useState<ITestSuite[]>([]);
+  const [allTestSuites, setAllTestSuites] = useState<ITestSuite[]>([]);
   const [userData, setUserData] = useState<any>();
   const [project, setProject] = useState<IProject>();
 
   // Statistics calculations
   const statistics = useMemo(() => {
-    const total = testSuite.length;
-    const withRequirements = testSuite.filter(suite => suite.requirements && suite.requirements.length > 0).length;
+    const total = allTestSuites.length;
+    const withRequirements = allTestSuites.filter(suite => suite.requirements && suite.requirements.length > 0).length;
     const withoutRequirements = total - withRequirements;
-    const recentlyCreated = testSuite.filter(suite => {
+    const recentlyCreated = allTestSuites.filter(suite => {
       if (!suite.createdAt) return false;
       const suiteDate = new Date(suite.createdAt);
       const weekAgo = new Date();
@@ -69,7 +70,7 @@ export default function TestSuite() {
       withoutRequirements,
       recentlyCreated
     };
-  }, [testSuite]);
+  }, [allTestSuites]);
 
   // Enhanced columns with better styling
   const columns: ColumnDef<ITestSuite>[] = useMemo(() => [
@@ -246,9 +247,14 @@ export default function TestSuite() {
   useEffect(() => {
     const debounceFetch = setTimeout(() => {
       getTestSuites();
+      getAllTestSuites();
     }, 500);
     return () => clearTimeout(debounceFetch);
   }, [pageIndex, pageSize, globalFilter]);
+
+  useEffect(() => {
+    getAllTestSuites();
+  }, []);
 
   useEffect(() => {
     localStorage.setItem("currentPage", pageIndex.toString());
@@ -268,8 +274,24 @@ export default function TestSuite() {
     setIsLoading(false);
   };
 
+  // Fetch all test suites for dashboard stats
+  const getAllTestSuites = async () => {
+    try {
+      const response = await getTestSuiteService(
+        projectId,
+        1, // page 1
+        999999, // large page size to get all
+        "" // no search filter for stats
+      );
+      setAllTestSuites(response?.testSuites || []);
+    } catch (error) {
+      setAllTestSuites([]);
+    }
+  };
+
   const refreshTestSuites = () => {
     getTestSuites();
+    getAllTestSuites();
     setRowSelection({});
   };
 

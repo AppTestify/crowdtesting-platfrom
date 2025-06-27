@@ -3,14 +3,6 @@ import { CalendarIcon, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-    Sheet,
-    SheetClose,
-    SheetContent,
-    SheetDescription,
-    SheetHeader,
-    SheetTitle,
-} from "@/components/ui/sheet";
-import {
     Form,
     FormControl,
     FormField,
@@ -121,174 +113,162 @@ export function EditTestCycle({
     }
 
     return (
-        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-            <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto">
-                <SheetHeader>
-                    <SheetTitle className="text-left">Edit test cycle</SheetTitle>
-                    <SheetDescription className="text-left">
-                        A series of iterative testing phases, including planning, execution,
-                        and closure, to validate product functionality.
-                    </SheetDescription>
-                </SheetHeader>
-                <div className="mt-4">
-                    <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} method="post">
-                            <div className="grid grid-cols-1 gap-2">
-                                <FormField
-                                    control={form.control}
-                                    name="title"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Test cycle title</FormLabel>
+        <div className="w-full">
+            <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} method="post">
+                    <div className="grid grid-cols-1 gap-2">
+                        <FormField
+                            control={form.control}
+                            name="title"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Test cycle title</FormLabel>
+                                    <FormControl>
+                                        <Input {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 mt-3">
+                        <FormField
+                            control={form.control}
+                            name="startDate"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-col">
+                                    <FormLabel>Start date</FormLabel>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
                                             <FormControl>
-                                                <Input {...field} />
+                                                <Button
+                                                    variant={"outline"}
+                                                    className={cn(
+                                                        "w-full pl-3 text-left font-normal",
+                                                        !field.value && "text-muted-foreground"
+                                                    )}
+                                                >
+                                                    {field?.value ? (
+                                                        format(field.value, "PPP")
+                                                    ) : (
+                                                        <span>Select date</span>
+                                                    )}
+
+                                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                </Button>
                                             </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0" align="start">
+                                            <Calendar
+                                                mode="single"
+                                                selected={field.value}
+                                                onSelect={(date) => field.onChange(date)}
+                                                disabled={(date) => date < new Date("1900-01-01") ||
+                                                    date > form.watch('endDate')
+                                                }
+                                                initialFocus
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
 
-                            <div className="grid grid-cols-2 gap-2 mt-3">
-                                <FormField
-                                    control={form.control}
-                                    name="startDate"
-                                    render={({ field }) => (
-                                        <FormItem className="flex flex-col">
-                                            <FormLabel>Start date</FormLabel>
-                                            <Popover>
-                                                <PopoverTrigger asChild>
-                                                    <FormControl>
-                                                        <Button
-                                                            variant={"outline"}
-                                                            className={cn(
-                                                                "w-[260px] pl-3 text-left font-normal",
-                                                                !field.value && "text-muted-foreground"
-                                                            )}
-                                                        >
-                                                            {field?.value ? (
-                                                                format(field.value, "PPP")
-                                                            ) : (
-                                                                <span>Select date</span>
-                                                            )}
-
-                                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                                        </Button>
-                                                    </FormControl>
-                                                </PopoverTrigger>
-                                                <PopoverContent className="w-auto p-0" align="start">
-                                                    <Calendar
-                                                        mode="single"
-                                                        selected={field.value}
-                                                        onSelect={(date) => field.onChange(date)}
-                                                        disabled={(date) => date < new Date("1900-01-01") ||
-                                                            date > form.watch('endDate')
-                                                        }
-                                                        initialFocus
-                                                    />
-                                                </PopoverContent>
-                                            </Popover>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-
-                                <FormField
-                                    control={form.control}
-                                    name="endDate"
-                                    render={({ field }) => (
-                                        <FormItem className="flex flex-col">
-                                            <FormLabel>End date</FormLabel>
-                                            <Popover>
-                                                <PopoverTrigger asChild>
-                                                    <FormControl>
-                                                        <Button
-                                                            variant={"outline"}
-                                                            className={cn(
-                                                                "w-[260px] pl-3 text-left font-normal",
-                                                                !field.value && "text-muted-foreground"
-                                                            )}
-                                                        >
-                                                            {field?.value ? (
-                                                                format(field.value, "PPP")
-                                                            ) : (
-                                                                <span>Select date</span>
-                                                            )}
-
-                                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                                        </Button>
-                                                    </FormControl>
-                                                </PopoverTrigger>
-                                                <PopoverContent className="w-auto p-0" align="start">
-                                                    <Calendar
-                                                        mode="single"
-                                                        selected={field.value}
-                                                        onSelect={(date) => field.onChange(date)}
-                                                        disabled={(date) =>
-                                                            date < form.watch("startDate") ||
-                                                            date < new Date("1900-01-01")
-                                                        }
-                                                        initialFocus
-                                                    />
-                                                </PopoverContent>
-                                            </Popover>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-1 gap-2 mt-3">
-                                <FormField
-                                    control={form.control}
-                                    name="description"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Description</FormLabel>
+                        <FormField
+                            control={form.control}
+                            name="endDate"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-col">
+                                    <FormLabel>End date</FormLabel>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
                                             <FormControl>
-                                                <Textarea {...field} />
+                                                <Button
+                                                    variant={"outline"}
+                                                    className={cn(
+                                                        "w-full pl-3 text-left font-normal",
+                                                        !field.value && "text-muted-foreground"
+                                                    )}
+                                                >
+                                                    {field?.value ? (
+                                                        format(field.value, "PPP")
+                                                    ) : (
+                                                        <span>Select date</span>
+                                                    )}
+
+                                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                </Button>
                                             </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0" align="start">
+                                            <Calendar
+                                                mode="single"
+                                                selected={field.value}
+                                                onSelect={(date) => field.onChange(date)}
+                                                disabled={(date) =>
+                                                    date < form.watch("startDate") ||
+                                                    date < new Date("1900-01-01")
+                                                }
+                                                initialFocus
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
 
-                            <TestCycleAttachments
-                                testCycleId={testCycleId}
-                                isUpdate={true}
-                                isView={false}
-                                setAttachmentsData={setAttachments}
-                            />
+                    <div className="grid grid-cols-1 gap-2 mt-3">
+                        <FormField
+                            control={form.control}
+                            name="description"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Description</FormLabel>
+                                    <FormControl>
+                                        <Textarea {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
 
-                            <div className="mt-8 w-full flex justify-end gap-2">
-                                <SheetClose asChild>
-                                    <Button
-                                        disabled={isLoading}
-                                        type="button"
-                                        variant={"outline"}
-                                        size="lg"
-                                        className="w-full md:w-fit"
-                                    >
-                                        Cancel
-                                    </Button>
-                                </SheetClose>
-                                <Button
-                                    disabled={isLoading}
-                                    type="submit"
-                                    size="lg"
-                                    className="w-full md:w-fit"
-                                >
-                                    {isLoading ? (
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    ) : null}
-                                    {isLoading ? "Updating" : "Update"}
-                                </Button>
-                            </div>
-                        </form>
-                    </Form>
-                </div>
-            </SheetContent>
-        </Sheet>
+                    <TestCycleAttachments
+                        testCycleId={testCycleId}
+                        isUpdate={true}
+                        isView={false}
+                        setAttachmentsData={setAttachments}
+                    />
+
+                    <div className="mt-8 w-full flex justify-end gap-2">
+                        <Button
+                            disabled={isLoading}
+                            type="button"
+                            variant={"outline"}
+                            size="lg"
+                            className="w-full md:w-fit"
+                            onClick={() => setSheetOpen(false)}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            disabled={isLoading}
+                            type="submit"
+                            size="lg"
+                            className="w-full md:w-fit"
+                        >
+                            {isLoading ? (
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            ) : null}
+                            {isLoading ? "Updating" : "Update"}
+                        </Button>
+                    </div>
+                </form>
+            </Form>
+        </div>
     );
 }

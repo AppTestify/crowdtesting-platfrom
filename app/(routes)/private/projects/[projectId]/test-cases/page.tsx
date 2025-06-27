@@ -59,6 +59,7 @@ import { IRequirement } from "@/app/_interface/requirement";
 
 export default function TestCases() {
   const [testCases, setTestCases] = useState<ITestCase[]>([]);
+  const [allTestCases, setAllTestCases] = useState<ITestCase[]>([]);
   const [userData, setUserData] = useState<any>();
   const [project, setProject] = useState<IProject>();
   const [testSuites, setTestSuites] = useState<ITestSuite[]>([]);
@@ -70,10 +71,10 @@ export default function TestCases() {
 
   // Statistics calculations
   const statistics = useMemo(() => {
-    const total = testCases.length;
-    const automationTests = testCases.filter(tc => tc.testType === TEST_TYPE.AUTOMATION).length;
-    const manualTests = testCases.filter(tc => tc.testType === TEST_TYPE.MANUAL).length;
-    const highSeverity = testCases.filter(tc => tc.severity === TEST_CASE_SEVERITY.HIGH).length;
+    const total = allTestCases.length;
+    const automationTests = allTestCases.filter(tc => tc.testType === TEST_TYPE.AUTOMATION).length;
+    const manualTests = allTestCases.filter(tc => tc.testType === TEST_TYPE.MANUAL).length;
+    const highSeverity = allTestCases.filter(tc => tc.severity === TEST_CASE_SEVERITY.HIGH).length;
 
     return {
       total,
@@ -81,7 +82,7 @@ export default function TestCases() {
       manualTests,
       highSeverity
     };
-  }, [testCases]);
+  }, [allTestCases]);
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
@@ -301,9 +302,14 @@ export default function TestCases() {
   useEffect(() => {
     const debounceFetch = setTimeout(() => {
       getTestCases();
+      getAllTestCases();
     }, 500);
     return () => clearTimeout(debounceFetch);
   }, [pageIndex, pageSize, selectedRequirement, globalFilter]);
+
+  useEffect(() => {
+    getAllTestCases();
+  }, []);
 
   const getTestCases = async () => {
     setIsLoading(true);
@@ -317,6 +323,22 @@ export default function TestCases() {
     setTestCases(response?.testCases || []);
     setTotalPageCount(response?.total || 0);
     setIsLoading(false);
+  };
+
+  // Fetch all test cases for dashboard stats
+  const getAllTestCases = async () => {
+    try {
+      const response = await getTestCaseService(
+        projectId,
+        1, // page 1
+        999999, // large page size to get all
+        "", // no requirement filter for stats
+        "" // no search filter for stats
+      );
+      setAllTestCases(response?.testCases || []);
+    } catch (error) {
+      setAllTestCases([]);
+    }
   };
 
   const handleRequirementChange = (requirment: string) => {
@@ -371,6 +393,7 @@ export default function TestCases() {
 
   const refreshTestCases = () => {
     getTestCases();
+    getAllTestCases();
     setRowSelection({});
   };
 

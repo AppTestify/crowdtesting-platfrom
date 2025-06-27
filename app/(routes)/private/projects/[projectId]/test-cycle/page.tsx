@@ -29,7 +29,6 @@ import { ITestCycle } from "@/app/_interface/test-cycle";
 import { AddTestCycle } from "./_components/add-test-cycle";
 import { TestCycleRowActions } from "./_components/row-actions";
 import { formatDateWithoutTime } from "@/app/_constants/date-formatter";
-import TestCycleView from "./_components/view-test-cycle";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
 import { PAGINATION_LIMIT } from "@/app/_constants/pagination-limit";
@@ -46,7 +45,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { ArrowUpDown, Search, ChevronLeft, ChevronRight, RotateCcw, User, Calendar, Loader2, UserCheck, CheckCircle2, Clock, AlertTriangle, FileText } from "lucide-react";
-import { EditTestCycle } from "./_components/edit-test-cycle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 
@@ -60,13 +58,14 @@ const stripHtml = (html: string) => {
 
 export default function TestCycle() {
   const [testCycle, setTestCycle] = useState<ITestCycle[]>([]);
+  const [allTestCycles, setAllTestCycles] = useState<ITestCycle[]>([]);
   const [userData, setUserData] = useState<any>();
   const [project, setProject] = useState<IProject>();
   const [testCase, setTestCase] = useState<Row<ITestCycle>>();
 
   // Statistics calculations
   const statistics = useMemo(() => {
-    if (!testCycle || testCycle.length === 0) {
+    if (!allTestCycles || allTestCycles.length === 0) {
       return {
         total: 0,
         active: 0,
@@ -76,29 +75,29 @@ export default function TestCycle() {
       };
     }
 
-    const total = testCycle.length;
+    const total = allTestCycles.length;
     const now = new Date();
     
-    const active = testCycle.filter(cycle => {
+    const active = allTestCycles.filter(cycle => {
       if (!cycle.startDate || !cycle.endDate) return false;
       const start = new Date(cycle.startDate);
       const end = new Date(cycle.endDate);
       return now >= start && now <= end;
     }).length;
 
-    const completed = testCycle.filter(cycle => {
+    const completed = allTestCycles.filter(cycle => {
       if (!cycle.endDate) return false;
       const end = new Date(cycle.endDate);
       return now > end;
     }).length;
 
-    const upcoming = testCycle.filter(cycle => {
+    const upcoming = allTestCycles.filter(cycle => {
       if (!cycle.startDate) return false;
       const start = new Date(cycle.startDate);
       return now < start;
     }).length;
 
-    const totalTestCases = testCycle.reduce((sum, cycle) => {
+    const totalTestCases = allTestCycles.reduce((sum, cycle) => {
       return sum + (cycle.testCases?.length || 0);
     }, 0);
 
@@ -109,7 +108,7 @@ export default function TestCycle() {
       upcoming,
       totalTestCases
     };
-  }, [testCycle]);
+  }, [allTestCycles]);
 
   const getStatusBadge = (cycle: ITestCycle) => {
     if (!cycle.startDate || !cycle.endDate) {
@@ -146,7 +145,6 @@ export default function TestCycle() {
       cell: ({ row }) => (
         <div
           className="cursor-pointer hover:text-blue-600 max-w-xs"
-          onClick={() => ViewTestCycle(row.original as ITestCycle)}
         >
           <div className="font-medium truncate" title={row.getValue("title")}>
             {row.getValue("title")}
@@ -267,14 +265,6 @@ export default function TestCycle() {
             cell: ({ row }: { row: any }) => (
               <TestCycleRowActions
                 row={row as Row<ITestCycle>}
-                onEditClick={(editCycle) => {
-                  setEditTestCycle(editCycle);
-                  setIsEditOpen(true);
-                }}
-                onViewClick={(viewCycle) => {
-                  setTestCycleData(viewCycle);
-                  setIsViewOpen(true);
-                }}
                 refreshTestCycle={refreshTestCycle}
               />
             ),
@@ -284,8 +274,6 @@ export default function TestCycle() {
       : []),
   ], [testCycle, userData, project]);
 
-  const [isEditOpen, setIsEditOpen] = useState<boolean>(false);
-  const [editTestCycle, setEditTestCycle] = useState<ITestCycle | null>(null);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
@@ -299,8 +287,6 @@ export default function TestCycle() {
     return 1;
   });
   const [totalPageCount, setTotalPageCount] = useState(0);
-  const [isViewOpen, setIsViewOpen] = useState<boolean>(false);
-  const [testCycleData, setTestCycleData] = useState<ITestCycle>();
   const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
   const { projectId } = useParams<{ projectId: string }>();
   const [isAssignOpen, setIsAssignOpen] = useState<boolean>(false);
@@ -321,9 +307,14 @@ export default function TestCycle() {
   useEffect(() => {
     const debounceFetch = setTimeout(() => {
       getTestCycle();
+      getAllTestCycles();
     }, 500);
     return () => clearTimeout(debounceFetch);
   }, [globalFilter, pageIndex, pageSize]);
+
+  useEffect(() => {
+    getAllTestCycles();
+  }, []);
 
   useEffect(() => {
     if (
@@ -338,11 +329,6 @@ export default function TestCycle() {
     localStorage.setItem("currentPage", pageIndex.toString());
     localStorage.setItem("entity", DBModels.TEST_CYCLE);
   }, [pageIndex]);
-
-  const ViewTestCycle = (testCycle: ITestCycle) => {
-    setTestCycleData(testCycle);
-    setIsViewOpen(true);
-  };
 
   const getTestCycle = async () => {
     setIsLoading(true);
@@ -362,8 +348,24 @@ export default function TestCycle() {
     }
   };
 
+  // Fetch all test cycles for dashboard stats
+  const getAllTestCycles = async () => {
+    try {
+      const response = await getTestCycleService(
+        projectId,
+        1, // page 1
+        999999, // large page size to get all
+        "" // no search filter for stats
+      );
+      setAllTestCycles(response?.testCycles || []);
+    } catch (error) {
+      setAllTestCycles([]);
+    }
+  };
+
   const refreshTestCycle = () => {
     getTestCycle();
+    getAllTestCycles();
     setRowSelection({});
   };
 
@@ -415,22 +417,6 @@ export default function TestCycle() {
 
   return (
     <div className="w-full space-y-6 p-6">
-      <TestCycleView
-        sheetOpen={isViewOpen}
-        setSheetOpen={setIsViewOpen}
-        testCycle={testCycleData as ITestCycle}
-      />
-
-      {editTestCycle && (
-        <EditTestCycle
-          key={editTestCycle.id}
-          testCycle={editTestCycle as ITestCycle}
-          sheetOpen={isEditOpen}
-          setSheetOpen={setIsEditOpen}
-          refreshTestCycle={refreshTestCycle}
-        />
-      )}
-
       <AssignTestCase
         sheetOpen={isAssignOpen}
         setSheetOpen={setIsAssignOpen}

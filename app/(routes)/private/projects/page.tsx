@@ -246,6 +246,7 @@ export default function Projects() {
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<string>("");
   const [user, setUser] = useState<IUserByAdmin>();
+  const [allProjects, setAllProjects] = useState<IProjectPayload[]>([]);
   const { data } = useSession();
 
   const statusColumn: ColumnDef<IProjectPayload> = {
@@ -333,8 +334,29 @@ export default function Projects() {
     setIsLoading(false);
   };
 
+  // Fetch all projects for dashboard stats
+  const getAllProjects = async () => {
+    try {
+      const response = await getProjectsService(
+        1, // page 1
+        999999, // large page size to get all
+        globalFilter as unknown as string,
+        selectedStatus
+      );
+      const formattedProjects = response?.projects?.map((project: any) => ({
+        ...project,
+        startDate: project?.startDate,
+        endDate: project?.endDate
+      }));
+      setAllProjects(formattedProjects as IProjectPayload[] || []);
+    } catch (error) {
+      setAllProjects([]);
+    }
+  };
+
   const refreshProjects = () => {
     getProjects();
+    getAllProjects();
     setRowSelection({});
   };
 
@@ -394,6 +416,7 @@ export default function Projects() {
   useEffect(() => {
     const debounceFetch = setTimeout(() => {
       getProjects();
+      getAllProjects();
     }, 500);
     return () => clearTimeout(debounceFetch);
   }, [globalFilter, pageIndex, pageSize, selectedStatus]);
@@ -403,6 +426,10 @@ export default function Projects() {
       setPageIndex(1);
     }
   }, [globalFilter]);
+
+  useEffect(() => {
+    getAllProjects();
+  }, []);
 
   useEffect(() => {
     if (pageIndex) {
@@ -458,7 +485,7 @@ export default function Projects() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
-              {projects.filter(p => p.isActive).length}
+              {allProjects.filter(p => p.isActive).length}
             </div>
             <p className="text-xs text-muted-foreground">Currently running</p>
           </CardContent>
@@ -470,7 +497,7 @@ export default function Projects() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-600">
-              {projects.filter(p => {
+              {allProjects.filter(p => {
                 const endDate = p.endDate ? new Date(p.endDate) : null;
                 return endDate && endDate < new Date();
               }).length}
@@ -485,7 +512,7 @@ export default function Projects() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {projects.filter(p => {
+              {allProjects.filter(p => {
                 const created = p.createdAt ? new Date(p.createdAt) : null;
                 if (!created) return false;
                 const now = new Date();

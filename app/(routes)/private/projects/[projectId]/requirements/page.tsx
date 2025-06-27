@@ -64,6 +64,7 @@ export default function Requirements() {
   const { data } = useSession();
   
   const [requirements, setRequirements] = useState<IRequirement[]>([]);
+  const [allRequirements, setAllRequirements] = useState<IRequirement[]>([]);
   const [userData, setUserData] = useState<any>();
   const [project, setProject] = useState<IProject>();
   const [viewMode, setViewMode] = useState<'table' | 'grid' | 'kanban'>('table');
@@ -354,9 +355,27 @@ export default function Requirements() {
     }
   }, [projectId, pageIndex, pageSize, searchTerm]);
 
+  // Fetch all requirements for dashboard stats
+  const getAllRequirements = useCallback(async () => {
+    try {
+      const response = await getRequirementsService(
+        projectId,
+        1, // page 1
+        999999, // large page size to get all
+        "" // no search filter for stats
+      );
+      if (response) {
+        setAllRequirements(response.requirements || []);
+      }
+    } catch (error) {
+      setAllRequirements([]);
+    }
+  }, [projectId]);
+
   const refreshRequirements = useCallback(() => {
     getRequirements();
-  }, [getRequirements]);
+    getAllRequirements();
+  }, [getRequirements, getAllRequirements]);
 
   // useEffect hooks
   useEffect(() => {
@@ -375,10 +394,15 @@ export default function Requirements() {
     if (projectId) {
       const debounceFetch = setTimeout(() => {
         getRequirements();
+        getAllRequirements();
       }, 500);
       return () => clearTimeout(debounceFetch);
     }
   }, [projectId, pageIndex, pageSize, searchTerm]);
+
+  useEffect(() => {
+    getAllRequirements();
+  }, [getAllRequirements]);
 
   const handlePreviousPage = () => {
     if (pageIndex > 1) {
@@ -393,7 +417,7 @@ export default function Requirements() {
   };
 
   // Update stats to use filtered data when filters are applied
-  const statsData = (searchTerm || statusFilter !== 'all') ? filteredRequirements : requirements;
+  const statsData = (searchTerm || statusFilter !== 'all') ? filteredRequirements : allRequirements;
   const stats = useMemo(() => ({
     total: statsData.length,
     completed: statsData.filter(r => r.status === 'Done').length,
