@@ -48,16 +48,17 @@ import { Separator } from "@/components/ui/separator";
 
 export default function TestPlan() {
   const [testPlans, setTestPlans] = useState<ITestPlanPayload[]>([]);
+  const [allTestPlans, setAllTestPlans] = useState<ITestPlanPayload[]>([]);
   const [userData, setUserData] = useState<any>();
   const [project, setProject] = useState<IProject>();
   const [searchTerm, setSearchTerm] = useState("");
 
   // Statistics calculations
   const statistics = useMemo(() => {
-    const total = testPlans.length;
-    const assigned = testPlans.filter(plan => plan.assignedTo?._id).length;
+    const total = allTestPlans.length;
+    const assigned = allTestPlans.filter(plan => plan.assignedTo?._id).length;
     const unassigned = total - assigned;
-    const recentlyCreated = testPlans.filter(plan => {
+    const recentlyCreated = allTestPlans.filter(plan => {
       // Type assertion to handle the createdAt property that exists in the actual data
       const planWithDate = plan as any;
       if (!planWithDate.createdAt) return false;
@@ -73,7 +74,7 @@ export default function TestPlan() {
       unassigned,
       recentlyCreated
     };
-  }, [testPlans]);
+  }, [allTestPlans]);
 
   // Enhanced columns with better styling
   const columns: ColumnDef<ITestPlanPayload>[] = useMemo(() => [
@@ -275,9 +276,14 @@ export default function TestPlan() {
   useEffect(() => {
     const debounceFetch = setTimeout(() => {
       getTestPlans();
+      getAllTestPlans();
     }, 500);
     return () => clearTimeout(debounceFetch);
   }, [pageIndex, pageSize, globalFilter]);
+
+  useEffect(() => {
+    getAllTestPlans();
+  }, []);
 
   useEffect(() => {
     localStorage.setItem("currentPage", pageIndex.toString());
@@ -297,8 +303,24 @@ export default function TestPlan() {
     setIsLoading(false);
   };
 
+  // Fetch all test plans for dashboard stats
+  const getAllTestPlans = async () => {
+    try {
+      const response = await getTestPlanService(
+        projectId,
+        1, // page 1
+        999999, // large page size to get all
+        "" // no search filter for stats
+      );
+      setAllTestPlans(response?.testPlans || []);
+    } catch (error) {
+      setAllTestPlans([]);
+    }
+  };
+
   const refreshTestPlans = () => {
     getTestPlans();
+    getAllTestPlans();
     setRowSelection({});
   };
 

@@ -68,13 +68,14 @@ const stripHtml = (html: string) => {
 
 export default function Tasks() {
   const [tasks, setTasks] = useState<ITask[]>([]);
+  const [allTasks, setAllTasks] = useState<ITask[]>([]);
   const [userData, setUserData] = useState<any>();
   const { projectId } = useParams<{ projectId: string }>();
   const [project, setProject] = useState<IProject>();
 
   // Statistics calculations
   const statistics = useMemo(() => {
-    if (!tasks || tasks.length === 0) {
+    if (!allTasks || allTasks.length === 0) {
       return {
         total: 0,
         todo: 0,
@@ -87,14 +88,14 @@ export default function Tasks() {
       };
     }
 
-    const total = tasks.length;
-    const todo = tasks.filter(task => task.status === TaskStatus.TODO).length;
-    const inProgress = tasks.filter(task => task.status === TaskStatus.IN_PROGRESS).length;
-    const done = tasks.filter(task => task.status === TaskStatus.DONE).length;
-    const blocked = tasks.filter(task => task.status === TaskStatus.BLOCKED).length;
-    const assigned = tasks.filter(task => task.assignedTo?._id).length;
-    const unassigned = tasks.filter(task => !task.assignedTo?._id).length;
-    const overdue = tasks.filter(task => {
+    const total = allTasks.length;
+    const todo = allTasks.filter(task => task.status === TaskStatus.TODO).length;
+    const inProgress = allTasks.filter(task => task.status === TaskStatus.IN_PROGRESS).length;
+    const done = allTasks.filter(task => task.status === TaskStatus.DONE).length;
+    const blocked = allTasks.filter(task => task.status === TaskStatus.BLOCKED).length;
+    const assigned = allTasks.filter(task => task.assignedTo?._id).length;
+    const unassigned = allTasks.filter(task => !task.assignedTo?._id).length;
+    const overdue = allTasks.filter(task => {
       if (!task.endDate) return false;
       const now = new Date();
       const end = new Date(task.endDate);
@@ -111,7 +112,7 @@ export default function Tasks() {
       unassigned,
       overdue
     };
-  }, [tasks]);
+  }, [allTasks]);
 
   const showTaskRowActions = (task: ITask) => {
     return (
@@ -378,8 +379,24 @@ export default function Tasks() {
     }
   };
 
+  // Fetch all tasks for dashboard stats
+  const getAllTasks = async () => {
+    try {
+      const response = await getTaskService(
+        projectId,
+        1, // page 1
+        999999, // large page size to get all
+        "" // no search filter for stats
+      );
+      setAllTasks(response?.tasks || []);
+    } catch (error) {
+      setAllTasks([]);
+    }
+  };
+
   const refreshTasks = () => {
     getTasks();
+    getAllTasks();
     setRowSelection({});
   };
 
@@ -435,9 +452,14 @@ export default function Tasks() {
   useEffect(() => {
     const debounceFetch = setTimeout(() => {
       getTasks();
+      getAllTasks();
     }, 500);
     return () => clearTimeout(debounceFetch);
   }, [globalFilter, pageIndex, pageSize]);
+
+  useEffect(() => {
+    getAllTasks();
+  }, []);
 
   useEffect(() => {
     if (

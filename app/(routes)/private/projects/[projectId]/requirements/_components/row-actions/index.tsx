@@ -14,8 +14,6 @@ import {
 import { Row } from "@tanstack/react-table";
 import { Edit, Eye, MoreHorizontal, Trash } from "lucide-react";
 import { useState } from "react";
-import EditRequirement from "../edit-requirement";
-import ViewRequirement from "../view-requirement";
 
 export function RequirementRowActions({
   row,
@@ -28,8 +26,6 @@ export function RequirementRowActions({
   onViewClick: (viewReq: IRequirement) => void;
   onEditClick: (editReq: IRequirement) => void;
 }) {
-  const [isEditOpen, setIsEditOpen] = useState(false);
-  const [isViewOpen, setIsViewOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const projectId = row.original.projectId as unknown as string;
@@ -55,19 +51,6 @@ export function RequirementRowActions({
 
   return (
     <>
-      <EditRequirement
-        requirement={row.original as IRequirement}
-        sheetOpen={isEditOpen}
-        setSheetOpen={setIsEditOpen}
-        refreshRequirements={refreshRequirements}
-      />
-
-      <ViewRequirement
-        requirement={row.original as IRequirement}
-        sheetOpen={isViewOpen}
-        setSheetOpen={setIsViewOpen}
-      />
-
       <ConfirmationDialog
         isOpen={isDeleteOpen}
         setIsOpen={setIsDeleteOpen}
@@ -90,20 +73,14 @@ export function RequirementRowActions({
         <DropdownMenuContent align="end">
           <DropdownMenuItem
             className="mb-1"
-            onClick={() => {
-              onViewClick(row.original);
-              setIsViewOpen(true);
-            }}
+            onClick={() => onViewClick(row.original)}
           >
             <Eye className="h-2 w-2" /> View
           </DropdownMenuItem>
           <DropdownMenuSeparator className="border-b" />
           <DropdownMenuItem
             className="mb-1"
-            onClick={() => {
-              onEditClick(row.original);
-              setIsEditOpen(true);
-            }}
+            onClick={() => onEditClick(row.original)}
           >
             <Edit className="h-2 w-2" /> Edit
           </DropdownMenuItem>

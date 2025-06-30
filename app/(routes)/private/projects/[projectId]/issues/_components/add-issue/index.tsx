@@ -15,14 +15,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -88,7 +87,7 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
   ];
 
   const { data } = useSession();
-  const [sheetOpen, setSheetOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [issueId, setIssueId] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { projectId } = useParams<{ projectId: string }>();
@@ -138,10 +137,10 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
   });
 
   useEffect(() => {
-    if (sheetOpen) {
+    if (dialogOpen) {
       setIssueId("");
     }
-  }, [sheetOpen]);
+  }, [dialogOpen]);
 
   async function onSubmit(values: z.infer<typeof projectSchema>) {
     setIsLoading(true);
@@ -159,7 +158,7 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
       toasterService.error();
     } finally {
       setIsLoading(false);
-      setSheetOpen(false);
+      setDialogOpen(false);
     }
   }
 
@@ -259,19 +258,19 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
   };
 
   useEffect(() => {
-    if (!sheetOpen) {
+    if (!dialogOpen) {
       setAttachments([]);
       form.setValue("attachments", []);
     }
-  }, [sheetOpen]);
+  }, [dialogOpen]);
 
   useEffect(() => {
-    if (sheetOpen) {
+    if (dialogOpen) {
       getTestCycle();
       getProjectUsers();
       getDevices();
     }
-  }, [sheetOpen]);
+  }, [dialogOpen]);
 
   const getSelectedUser = (field: any) => {
     const selectedUser = users?.find(
@@ -281,20 +280,20 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
   };
 
   return (
-    <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-      <SheetTrigger asChild>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <DialogTrigger asChild>
         <Button onClick={() => resetForm()}>
           <Plus /> Add issue
         </Button>
-      </SheetTrigger>
-      <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle className="text-left">Add new issue</SheetTitle>
-          <SheetDescription className="text-left">
+      </DialogTrigger>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-left">Add new issue</DialogTitle>
+          <DialogDescription className="text-left">
             Problems or defects discovered during testing that need resolution
             before the product is finalized.
-          </SheetDescription>
-        </SheetHeader>
+          </DialogDescription>
+        </DialogHeader>
 
         <div className="mt-4">
           <Form {...form}>
@@ -598,17 +597,16 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
                 </div>
               </div>
               <div className="mt-6 w-full flex justify-end gap-2">
-                <SheetClose asChild>
-                  <Button
-                    disabled={isLoading}
-                    type="button"
-                    variant={"outline"}
-                    size="lg"
-                    className="w-full md:w-fit"
-                  >
-                    Cancel
-                  </Button>
-                </SheetClose>
+                <Button
+                  disabled={isLoading}
+                  type="button"
+                  variant={"outline"}
+                  size="lg"
+                  onClick={() => setDialogOpen(false)}
+                  className="w-full md:w-fit"
+                >
+                  Cancel
+                </Button>
                 <Button
                   disabled={isLoading}
                   type="button"
@@ -625,7 +623,7 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
             </form>
           </Form>
         </div>
-      </SheetContent>
-    </Sheet>
+      </DialogContent>
+    </Dialog>
   );
 }

@@ -5,15 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 import {
-    Sheet,
-    SheetClose,
-    SheetContent,
-    SheetDescription,
-    SheetFooter,
-    SheetHeader,
-    SheetTitle,
-    SheetTrigger,
-} from "@/components/ui/sheet";
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 import {
     Form,
     FormControl,
@@ -122,11 +121,11 @@ export function EditTestSuite({
     }, [sheetOpen]);
 
     return (
-        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-            <SheetContent className="w-full !max-w-full md:w-[550px] md:!max-w-[550px] overflow-y-auto">
-                <SheetHeader>
-                    <SheetTitle className="text-left">Edit test suite</SheetTitle>
-                </SheetHeader>
+        <Dialog open={sheetOpen} onOpenChange={setSheetOpen}>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                    <DialogTitle className="text-left">Edit test suite</DialogTitle>
+                </DialogHeader>
                 <div className="mt-4">
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} method="post">
@@ -192,7 +191,7 @@ export function EditTestSuite({
                             </div>
 
                             <div className="mt-8 w-full flex justify-end gap-2">
-                                <SheetClose asChild>
+                                <DialogClose asChild>
                                     <Button
                                         disabled={isLoading}
                                         type="button"
@@ -202,7 +201,7 @@ export function EditTestSuite({
                                     >
                                         Cancel
                                     </Button>
-                                </SheetClose>
+                                </DialogClose>
                                 <Button
                                     disabled={isLoading}
                                     type="submit"
@@ -219,7 +218,7 @@ export function EditTestSuite({
                         </form>
                     </Form>
                 </div>
-            </SheetContent>
-        </Sheet>
+            </DialogContent>
+        </Dialog>
     );
 }

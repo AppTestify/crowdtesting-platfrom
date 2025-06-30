@@ -207,7 +207,7 @@ export function AddRequirement({ refreshRequirements }: { refreshRequirements: (
     return (
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-                <Button className="bg-blue-600 hover:bg-blue-700 transition-colors" onClick={() => resetForm()}>
+                <Button className="bg-green-600 hover:bg-green-700 transition-colors" onClick={() => resetForm()}>
                     <Plus className="h-4 w-4 mr-2" />
                     Add Requirement
                 </Button>
@@ -570,7 +570,7 @@ export function AddRequirement({ refreshRequirements }: { refreshRequirements: (
                             <Button
                                 type="submit"
                                 disabled={isLoading}
-                                className="bg-blue-600 hover:bg-blue-700 transition-colors"
+                                className="bg-green-600 hover:bg-green-700 transition-colors"
                             >
                                 {isLoading ? (
                                     <>

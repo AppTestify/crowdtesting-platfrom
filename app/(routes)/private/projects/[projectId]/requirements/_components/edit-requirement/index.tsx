@@ -214,7 +214,7 @@ const EditRequirement = ({
 
     return (
         <Dialog open={sheetOpen} onOpenChange={setSheetOpen}>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader className="pb-4">
                     <div className="flex items-center justify-between">
                         <div>
@@ -581,7 +581,7 @@ const EditRequirement = ({
                                 type="submit"
                                 onClick={handleSubmit}
                                 disabled={isLoading}
-                                className="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 text-white"
+                                className="flex-1 sm:flex-none bg-green-600 hover:bg-green-700 text-white"
                             >
                                 {isLoading ? (
                                     <>

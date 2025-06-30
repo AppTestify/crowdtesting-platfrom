@@ -347,6 +347,7 @@ export default function Users() {
     const [selectedStatus, setSelectedStatus] = useState<UserStatusList | any>("");
     const [isClientViewOpen, setIsClientViewOpen] = useState(false);
     const [user, setUser] = useState<IUserByAdmin>();
+    const [allUsers, setAllUsers] = useState<IUserByAdmin[]>([]);
 
     const handleStatusChange = (status: UserStatusList) => {
         setSelectedStatus(status);
@@ -376,9 +377,26 @@ export default function Users() {
         }
     };
 
+    // Fetch all users for dashboard stats
+    const getAllUsers = async () => {
+        try {
+            const response = await getUsersService(
+                1, // page 1
+                999999, // large page size to get all
+                selectedRole,
+                selectedStatus,
+                globalFilter as unknown as string
+            );
+            setAllUsers(response?.users || []);
+        } catch (error) {
+            setAllUsers([]);
+        }
+    };
+
     useEffect(() => {
         const debounceFetch = setTimeout(() => {
             getUsers();
+            getAllUsers();
         }, 500);
         return () => clearTimeout(debounceFetch);
     }, [globalFilter, pageIndex, pageSize, selectedStatus, selectedRole]);
@@ -391,8 +409,13 @@ export default function Users() {
 
     const refreshUsers = () => {
         getUsers();
+        getAllUsers();
         setRowSelection({});
     };
+
+    useEffect(() => {
+        getAllUsers();
+    }, []);
 
     const table = useReactTable({
         data: filteredUsers,
@@ -439,10 +462,10 @@ export default function Users() {
         }
     };
 
-    // Calculate statistics
-    const activeUsers = filteredUsers.filter(user => user.isActive).length;
-    const verifiedUsers = filteredUsers.filter(user => user.isVerified).length;
-    const recentUsers = filteredUsers.filter(user => {
+    // Calculate statistics from allUsers
+    const activeUsers = allUsers.filter(user => user.isActive).length;
+    const verifiedUsers = allUsers.filter(user => user.isVerified).length;
+    const recentUsers = allUsers.filter(user => {
         if (!user.createdAt) return false;
         const created = new Date(user.createdAt);
         const thirtyDaysAgo = new Date();

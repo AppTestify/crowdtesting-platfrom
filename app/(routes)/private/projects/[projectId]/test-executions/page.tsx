@@ -52,6 +52,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function TestExecution() {
   const [testExecution, setTestExecution] = useState<ITestCyclePayload[]>([]);
+  const [allTestExecutions, setAllTestExecutions] = useState<ITestCyclePayload[]>([]);
   const [userData, setUserData] = useState<any>();
   const [project, setProject] = useState<IProject>();
   const { projectId } = useParams<{ projectId: string }>();
@@ -59,8 +60,8 @@ export default function TestExecution() {
 
   // Statistics calculations
   const statistics = useMemo(() => {
-    const total = testExecution.length;
-    const active = testExecution.filter(te => {
+    const total = allTestExecutions.length;
+    const active = allTestExecutions.filter(te => {
       if (!te.startDate || !te.endDate) return false;
       const now = new Date();
       const start = new Date(te.startDate);
@@ -68,14 +69,14 @@ export default function TestExecution() {
       return now >= start && now <= end;
     }).length;
     
-    const completed = testExecution.filter(te => {
+    const completed = allTestExecutions.filter(te => {
       if (!te.endDate) return false;
       const now = new Date();
       const end = new Date(te.endDate);
       return now > end;
     }).length;
 
-    const totalTestCases = testExecution.reduce((sum, te) => {
+    const totalTestCases = allTestExecutions.reduce((sum, te) => {
       const counts = te.resultCounts;
       if (counts) {
         return sum + counts.passed + counts.failed + counts.caused + counts.blocked;
@@ -83,11 +84,11 @@ export default function TestExecution() {
       return sum;
     }, 0);
 
-    const totalPassed = testExecution.reduce((sum, te) => {
+    const totalPassed = allTestExecutions.reduce((sum, te) => {
       return sum + (te.resultCounts?.passed || 0);
     }, 0);
 
-    const totalFailed = testExecution.reduce((sum, te) => {
+    const totalFailed = allTestExecutions.reduce((sum, te) => {
       return sum + (te.resultCounts?.failed || 0);
     }, 0);
 
@@ -99,7 +100,7 @@ export default function TestExecution() {
       totalPassed,
       totalFailed
     };
-  }, [testExecution]);
+  }, [allTestExecutions]);
 
   const getStatusBadge = (execution: ITestCyclePayload) => {
     if (!execution.startDate || !execution.endDate) {
@@ -374,9 +375,14 @@ export default function TestExecution() {
   useEffect(() => {
     const debounceFetch = setTimeout(() => {
       getTestExecution();
+      getAllTestExecutions();
     }, 500);
     return () => clearTimeout(debounceFetch);
   }, [pageIndex, pageSize, globalFilter]);
+
+  useEffect(() => {
+    getAllTestExecutions();
+  }, []);
 
   const getTestExecution = async () => {
     setIsLoading(true);
@@ -389,6 +395,21 @@ export default function TestExecution() {
     setTestExecution(response?.testCycles || []);
     setTotalPageCount(response?.total || 0);
     setIsLoading(false);
+  };
+
+  // Fetch all test executions for dashboard stats
+  const getAllTestExecutions = async () => {
+    try {
+      const response = await getTestExecutionService(
+        projectId,
+        1, // page 1
+        999999, // large page size to get all
+        "" // no search filter for stats
+      );
+      setAllTestExecutions(response?.testCycles || []);
+    } catch (error) {
+      setAllTestExecutions([]);
+    }
   };
 
   const tableData = useMemo(
@@ -429,6 +450,7 @@ export default function TestExecution() {
 
   const refreshTestExecution = () => {
     getTestExecution();
+    getAllTestExecutions();
   };
 
   const openTestExecutionView = (row: Row<ITestCyclePayload>) => {

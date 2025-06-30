@@ -317,6 +317,7 @@ export default function Devices() {
   const [totalPageCount, setTotalPageCount] = useState(0);
   const [user, setUser] = useState<IUserByAdmin>();
   const [isViewOpen, setIsViewOpen] = useState(false);
+  const [allDevices, setAllDevices] = useState<IDevice[]>([]);
   const { data } = useSession();
 
   useEffect(() => {
@@ -352,6 +353,7 @@ export default function Devices() {
   useEffect(() => {
     const debounceFetch = setTimeout(() => {
       getDevices();
+      getAllDevices();
     }, 500);
     return () => clearTimeout(debounceFetch);
   }, [globalFilter, pageIndex, pageSize]);
@@ -361,6 +363,10 @@ export default function Devices() {
       setPageIndex(1);
     }
   }, [globalFilter]);
+
+  useEffect(() => {
+    getAllDevices();
+  }, []);
 
   const getUser = async (data: IUserByAdmin) => {
     setUser(data as IUserByAdmin);
@@ -375,6 +381,20 @@ export default function Devices() {
     setIsLoading(false);
   };
 
+  // Fetch all devices for dashboard stats
+  const getAllDevices = async () => {
+    try {
+      const response = await getDevicesService(
+        1, // page 1
+        999999, // large page size to get all
+        globalFilter as unknown as string
+      );
+      setAllDevices(response?.devices || []);
+    } catch (error) {
+      setAllDevices([]);
+    }
+  };
+
   const getBrowsers = async () => {
     const browsers = await getBrowserService();
     setBrowsers(browsers);
@@ -382,6 +402,7 @@ export default function Devices() {
 
   const refreshDevices = () => {
     getDevices();
+    getAllDevices();
     setRowSelection({});
   };
 
@@ -403,10 +424,10 @@ export default function Devices() {
     }
   };
 
-  // Calculate statistics
-  const uniqueOS = new Set(devices.map(device => device.os)).size;
-  const devicesWithBrowsers = devices.filter(device => device.browsers && device.browsers.length > 0).length;
-  const uniqueCountries = new Set(devices.map(device => device.country)).size;
+  // Calculate statistics from allDevices
+  const uniqueOS = new Set(allDevices.map(device => device.os)).size;
+  const devicesWithBrowsers = allDevices.filter(device => device.browsers && device.browsers.length > 0).length;
+  const uniqueCountries = new Set(allDevices.map(device => device.country)).size;
 
   return (
     <div className="w-full max-w-full overflow-hidden">

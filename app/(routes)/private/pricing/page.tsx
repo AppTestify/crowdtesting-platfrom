@@ -29,8 +29,6 @@ export default function PricingPage() {
   const [userData, setUserData] = useState<any>();
   const [user, setUser] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isAddPackageOpen, setIsAddPackageOpen] = useState<boolean>(false);
-  const [isAddAddonOpen, setIsAddAddonOpen] = useState<boolean>(false);
   const [stats, setStats] = useState({
     totalPackages: 0,
     totalAddons: 0,
@@ -251,13 +249,6 @@ export default function PricingPage() {
                       <p className="text-sm text-muted-foreground">Comprehensive testing solutions</p>
                     </div>
                   </div>
-                  <Button
-                    onClick={() => setIsAddPackageOpen(true)}
-                    className="gap-2 flex-shrink-0"
-                  >
-                    <Plus className="h-4 w-4" />
-                    Add Package
-                  </Button>
                 </div>
                 <PackageModel />
               </TabsContent>
@@ -271,29 +262,12 @@ export default function PricingPage() {
                       <p className="text-sm text-muted-foreground">Additional testing services and features</p>
                     </div>
                   </div>
-                  <Button
-                    onClick={() => setIsAddAddonOpen(true)}
-                    className="gap-2 flex-shrink-0"
-                  >
-                    <Plus className="h-4 w-4" />
-                    Add Service
-                  </Button>
                 </div>
                 <AddOnModel />
               </TabsContent>
             </Tabs>
           </CardContent>
         </Card>
-
-        {/* Add Package Dialog */}
-        {isAddPackageOpen && (
-          <div>Add Package Dialog - To be implemented</div>
-        )}
-
-        {/* Add Addon Dialog */}
-        {isAddAddonOpen && (
-          <div>Add Addon Dialog - To be implemented</div>
-        )}
       </div>
     </div>
   );
