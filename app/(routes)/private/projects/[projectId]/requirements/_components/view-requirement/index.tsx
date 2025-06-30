@@ -62,11 +62,13 @@ const ViewRequirement = ({
   sheetOpen,
   setSheetOpen,
   refreshRequirements,
+  readOnly = false,
 }: {
   requirement: IRequirement;
   sheetOpen: boolean;
   setSheetOpen: React.Dispatch<React.SetStateAction<boolean>>;
   refreshRequirements?: () => void;
+  readOnly?: boolean;
 }) => {
   const { data } = useSession();
   const router = useRouter();
@@ -89,7 +91,7 @@ const ViewRequirement = ({
   // Keep the original requirement ID constant
   const requirementId = requirement?.id || requirement?._id;
 
-  const canEdit = userData?.role !== UserRoles.TESTER && 
+  const canEdit = !readOnly && userData?.role !== UserRoles.TESTER && 
     checkProjectActiveRole(currentRequirement?.projectId?.isActive ?? false, userData);
 
   const getProjectUsers = useCallback(async () => {
@@ -240,7 +242,7 @@ const ViewRequirement = ({
 
   return (
     <Dialog open={sheetOpen} onOpenChange={setSheetOpen}>
-      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         {currentRequirement ? (
           <div className="space-y-6">
             {/* Header Section */}
@@ -254,9 +256,12 @@ const ViewRequirement = ({
                     <div className="flex items-center gap-3 mb-2">
                       <Badge 
                         variant="outline" 
-                        className="text-blue-600 border-blue-200 bg-blue-50 font-mono cursor-pointer hover:bg-blue-100 transition-colors"
-                        onClick={handleIdClick}
-                        title="Click to open in new tab"
+                        className={cn(
+                          "text-blue-600 border-blue-200 bg-blue-50 font-mono",
+                          !readOnly && "cursor-pointer hover:bg-blue-100 transition-colors"
+                        )}
+                        onClick={!readOnly ? handleIdClick : undefined}
+                        title={!readOnly ? "Click to open in new tab" : undefined}
                       >
                         #{currentRequirement?.customId}
                       </Badge>
@@ -294,13 +299,13 @@ const ViewRequirement = ({
                       ) : (
                         <div 
                           className={cn(
-                            "flex items-center gap-2 cursor-pointer rounded px-2 py-1 hover:bg-gray-100",
-                            canEdit ? "hover:bg-gray-100" : ""
+                            "flex items-center gap-2",
+                            canEdit && !readOnly && "cursor-pointer rounded px-2 py-1 hover:bg-gray-100"
                           )}
-                          onClick={() => startEditing('status')}
+                          onClick={canEdit && !readOnly ? () => startEditing('status') : undefined}
                         >
                           {taskStatusBadge(currentRequirement?.status)}
-                          {canEdit && <Edit2 className="h-3 w-3 text-gray-400 opacity-0 group-hover:opacity-100" />}
+                          {canEdit && !readOnly && <Edit2 className="h-3 w-3 text-gray-400 opacity-0 group-hover:opacity-100" />}
                         </div>
                       )}
                     </div>
@@ -341,26 +346,17 @@ const ViewRequirement = ({
                     ) : (
                       <DialogTitle 
                         className={cn(
-                          "text-2xl font-bold text-gray-900 leading-tight cursor-pointer rounded px-2 py-1 -ml-2",
-                          canEdit ? "hover:bg-gray-100" : ""
+                          "text-2xl font-bold text-gray-900 leading-tight",
+                          canEdit && !readOnly && "cursor-pointer rounded px-2 py-1 -ml-2 hover:bg-gray-100"
                         )}
-                        onClick={() => startEditing('title')}
+                        onClick={canEdit && !readOnly ? () => startEditing('title') : undefined}
                       >
                         {currentRequirement?.title}
-                        {canEdit && <Edit2 className="inline h-4 w-4 text-gray-400 ml-2 opacity-0 hover:opacity-100" />}
+                        {canEdit && !readOnly && <Edit2 className="inline h-4 w-4 text-gray-400 ml-2 opacity-0 hover:opacity-100" />}
                       </DialogTitle>
                     )}
                   </div>
                 </div>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSheetOpen(false)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <X className="h-5 w-5" />
-                </Button>
               </div>
 
               {/* Meta Information */}

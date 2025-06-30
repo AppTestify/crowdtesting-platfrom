@@ -16,13 +16,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { IIssue } from "@/app/_interface/issue";
 import {
   Select,
@@ -338,15 +337,15 @@ const EditIssue = ({
   };
 
   return (
-    <Sheet open={sheetOpen} onOpenChange={handleOpenChange}>
-      <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle className="text-left">Edit Issue</SheetTitle>
-          <SheetDescription className="text-left">
+    <Dialog open={sheetOpen} onOpenChange={handleOpenChange}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-left">Edit Issue</DialogTitle>
+          <DialogDescription className="text-left">
             Problems or defects discovered during testing that need resolution
             before the product is finalized.
-          </SheetDescription>
-        </SheetHeader>
+          </DialogDescription>
+        </DialogHeader>
 
         <div className="mt-4">
           <Form {...form}>
@@ -674,17 +673,16 @@ const EditIssue = ({
               />
 
               <div className="mt-6 w-full flex justify-end gap-2">
-                <SheetClose asChild>
-                  <Button
-                    disabled={isLoading}
-                    type="button"
-                    variant={"outline"}
-                    size="lg"
-                    className="w-full md:w-fit"
-                  >
-                    Cancel
-                  </Button>
-                </SheetClose>
+                <Button
+                  disabled={isLoading}
+                  type="button"
+                  variant={"outline"}
+                  size="lg"
+                  onClick={() => setSheetOpen(false)}
+                  className="w-full md:w-fit"
+                >
+                  Cancel
+                </Button>
                 <Button
                   disabled={isLoading}
                   type="button"
@@ -701,8 +699,8 @@ const EditIssue = ({
             </form>
           </Form>
         </div>
-      </SheetContent>
-    </Sheet>
+      </DialogContent>
+    </Dialog>
   );
 };
 
