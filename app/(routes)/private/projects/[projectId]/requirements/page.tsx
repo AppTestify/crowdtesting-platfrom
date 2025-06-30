@@ -1001,6 +1001,7 @@ export default function Requirements() {
           sheetOpen={isViewOpen}
           setSheetOpen={setIsViewOpen}
           refreshRequirements={refreshRequirements}
+          readOnly={true}
         />
       )}
 

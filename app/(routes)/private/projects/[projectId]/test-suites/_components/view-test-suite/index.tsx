@@ -1,4 +1,4 @@
-import { Sheet, SheetContent, SheetHeader } from "@/components/ui/sheet";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { ITestSuite } from "@/app/_interface/test-suite";
 import {
@@ -15,6 +15,12 @@ import { TestSuiteTabs } from "@/app/_constants/project";
 import ViewRequirement from "../../../requirements/_components/view-requirement";
 import { useState } from "react";
 import { IRequirement } from "@/app/_interface/requirement";
+
+// Helper function to strip HTML tags from text
+const stripHtmlTags = (html: string): string => {
+  if (!html) return "";
+  return html.replace(/<[^>]*>/g, '');
+};
 
 const ViewTestSuite = ({
   testSuite,
@@ -36,31 +42,34 @@ const ViewTestSuite = ({
   }
 
   return (
-    <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+    <Dialog open={sheetOpen} onOpenChange={setSheetOpen}>
       <ViewRequirement
         requirement={requirement as IRequirement}
         sheetOpen={isRequirementViewOpen}
         setSheetOpen={setIsRequirementViewOpen}
       />
-      <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto">
-        <SheetHeader className="mb-4">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader className="mb-4">
+          <DialogTitle className="text-left">
+            Test Suite Details
+          </DialogTitle>
           <div className="flex justify-between items-center mt-4">
             <p className="text-xl font-medium capitalize">
               <span className="mr-2 text-primary">{testSuite?.customId}:</span>
-              {testSuite?.title}
+              {stripHtmlTags(testSuite?.title || "")}
             </p>
           </div>
           <span className="text-mute text-sm">
             {testSuite?.userId?.firstName ? (
               <span>
-                Created by {testSuite?.userId?.firstName}{" "}
-                {testSuite?.userId?.lastName}
+                Created by {stripHtmlTags(testSuite?.userId?.firstName || "")}{" "}
+                {stripHtmlTags(testSuite?.userId?.lastName || "")}
                 {", "}
               </span>
             ) : null}
             Created on {formatDate(testSuite?.createdAt || "")}
           </span>
-        </SheetHeader>
+        </DialogHeader>
         {!isView ?
           <Tabs defaultValue={TestSuiteTabs.DESCRIPTION} className="w-full mt-4">
             <TabsList className="grid grid-cols-2 mb-4 w-full md:w-fit">
@@ -106,7 +115,7 @@ const ViewTestSuite = ({
                             onClick={() => getRequirement(requirement)}
                           >
                             {requirement.customId}</TableCell>
-                          <TableCell>{requirement.title}</TableCell>
+                          <TableCell>{stripHtmlTags(requirement.title)}</TableCell>
                         </TableRow>
                       ))
                     ) : (
@@ -130,8 +139,8 @@ const ViewTestSuite = ({
             />
           </div>
         }
-      </SheetContent>
-    </Sheet>
+      </DialogContent>
+    </Dialog>
   );
 };
 

@@ -73,6 +73,12 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 
+// Helper function to strip HTML tags
+const stripHtmlTags = (html: string): string => {
+  if (!html) return "";
+  return html.replace(/<[^>]*>/g, '').trim();
+};
+
 export default function Issues() {
   const [issues, setIssues] = useState<IIssueView[]>([]);
   const [userData, setUserData] = useState<any>();
@@ -539,6 +545,7 @@ export default function Issues() {
         ? [
             "ID",
             "Title",
+            "Description",
             "Severity",
             "Priority",
             "Issue Type",
@@ -551,6 +558,7 @@ export default function Issues() {
         : [
             "ID",
             "Title",
+            "Description",
             "Severity",
             "Priority",
             "Issue Type",
@@ -565,6 +573,7 @@ export default function Issues() {
         ? [
             issue.customId || "",
             issue.title || "",
+            stripHtmlTags(issue.description || ""),
             issue.severity || "",
             issue.priority || "",
             issue.issueType || "",
@@ -579,6 +588,7 @@ export default function Issues() {
         : [
             issue.customId || "",
             issue.title || "",
+            stripHtmlTags(issue.description || ""),
             issue.severity || "",
             issue.priority || "",
             issue.issueType || "",
