@@ -1,3 +1,4 @@
+import { string } from "zod";
 import { IPaymentPayload } from "../(routes)/private/profile/_components/payment";
 import {
   GET_USER_ENDPOINT,
@@ -5,6 +6,7 @@ import {
   PAGINATION_QUERY_ENDPOINT,
   PAYMENT_ENDPOINT,
   PROFILE_PICTURE_ENDPOINT,
+  PROJECT_CLIENT_USER_ENPOINT,
   PROJECT_USER_ENPOINT,
   PROJECTS_ENDPOINT,
   USER_PASSWORD_ENDPOINT,
@@ -17,6 +19,7 @@ import {
   IUsersBulkDeletePayload,
   IVerifyUser,
 } from "../_interface/user";
+import { IUser } from "../_models/user.model";
 import {
   genericDelete,
   genericGet,
@@ -115,6 +118,25 @@ export const addUserService = async (body: IUserByAdmin): Promise<any> => {
     return response || {};
   } catch (error) {
     console.error(`Error > addUserService:`, error);
+    throw error;
+  }
+};
+
+export const addClientUserService = async (
+  users: IUserByAdmin[],
+  projectId: string
+): Promise<any> => {
+  try {
+    const response = await genericPost(
+      `${PROJECT_CLIENT_USER_ENPOINT(projectId)}`,
+      {
+        projectId,
+        users,
+      }
+    );
+    return response || {};
+  } catch (error) {
+    console.error(`Error > addClientUserService:`, error);
     throw error;
   }
 };

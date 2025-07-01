@@ -10,3 +10,15 @@ export const enum EmailSubjects {
   TEST_CYCLE_COUNTRY = "Confirm Your Participation - New Paid Test Cycle Available!",
   REQUIREMENT_ASSIGNED = "New Requirement Assigned to You",
 }
+
+
+// Its Uses only for email validation like business email
+
+export const publicEmailDomains = [
+  "gmail.com",
+  "yahoo.com",
+  "outlook.com",
+  "hotmail.com",
+  "icloud.com",
+  // "yopmail.com"
+];

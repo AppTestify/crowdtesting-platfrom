@@ -7,7 +7,7 @@ export interface IUser extends Document {
   firstName: string;
   lastName: string;
   email: string;
-  password: string;
+  password?: string;
   role: string;
   isVerified: boolean;
   isActive: boolean;
@@ -19,6 +19,11 @@ export interface IUser extends Document {
   credentialsSentAt: Date;
   customId: number;
   rememberMe: boolean;
+  phoneNumber?: number;
+  companyName?: string;
+  country?: string;
+  setuser?: string;
+  webAddress?: string;
 }
 
 const userSchema = new Schema<IUser>(
@@ -71,7 +76,7 @@ const userSchema = new Schema<IUser>(
     projects: [{ type: Schema.Types.ObjectId, ref: DBModels.PROJECT }],
     sendCredentials: {
       type: Boolean,
-      default: false
+      default: false,
     },
     credentialsSentAt: {
       type: Date,
@@ -79,15 +84,30 @@ const userSchema = new Schema<IUser>(
     customId: { type: Number },
     rememberMe: {
       type: Boolean,
-      required: false
-    }
+      required: false,
+    },
+    phoneNumber: {
+      type: Number,
+    },
+    companyName: {
+      type: String,
+    },
+    country: {
+      type: String,
+    },
+    setuser: {
+      type: String,
+    },
+    webAddress: {
+      type: String,
+    },
   },
   {
     timestamps: true,
   }
 );
 
-userSchema.pre('save', async function (next) {
+userSchema.pre("save", async function (next) {
   const user = this;
 
   if (user.isNew) {
@@ -109,7 +129,6 @@ userSchema.pre('save', async function (next) {
     next();
   }
 });
-
 
 export const User =
   mongoose.models.User || model<IUser>(DBModels.USER, userSchema);

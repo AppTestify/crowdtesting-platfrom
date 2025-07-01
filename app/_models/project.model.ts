@@ -13,6 +13,7 @@ export interface IProject extends Document {
   customId: number;
   deletedAt?: Date;
   projectTabAccess?: Types.ObjectId;
+  pricingId?:Types.ObjectId;
 }
 
 const ProjectUserSchema = new Schema(
@@ -39,6 +40,7 @@ const ProjectSchema = new Schema<IProject>(
       type: Schema.Types.ObjectId,
       ref: DBModels.PROJECT_TAB_ACCESS,
     },
+    pricingId:{type: Schema.Types.ObjectId, ref: DBModels.PACKAGE},
     customId: { type: Number },
     deletedAt: Date,
   },

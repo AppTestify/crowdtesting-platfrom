@@ -1,5 +1,6 @@
 import {
   PAGINATION_QUERY_ENDPOINT,
+  PROJECT_CLIENT_USER_ENPOINT,
   PROJECT_USER_ENPOINT,
   PROJECTS_BULK_DELETE_ENDPOINT,
   PROJECTS_ENDPOINT,
@@ -173,6 +174,23 @@ export const addProjectUserService = async (
     throw error;
   }
 };
+
+export const addClientProjectUserService = async (
+  projectId: string,
+  body: IProjectUser
+): Promise<any> => {
+  try {
+    const response = await genericPost(
+      `${PROJECT_CLIENT_USER_ENPOINT(projectId)}`,
+      body
+    );
+    return response || {};
+  } catch (error) {
+    console.error(`Error > addProjectUserService:`, error);
+    throw error;
+  }
+};
+
 
 export const deleteProjectUserService = async (
   projectId: string,

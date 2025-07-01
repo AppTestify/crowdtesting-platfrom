@@ -33,6 +33,7 @@ import PackageStatus from "../package-status";
 import PackageRowAction from "../package-row-action";
 import { BulkDeletePackage } from "../bulk-delete-package";
 import ViewPacakgeModel from "../view-package-model";
+import EditPackage from "../edit-package";
 
 function PackageModel() {
   const [packages, setPackage] = useState<IPackage[]>([]);
@@ -40,7 +41,6 @@ function PackageModel() {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-  // const [browsers, setBrowsers] = useState<IBrowser[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [globalFilter, setGlobalFilter] = useState<unknown>([]);
   const [pageIndex, setPageIndex] = useState(1);
@@ -48,6 +48,7 @@ function PackageModel() {
   const [totalPageCount, setTotalPageCount] = useState(0);
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [singlePackage, setSinglePackage] = useState<IPackage | null>(null);
+
 
   const getPackage = async () => {
     setIsLoading(true);
@@ -265,6 +266,15 @@ function PackageModel() {
         packages={singlePackage}
         setSheetOpen={setIsViewOpen}
       />
+
+      {/* {editPackage && (
+        <EditPackage
+          packages={editPackage as IPackage}
+          sheetOpen={isEditOpen}
+          setSheetOpen={setIsEditOpen}
+          refreshPackages={refreshPackages}
+        />
+      )} */}
 
       <div className="flex justify-between">
         <div className="w-1/2">

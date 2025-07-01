@@ -1,38 +1,35 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-    Loader2,
-    Plus,
-} from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import toasterService from "@/app/_services/toaster-service";
 import {
-    Form,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import {
-    Sheet,
-    SheetClose,
-    SheetContent,
-    SheetDescription,
-    SheetHeader,
-    SheetTitle,
-    SheetTrigger,
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
 } from "@/components/ui/sheet";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { useParams } from "next/navigation";
 import { getUsersWithoutPaginationService } from "@/app/_services/user.service";
@@ -43,17 +40,21 @@ import { getUsernameWithUserId } from "@/app/_utils/common";
 import { AddUser } from "@/app/(routes)/private/users/_components/add-user";
 
 const projectSchema = z.object({
-    userId: z.string().min(1, "User is required"),
-    role: z.string().optional()
+  userId: z.string().min(1, "User is required"),
+  role: z.string().optional(),
 });
 
-export function AddProjectUser({ refreshProjectUsers }: { refreshProjectUsers: () => void }) {
-    const [sheetOpen, setSheetOpen] = useState(false);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [isViewLoading, setIsViewLoading] = useState<boolean>(false);
-    const [users, setUsers] = useState<IUserByAdmin[]>([]);
-    const { projectId } = useParams<{ projectId: string }>();
-    const storedUserId = localStorage.getItem("userId") || "";
+export function AddProjectUser({
+  refreshProjectUsers,
+}: {
+  refreshProjectUsers: () => void;
+}) {
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isViewLoading, setIsViewLoading] = useState<boolean>(false);
+  const [users, setUsers] = useState<IUserByAdmin[]>([]);
+  const { projectId } = useParams<{ projectId: string }>();
+  const storedUserId = localStorage.getItem("userId") || "";
 
     const form = useForm<z.infer<typeof projectSchema>>({
         resolver: zodResolver(projectSchema),
@@ -63,91 +64,90 @@ export function AddProjectUser({ refreshProjectUsers }: { refreshProjectUsers: (
         },
     });
 
-    async function onSubmit(values: z.infer<typeof projectSchema>) {
-        setIsLoading(true);
-        try {
-            const response = await addProjectUserService(projectId, { ...values });
-            if (response) {
-                refreshProjectUsers();
-                toasterService.success(response.message);
-            }
-        } catch (error) {
-            toasterService.error();
-        } finally {
-            setIsLoading(false);
-            setSheetOpen(false);
-            localStorage.removeItem("userId");
-        }
+  async function onSubmit(values: z.infer<typeof projectSchema>) {
+    setIsLoading(true);
+    try {
+      const response = await addProjectUserService(projectId, { ...values });
+      if (response) {
+        refreshProjectUsers();
+        toasterService.success(response.message);
+      }
+    } catch (error) {
+      toasterService.error();
+    } finally {
+      setIsLoading(false);
+      setSheetOpen(false);
+      localStorage.removeItem("userId");
     }
+  }
 
-    const validateIssue = () => {
-        if (form.formState.isValid) {
-            form.handleSubmit(onSubmit);
-        }
-    };
-
-    const resetForm = () => {
-        form.reset();
-    };
-
-    const getUsers = async () => {
-        try {
-            setIsViewLoading(true);
-            const response = await getUsersWithoutPaginationService(projectId);
-            if (response?.message) {
-                setUsers([]);
-            } else if (response) {
-                setUsers(response);
-            }
-        } catch (error) {
-            toasterService.error();
-        } finally {
-            setIsViewLoading(false);
-        }
+  const validateIssue = () => {
+    if (form.formState.isValid) {
+      form.handleSubmit(onSubmit);
     }
+  };
 
-    const getSelectedUser = (field: any) => {
-        const selectedUser = users?.find(user => user?.id === field.value);
-        return getUsernameWithUserId(selectedUser)
+  const resetForm = () => {
+    form.reset();
+  };
+
+  const getUsers = async () => {
+    try {
+      setIsViewLoading(true);
+      const response = await getUsersWithoutPaginationService(projectId);
+      if (response?.message) {
+        setUsers([]);
+      } else if (response) {
+        setUsers(response);
+      }
+    } catch (error) {
+      toasterService.error();
+    } finally {
+      setIsViewLoading(false);
     }
+  };
 
+  const getSelectedUser = (field: any): string => {
+    const selectedUser = users?.find((user) => user?.id === field.value);
+    return getUsernameWithUserId(selectedUser);
+  };
 
-    useEffect(() => {
-        if (projectId && sheetOpen) {
-            getUsers();
-        }
-    }, [projectId, sheetOpen]);
+  useEffect(() => {
+    if (projectId && sheetOpen) {
+      getUsers();
+    }
+  }, [projectId, sheetOpen]);
 
-    const refreshUsers = () => {
-        getUsers();
-    };
+  const refreshUsers = () => {
+    getUsers();
+  };
 
-    useEffect(() => {
-        if (!sheetOpen) {
-            localStorage.removeItem("userId");
-        }
-    }, [sheetOpen])
+  useEffect(() => {
+    if (!sheetOpen) {
+      localStorage.removeItem("userId");
+    }
+  }, [sheetOpen]);
 
-    useEffect(() => {
-        form.setValue("userId", storedUserId);
-    }, [storedUserId]);
+  useEffect(() => {
+    form.setValue("userId", storedUserId);
+  }, [storedUserId]);
 
-    return (
-        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-            <SheetTrigger asChild>
-                <Button onClick={() => resetForm()}>
-                    <Plus /> Assign user
-                </Button>
-            </SheetTrigger>
-            <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto">
-                <SheetHeader>
-                    <div className="flex justify-between w-full">
-                        <SheetTitle className="text-left">Assign new user</SheetTitle>
-                        <div className="flex items-center mr-6">
-                            <AddUser refreshUsers={refreshUsers} />
-                        </div>
-                    </div>
-                </SheetHeader>
+  return (
+    <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+      <SheetTrigger asChild>
+        <Button onClick={() => resetForm()}>
+          <Plus /> Assign user
+        </Button>
+      </SheetTrigger>
+      <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto">
+        <SheetHeader>
+          <div className="flex justify-between w-full">
+            <SheetTitle className="text-left">Assign new user</SheetTitle>
+            <div className="flex items-center mr-6">
+              <AddUser refreshUsers={refreshUsers} />
+            </div>
+          </div>
+        </SheetHeader>
 
                 <div>
                     <Form {...form}>
@@ -233,36 +233,35 @@ export function AddProjectUser({ refreshProjectUsers }: { refreshProjectUsers: (
                                 />
                             </div>
 
-                            <div className="mt-6 w-full flex justify-end gap-2">
-                                <SheetClose asChild>
-                                    <Button
-                                        disabled={isLoading}
-                                        type="button"
-                                        variant={"outline"}
-                                        size="lg"
-                                        className="w-full md:w-fit"
-                                    >
-                                        Cancel
-                                    </Button>
-                                </SheetClose>
-                                <Button
-                                    disabled={isLoading}
-                                    type="submit"
-                                    size="lg"
-                                    onClick={() => validateIssue()}
-                                    className="w-full md:w-fit"
-                                >
-                                    {isLoading ? (
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    ) : null}
-                                    {isLoading ? "Saving" : "Save user"}
-                                </Button>
-                            </div>
-                        </form>
-                    </Form>
-                </div>
-
-            </SheetContent>
-        </Sheet>
-    );
+              <div className="mt-6 w-full flex justify-end gap-2">
+                <SheetClose asChild>
+                  <Button
+                    disabled={isLoading}
+                    type="button"
+                    variant={"outline"}
+                    size="lg"
+                    className="w-full md:w-fit"
+                  >
+                    Cancel
+                  </Button>
+                </SheetClose>
+                <Button
+                  disabled={isLoading}
+                  type="submit"
+                  size="lg"
+                  onClick={() => validateIssue()}
+                  className="w-full md:w-fit"
+                >
+                  {isLoading ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : null}
+                  {isLoading ? "Saving" : "Save user"}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
 }

@@ -13,6 +13,8 @@ import { User } from "@/app/_models/user.model";
 import { signInSchema } from "@/app/_schemas/auth.schema";
 import { normalizePassword } from "@/app/_utils/common-server-side";
 import bcrypt from "bcryptjs";
+import { Project } from "@/app/_models/project.model";
+const ObjectId = require("mongodb").ObjectId;
 
 export async function POST(req: Request) {
   try {
@@ -68,6 +70,13 @@ export async function POST(req: Request) {
     }
 
     const { password: _, ...userWithoutPassword } = existingUser.toObject();
+    const userProjectIds = await Project.find(
+      { userId: new ObjectId(existingUser.id) },
+      { _id: 1 }
+    ).lean();
+
+    userWithoutPassword.projects = userProjectIds || [];
+
     await createSession(userWithoutPassword, rememberMe);
 
     return Response.json({

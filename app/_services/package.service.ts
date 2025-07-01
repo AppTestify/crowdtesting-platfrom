@@ -4,7 +4,6 @@ import {
     PACKAGE_ENDPOINT,
     PAGINATION_QUERY_ENDPOINT,
     PRICING_BULK_DELETE_ENDPOINT,
-    // PRICING_BULK_DELETE_ENDPOINT,
   } from "../_constants/api-endpoints";
 import { IPackagePayload, pricingBulkDeletePayload} from "../_interface/package";
 import { genericDelete, genericGet, genericPost, genericPut } from "./generic-api-methods";
@@ -113,3 +112,14 @@ export const updatePricingStatus = async (
     throw error;
   }
 };
+
+export const getPackageForClientService = async (): Promise<any> => {
+  try {
+    const response = await genericGet(`${PACKAGE_ENDPOINT}/client?status=true`);
+    return response || [];
+  } catch (error) {
+    console.error(`Error > getPackages:`, error);
+    throw error;
+  }
+};
+
