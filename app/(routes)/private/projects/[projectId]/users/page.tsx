@@ -2,7 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -44,23 +50,24 @@ import { checkProjectAdmin } from "@/app/_utils/common";
 import toasterService from "@/app/_services/toaster-service";
 import UserVerify from "./user-verify";
 import EditProjectUser from "./edit-user";
-import { 
-  Users, 
-  UserCheck, 
-  UserX, 
-  Globe, 
-  MapPin, 
-  Search, 
-  RefreshCw, 
+import {
+  Users,
+  UserCheck,
+  UserX,
+  Globe,
+  MapPin,
+  Search,
+  RefreshCw,
   Plus,
   ChevronLeft,
   ChevronRight,
   ArrowUpDown,
   Languages,
   Award,
-  Shield
+  Shield,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AddClientUser } from "./add-client-user";
 
 export default function ProjectUsers() {
   const [userData, setUserData] = useState<any>();
@@ -74,7 +81,7 @@ export default function ProjectUsers() {
     uniqueCountries: 0,
     uniqueCities: 0,
     totalSkills: 0,
-    totalLanguages: 0
+    totalLanguages: 0,
   });
 
   const projectAdmin = checkProjectAdmin(project as IProject, userData);
@@ -97,20 +104,24 @@ export default function ProjectUsers() {
       cell: ({ row }) => {
         const firstName = row?.original?.userId?.firstName;
         const lastName = row?.original?.userId?.lastName;
-        const initials = `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`.toUpperCase();
-        const displayName = `${firstName || ''} ${lastName || ''}`.trim();
-        
+        const initials = `${firstName?.charAt(0) || ""}${
+          lastName?.charAt(0) || ""
+        }`.toUpperCase();
+        const displayName = `${firstName || ""} ${lastName || ""}`.trim();
+
         return (
           <div className="flex items-center space-x-3">
             <Avatar className="h-8 w-8">
               <AvatarFallback className="text-xs bg-muted">
-                {initials || 'T'}
+                {initials || "T"}
               </AvatarFallback>
             </Avatar>
             <div className="min-w-0">
-              <p className="text-sm font-medium truncate">{displayName || 'No Name'}</p>
+              <p className="text-sm font-medium truncate">
+                {displayName || "No Name"}
+              </p>
               <p className="text-xs text-muted-foreground">
-                ID: {row.original?.userId?.customId || 'N/A'}
+                ID: {row.original?.userId?.customId || "N/A"}
               </p>
             </div>
           </div>
@@ -215,7 +226,7 @@ export default function ProjectUsers() {
         <div className="flex items-center space-x-1">
           <MapPin className="h-4 w-4 text-muted-foreground" />
           <span className="capitalize truncate max-w-[100px]">
-            {row.original?.tester?.address?.city || 'N/A'}
+            {row.original?.tester?.address?.city || "N/A"}
           </span>
         </div>
       ),
@@ -238,7 +249,7 @@ export default function ProjectUsers() {
         <div className="flex items-center space-x-1">
           <Globe className="h-4 w-4 text-muted-foreground" />
           <span className="capitalize truncate max-w-[100px]">
-            {row.original?.tester?.address?.country || 'N/A'}
+            {row.original?.tester?.address?.country || "N/A"}
           </span>
         </div>
       ),
@@ -300,7 +311,9 @@ export default function ProjectUsers() {
   });
   const [totalPageCount, setTotalPageCount] = useState(0);
   const [projectUsers, setProjectUsers] = useState<IProjectUserDisplay[]>([]);
-  const [allProjectUsers, setAllProjectUsers] = useState<IProjectUserDisplay[]>([]);
+  const [allProjectUsers, setAllProjectUsers] = useState<IProjectUserDisplay[]>(
+    []
+  );
   const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
   const { projectId } = useParams<{ projectId: string }>();
   const { data } = useSession();
@@ -318,8 +331,8 @@ export default function ProjectUsers() {
     };
 
     handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const handlePreviousPage = () => {
@@ -360,20 +373,26 @@ export default function ProjectUsers() {
   }, []);
 
   const calculateStats = (users: IProjectUserDisplay[]) => {
-    const verifiedUsers = users.filter(user => (user as any).isVerify !== false).length;
+    const verifiedUsers = users.filter(
+      (user) => (user as any).isVerify !== false
+    ).length;
     const unverifiedUsers = users.length - verifiedUsers;
-    
-    const countries = new Set(users.map(user => user.tester?.address?.country).filter(Boolean));
-    const cities = new Set(users.map(user => user.tester?.address?.city).filter(Boolean));
-    
+
+    const countries = new Set(
+      users.map((user) => user.tester?.address?.country).filter(Boolean)
+    );
+    const cities = new Set(
+      users.map((user) => user.tester?.address?.city).filter(Boolean)
+    );
+
     const allSkills = new Set();
     const allLanguages = new Set();
-    
-    users.forEach(user => {
-      user.tester?.skills?.forEach(skill => {
+
+    users.forEach((user) => {
+      user.tester?.skills?.forEach((skill) => {
         if (skill.trim()) allSkills.add(skill.trim());
       });
-      user.tester?.languages?.forEach(lang => {
+      user.tester?.languages?.forEach((lang) => {
         if (lang.name.trim()) allLanguages.add(lang.name.trim());
       });
     });
@@ -385,7 +404,7 @@ export default function ProjectUsers() {
       uniqueCountries: countries.size,
       uniqueCities: cities.size,
       totalSkills: allSkills.size,
-      totalLanguages: allLanguages.size
+      totalLanguages: allLanguages.size,
     });
   };
 
@@ -506,7 +525,9 @@ export default function ProjectUsers() {
               Project Team Members
             </h1>
             <p className="text-muted-foreground mt-1 text-sm">
-              {project?.title ? `Manage team members for "${project.title}"` : 'Manage project team members and their roles'}
+              {project?.title
+                ? `Manage team members for "${project.title}"`
+                : "Manage project team members and their roles"}
             </p>
           </div>
           <div className="flex items-center space-x-2 flex-shrink-0">
@@ -517,11 +538,16 @@ export default function ProjectUsers() {
               disabled={isLoading || isStatsLoading}
               className="gap-2"
             >
-              <RefreshCw className={`h-4 w-4 ${(isLoading || isStatsLoading) ? 'animate-spin' : ''}`} />
+              <RefreshCw
+                className={`h-4 w-4 ${
+                  isLoading || isStatsLoading ? "animate-spin" : ""
+                }`}
+              />
               Refresh
             </Button>
-            {userData?.role === UserRoles.ADMIN && (
-              <AddProjectUser refreshProjectUsers={refreshProjectUsers} />
+
+            {userData?.role === UserRoles.CLIENT && (
+              <AddClientUser refreshUsers={refreshProjectUsers} />
             )}
           </div>
         </div>
@@ -530,33 +556,48 @@ export default function ProjectUsers() {
         <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-xs sm:text-sm font-medium">Total Members</CardTitle>
+              <CardTitle className="text-xs sm:text-sm font-medium">
+                Total Members
+              </CardTitle>
               <Users className="h-4 w-4 text-muted-foreground flex-shrink-0" />
             </CardHeader>
             <CardContent>
-              <div className="text-xl sm:text-2xl font-bold">{stats.totalUsers}</div>
+              <div className="text-xl sm:text-2xl font-bold">
+                {stats.totalUsers}
+              </div>
               <p className="text-xs text-muted-foreground">Team members</p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-xs sm:text-sm font-medium">Verified</CardTitle>
+              <CardTitle className="text-xs sm:text-sm font-medium">
+                Verified
+              </CardTitle>
               <UserCheck className="h-4 w-4 text-green-600 flex-shrink-0" />
             </CardHeader>
             <CardContent>
-              <div className="text-xl sm:text-2xl font-bold text-green-600">{stats.verifiedUsers}</div>
+              <div className="text-xl sm:text-2xl font-bold text-green-600">
+                {stats.verifiedUsers}
+              </div>
               <p className="text-xs text-muted-foreground">
-                {stats.totalUsers > 0 ? Math.round((stats.verifiedUsers / stats.totalUsers) * 100) : 0}% verified
+                {stats.totalUsers > 0
+                  ? Math.round((stats.verifiedUsers / stats.totalUsers) * 100)
+                  : 0}
+                % verified
               </p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-xs sm:text-sm font-medium">Global Reach</CardTitle>
+              <CardTitle className="text-xs sm:text-sm font-medium">
+                Global Reach
+              </CardTitle>
               <Globe className="h-4 w-4 text-blue-600 flex-shrink-0" />
             </CardHeader>
             <CardContent>
-              <div className="text-xl sm:text-2xl font-bold text-blue-600">{stats.uniqueCountries}</div>
+              <div className="text-xl sm:text-2xl font-bold text-blue-600">
+                {stats.uniqueCountries}
+              </div>
               <p className="text-xs text-muted-foreground">
                 {stats.uniqueCities} cities
               </p>
@@ -564,11 +605,15 @@ export default function ProjectUsers() {
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-xs sm:text-sm font-medium">Skills & Languages</CardTitle>
+              <CardTitle className="text-xs sm:text-sm font-medium">
+                Skills & Languages
+              </CardTitle>
               <Award className="h-4 w-4 text-purple-600 flex-shrink-0" />
             </CardHeader>
             <CardContent>
-              <div className="text-xl sm:text-2xl font-bold text-purple-600">{stats.totalSkills}</div>
+              <div className="text-xl sm:text-2xl font-bold text-purple-600">
+                {stats.totalSkills}
+              </div>
               <p className="text-xs text-muted-foreground">
                 {stats.totalLanguages} languages
               </p>
@@ -583,7 +628,8 @@ export default function ProjectUsers() {
               <div>
                 <CardTitle className="text-lg">Team Members</CardTitle>
                 <CardDescription className="mt-1">
-                  Manage project team members, their roles, and verification status
+                  Manage project team members, their roles, and verification
+                  status
                 </CardDescription>
               </div>
               <div className="flex items-center gap-2">
@@ -619,10 +665,13 @@ export default function ProjectUsers() {
               <Table className="table-fixed">
                 <TableHeader>
                   {table.getHeaderGroups().map((headerGroup) => (
-                    <TableRow key={headerGroup.id} className="hover:bg-transparent border-b">
+                    <TableRow
+                      key={headerGroup.id}
+                      className="hover:bg-transparent border-b"
+                    >
                       {headerGroup.headers.map((header) => {
                         return (
-                          <TableHead 
+                          <TableHead
                             key={header.id}
                             className={cn(
                               "bg-muted/50 font-semibold text-foreground",
@@ -662,16 +711,39 @@ export default function ProjectUsers() {
                             </div>
                           </div>
                         </TableCell>
-                        {columnVisibility.skills && <TableCell><Skeleton className="h-4 w-full" /></TableCell>}
-                        {columnVisibility.language && <TableCell><Skeleton className="h-4 w-full" /></TableCell>}
-                        <TableCell><Skeleton className="h-4 w-16" /></TableCell>
-                        {columnVisibility.city && <TableCell><Skeleton className="h-4 w-20" /></TableCell>}
-                        {columnVisibility.country && <TableCell><Skeleton className="h-4 w-24" /></TableCell>}
-                        {(projectAdmin || userData?.role === UserRoles.ADMIN) && (
-                          <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+                        {columnVisibility.skills && (
+                          <TableCell>
+                            <Skeleton className="h-4 w-full" />
+                          </TableCell>
+                        )}
+                        {columnVisibility.language && (
+                          <TableCell>
+                            <Skeleton className="h-4 w-full" />
+                          </TableCell>
+                        )}
+                        <TableCell>
+                          <Skeleton className="h-4 w-16" />
+                        </TableCell>
+                        {columnVisibility.city && (
+                          <TableCell>
+                            <Skeleton className="h-4 w-20" />
+                          </TableCell>
+                        )}
+                        {columnVisibility.country && (
+                          <TableCell>
+                            <Skeleton className="h-4 w-24" />
+                          </TableCell>
+                        )}
+                        {(projectAdmin ||
+                          userData?.role === UserRoles.ADMIN) && (
+                          <TableCell>
+                            <Skeleton className="h-4 w-16" />
+                          </TableCell>
                         )}
                         {userData?.role === UserRoles.ADMIN && (
-                          <TableCell><Skeleton className="h-4 w-8" /></TableCell>
+                          <TableCell>
+                            <Skeleton className="h-4 w-8" />
+                          </TableCell>
                         )}
                       </TableRow>
                     ))
@@ -683,10 +755,7 @@ export default function ProjectUsers() {
                         className="hover:bg-muted/50 transition-colors"
                       >
                         {row.getVisibleCells().map((cell) => (
-                          <TableCell 
-                            key={cell.id}
-                            className="py-3"
-                          >
+                          <TableCell key={cell.id} className="py-3">
                             {flexRender(
                               cell.column.columnDef.cell,
                               cell.getContext()
@@ -703,8 +772,12 @@ export default function ProjectUsers() {
                       >
                         <div className="flex flex-col items-center justify-center space-y-2">
                           <Users className="h-8 w-8 text-muted-foreground" />
-                          <p className="text-sm text-muted-foreground">No team members found</p>
-                          <p className="text-xs text-muted-foreground">Add team members to get started</p>
+                          <p className="text-sm text-muted-foreground">
+                            No team members found
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Add team members to get started
+                          </p>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -717,9 +790,11 @@ export default function ProjectUsers() {
             {totalPageCount > 0 && (
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-4">
                 <div className="text-sm text-muted-foreground">
-                  Showing {((pageIndex - 1) * pageSize) + 1} to {Math.min(pageIndex * pageSize, totalPageCount)} of {totalPageCount} members
+                  Showing {(pageIndex - 1) * pageSize + 1} to{" "}
+                  {Math.min(pageIndex * pageSize, totalPageCount)} of{" "}
+                  {totalPageCount} members
                 </div>
-                
+
                 <div className="flex items-center space-x-2">
                   <Button
                     variant="outline"
@@ -731,13 +806,13 @@ export default function ProjectUsers() {
                     <ChevronLeft className="h-4 w-4" />
                     Previous
                   </Button>
-                  
+
                   <div className="flex items-center gap-1">
                     <span className="text-sm text-muted-foreground">
                       Page {pageIndex} of {totalPages}
                     </span>
                   </div>
-                  
+
                   <Button
                     variant="outline"
                     size="sm"
