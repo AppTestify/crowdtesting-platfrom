@@ -36,6 +36,7 @@ export default function TestCasesInTestExecution() {
     const { data } = useSession();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [testExecution, setTestExecution] = useState<ITestCaseResult[]>([]);
+    const [allTestExecution, setAllTestExecution] = useState<ITestCaseResult[]>([]);
     const { projectId } = useParams<{ projectId: string }>();
     const { testCycleId } = useParams<{ testCycleId: string }>();
     const [sorting, setSorting] = useState<SortingState>([]);
@@ -54,14 +55,14 @@ export default function TestCasesInTestExecution() {
     const [userData, setUserData] = useState<any>();
     const router = useRouter();
 
-    // Statistics calculations
+    // Statistics calculations - now based on all test execution data
     const statistics = useMemo(() => {
-        const total = testExecution.length;
-        const passed = testExecution.filter(tc => tc.result === 'Passed').length;
-        const failed = testExecution.filter(tc => tc.result === 'Failed').length;
-        const blocked = testExecution.filter(tc => tc.result === 'Blocked').length;
-        const caution = testExecution.filter(tc => tc.result === 'Caution').length;
-        const notExecuted = testExecution.filter(tc => !tc.result).length;
+        const total = allTestExecution.length;
+        const passed = allTestExecution.filter(tc => tc.result === 'Passed').length;
+        const failed = allTestExecution.filter(tc => tc.result === 'Failed').length;
+        const blocked = allTestExecution.filter(tc => tc.result === 'Blocked').length;
+        const caution = allTestExecution.filter(tc => tc.result === 'Caution').length;
+        const notExecuted = allTestExecution.filter(tc => !tc.result).length;
         const executed = total - notExecuted;
         const executionRate = total > 0 ? Math.round((executed / total) * 100) : 0;
         const passRate = executed > 0 ? Math.round((passed / executed) * 100) : 0;
@@ -77,7 +78,7 @@ export default function TestCasesInTestExecution() {
             executionRate,
             passRate
         };
-    }, [testExecution]);
+    }, [allTestExecution]);
 
     const handleStatusChange = (status: TestCaseExecutionResult) => {
         setSelectedResult(status);
@@ -320,6 +321,7 @@ export default function TestCasesInTestExecution() {
 
     const refershTestExecution = () => {
         getTestExecution();
+        getAllTestExecution();
     }
 
     const getTestExecution = async () => {
@@ -337,6 +339,21 @@ export default function TestCasesInTestExecution() {
             toasterService.error();
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    // Fetch all test case results for statistics calculation
+    const getAllTestExecution = async () => {
+        if (!projectId || !testCycleId) {
+            return;
+        }
+        
+        try {
+            const response = await getTestExecutionsService(projectId, testCycleId, 1, 999999, "");
+            setAllTestExecution(response?.testExecution || []);
+        } catch (error) {
+            console.error('Error fetching all test executions for statistics:', error);
+            setAllTestExecution([]);
         }
     };
 
@@ -619,6 +636,7 @@ export default function TestCasesInTestExecution() {
     useEffect(() => {
         if (projectId && testCycleId) {
             getTestExecution();
+            getAllTestExecution();
         }
     }, [projectId, testCycleId, pageIndex, pageSize, selectedResult]);
 
