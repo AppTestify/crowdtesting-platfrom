@@ -7,6 +7,7 @@ export interface ITestCasePayload {
   title: string;
   projectId?: string;
   expectedResult: string;
+  precondition?: string;
   testSuite: string;
   requirements?: string[];
   userId?: IUserByAdmin;
@@ -26,6 +27,7 @@ export interface ITestCase {
   title: string;
   projectId?: string;
   expectedResult: string;
+  precondition?: string;
   testSuite?: ITestSuite;
   requirements?: IRequirement[];
   customId: string;
