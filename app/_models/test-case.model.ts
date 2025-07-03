@@ -10,7 +10,8 @@ export interface ITestCase extends Document {
   projectId: Types.ObjectId;
   customId: number;
   expectedResult: string;
-  testSuite: Types.ObjectId;
+  precondition: string;
+  testSuite?: Types.ObjectId;
   requirements: Types.ObjectId[];
   attachments: Types.ObjectId[];
 }
@@ -31,10 +32,11 @@ const TestCaseSchema = new Schema<ITestCase>(
     ],
     customId: { type: Number },
     expectedResult: { type: String, required: true },
+    precondition: { type: String },
     testSuite: {
       type: Schema.Types.ObjectId,
       ref: DBModels.TEST_SUITE,
-      required: true,
+      required: false,
     },
     requirements: [
       {
