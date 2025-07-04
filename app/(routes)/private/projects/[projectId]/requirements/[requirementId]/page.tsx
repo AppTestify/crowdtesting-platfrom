@@ -68,7 +68,7 @@ export default function RequirementDetailPage() {
   });
   const [isUpdating, setIsUpdating] = useState(false);
 
-  const canEdit = userData?.role !== UserRoles.TESTER && 
+  const canEdit = userData?.role !== UserRoles.TESTER && userData?.role !== UserRoles.CROWD_TESTER && 
     checkProjectActiveRole(requirement?.projectId?.isActive ?? false, userData);
 
   const fetchRequirement = async () => {

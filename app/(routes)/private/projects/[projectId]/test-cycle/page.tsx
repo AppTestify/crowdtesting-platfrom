@@ -228,7 +228,7 @@ export default function TestCycle() {
           },
         ]
       : []),
-    ...(userData?.role !== UserRoles.TESTER
+    ...(userData?.role !== UserRoles.TESTER && userData?.role !== UserRoles.CROWD_TESTER
       ? [
           {
             accessorKey: "Assign",
@@ -256,7 +256,7 @@ export default function TestCycle() {
           },
         ]
       : []),
-    ...(userData?.role != UserRoles.TESTER &&
+    ...(userData?.role != UserRoles.TESTER && userData?.role != UserRoles.CROWD_TESTER &&
     checkProjectActiveRole(project?.isActive ?? false, userData)
       ? [
           {

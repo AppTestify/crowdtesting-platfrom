@@ -91,7 +91,7 @@ const ViewRequirement = ({
   // Keep the original requirement ID constant
   const requirementId = requirement?.id || requirement?._id;
 
-  const canEdit = !readOnly && userData?.role !== UserRoles.TESTER && 
+  const canEdit = !readOnly && userData?.role !== UserRoles.TESTER && userData?.role !== UserRoles.CROWD_TESTER && 
     checkProjectActiveRole(currentRequirement?.projectId?.isActive ?? false, userData);
 
   const getProjectUsers = useCallback(async () => {

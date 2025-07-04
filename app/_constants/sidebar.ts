@@ -26,7 +26,7 @@ export const getSidebarItems = (user: any) => {
   const role = user?.role;
 
   const isVerified = user?.isVerified;
-  if (role === UserRoles.TESTER) {
+  if (role === UserRoles.TESTER || role === UserRoles.CROWD_TESTER) {
     const titles = ["Projects"];
     navMain.forEach((item) => {
       if (titles.includes(item.title) && !isVerified) {

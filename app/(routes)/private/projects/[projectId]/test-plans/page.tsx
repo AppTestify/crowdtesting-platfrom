@@ -227,7 +227,7 @@ export default function TestPlan() {
         </div>
       ),
     },
-    ...(userData?.role !== UserRoles.TESTER &&
+    ...(userData?.role !== UserRoles.TESTER && userData?.role !== UserRoles.CROWD_TESTER &&
     checkProjectActiveRole(project?.isActive ?? false, userData)
       ? [
           {
@@ -416,7 +416,7 @@ export default function TestPlan() {
               Manage and organize your testing strategies and procedures
             </p>
           </div>
-          {userData?.role !== UserRoles.TESTER &&
+          {userData?.role !== UserRoles.TESTER && userData?.role !== UserRoles.CROWD_TESTER &&
             checkProjectActiveRole(project?.isActive ?? false, userData) && (
               <AddTestPlan
                 refreshTestPlans={refreshTestPlans}

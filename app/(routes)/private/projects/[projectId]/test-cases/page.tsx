@@ -461,7 +461,7 @@ export default function TestCases() {
             Manage your test scenarios and validation procedures
           </p>
         </div>
-        {userData?.role != UserRoles.TESTER &&
+        {userData?.role != UserRoles.TESTER && userData?.role != UserRoles.CROWD_TESTER &&
           checkProjectActiveRole(project?.isActive ?? false, userData) && (
             <AddTestCase
               refreshTestCases={refreshTestCases}

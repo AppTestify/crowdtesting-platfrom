@@ -177,7 +177,7 @@ const ViewIssue = () => {
   const canEdit = checkProjectRole ? 
     (project?.isActive) : 
     ((project?.isActive && issueData?.userId?._id?.toString() === userData?._id?.toString()) || 
-     userData?.role !== UserRoles.TESTER);
+     (userData?.role !== UserRoles.TESTER && userData?.role !== UserRoles.CROWD_TESTER));
 
   return (
     <div className="w-full min-h-screen bg-gray-50">

@@ -20,6 +20,7 @@ export const getProjectTabs = (user: any) => {
         "RTM",
       ];
     case UserRoles.TESTER:
+    case UserRoles.CROWD_TESTER:
       return [
         "dashboard",
         "project details",

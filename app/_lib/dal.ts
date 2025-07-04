@@ -44,7 +44,7 @@ export const isClient = cache(async (user: IUser) => {
 
 export const isTester = cache(async (user: IUser) => {
   try {
-    if (user.role !== UserRoles.TESTER) {
+    if (user.role !== UserRoles.TESTER && user.role !== UserRoles.CROWD_TESTER) {
       return false;
     }
 

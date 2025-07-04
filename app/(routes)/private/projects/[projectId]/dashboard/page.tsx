@@ -110,7 +110,7 @@ export default function Projects() {
           )}
 
           {/* Role-based Dashboard */}
-          {userData?.role === UserRoles.TESTER ?
+          {userData?.role === UserRoles.TESTER || userData?.role === UserRoles.CROWD_TESTER ?
             <ProjectTesterDashboard />
             : userData?.role === UserRoles.ADMIN ?
               <ProjectAdminDashboard />
