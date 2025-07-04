@@ -114,39 +114,39 @@ export function ImportTestCases({ refreshTestCases }: ImportTestCasesProps) {
 
     const downloadTemplate = () => {
         const headers = [
-            'Title',
-            'Expected Result',
             'Precondition',
-            'Test Type',
-            'Severity',
-            'Test Suite',
-            'Requirements',
+            'Title',
             'Test Steps',
-            'Test Data'
+            'Test Data',
+            'Expected Result',
+            'Severity',
+            'Test Type',
+            'Test Suite',
+            'Requirements'
         ];
 
         const sampleData = [
             [
-                'Login with valid credentials',
-                'User should be logged in successfully and redirected to dashboard',
                 'User is on login page and has valid account',
-                'Manual',
-                'High',
-                'Authentication Test Suite',
-                'REQ001, REQ002',
+                'Login with valid credentials',
                 '1. Enter valid username in username field | Expected: Username field accepts input\n2. Enter valid password in password field | Expected: Password field accepts input\n3. Click login button | Expected: User is redirected to dashboard',
-                '1. Username (Text): testuser\n2. Password (Password): testpass123'
+                '1. Username (Text): testuser\n2. Password (Password): testpass123',
+                'User should be logged in successfully and redirected to dashboard',
+                'High',
+                'Manual',
+                'Authentication Test Suite',
+                'REQ001, REQ002'
             ],
             [
-                'Search functionality with filters',
-                'Search results should be filtered correctly based on applied filters',
                 'User is on search page with available data',
-                'Automated',
-                'Medium',
-                '', // Empty test suite to show it's optional
-                'REQ003',
+                'Search functionality with filters',
                 '1. Enter search term in search box | Expected: Search box accepts input\n2. Select filter options | Expected: Filter options are selectable\n3. Click search button | Expected: Results are displayed with applied filters',
-                '1. Search Term (Text): test product\n2. Category (Dropdown): Electronics\n3. Price Range (Number): 100-500'
+                '1. Search Term (Text): test product\n2. Category (Dropdown): Electronics\n3. Price Range (Number): 100-500',
+                'Search results should be filtered correctly based on applied filters',
+                'Medium',
+                'Automated',
+                '', // Empty test suite to show it's optional
+                'REQ003'
             ]
         ];
 
@@ -168,10 +168,28 @@ export function ImportTestCases({ refreshTestCases }: ImportTestCasesProps) {
 
     const sampleFormat = [
         {
+            field: 'Precondition',
+            description: 'Prerequisites or conditions before test execution',
+            example: 'User is on login page',
+            required: 'Optional'
+        },
+        {
             field: 'Title',
             description: 'Short descriptive title of the test case',
             example: 'Login with valid credentials',
             required: 'Required'
+        },
+        {
+            field: 'Test Steps',
+            description: 'Step-by-step test execution (multiple formats supported)',
+            example: '1. Enter username | Expected: Field accepts input\n2. Click login | Expected: User logs in',
+            required: 'Optional'
+        },
+        {
+            field: 'Test Data',
+            description: 'Test data values (multiple formats supported)',
+            example: '1. Username (Text): testuser\n2. Password: testpass',
+            required: 'Optional'
         },
         {
             field: 'Expected Result',
@@ -180,21 +198,15 @@ export function ImportTestCases({ refreshTestCases }: ImportTestCasesProps) {
             required: 'Required'
         },
         {
-            field: 'Precondition',
-            description: 'Prerequisites or conditions before test execution',
-            example: 'User is on login page',
-            required: 'Optional'
+            field: 'Severity',
+            description: 'Priority level (Low/Medium/High/Critical)',
+            example: 'High',
+            required: 'Required'
         },
         {
             field: 'Test Type',
             description: 'Type of test (Manual/Automated)',
             example: 'Manual',
-            required: 'Required'
-        },
-        {
-            field: 'Severity',
-            description: 'Priority level (Low/Medium/High/Critical)',
-            example: 'High',
             required: 'Required'
         },
         {
@@ -207,18 +219,6 @@ export function ImportTestCases({ refreshTestCases }: ImportTestCasesProps) {
             field: 'Requirements',
             description: 'Comma-separated requirement IDs',
             example: 'REQ001, REQ002',
-            required: 'Optional'
-        },
-        {
-            field: 'Test Steps',
-            description: 'Step-by-step test execution (multiple formats supported)',
-            example: '1. Enter username | Expected: Field accepts input\n2. Click login | Expected: User logs in',
-            required: 'Optional'
-        },
-        {
-            field: 'Test Data',
-            description: 'Test data values (multiple formats supported)',
-            example: '1. Username (Text): testuser\n2. Password: testpass',
             required: 'Optional'
         }
     ];
