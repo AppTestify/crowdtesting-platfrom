@@ -223,11 +223,24 @@ export default function ProjectLayouts({ onLoaded }: { onLoaded: () => void }) {
                                     <>
                                         <TabsList className="bg-gray-100/80 p-1 rounded-xl border border-gray-200 shadow-sm backdrop-blur-sm w-full h-auto flex-wrap gap-1 justify-start">
                                             {accessTabs
-                                                ?.filter((tab: any) =>
-                                                    userData?.role === UserRoles.ADMIN
-                                                        ? tab.roles.includes(userData?.role)
-                                                        : tab.roles.includes(userData?.role) && tab.access === true
-                                                ).map((tab: any, index: number) => {
+                                                ?.filter((tab: any) => {
+                                                    // For admin, show all tabs they have roles for
+                                                    if (userData?.role === UserRoles.ADMIN) {
+                                                        return tab.roles.includes(userData?.role);
+                                                    }
+                                                    
+                                                    // For tester and crowd tester, show tabs that are accessible
+                                                    // Check if user is a tester (either normal or crowd)
+                                                    const isTester = userData?.role === UserRoles.TESTER || userData?.role === UserRoles.CROWD_TESTER;
+                                                    
+                                                    if (isTester) {
+                                                        // For testers, check if tab has tester role OR crowd tester role, and access is true
+                                                        return (tab.roles.includes(UserRoles.TESTER) || tab.roles.includes(UserRoles.CROWD_TESTER)) && tab.access === true;
+                                                    }
+                                                    
+                                                    // For other roles, check their specific role and access
+                                                    return tab.roles.includes(userData?.role) && tab.access === true;
+                                                }).map((tab: any, index: number) => {
                                                     const tabValue = tab?.label === "RTM" ? "RTM" : tab?.label.toLowerCase().replace(/ /g, '-');
                                                     const isActive = activeTab === tabValue;
                                                     const IconComponent = getTabIconComponent(tab.label);
