@@ -10,6 +10,9 @@ import { verifySession } from "@/app/_lib/dal";
 import { connectDatabase } from "@/app/_db";
 import { errorHandler } from "@/app/_utils/error-handler";
 import { DB_CONNECTION_ERROR_MESSAGE, USER_UNAUTHORIZED_SERVER_ERROR_MESSAGE } from "@/app/_constants/errors";
+import { IdFormat } from "@/app/_models/id-format.model";
+import { DBModels } from "@/app/_constants";
+import { customIdForSearch } from "@/app/_utils/common-server-side";
 import * as XLSX from "xlsx";
 
 export async function POST(
@@ -65,14 +68,20 @@ export async function POST(
         // Get test suites and requirements for mapping
         const testSuites = await TestSuite.find({ projectId: params.projectId }).lean();
         const requirements = await Requirement.find({ projectId: params.projectId }).lean();
+        
+        // Get requirement ID format to understand the display format
+        const requirementIdFormat = await IdFormat.findOne({ entity: DBModels.REQUIREMENT });
+        
+        console.log('Import Debug - Requirement ID Format:', requirementIdFormat?.idFormat);
+        console.log('Import Debug - Available Requirements:', requirements.map(r => ({ id: r._id, customId: r.customId, title: r.title })));
 
         for (let i = 0; i < rows.length; i++) {
             const row = rows[i];
             try {
-                // Map CSV/Excel columns to data (simplified format)
+                // Map CSV/Excel columns to data (new format order)
                 const [
-                    title, expectedResult, precondition, testType, severity,
-                    testSuiteName, requirementsList, stepsText, testDataText
+                    precondition, title, stepsText, testDataText, expectedResult,
+                    severity, testType, testSuiteName, requirementsList
                 ] = row;
 
                 // Find test suite by name or create if not exists
@@ -94,12 +103,40 @@ export async function POST(
                 // Find requirements by custom IDs
                 const requirementIds = requirementsList ? 
                     requirementsList.split(',').map((reqId: string) => reqId.trim()) : [];
-                const foundRequirements = requirements.filter(req => 
-                    requirementIds.includes(req.customId)
-                );
+                
+                // Convert display format (REQ1, REQ2) to numeric customId (1, 2)
+                const numericRequirementIds = requirementIds.map((reqId: string) => {
+                    // Remove the prefix (REQ) to get the numeric part
+                    const numericId = customIdForSearch(requirementIdFormat, reqId);
+                    return numericId;
+                });
+                
+                console.log('Import Debug - Original Requirement IDs:', requirementIds);
+                console.log('Import Debug - Numeric Requirement IDs:', numericRequirementIds);
+                
+                const foundRequirements = requirements.filter(req => {
+                    const reqCustomId = req.customId.toString();
+                    return numericRequirementIds.includes(reqCustomId) || 
+                           numericRequirementIds.includes(parseInt(reqCustomId).toString());
+                });
+
+                // Also try to find by ID if customId doesn't work
+                if (foundRequirements.length === 0 && requirementIds.length > 0) {
+                    const foundById = requirements.filter(req => 
+                        requirementIds.includes((req._id as any).toString())
+                    );
+                    if (foundById.length > 0) {
+                        foundRequirements.push(...foundById);
+                    }
+                }
+
+                console.log('Import Debug - Requirements List:', requirementsList);
+                console.log('Import Debug - Requirement IDs:', requirementIds);
+                console.log('Import Debug - Found Requirements:', foundRequirements.map(r => ({ id: r._id, customId: r.customId, title: r.title })));
+                console.log('Import Debug - All Available Requirements for Comparison:', requirements.map(r => ({ id: r._id, customId: r.customId, title: r.title })));
 
                 // Create test case (auto-generated fields)
-                const testCase = new TestCase({
+                const testCaseData = {
                     title: title || '',
                     expectedResult: expectedResult || '',
                     precondition: precondition || '',
@@ -110,9 +147,15 @@ export async function POST(
                     requirements: foundRequirements.map(req => req._id),
                     userId: session.user?._id || session.user?.id,
                     attachments: []
-                });
+                };
+
+                console.log('Import Debug - Test Case Data:', testCaseData);
+
+                const testCase = new TestCase(testCaseData);
+                console.log('Import Debug - Test Case Requirements:', testCase.requirements);
 
                 const savedTestCase = await testCase.save();
+                console.log('Import Debug - Saved Test Case Requirements:', savedTestCase.requirements);
 
                 // Create test steps if provided
                 if (stepsText) {

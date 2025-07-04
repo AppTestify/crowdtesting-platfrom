@@ -42,7 +42,7 @@ const TestCaseSchema = new Schema<ITestCase>(
       {
         type: Schema.Types.ObjectId,
         ref: DBModels.REQUIREMENT,
-        required: true,
+        required: false,
       },
     ],
   },
