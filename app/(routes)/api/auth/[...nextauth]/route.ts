@@ -202,6 +202,7 @@ const handleAuthorization = async (credentials: any) => {
       lastName: credentials?.lastName || "",
       country: credentials?.country || "",
       role: role,
+      createdBy: 'self',
     });
     if (response?.user) {
       try {

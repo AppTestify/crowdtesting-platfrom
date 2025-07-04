@@ -455,7 +455,7 @@ export default function Users() {
 
     const getUser = async (data: IUserByAdmin) => {
         setUser(data as IUserByAdmin);
-        if (data.role == UserRoles.TESTER) {
+        if (data.role === UserRoles.TESTER || data.role === UserRoles.CROWD_TESTER) {
             setIsViewOpen(true);
         } else {
             setIsClientViewOpen(true);
@@ -476,6 +476,7 @@ export default function Users() {
     const getRoleDisplayName = (role: string) => {
         switch (role) {
             case UserRoles.TESTER: return 'Testers';
+            case UserRoles.CROWD_TESTER: return 'Crowd Testers';
             case UserRoles.PROJECT_ADMIN: return 'Project Admins';
             case UserRoles.CLIENT: return 'Clients';
             case UserRoles.MANAGER: return 'Managers';
@@ -575,10 +576,11 @@ export default function Users() {
                                 if (value === "client") handleRoleChange(UserRoles.CLIENT);
                                 if (value === "manager") handleRoleChange(UserRoles.MANAGER);
                                 if (value === "developer") handleRoleChange(UserRoles.DEVELOPER);
+                                if (value === "crowd-tester") handleRoleChange(UserRoles.CROWD_TESTER);
                             }}
                         >
                             <div className="w-full overflow-x-auto">
-                                <TabsList className="grid grid-cols-5 w-full min-w-[400px]">
+                                <TabsList className="grid grid-cols-6 w-full min-w-[480px]">
                                     <TabsTrigger value="tester" className="text-xs sm:text-sm px-2 sm:px-4">
                                         <div className="flex items-center gap-1 sm:gap-2">
                                             <UsersIcon className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -612,6 +614,13 @@ export default function Users() {
                                             <UsersIcon className="h-3 w-3 sm:h-4 sm:w-4" />
                                             <span className="hidden xs:inline">Developers</span>
                                             <span className="xs:hidden">Dev</span>
+                                        </div>
+                                    </TabsTrigger>
+                                    <TabsTrigger value="crowd-tester" className="text-xs sm:text-sm px-2 sm:px-4">
+                                        <div className="flex items-center gap-1 sm:gap-2">
+                                            <UsersIcon className="h-3 w-3 sm:h-4 sm:w-4" />
+                                            <span className="hidden xs:inline">Crowd Tester</span>
+                                            <span className="xs:hidden">Crowd</span>
                                         </div>
                                     </TabsTrigger>
                                 </TabsList>

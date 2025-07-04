@@ -45,48 +45,6 @@ export function SignUpForm({
   const pathname = usePathname();
   const isClientPage = pathname === "/auth/sign-up";
 
-  // const formSchema = isClientPage
-  //   ? z.object({
-  //       email: z
-  //         .string()
-  //         .email({ message: "Please enter a valid email address" }),
-
-  //       password: z
-  //         .string()
-  //         .min(8, { message: "Password must be at least 8 characters" }),
-
-  //       firstName: z.string().min(1, { message: "First name is required" }),
-
-  //       lastName: z.string().min(1, { message: "Last name is required" }),
-
-  //       country: z
-  //         .string()
-  //         .min(1, { message: "Please select country" })
-  //         .optional(),
-
-  //       userCount: z.string().optional(),
-  //       companyName: z.string().min(1, { message: "Company name is required" }),
-  //     })
-  //   : z.object({
-  //       email: z
-  //         .string()
-  //         .email({ message: "Please enter a valid email address" }),
-
-  //       password: z
-  //         .string()
-  //         .min(8, { message: "Password must be at least 8 characters" }),
-
-  //       firstName: z.string().min(1, { message: "First name is required" }),
-
-  //       lastName: z.string().min(1, { message: "Last name is required" }),
-
-  //       country: z
-  //         .string()
-  //         .min(1, { message: "Please select country" })
-  //         .optional(),
-
-  //       companyName: z.string().optional(),
-  //     });
 
   const formSchema = isClientPage
     ? z

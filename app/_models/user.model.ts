@@ -24,6 +24,7 @@ export interface IUser extends Document {
   country?: string;
   setuser?: string;
   webAddress?: string;
+  createdBy?: string; // 'self' for self-signup, 'admin' for admin-created
 }
 
 const userSchema = new Schema<IUser>(
@@ -100,6 +101,11 @@ const userSchema = new Schema<IUser>(
     },
     webAddress: {
       type: String,
+    },
+    createdBy: {
+      type: String,
+      enum: ['self', 'admin'],
+      default: 'self',
     },
   },
   {

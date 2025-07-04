@@ -11,6 +11,7 @@ export const signUpSchema = z.object({
   country: z.string().min(1, { message: "Country is required" }),
   companyName: z.string().optional(),
   userCount: z.enum(["Please select user "]).optional(),
+  createdBy: z.enum(['self', 'admin']).optional(),
 });
 
 export const signInSchema = z.object({
