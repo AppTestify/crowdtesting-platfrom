@@ -242,7 +242,7 @@ export default function TestCases() {
       ),
       size: 120,
     },
-    ...(userData?.role != UserRoles.TESTER &&
+    ...(userData?.role != UserRoles.TESTER && userData?.role != UserRoles.CROWD_TESTER &&
       checkProjectActiveRole(project?.isActive ?? false, userData)
       ? [
           {
@@ -266,7 +266,28 @@ export default function TestCases() {
             size: 50,
           },
         ]
-      : []),
+      : userData?.role === UserRoles.CROWD_TESTER ? [
+          {
+            id: "actions",
+            enableHiding: false,
+            cell: ({ row }: { row: any }) => (
+              <TestCaseRowActions
+                row={row as unknown as Row<ITestCase>}
+                onEditClick={(testCase) => {
+                  setEditTestCase(testCase);
+                  setIsEditOpen(true);
+                }}
+                onViewClick={(testCase) => {
+                  setTestCase(testCase);
+                  setIsViewOpen(true);
+                }}
+                testSuites={testSuites}
+                refreshTestCases={refreshTestCases}
+              />
+            ),
+            size: 50,
+          },
+        ] : []),
   ], [testCases, userData, project, testSuites]);
 
   const [sorting, setSorting] = useState<SortingState>([]);

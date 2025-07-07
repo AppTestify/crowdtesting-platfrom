@@ -19,13 +19,12 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import {
-    Sheet,
-    SheetClose,
-    SheetContent,
-    SheetHeader,
-    SheetTitle,
-    SheetTrigger,
-} from "@/components/ui/sheet";
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -70,7 +69,7 @@ export function AddTestCase({ refreshTestCases, testSuites }: { refreshTestCases
         },
     ];
     const inputRef = useRef<HTMLInputElement | null>(null);
-    const [sheetOpen, setSheetOpen] = useState(false);
+    const [sheetOpen, setSheetOpen] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const { projectId } = useParams<{ projectId: string }>();
     const [selectedRequirements, setSelectedRequirements] = useState<string[]>([]);
@@ -78,7 +77,7 @@ export function AddTestCase({ refreshTestCases, testSuites }: { refreshTestCases
     const [clear, setClear] = useState<boolean>(false);
     const [testCaseId, setTestCaseId] = useState<string>("");
     const [testCase, setTestCase] = useState<ITestCase | null>(null);
-    const [activeTab, setActiveTab] = useState("test-case");
+    const [activeTab, setActiveTab] = useState<string>("test-case");
     const [attachments, setAttachments] = useState<File[]>([]);
 
     const form = useForm<z.infer<typeof testSuiteSchema>>({
@@ -207,25 +206,25 @@ export function AddTestCase({ refreshTestCases, testSuites }: { refreshTestCases
     }, [testCase]);
 
     useEffect(() => {
-        if (!sheetOpen) {
-            setAttachments([]);
-            form.setValue("attachments", []);
+        if (sheetOpen) {
+            setActiveTab("test-case");
+            resetForm();
         }
     }, [sheetOpen]);
 
     return (
-        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-            <SheetTrigger asChild>
+        <Dialog open={sheetOpen} onOpenChange={setSheetOpen}>
+            <DialogTrigger asChild>
                 <Button onClick={() => resetForm()} >
                     <Plus /> Add test case
                 </Button>
-            </SheetTrigger>
-            <SheetContent
-                className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto"
+            </DialogTrigger>
+            <DialogContent
+                className="w-full max-w-4xl max-h-[90vh] overflow-y-auto"
             >
-                <SheetHeader>
-                    <SheetTitle className="text-left">Add new test case</SheetTitle>
-                </SheetHeader>
+                <DialogHeader>
+                    <DialogTitle className="text-left">Add new test case</DialogTitle>
+                </DialogHeader>
 
                 <Tabs defaultValue="test-case" value={activeTab} onValueChange={setActiveTab} className="mt-4">
                     <TabsList>
@@ -459,17 +458,6 @@ export function AddTestCase({ refreshTestCases, testSuites }: { refreshTestCases
                                     }
 
                                     <div className="mt-6 w-full flex justify-end gap-2">
-                                        <SheetClose asChild>
-                                            <Button
-                                                disabled={isLoading}
-                                                type="button"
-                                                variant={"outline"}
-                                                size="lg"
-                                                className="w-full md:w-fit"
-                                            >
-                                                Cancel
-                                            </Button>
-                                        </SheetClose>
                                         <Button
                                             disabled={isLoading}
                                             type="submit"
@@ -495,7 +483,7 @@ export function AddTestCase({ refreshTestCases, testSuites }: { refreshTestCases
                     </TabsContent>
                 </Tabs>
 
-            </SheetContent>
-        </Sheet>
+            </DialogContent>
+        </Dialog>
     );
 }

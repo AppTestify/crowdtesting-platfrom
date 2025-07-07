@@ -1,4 +1,4 @@
-import { Sheet, SheetContent, SheetHeader } from "@/components/ui/sheet";
+import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
 import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import {
   Table,
@@ -47,7 +47,7 @@ const ViewTestCase = ({
   }
 
   return (
-    <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+    <Dialog open={sheetOpen} onOpenChange={setSheetOpen}>
       {/* test suite */}
       <ViewTestSuite
         sheetOpen={isTestSuiteOpen}
@@ -62,25 +62,18 @@ const ViewTestCase = ({
         setSheetOpen={setIsRequirementOpen}
         requirement={requirement as IRequirement}
       />
-      <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto">
-        <SheetHeader className="mb-4">
-          <div className="flex justify-between items-center mt-4">
-            <p className="text-xl font-medium capitalize">
-              <span className="mr-2 text-primary">{testCase?.customId}:</span>
-              {testCase?.title}
-            </p>
+
+      <DialogContent className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-semibold">View Test Case</h2>
+              <p className="text-sm text-muted-foreground">
+                Test case details and information
+              </p>
+            </div>
           </div>
-          <span className="text-mute text-sm">
-            {testCase?.userId?.firstName ? (
-              <span>
-                Created by {testCase?.userId?.firstName}{" "}
-                {testCase?.userId?.lastName}
-                {", "}
-              </span>
-            ) : null}
-            Created on {formatDate(testCase?.createdAt || "")}
-          </span>
-        </SheetHeader>
+        </DialogHeader>
         <DropdownMenuSeparator className="border-b" />
 
         <Tabs
@@ -207,8 +200,8 @@ const ViewTestCase = ({
             <ViewTestCaseData testCaseId={testCase?.id} />
           </TabsContent>
         </Tabs>
-      </SheetContent>
-    </Sheet>
+      </DialogContent>
+    </Dialog>
   );
 };
 

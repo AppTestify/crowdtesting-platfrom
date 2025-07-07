@@ -89,6 +89,11 @@ export default function Issues() {
   
 
   const showIssueRowActions = (issue: IIssue) => {
+    // Crowd testers cannot edit any issues
+    if (userData?.role === UserRoles.CROWD_TESTER) {
+      return false;
+    }
+    
     return (
       (checkProjectRole && project?.isActive) ||
       (project?.isActive &&
@@ -749,7 +754,8 @@ export default function Issues() {
               checkProjectActiveRole(project?.isActive ?? false, userData) &&
               (project?.isActive === true ||
                 userData?.role === UserRoles.ADMIN ||
-                userData?.role === UserRoles.TESTER) && (
+                userData?.role === UserRoles.TESTER ||
+                userData?.role === UserRoles.CROWD_TESTER) && (
                 <AddIssue refreshIssues={refreshIssues} />
               )}
           </div>

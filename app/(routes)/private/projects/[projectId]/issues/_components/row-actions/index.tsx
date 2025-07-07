@@ -65,6 +65,14 @@ export function IssueRowActions({
     }
   };
 
+  // Check if user can edit this issue (crowd testers cannot edit any issues)
+  const canEditIssue = () => {
+    if (userData?.role === UserRoles.CROWD_TESTER) {
+      return false; // Crowd testers cannot edit any issues
+    }
+    return true; // Other roles can edit any issue
+  };
+
   return (
     <>
       {/* <EditIssue
@@ -112,27 +120,20 @@ export function IssueRowActions({
               <Eye className="h-2 w-2" /> View
             </DropdownMenuItem>
           </Link>
-          <DropdownMenuSeparator className="border-b" />
-          {/* {userData?.role === UserRoles.CLIENT ?
-            <DropdownMenuItem
-              className="mb-1"
-              onClick={() => {
-                setIsEditStatusOpen(true);
-              }}
-            >
-              <Edit className="h-2 w-2" /> Edit Issue
-            </DropdownMenuItem>
-            : */}
-          <DropdownMenuItem
-            className="mb-1"
-            onClick={() => {
-              onEditClick(row.original);
-            }}
-          >
-            <Edit className="h-2 w-2" /> Edit
-          </DropdownMenuItem>
-          {/* } */}
-          {userData?.role != UserRoles.TESTER && (
+          {canEditIssue() && (
+            <>
+              <DropdownMenuSeparator className="border-b" />
+              <DropdownMenuItem
+                className="mb-1"
+                onClick={() => {
+                  onEditClick(row.original);
+                }}
+              >
+                <Edit className="h-2 w-2" /> Edit
+              </DropdownMenuItem>
+            </>
+          )}
+          {userData?.role != UserRoles.TESTER && userData?.role != UserRoles.CROWD_TESTER && (
             <>
               <DropdownMenuSeparator className="border-b" />
               <DropdownMenuItem

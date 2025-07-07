@@ -118,6 +118,19 @@ const EditIssue = ({
     useState<ProjectUserRoles | null>(null);
 
   useEffect(() => {
+    if (data) {
+      const { user } = data;
+      setUserData(user);
+      
+      // Prevent crowd testers from editing issues
+      if ((user as any)?.role === UserRoles.CROWD_TESTER) {
+        setSheetOpen(false);
+        return;
+      }
+    }
+  }, [data, setSheetOpen]);
+
+  useEffect(() => {
     if (data && users?.length) {
       const { user } = data;
       const userObj: any = { ...user };
@@ -437,11 +450,12 @@ const EditIssue = ({
                       <Select
                         onValueChange={field.onChange}
                         disabled={
-                          userData?.role === UserRoles.TESTER &&
+                          userData?.role === UserRoles.CROWD_TESTER ||
+                          (userData?.role === UserRoles.TESTER &&
                           !checkProjectRole &&
                           form.watch("status") !==
                           IssueStatus.READY_FOR_RETEST &&
-                          !ISSUE_TESTER_STATUS_LIST.includes(field.value as any)
+                          !ISSUE_TESTER_STATUS_LIST.includes(field.value as any))
                         }
                         value={field.value}
                       >
@@ -449,7 +463,13 @@ const EditIssue = ({
                           <SelectValue>{field.value || ""}</SelectValue>
                         </SelectTrigger>
                         <SelectContent className="h-72">
-                          {userData?.role === UserRoles.TESTER &&
+                          {userData?.role === UserRoles.CROWD_TESTER ? (
+                            <SelectGroup>
+                              <SelectItem value={field.value || ""} disabled>
+                                {field.value || "Status cannot be changed"}
+                              </SelectItem>
+                            </SelectGroup>
+                          ) : userData?.role === UserRoles.TESTER &&
                             !checkProjectRole ? (
                             <SelectGroup>
                               {ISSUE_TESTER_STATUS_LIST.map((status) => (

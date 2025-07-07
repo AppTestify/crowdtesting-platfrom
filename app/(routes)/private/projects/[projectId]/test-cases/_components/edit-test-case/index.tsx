@@ -5,12 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 import {
-    Sheet,
-    SheetClose,
-    SheetContent,
-    SheetHeader,
-    SheetTitle,
-} from "@/components/ui/sheet";
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 import {
     Form,
     FormControl,
@@ -153,11 +152,11 @@ export function EditTestCase({
     }, [sheetOpen]);
 
     return (
-        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-            <SheetContent className="w-full !max-w-full md:w-[550px] md:!max-w-[550px] overflow-y-auto">
-                <SheetHeader>
-                    <SheetTitle className="text-left">Edit test case</SheetTitle>
-                </SheetHeader>
+        <Dialog open={sheetOpen} onOpenChange={setSheetOpen}>
+            <DialogContent className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                    <DialogTitle className="text-left">Edit test case</DialogTitle>
+                </DialogHeader>
                 <Tabs defaultValue="test-case" value={activeTab} onValueChange={setActiveTab} className="mt-4">
                     <TabsList>
                         <TabsTrigger value="test-case" >Test case</TabsTrigger>
@@ -327,17 +326,16 @@ export function EditTestCase({
                                     />
 
                                     <div className="mt-8 w-full flex justify-end gap-2">
-                                        <SheetClose asChild>
-                                            <Button
-                                                disabled={isLoading}
-                                                type="button"
-                                                variant={"outline"}
-                                                size="lg"
-                                                className="w-full md:w-fit"
-                                            >
-                                                Cancel
-                                            </Button>
-                                        </SheetClose>
+                                        <Button
+                                            disabled={isLoading}
+                                            type="button"
+                                            variant={"outline"}
+                                            size="lg"
+                                            className="w-full md:w-fit"
+                                            onClick={() => setSheetOpen(false)}
+                                        >
+                                            Cancel
+                                        </Button>
                                         <Button
                                             disabled={isLoading}
                                             type="submit"
@@ -361,7 +359,7 @@ export function EditTestCase({
                         <TestCaseData testCaseId={testCaseId} />
                     </TabsContent>
                 </Tabs>
-            </SheetContent>
-        </Sheet>
+            </DialogContent>
+        </Dialog>
     );
 }
