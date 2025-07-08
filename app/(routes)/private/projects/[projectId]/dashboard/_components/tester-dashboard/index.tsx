@@ -91,14 +91,14 @@ export default function ProjectTesterDashboard() {
                         {userData?.role === UserRoles.CROWD_TESTER ? (
                             <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 hover:shadow-lg transition-all duration-300">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                                    <CardTitle className="text-sm font-medium text-green-800">Test Cases</CardTitle>
+                                    <CardTitle className="text-sm font-medium text-green-800">Test Execution</CardTitle>
                                     <div className="p-2 bg-green-200 rounded-full">
                                         <CheckCircle className="h-5 w-5 text-green-600" />
                                     </div>
                                 </CardHeader>
                                 <CardContent className="pt-0">
-                                    <div className="text-3xl font-bold text-green-900">{dashboard?.totalTestCases || 0}</div>
-                                    <p className="text-xs text-green-600 mt-2 font-medium">Available cases</p>
+                                    <div className="text-3xl font-bold text-green-900">{dashboard?.totalTestExecutions || 0}</div>
+                                    <p className="text-xs text-green-600 mt-2 font-medium">Active executions</p>
                                 </CardContent>
                             </Card>
                         ) : (

@@ -25,7 +25,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
 import { formatDate } from "@/app/_constants/date-formatter";
-import { getTestCaseService } from "@/app/_services/test-case.service";
+import { getTestCaseService, exportTestCasesService } from "@/app/_services/test-case.service";
 import { ITestCase } from "@/app/_interface/test-case";
 import { AddTestCase } from "./_components/add-test-case";
 import toasterService from "@/app/_services/toaster-service";
@@ -33,7 +33,7 @@ import { getTestWithoutPaginationSuiteService } from "@/app/_services/test-suite
 import { ITestSuite } from "@/app/_interface/test-suite";
 import { TestCaseRowActions } from "./_components/row-actions";
 import ViewTestCase from "./_components/view-test-case";
-import { ArrowUpDown, X, Search, ChevronLeft, ChevronRight, TestTube, User, Loader2, AlertTriangle, CheckCircle2, Zap } from "lucide-react";
+import { ArrowUpDown, X, Search, ChevronLeft, ChevronRight, TestTube, User, Loader2, AlertTriangle, CheckCircle2, Zap, Download, Upload, FileSpreadsheet, FileText } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
 import {
@@ -51,9 +51,12 @@ import { checkProjectActiveRole } from "@/app/_utils/common-functionality";
 import { getProjectService } from "@/app/_services/project.service";
 import { IProject } from "@/app/_interface/project";
 import { EditTestCase } from "./_components/edit-test-case";
+import { ImportTestCases } from "./_components/import-test-cases";
+import { generateExcelFile } from "@/app/_helpers/generate-excel.helper";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { TEST_CASE_SEVERITY, TEST_TYPE } from "@/app/_constants/test-case";
 import { IRequirement } from "@/app/_interface/requirement";
 
@@ -68,6 +71,8 @@ export default function TestCases() {
   const [isViewOpen, setIsViewOpen] = useState<boolean>(false);
   const [editTestCase, setEditTestCase] = useState<ITestCase | null>(null);
   const [isEditOpen, setIsEditOpen] = useState<boolean>(false);
+  const [isExcelLoading, setIsExcelLoading] = useState(false);
+  const [isCsvLoading, setIsCsvLoading] = useState(false);
 
   // Statistics calculations
   const statistics = useMemo(() => {
@@ -418,6 +423,45 @@ export default function TestCases() {
     setRowSelection({});
   };
 
+  const exportExcel = async () => {
+    setIsExcelLoading(true);
+    try {
+      const response = await exportTestCasesService(projectId, 'excel');
+      if (response && response.data) {
+        const headers = response.headers;
+        const data = response.data;
+        
+        generateExcelFile(
+          headers,
+          data,
+          `Test-Cases-${project?.title || 'Export'}-${new Date().toISOString().split('T')[0]}.xlsx`
+        );
+        
+        toasterService.success('Test cases exported to Excel successfully');
+      }
+    } catch (error) {
+      console.error('Excel export error:', error);
+      toasterService.error('Failed to export test cases to Excel');
+    } finally {
+      setIsExcelLoading(false);
+    }
+  };
+
+  const exportCsv = async () => {
+    setIsCsvLoading(true);
+    try {
+      await exportTestCasesService(projectId, 'csv');
+      toasterService.success('Test cases exported to CSV successfully');
+    } catch (error) {
+      console.error('CSV export error:', error);
+      toasterService.error('Failed to export test cases to CSV');
+    } finally {
+      setIsCsvLoading(false);
+    }
+  };
+
+
+
   const table = useReactTable({
     data: testCases,
     columns,
@@ -482,13 +526,47 @@ export default function TestCases() {
             Manage your test scenarios and validation procedures
           </p>
         </div>
-        {userData?.role != UserRoles.TESTER && userData?.role != UserRoles.CROWD_TESTER &&
-          checkProjectActiveRole(project?.isActive ?? false, userData) && (
-            <AddTestCase
-              refreshTestCases={refreshTestCases}
-              testSuites={testSuites}
-            />
-          )}
+        <div className="flex items-center gap-2">
+          {/* Export Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="flex items-center gap-2">
+                <Download className="h-4 w-4" />
+                Export
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={exportExcel} disabled={isExcelLoading}>
+                {isExcelLoading ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <FileSpreadsheet className="h-4 w-4 mr-2" />
+                )}
+                Export to Excel
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={exportCsv} disabled={isCsvLoading}>
+                {isCsvLoading ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <FileText className="h-4 w-4 mr-2" />
+                )}
+                Export to CSV
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Import Test Cases Modal */}
+          <ImportTestCases refreshTestCases={refreshTestCases} />
+
+          {/* Add Test Case Button */}
+          {userData?.role != UserRoles.TESTER &&
+            checkProjectActiveRole(project?.isActive ?? false, userData) && (
+              <AddTestCase
+                refreshTestCases={refreshTestCases}
+                testSuites={testSuites}
+              />
+            )}
+        </div>
       </div>
 
       {/* Statistics Cards */}

@@ -45,6 +45,7 @@ export const addTestCaseService = async (
     formData.append("projectId", projectId);
     formData.append("testSuite", body?.testSuite);
     formData.append("expectedResult", body?.expectedResult);
+    formData.append("precondition", body?.precondition || "");
     if (body?.requirements && Array.isArray(body.requirements)) {
       body.requirements.forEach((requirements) => {
         formData.append("requirements[]", requirements);
@@ -167,6 +168,75 @@ export const addTestCaseAttachmentsService = async (
     return response || {};
   } catch (error) {
     console.error(`Error > addTestCaseAttachmentsService:`, error);
+    throw error;
+  }
+};
+
+export const exportTestCasesService = async (projectId: string, format: 'excel' | 'csv' = 'excel') => {
+  try {
+    if (format === 'csv') {
+      // For CSV, make a direct request to get the CSV file
+      const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/project/${projectId}/test-cases/export?format=csv`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to export test cases as CSV');
+      }
+
+      // Trigger download
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `test-cases-export-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      return { message: 'CSV export completed successfully' };
+    } else {
+      // For Excel, get the data and use the existing Excel generation
+      const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/project/${projectId}/test-cases/export`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to export test cases');
+      }
+
+      return await response.json();
+    }
+  } catch (error) {
+    console.error('Export test cases error:', error);
+    throw error;
+  }
+};
+
+export const importTestCasesService = async (projectId: string, file: File) => {
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/project/${projectId}/test-cases/import`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to import test cases');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Import test cases error:', error);
     throw error;
   }
 };
