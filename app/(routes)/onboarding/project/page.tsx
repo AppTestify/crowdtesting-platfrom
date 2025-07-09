@@ -90,37 +90,74 @@ const CreateProject = () => {
   }, []);
 
   return (
-    <div className="flex justify-center mt-2 md:px-5 lg:px-5 w-full ">
-      {/* Always show SetupSteps except on mobile */}
-      {!isMobile && <SetupSteps step={steps} />}
+    <div className="flex flex-col lg:flex-row gap-8 max-w-7xl mx-auto">
+      {/* Desktop Status Bar - Left Sidebar */}
+      {!isMobile && (
+        <div className="lg:w-80 lg:flex-shrink-0">
+          <div className="sticky top-24">
+            <SetupSteps step={steps} />
+          </div>
+        </div>
+      )}
 
-      <div className="overflow-y-scroll no-scrollbar h-[85vh] w-full">
-        {isMobile && <MobileStatusBar step={steps} />}
+      {/* Main Content Area */}
+      <div className="flex-1 min-h-0">
+        {/* Mobile Status Bar */}
+        {isMobile && (
+          <div className="mb-6">
+            <MobileStatusBar step={steps} />
+          </div>
+        )}
 
-        {steps === 1 ? (
-          <Project
-            formData={formData}
-            setFormData={setFormData}
-            setSteps={setSteps}
-          />
-        ) : steps === 2 ? (
-          <PricingCards
-            formData={formData}
-            setFormData={setFormData}
-            setSteps={setSteps}
-            pricingData={pricingData}
-            selectedPricing={selectedPricing}
-            setSelectedPricing={setSelectedPricing}
-          />
-        ) : steps === 3 ? (
-          <InvitePage
-            formData={formData}
-            setFormData={setFormData}
-            setSteps={setSteps}
-            addOnboarding={addOnboarding}
-            testers={testers}
-          />
-        ) : null}
+        {/* Content with smooth transitions */}
+        <div className="relative">
+          <div 
+            className={`transition-all duration-500 ease-in-out ${
+              steps === 1 ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4 absolute inset-0 pointer-events-none'
+            }`}
+          >
+            {steps === 1 && (
+              <Project
+                formData={formData}
+                setFormData={setFormData}
+                setSteps={setSteps}
+              />
+            )}
+          </div>
+
+          <div 
+            className={`transition-all duration-500 ease-in-out ${
+              steps === 2 ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4 absolute inset-0 pointer-events-none'
+            }`}
+          >
+            {steps === 2 && (
+              <PricingCards
+                formData={formData}
+                setFormData={setFormData}
+                setSteps={setSteps}
+                pricingData={pricingData}
+                selectedPricing={selectedPricing}
+                setSelectedPricing={setSelectedPricing}
+              />
+            )}
+          </div>
+
+          <div 
+            className={`transition-all duration-500 ease-in-out ${
+              steps === 3 ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4 absolute inset-0 pointer-events-none'
+            }`}
+          >
+            {steps === 3 && (
+              <InvitePage
+                formData={formData}
+                setFormData={setFormData}
+                setSteps={setSteps}
+                addOnboarding={addOnboarding}
+                testers={testers}
+              />
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
