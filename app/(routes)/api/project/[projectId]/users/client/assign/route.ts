@@ -66,7 +66,8 @@ export async function POST(req: Request) {
 
     // Verify project belongs to the client
     const project = await Project.findById(projectId);
-    if (!project || project.userId !== authSession.user._id) {
+    if (!project || String(project.userId) !== String(authSession.user._id)) {
+      console.log("Project not found or access denied", project, authSession.user._id);
       return Response.json(
         { message: "Project not found or access denied" },
         { status: HttpStatusCode.NOT_FOUND }

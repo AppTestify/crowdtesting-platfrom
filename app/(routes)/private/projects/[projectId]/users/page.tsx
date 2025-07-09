@@ -278,7 +278,7 @@ export default function ProjectUsers() {
           },
         ]
       : []),
-    ...(userData?.role === UserRoles.ADMIN
+    ...(userData?.role === UserRoles.ADMIN || userData?.role === UserRoles.CLIENT
       ? [
           {
             id: "actions",
@@ -570,7 +570,7 @@ export default function ProjectUsers() {
                   userLimit={userLimit}
                   currentUserCount={currentUserCount}
                 />
-                {/* <AssignClientUserToProject refreshProjectUsers={refreshProjectUsers} /> */}
+                <AssignClientUserToProject refreshProjectUsers={refreshProjectUsers} />
               </div>
             )}
           </div>

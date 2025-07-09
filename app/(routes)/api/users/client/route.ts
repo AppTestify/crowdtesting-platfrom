@@ -48,13 +48,14 @@ export async function GET(req: Request) {
     const status = url.searchParams.get("status");
     const searchString = url.searchParams.get("searchString");
     
-    // Filter to only show users created/invited by this client
+    // Filter to only show users created/invited by this client or with matching clientId
     const sessionUserId = session.user.id || session.user._id;
     const filter: any = { 
       _id: { $ne: sessionUserId },
       $or: [
         { createdBy: 'client', clientId: sessionUserId },
-        { invitedBy: sessionUserId }
+        { invitedBy: sessionUserId },
+        { clientId: sessionUserId }
       ]
     };
     

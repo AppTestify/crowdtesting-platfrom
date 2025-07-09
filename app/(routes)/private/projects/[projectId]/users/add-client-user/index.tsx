@@ -79,16 +79,21 @@ export function AddClientUser({ refreshUsers, userLimit, currentUserCount }: {
       );
 
       if (response) {
-        if (response.status === HttpStatusCode.BAD_REQUEST) {
-          toasterService.error(response?.message);
+        if (
+          response.status === HttpStatusCode.BAD_REQUEST ||
+          (typeof response.message === 'string' && response.message.includes('User limit reached'))
+        ) {
+          // Show the backend error message
+          toasterService.error(response?.message || "Failed to add user");
           return;
         }
         localStorage.setItem("userId", response?.user?._id);
         refreshUsers();
         toasterService.success(response?.message);
       }
-    } catch (error) {
-      toasterService.error();
+    } catch (error: any) {
+      // If error is an object with a message, show it
+      toasterService.error(error?.message || "Failed to add user");
     } finally {
       setDialogOpen(false);
       setIsLoading(false);
