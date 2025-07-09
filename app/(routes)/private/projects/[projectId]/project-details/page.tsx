@@ -87,7 +87,7 @@ export default function TestInstruction() {
     };
 
     const commonProjectRoleCheck = () => {
-        return userData?.role !== UserRoles.TESTER && userData?.role !== UserRoles.MANAGER && userData?.role !== UserRoles.DEVELOPER
+        return userData?.role !== UserRoles.TESTER && userData?.role !== UserRoles.CROWD_TESTER && userData?.role !== UserRoles.MANAGER && userData?.role !== UserRoles.DEVELOPER
             && checkProjectActiveRole(project?.isActive ?? false, userData);
     }
 

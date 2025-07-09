@@ -13,8 +13,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Row } from "@tanstack/react-table";
 import { Eye, MoreHorizontal, Trash } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TestExecutionView from "../view-test-execution";
+import { useSession } from "next-auth/react";
+import { UserRoles } from "@/app/_constants/user-roles";
 
 export function TestExecutionRowActions({
     row,
@@ -28,8 +30,18 @@ export function TestExecutionRowActions({
     const [isViewOpen, setIsViewOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [userData, setUserData] = useState<any>();
+    const { data } = useSession();
     const projectId = row.original.projectId as string;
     const testCycleId = row.original.id as string;
+
+    useEffect(() => {
+        if (data) {
+            const { user } = data;
+            setUserData(user);
+        }
+    }, [data]);
+
     const deleteTestCycle = async () => {
         try {
             setIsLoading(true);
@@ -48,6 +60,31 @@ export function TestExecutionRowActions({
             setIsLoading(false);
         }
     };
+
+    // For crowd testers, only show view option
+    if (userData?.role === UserRoles.CROWD_TESTER) {
+        return (
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                        <span className="sr-only">Open menu</span>
+                        <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                        className="mb-1"
+                        onClick={() => {
+                            onViewClick(row.original);
+                            setIsViewOpen(true);
+                        }}
+                    >
+                        <Eye className="h-2 w-2" /> View
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+        );
+    }
 
     return (
         <>

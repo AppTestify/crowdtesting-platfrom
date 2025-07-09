@@ -63,6 +63,7 @@ export const defaultTabsAccess = [
     key: "DASHBOARD",
     roles: [
       UserRoles.TESTER,
+      UserRoles.CROWD_TESTER,
       UserRoles.ADMIN,
       UserRoles.CLIENT,
       UserRoles.MANAGER,
@@ -75,6 +76,7 @@ export const defaultTabsAccess = [
     key: "PROJECT_DETAILS",
     roles: [
       UserRoles.TESTER,
+      UserRoles.CROWD_TESTER,
       UserRoles.ADMIN,
       UserRoles.CLIENT,
       UserRoles.MANAGER,
@@ -98,6 +100,7 @@ export const defaultTabsAccess = [
     key: "REQUIREMENTS",
     roles: [
       UserRoles.TESTER,
+      UserRoles.CROWD_TESTER,
       UserRoles.ADMIN,
       UserRoles.CLIENT,
       UserRoles.MANAGER,
@@ -110,6 +113,7 @@ export const defaultTabsAccess = [
     key: "TEST_PLANS",
     roles: [
       UserRoles.TESTER,
+      UserRoles.CROWD_TESTER,
       UserRoles.ADMIN,
       UserRoles.CLIENT,
       UserRoles.MANAGER,
@@ -122,6 +126,7 @@ export const defaultTabsAccess = [
     key: "TEST_SUITES",
     roles: [
       UserRoles.TESTER,
+      UserRoles.CROWD_TESTER,
       UserRoles.ADMIN,
       UserRoles.CLIENT,
       UserRoles.MANAGER,
@@ -134,6 +139,7 @@ export const defaultTabsAccess = [
     key: "TEST_CASES",
     roles: [
       UserRoles.TESTER,
+      UserRoles.CROWD_TESTER,
       UserRoles.ADMIN,
       UserRoles.CLIENT,
       UserRoles.MANAGER,
@@ -146,6 +152,7 @@ export const defaultTabsAccess = [
     key: "TEST_EXECUTIONS",
     roles: [
       UserRoles.TESTER,
+      UserRoles.CROWD_TESTER,
       UserRoles.ADMIN,
       UserRoles.CLIENT,
       UserRoles.MANAGER,
@@ -158,6 +165,7 @@ export const defaultTabsAccess = [
     key: "ISSUES",
     roles: [
       UserRoles.TESTER,
+      UserRoles.CROWD_TESTER,
       UserRoles.ADMIN,
       UserRoles.CLIENT,
       UserRoles.MANAGER,
@@ -170,6 +178,7 @@ export const defaultTabsAccess = [
     key: "TASKS",
     roles: [
       UserRoles.TESTER,
+      UserRoles.CROWD_TESTER,
       UserRoles.ADMIN,
       UserRoles.CLIENT,
       UserRoles.MANAGER,
@@ -182,6 +191,7 @@ export const defaultTabsAccess = [
     key: "TEST_CYCLE",
     roles: [
       UserRoles.TESTER,
+      UserRoles.CROWD_TESTER,
       UserRoles.ADMIN,
       UserRoles.CLIENT,
       UserRoles.MANAGER,
@@ -194,6 +204,7 @@ export const defaultTabsAccess = [
     key: "REPORTS",
     roles: [
       UserRoles.TESTER,
+      UserRoles.CROWD_TESTER,
       UserRoles.ADMIN,
       UserRoles.CLIENT,
       UserRoles.MANAGER,

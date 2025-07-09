@@ -7,6 +7,7 @@ export interface ISignUpPayload {
   firstName?: string;
   lastName?: string;
   country?: string;
+  createdBy?: 'self' | 'admin';
 }
 
 export interface ISignInPayload {

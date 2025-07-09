@@ -11,13 +11,16 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Row } from "@tanstack/react-table";
 import { Edit, Eye, MoreHorizontal, Trash } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { deleteTestCaseService } from "@/app/_services/test-case.service";
 import { ITestCase } from "@/app/_interface/test-case";
 import { EditTestCase } from "../edit-test-case";
 import { ITestSuite } from "@/app/_interface/test-suite";
 import ViewTestCase from "../view-test-case";
 import { TestCase } from "@/app/_constants/test-case";
+import { useSession } from "next-auth/react";
+import { UserRoles } from "@/app/_constants/user-roles";
+import { useParams } from "next/navigation";
 
 export function TestCaseRowActions({
     row,
@@ -32,15 +35,23 @@ export function TestCaseRowActions({
     testSuites: ITestSuite[];
     refreshTestCases: () => void;
 }) {
-    // const [isEditOpen, setIsEditOpen] = useState(false);
-    const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-    const testSuiteId = row.original.id as string;
-    const projectId = row.original.projectId as string;
+    const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const { data } = useSession();
+    const [userData, setUserData] = useState<any>();
+    const { projectId } = useParams<{ projectId: string }>();
+
+    useEffect(() => {
+        if (data) {
+            const { user } = data;
+            setUserData(user);
+        }
+    }, [data]);
+
     const deleteCaseSuite = async () => {
         try {
             setIsLoading(true);
-            const response = await deleteTestCaseService(projectId, testSuiteId);
+            const response = await deleteTestCaseService(projectId, row.original.id as string);
 
             if (response?.message) {
                 setIsLoading(false);
@@ -54,6 +65,31 @@ export function TestCaseRowActions({
             console.log("Error > deleteCaseSuite");
         }
     };
+
+    // For crowd testers, only show view option
+    if (userData?.role === UserRoles.CROWD_TESTER) {
+        return (
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild >
+                    <Button variant="ghost" className="h-8 w-8 p-0" >
+                        <span className="sr-only" > Open menu </span>
+                        < MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                </DropdownMenuTrigger>
+                < DropdownMenuContent align="end" >
+                    <DropdownMenuItem
+                        className="mb-1"
+                        onClick={() => {
+                            onViewClick(row.original);
+                        }}
+                    >
+                        <Eye className="h-2 w-2" /> View
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+        );
+    }
+
     return (
         <>
             

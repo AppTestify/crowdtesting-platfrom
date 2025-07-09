@@ -460,7 +460,7 @@ export default function Projects() {
               refreshProjects={refreshProjects}
             />
           )}
-          {userData?.role !== UserRoles.TESTER && (
+          {userData?.role !== UserRoles.TESTER && userData?.role !== UserRoles.CROWD_TESTER && (
             <AddProject refreshProjects={refreshProjects} />
           )}
         </div>

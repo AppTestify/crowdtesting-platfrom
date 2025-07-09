@@ -58,7 +58,7 @@ const EditProjectUser = ({
     const form = useForm<z.infer<typeof projectUserSchema>>({
         resolver: zodResolver(projectUserSchema),
         defaultValues: {
-            userId: userId?._id || undefined,
+            userId: projectUser?.userId?._id || projectUser?.userId, // always use MongoDB ObjectId as string
             role: role || undefined
         },
     });
@@ -98,7 +98,7 @@ const EditProjectUser = ({
                                             <FormLabel>Select tester</FormLabel>
                                             <Input disabled
                                                 {...field}
-                                                value={`${projectUser?.customId}`} />
+                                                value={`${projectUser?.userId?.firstName || ""} ${projectUser?.userId?.lastName || ""}`.trim()} />
                                             <FormMessage />
                                         </FormItem>
                                     )}

@@ -2,7 +2,7 @@ import { formatDate } from '@/app/_constants/date-formatter';
 import { ITestExecution } from '@/app/_interface/test-execution';
 import { displayDate } from '@/app/_utils/common-functionality';
 import { DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
-import { Sheet, SheetContent, SheetHeader } from '@/components/ui/sheet';
+import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog';
 import React from 'react'
 
 export default function TestExecutionView({ sheetOpen, setSheetOpen, testExecution }:
@@ -13,16 +13,48 @@ export default function TestExecutionView({ sheetOpen, setSheetOpen, testExecuti
     }
 ) {
     return (
-        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-            <SheetContent className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto">
-                <SheetHeader className="mb-4">
-                    <div className="flex justify-between items-center mt-4">
-                        <p className="text-xl font-medium capitalize">
-                            <span className="mr-2 text-primary">{testExecution?.customId}:</span>
-                            {testExecution?.testCycle?.title}
-                        </p>
+        <Dialog open={sheetOpen} onOpenChange={setSheetOpen}>
+            <DialogContent className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                    <div className="flex justify-between items-center">
+                        <div>
+                            <h2 className="text-xl font-semibold">View Test Execution</h2>
+                            <p className="text-sm text-muted-foreground">
+                                Test execution details and information
+                            </p>
+                        </div>
                     </div>
-                    <span className="text-mute text-sm">
+                </DialogHeader>
+                <DropdownMenuSeparator className="border-b" />
+                
+                <div className="space-y-4">
+                    <div className="flex justify-between">
+                        <div>
+                            <span className="text-lg font-medium">Title</span>
+                            <div className="text-sm text-gray-600">
+                                {testExecution?.testCycle?.title}
+                            </div>
+                        </div>
+                        <div>
+                            {displayDate(testExecution)}
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <span className="text-lg font-medium">Type</span>
+                        <div className="text-sm text-gray-600">
+                            {testExecution?.type}
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <span className="text-lg font-medium">Description</span>
+                        <div className="text-sm text-gray-600">
+                            {testExecution?.testCycle?.description}
+                        </div>
+                    </div>
+                    
+                    <div className="text-xs text-gray-500">
                         {testExecution?.userId?.firstName ? (
                             <span>
                                 Created by {testExecution?.userId?.firstName}{" "}
@@ -30,34 +62,10 @@ export default function TestExecutionView({ sheetOpen, setSheetOpen, testExecuti
                             </span>
                         ) : null}
                         Created on {formatDate(testExecution?.createdAt || "")}
-                    </span>
-                </SheetHeader>
-                <DropdownMenuSeparator className="border-b" />
-                <div className='flex justify-between'>
-                    <div className="mt-2">
-                        <span className="text-[20px]">Title</span>
-                        <div className="text-sm">
-                            {testExecution?.testCycle?.title}
-                        </div>
-                    </div>
-                    <div className='mt-2'>
-                        {displayDate(testExecution)}
-                    </div>
-                </div>
-                <div className="mt-3 ">
-                    <span className="text-[20px]">Type</span>
-                    <div className=" flex items-center ">
-                        {testExecution?.type}
-                    </div>
-                </div>
-                <div className="mt-3">
-                    <span className="text-[20px]">Description</span>
-                    <div className="text-sm">
-                        {testExecution?.testCycle?.description}
                     </div>
                 </div>
 
-            </SheetContent>
-        </Sheet>
+            </DialogContent>
+        </Dialog>
     )
 }

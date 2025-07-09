@@ -426,7 +426,7 @@ export default function TestSuite() {
               Organize and manage collections of test cases and requirements
             </p>
           </div>
-          {userData?.role != UserRoles.TESTER &&
+          {userData?.role != UserRoles.TESTER && userData?.role != UserRoles.CROWD_TESTER &&
             checkProjectActiveRole(project?.isActive ?? false, userData) && (
               <AddTestSuite refreshTestSuites={refreshTestSuites} />
             )}

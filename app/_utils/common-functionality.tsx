@@ -84,6 +84,8 @@ export const showUsersRoleInBadges = (role: UserRoles) => {
             return <Badge className="bg-primary hover:bg-primary font-medium">{UserRoles.CLIENT}</Badge>;
         case UserRoles.TESTER:
             return <Badge className="bg-blue-400 hover:bg-blue-400 font-medium">{UserRoles.TESTER}</Badge>;
+        case UserRoles.CROWD_TESTER:
+            return <Badge className="bg-green-400 hover:bg-green-400 font-medium">{UserRoles.CROWD_TESTER}</Badge>;
         case UserRoles.MANAGER:
             return <Badge className="bg-orange-400 hover:bg-orange-400 font-medium">{UserRoles.MANAGER}</Badge>;
         case UserRoles.DEVELOPER:
@@ -114,6 +116,8 @@ export const statusBadgeProjectUserRole = (role: string) => {
             return <Badge className="bg-primary hover:bg-primary font-medium">{ProjectUserRoles.CLIENT}</Badge>;
         case ProjectUserRoles.TESTER:
             return <Badge className="bg-blue-400 hover:bg-blue-400 font-medium">{ProjectUserRoles.TESTER}</Badge>;
+        case ProjectUserRoles.CROWD_TESTER:
+            return <Badge className="bg-green-400 hover:bg-green-400 font-medium">{ProjectUserRoles.CROWD_TESTER}</Badge>;
         case ProjectUserRoles.MANAGER:
             return <Badge className="bg-orange-400 hover:bg-orange-400 font-medium">{ProjectUserRoles.MANAGER}</Badge>;
         case ProjectUserRoles.DEVELOPER:

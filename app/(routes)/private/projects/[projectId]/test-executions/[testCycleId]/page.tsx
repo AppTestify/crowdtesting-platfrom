@@ -233,6 +233,33 @@ export default function TestCasesInTestExecution() {
                         </div>
                     );
                 }
+                
+                // For crowd testers, disable execute button if test case is passed
+                if (userData?.role === UserRoles.CROWD_TESTER && result === TestCaseExecutionResult.PASSED) {
+                    return (
+                        <div className="flex items-center gap-2">
+                            {showTestCaseResultStatusBadge(result as string)}
+                            <TooltipProvider>
+                                <Tooltip delayDuration={100}>
+                                    <TooltipTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="h-8 w-8 p-0 bg-gray-100 border-gray-200 cursor-not-allowed"
+                                            disabled
+                                        >
+                                            <PlayCircle className="h-4 w-4 text-gray-400" />
+                                        </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>Test case already passed - cannot re-execute</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                        </div>
+                    );
+                }
+                
                 return showTestCaseResultStatusBadge(result as string);
             },
         },

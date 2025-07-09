@@ -35,8 +35,8 @@ export async function GET(req: Request) {
 
     const userIdFormat = await IdFormat.findOne({ entity: DBModels.USER });
     const response = addCustomIds(
-      await User.find({ role: UserRoles.TESTER })
-        .select("firstName lastName email customId")
+      await User.find({ role: { $in: [UserRoles.TESTER, UserRoles.CROWD_TESTER] } })
+        .select("firstName lastName email customId role")
         .lean(),
       userIdFormat.idFormat
     );

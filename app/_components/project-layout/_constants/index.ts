@@ -33,6 +33,13 @@ export const getProjectTabs = (user: any) => {
         "test cycle",
         "reports",
       ];
+    case UserRoles.CROWD_TESTER:
+      return [
+        "dashboard",
+        // "test cases",
+        "test executions",
+        "issues",
+      ];
     case UserRoles.CLIENT:
       return [
         "dashboard",

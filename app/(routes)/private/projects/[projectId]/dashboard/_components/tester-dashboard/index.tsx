@@ -6,7 +6,9 @@ import { Card, CardDescription, CardHeader, CardTitle, CardContent } from '@/com
 import { useParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 import { Badge } from '@/components/ui/badge';
-import { Activity, Bug, TestTube, Zap, AlertTriangle, Target, BarChart3, TrendingUp, CheckCircle2 } from 'lucide-react';
+import { Activity, Bug, TestTube, Zap, AlertTriangle, Target, BarChart3, TrendingUp, CheckCircle2, CheckCircle } from 'lucide-react';
+import { useSession } from "next-auth/react";
+import { UserRoles } from "@/app/_constants/user-roles";
 
 // Simple Progress component
 const Progress = ({ value = 0, className = "" }: { value?: number; className?: string }) => (
@@ -22,6 +24,8 @@ export default function ProjectTesterDashboard() {
     const [dashboard, setDashboard] = useState<any>();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const { projectId } = useParams<{ projectId: string }>();
+    const { data } = useSession();
+    const [userData, setUserData] = useState<any>();
 
     const getTesterDashboard = async () => {
         try {
@@ -34,6 +38,13 @@ export default function ProjectTesterDashboard() {
             setIsLoading(false);
         }
     };
+
+    useEffect(() => {
+        if (data) {
+            const { user } = data;
+            setUserData(user);
+        }
+    }, [data]);
 
     useEffect(() => {
         getTesterDashboard();
@@ -53,10 +64,10 @@ export default function ProjectTesterDashboard() {
                     {/* Header Section */}
                     <div className="flex items-center justify-between">
                         <div>
-                            <h1 className="text-3xl font-bold tracking-tight">Testing Dashboard</h1>
-                            <p className="text-muted-foreground mt-1">Focused testing metrics and quality assurance insights</p>
+                            <h1 className="text-3xl font-bold tracking-tight">Tester Dashboard</h1>
+                            <p className="text-muted-foreground mt-1">Monitor your testing progress and issue management</p>
                         </div>
-                        <Badge variant="outline" className="text-sm px-3 py-1">
+                        <Badge variant="secondary" className="flex items-center gap-1">
                             <Activity className="w-4 h-4 mr-2" />
                             Active Testing
                         </Badge>
@@ -77,18 +88,33 @@ export default function ProjectTesterDashboard() {
                             </CardContent>
                         </Card>
 
-                        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 hover:shadow-lg transition-all duration-300">
-                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                                <CardTitle className="text-sm font-medium text-green-800">Test Cycles</CardTitle>
-                                <div className="p-2 bg-green-200 rounded-full">
-                                    <TestTube className="h-5 w-5 text-green-600" />
-                                </div>
-                            </CardHeader>
-                            <CardContent className="pt-0">
-                                <div className="text-3xl font-bold text-green-900">{dashboard?.testCycle || 0}</div>
-                                <p className="text-xs text-green-600 mt-2 font-medium">Active cycles</p>
-                            </CardContent>
-                        </Card>
+                        {userData?.role === UserRoles.CROWD_TESTER ? (
+                            <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 hover:shadow-lg transition-all duration-300">
+                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                                    <CardTitle className="text-sm font-medium text-green-800">Test Execution</CardTitle>
+                                    <div className="p-2 bg-green-200 rounded-full">
+                                        <CheckCircle className="h-5 w-5 text-green-600" />
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="pt-0">
+                                    <div className="text-3xl font-bold text-green-900">{dashboard?.totalTestExecutions || 0}</div>
+                                    <p className="text-xs text-green-600 mt-2 font-medium">Active executions</p>
+                                </CardContent>
+                            </Card>
+                        ) : (
+                            <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 hover:shadow-lg transition-all duration-300">
+                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                                    <CardTitle className="text-sm font-medium text-green-800">Test Cycles</CardTitle>
+                                    <div className="p-2 bg-green-200 rounded-full">
+                                        <TestTube className="h-5 w-5 text-green-600" />
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="pt-0">
+                                    <div className="text-3xl font-bold text-green-900">{dashboard?.testCycle || 0}</div>
+                                    <p className="text-xs text-green-600 mt-2 font-medium">Active cycles</p>
+                                </CardContent>
+                            </Card>
+                        )}
 
                         <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200 hover:shadow-lg transition-all duration-300">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">

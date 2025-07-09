@@ -20,8 +20,9 @@ export interface IProject {
   endDate: Date | null;
   description?: string;
   isActive?: boolean;
-  users?: IUserByAdmin;
+  users?: IUserByAdmin[]; // Changed to array
   userId?: string;
+  pricingId?: string; // Added to resolve type error
 }
 
 export interface IProjectBulkDeletePayload {

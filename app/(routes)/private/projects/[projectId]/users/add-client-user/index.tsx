@@ -49,7 +49,11 @@ const userSchema = z.object({
   isVerified: z.boolean(),
 });
 
-export function AddClientUser({ refreshUsers }: { refreshUsers: () => void }) {
+export function AddClientUser({ refreshUsers, userLimit, currentUserCount }: {
+  refreshUsers: () => void,
+  userLimit?: number | null,
+  currentUserCount?: number
+}) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { projectId } = useParams<{ projectId: string }>();
@@ -75,16 +79,21 @@ export function AddClientUser({ refreshUsers }: { refreshUsers: () => void }) {
       );
 
       if (response) {
-        if (response.status === HttpStatusCode.BAD_REQUEST) {
-          toasterService.error(response?.message);
+        if (
+          response.status === HttpStatusCode.BAD_REQUEST ||
+          (typeof response.message === 'string' && response.message.includes('User limit reached'))
+        ) {
+          // Show the backend error message
+          toasterService.error(response?.message || "Failed to add user");
           return;
         }
         localStorage.setItem("userId", response?.user?._id);
         refreshUsers();
         toasterService.success(response?.message);
       }
-    } catch (error) {
-      toasterService.error();
+    } catch (error: any) {
+      // If error is an object with a message, show it
+      toasterService.error(error?.message || "Failed to add user");
     } finally {
       setDialogOpen(false);
       setIsLoading(false);
@@ -95,13 +104,20 @@ export function AddClientUser({ refreshUsers }: { refreshUsers: () => void }) {
     form.reset();
   };
 
+  const isLimitReached = userLimit !== null && currentUserCount !== undefined && currentUserCount >= userLimit;
+
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
-        <Button onClick={() => resetForm()}>
+        <Button onClick={() => resetForm()} disabled={isLimitReached}>
           <Plus /> Add User
         </Button>
       </DialogTrigger>
+      {isLimitReached && (
+        <div className="text-red-500 text-xs mt-1">
+          You have reached your user limit for this plan. Please upgrade your plan to add more users.
+        </div>
+      )}
       <DialogContent className="max-w-lg w-full">
         <DialogHeader>
           <DialogTitle>Add new user</DialogTitle>

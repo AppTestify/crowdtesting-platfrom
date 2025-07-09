@@ -5,6 +5,7 @@ export enum UserRoles {
   PROJECT_ADMIN = "PROJECT ADMIN",
   MANAGER = "MANAGER",
   DEVELOPER = "DEVELOPER",
+  CROWD_TESTER="CROWD TESTER"
 }
 
 export const USER_ROLE_LIST = [
@@ -13,4 +14,5 @@ export const USER_ROLE_LIST = [
   UserRoles.TESTER,
   UserRoles.MANAGER,
   UserRoles.DEVELOPER,
+  UserRoles.CROWD_TESTER
 ];

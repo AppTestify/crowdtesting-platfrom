@@ -17,13 +17,12 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import {
-    Sheet,
-    SheetClose,
-    SheetContent,
-    SheetHeader,
-    SheetTitle,
-    SheetTrigger,
-} from "@/components/ui/sheet";
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -185,18 +184,18 @@ export function AddTestExecution({ refreshTestExecution }: { refreshTestExecutio
     }, [sheetOpen]);
 
     return (
-        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-            <SheetTrigger asChild>
+        <Dialog open={sheetOpen} onOpenChange={setSheetOpen}>
+            <DialogTrigger asChild>
                 <Button onClick={() => resetForm()}>
                     <Plus /> Add test execution
                 </Button>
-            </SheetTrigger>
-            <SheetContent
-                className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto"
+            </DialogTrigger>
+            <DialogContent
+                className="w-full max-w-4xl max-h-[90vh] overflow-y-auto"
             >
-                <SheetHeader>
-                    <SheetTitle className="text-left">Add new test execution</SheetTitle>
-                </SheetHeader>
+                <DialogHeader>
+                    <DialogTitle className="text-left">Add new test execution</DialogTitle>
+                </DialogHeader>
 
                 <div className="mt-4">
                     <Form {...form}>
@@ -409,17 +408,15 @@ export function AddTestExecution({ refreshTestExecution }: { refreshTestExecutio
 
 
                             < div className="mt-6 w-full flex justify-end gap-2" >
-                                <SheetClose asChild>
-                                    <Button
-                                        disabled={isLoading}
-                                        type="button"
-                                        variant={"outline"}
-                                        size="lg"
-                                        className="w-full md:w-fit"
-                                    >
-                                        Cancel
-                                    </Button>
-                                </SheetClose>
+                                <Button
+                                    disabled={isLoading}
+                                    type="button"
+                                    variant={"outline"}
+                                    size="lg"
+                                    className="w-full md:w-fit"
+                                >
+                                    Cancel
+                                </Button>
                                 <Button
                                     disabled={isLoading}
                                     type="submit"
@@ -437,7 +434,7 @@ export function AddTestExecution({ refreshTestExecution }: { refreshTestExecutio
                     </Form>
                 </div>
 
-            </SheetContent>
-        </Sheet >
+            </DialogContent>
+        </Dialog >
     );
 }

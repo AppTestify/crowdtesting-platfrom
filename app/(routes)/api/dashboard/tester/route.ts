@@ -10,6 +10,8 @@ import { verifySession } from "@/app/_lib/dal";
 import { Issue } from "@/app/_models/issue.model";
 import { Project } from "@/app/_models/project.model";
 import { TestCycle } from "@/app/_models/test-cycle.model";
+import { TestCase } from "@/app/_models/test-case.model";
+import { TestExecution } from "@/app/_models/test-execution.model";
 import { getTestCycleBasedIds } from "@/app/_utils/common-server-side";
 import { errorHandler } from "@/app/_utils/error-handler";
 
@@ -127,6 +129,20 @@ export async function GET(req: Request) {
 
     const issueCounts = await Issue.find(issueFilter).countDocuments();
 
+    // Get test case count for crowd testers
+    let testCaseCount = 0;
+    let testExecutionCount = 0;
+    if (session.user?.role === UserRoles.CROWD_TESTER) {
+      testCaseCount = await TestCase.find({
+        projectId: projects.map((project) => project._id),
+      }).countDocuments();
+      
+      // Get test execution count for crowd testers
+      testExecutionCount = await TestExecution.find({
+        projectId: projects.map((project) => project._id),
+      }).countDocuments();
+    }
+
     const { severityCounts, statusCounts } = countresults(issues);
     return Response.json({
       severity: severityCounts,
@@ -136,6 +152,8 @@ export async function GET(req: Request) {
           ? totalTestCycles?.length
           : uniqueTestCycleCount,
       issue: issueCounts,
+      totalTestCases: testCaseCount,
+      totalTestExecutions: testExecutionCount,
       ProjectSequence: { completed: completedCount, ongoing: ongoingCount },
     });
   } catch (error: any) {

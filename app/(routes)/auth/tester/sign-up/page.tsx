@@ -29,7 +29,7 @@ import {
 function SignUpWrapper() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const activeTab = UserRoles.TESTER;
+  const activeTab = UserRoles.CROWD_TESTER;
   const [isGoogleSignInDisable, setIsGoogleSignInDisable] =
     useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -273,7 +273,7 @@ function SignUpWrapper() {
 
                 {/* Sign Up Form */}
                 <SignUpForm
-                  role={UserRoles.TESTER}
+                  role={UserRoles.CROWD_TESTER}
                   setIsGoogleSignInDisable={setIsGoogleSignInDisable}
                 />
                 {/* <Button variant="outline" className="w-full" disabled={isGoogleSignInDisable || isLoading} onClick={() => handleGoogleSignUp()}>

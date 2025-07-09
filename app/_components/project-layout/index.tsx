@@ -222,16 +222,12 @@ export default function ProjectLayouts({ onLoaded }: { onLoaded: () => void }) {
                                 {accessTabs?.length ? (
                                     <>
                                         <TabsList className="bg-gray-100/80 p-1 rounded-xl border border-gray-200 shadow-sm backdrop-blur-sm w-full h-auto flex-wrap gap-1 justify-start">
-                                            {accessTabs
-                                                ?.filter((tab: any) =>
-                                                    userData?.role === UserRoles.ADMIN
-                                                        ? tab.roles.includes(userData?.role)
-                                                        : tab.roles.includes(userData?.role) && tab.access === true
-                                                ).map((tab: any, index: number) => {
-                                                    const tabValue = tab?.label === "RTM" ? "RTM" : tab?.label.toLowerCase().replace(/ /g, '-');
+                                            {userData?.role === UserRoles.CROWD_TESTER ? (
+                                                // For crowd testers, use roleBasedTab as before
+                                                roleBasedTab?.map((tab: string, index: number) => {
+                                                    const tabValue = tab === "RTM" ? "RTM" : tab.toLowerCase().replace(/ /g, '-');
                                                     const isActive = activeTab === tabValue;
-                                                    const IconComponent = getTabIconComponent(tab.label);
-                                                    
+                                                    const IconComponent = getTabIconComponent(tab.charAt(0).toUpperCase() + tab.slice(1));
                                                     return (
                                                         <TooltipProvider key={index}>
                                                             <Tooltip delayDuration={200}>
@@ -252,17 +248,74 @@ export default function ProjectLayouts({ onLoaded }: { onLoaded: () => void }) {
                                                                             <IconComponent className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
                                                                         </span>
                                                                         <span className="hidden lg:inline text-xs font-medium whitespace-nowrap">
-                                                                            {tab?.label}
+                                                                            {tab.charAt(0).toUpperCase() + tab.slice(1)}
                                                                         </span>
                                                                     </TabsTrigger>
                                                                 </TooltipTrigger>
                                                                 <TooltipContent side="bottom" className="lg:hidden">
-                                                                    <p className="text-xs">{tab?.label}</p>
+                                                                    <p className="text-xs">{tab.charAt(0).toUpperCase() + tab.slice(1)}</p>
                                                                 </TooltipContent>
                                                             </Tooltip>
                                                         </TooltipProvider>
                                                     );
-                                                })}
+                                                })
+                                            ) : (
+                                                // For other roles, use the existing accessTabs filtering
+                                                accessTabs
+                                                    ?.filter((tab: any) => {
+                                                        // For admin, show all tabs they have roles for
+                                                        if (userData?.role === UserRoles.ADMIN) {
+                                                            return tab.roles.includes(userData?.role);
+                                                        }
+                                                        
+                                                        // For tester and crowd tester, show tabs that are accessible
+                                                        // Check if user is a tester (either normal or crowd)
+                                                        const isTester = userData?.role === UserRoles.TESTER || userData?.role === UserRoles.CROWD_TESTER;
+                                                        
+                                                        if (isTester) {
+                                                            // For testers, check if tab has tester role OR crowd tester role, and access is true
+                                                            return (tab.roles.includes(UserRoles.TESTER) || tab.roles.includes(UserRoles.CROWD_TESTER)) && tab.access === true;
+                                                        }
+                                                        
+                                                        // For other roles, check their specific role and access
+                                                        return tab.roles.includes(userData?.role) && tab.access === true;
+                                                    }).map((tab: any, index: number) => {
+                                                        const tabValue = tab?.label === "RTM" ? "RTM" : tab?.label.toLowerCase().replace(/ /g, '-');
+                                                        const isActive = activeTab === tabValue;
+                                                        const IconComponent = getTabIconComponent(tab.label);
+                                                        
+                                                        return (
+                                                            <TooltipProvider key={index}>
+                                                                <Tooltip delayDuration={200}>
+                                                                    <TooltipTrigger asChild>
+                                                                        <TabsTrigger 
+                                                                            value={tabValue}
+                                                                            className={`
+                                                                                flex items-center justify-center min-w-0 transition-all duration-200
+                                                                                ${isActive 
+                                                                                    ? 'bg-white text-blue-700 shadow-md border border-blue-100' 
+                                                                                    : 'text-gray-600 hover:text-gray-900 hover:bg-white/60'
+                                                                                }
+                                                                                sm:space-x-2 sm:px-3 sm:py-2 sm:rounded-lg
+                                                                                px-2 py-2 rounded-md
+                                                                            `}
+                                                                        >
+                                                                            <span className={`transition-colors duration-200 ${isActive ? 'text-blue-600' : 'text-gray-500'}`}>
+                                                                                <IconComponent className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
+                                                                            </span>
+                                                                            <span className="hidden lg:inline text-xs font-medium whitespace-nowrap">
+                                                                                {tab?.label}
+                                                                            </span>
+                                                                        </TabsTrigger>
+                                                                    </TooltipTrigger>
+                                                                    <TooltipContent side="bottom" className="lg:hidden">
+                                                                        <p className="text-xs">{tab?.label}</p>
+                                                                    </TooltipContent>
+                                                                </Tooltip>
+                                                            </TooltipProvider>
+                                                        );
+                                                    })
+                                            )}
                                         </TabsList>
                                         {roleBasedTab?.map((tab, index) => (
                                             <TabsContent key={index} value={tab} className="mt-0">

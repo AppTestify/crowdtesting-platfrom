@@ -277,7 +277,7 @@ export default function Requirements() {
         </div>
       ),
     },
-    ...(userData?.role != UserRoles.TESTER &&
+    ...(userData?.role != UserRoles.TESTER && userData?.role != UserRoles.CROWD_TESTER &&
     checkProjectActiveRole(project?.isActive ?? false, userData)
       ? [
           {
@@ -489,7 +489,7 @@ export default function Requirements() {
               </h1>
               <p className="text-gray-600 mt-2">Manage and track project requirements</p>
             </div>
-            {userData?.role != UserRoles.TESTER &&
+            {userData?.role != UserRoles.TESTER && userData?.role != UserRoles.CROWD_TESTER &&
               checkProjectActiveRole(project?.isActive ?? false, userData) && (
                 <AddRequirement refreshRequirements={refreshRequirements} />
               )}
@@ -842,7 +842,7 @@ export default function Requirements() {
                         <Card 
                           key={requirement.id}
                           className="cursor-move hover:shadow-md transition-shadow bg-white border border-gray-200"
-                          draggable={userData?.role !== UserRoles.TESTER && checkProjectActiveRole(project?.isActive ?? false, userData)}
+                          draggable={userData?.role !== UserRoles.TESTER && userData?.role !== UserRoles.CROWD_TESTER && checkProjectActiveRole(project?.isActive ?? false, userData)}
                           onDragStart={(e) => {
                             e.dataTransfer.setData('text/plain', requirement.id);
                             e.currentTarget.classList.add('opacity-50');
@@ -881,7 +881,7 @@ export default function Requirements() {
                                 <Calendar className="h-3 w-3" />
                                 {formatDistanceToNow(new Date(requirement.updatedAt), { addSuffix: true })}
                               </div>
-                              {userData?.role !== UserRoles.TESTER && checkProjectActiveRole(project?.isActive ?? false, userData) && (
+                              {userData?.role !== UserRoles.TESTER && userData?.role !== UserRoles.CROWD_TESTER && checkProjectActiveRole(project?.isActive ?? false, userData) && (
                                 <div 
                                   className="opacity-0 group-hover:opacity-100 transition-opacity"
                                   onClick={(e) => e.stopPropagation()}
@@ -917,7 +917,7 @@ export default function Requirements() {
               </div>
               
               {/* Kanban Instructions */}
-              {userData?.role !== UserRoles.TESTER && checkProjectActiveRole(project?.isActive ?? false, userData) && (
+              {userData?.role !== UserRoles.TESTER && userData?.role !== UserRoles.CROWD_TESTER && checkProjectActiveRole(project?.isActive ?? false, userData) && (
                 <Card className="bg-blue-50 border-blue-200">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-2 text-blue-700">

@@ -187,6 +187,7 @@ export async function POST(req: Request) {
       credentialsSentAt: sendCredentials ? new Date() : "",
       accountActivationMailSentAt: new Date(),
       isVerified: true,
+      createdBy: 'admin',
     });
     await newUser.save();
 

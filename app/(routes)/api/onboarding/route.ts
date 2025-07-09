@@ -140,6 +140,9 @@ export async function POST(req: Request) {
           credentialsSentAt: sendCredentials ? new Date() : "",
           accountActivationMailSentAt: new Date(),
           isVerified: true,
+          createdBy: 'client',
+          clientId: userId,
+          invitedBy: userId,
         });
 
         const savedUser = await newUser.save({ session });
@@ -167,6 +170,28 @@ export async function POST(req: Request) {
           { session }
         );
       }
+
+      // Always assign the client themselves to the project as a user with role CLIENT
+      const clientUserId = userId;
+      const clientRole = UserRoles.CLIENT;
+      const clientCounter = await Counter.findOneAndUpdate(
+        { entity: DBModels.PROJECT_USERS, projectId: savedProject._id },
+        { $inc: { sequence: 1 } },
+        { new: true, upsert: true, session }
+      );
+      await Project.findByIdAndUpdate(
+        savedProject._id,
+        {
+          $addToSet: {
+            users: {
+              userId: clientUserId,
+              role: clientRole,
+              customId: clientCounter.sequence,
+            },
+          },
+        },
+        { session }
+      );
     });
 
     deleteSession();

@@ -86,10 +86,11 @@ export async function POST(req: Request) {
       userCount,
       accountActivationMailSentAt: new Date(),
       isActive: true,
+      createdBy: 'self',
     });
     await newUser.save();
 
-    if (role === UserRoles.TESTER) {
+    if (role === UserRoles.TESTER || role === UserRoles.CROWD_TESTER) {
       try {
         const newTesterCountry = new Tester({
           "address.country": country,

@@ -12,6 +12,8 @@ import {
   USER_PASSWORD_ENDPOINT,
   USERS_BULK_DELETE_ENDPOINT,
   USERS_ENDPOINT,
+  CLIENT_USERS_ENDPOINT,
+  CLIENT_USER_ASSIGN_ENDPOINT,
 } from "../_constants/api-endpoints";
 import {
   IUserByAdmin,
@@ -137,6 +139,50 @@ export const addClientUserService = async (
     return response || {};
   } catch (error) {
     console.error(`Error > addClientUserService:`, error);
+    throw error;
+  }
+};
+
+export const getClientUsersService = async (
+  pageIndex: number = 1,
+  pageSize: number = 10,
+  role?: string,
+  status?: string,
+  searchString?: string
+): Promise<any> => {
+  try {
+    const params = new URLSearchParams();
+    if (role) params.append("role", role);
+    if (status) params.append("status", status);
+    if (searchString) params.append("searchString", searchString);
+    if (pageIndex) params.append("page", pageIndex.toString());
+    if (pageSize) params.append("limit", pageSize.toString());
+
+    const response = await genericGet(`${CLIENT_USERS_ENDPOINT}?${params.toString()}`);
+    return response || {};
+  } catch (error) {
+    console.error(`Error > getClientUsersService:`, error);
+    throw error;
+  }
+};
+
+export const assignClientUserToProjectService = async (
+  projectId: string,
+  userId: string,
+  role: string
+): Promise<any> => {
+  try {
+    const response = await genericPost(
+      CLIENT_USER_ASSIGN_ENDPOINT(projectId),
+      {
+        projectId,
+        userId,
+        role,
+      }
+    );
+    return response || {};
+  } catch (error) {
+    console.error(`Error > assignClientUserToProjectService:`, error);
     throw error;
   }
 };
