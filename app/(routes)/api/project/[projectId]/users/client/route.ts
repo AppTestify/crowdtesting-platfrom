@@ -79,6 +79,10 @@ export async function POST(req: Request) {
 
         // Create user if not exists
         if (!existingUser) {
+          const clientId = sessionAuth.user?.id || sessionAuth.user?._id;
+          if (!clientId) {
+            throw new Error('Client session user ID is missing.');
+          }
           const emailCredentials = new SendCredentials();
           const hashedPassword = await emailCredentials.sendEmailCredentials({
             email,
@@ -96,6 +100,9 @@ export async function POST(req: Request) {
             credentialsSentAt: sendCredentials ? new Date() : "",
             accountActivationMailSentAt: new Date(),
             isVerified: true,
+            createdBy: 'client',
+            clientId,
+            invitedBy: clientId,
           });
 
           await existingUser.save({ session });

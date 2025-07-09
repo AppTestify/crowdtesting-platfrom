@@ -140,6 +140,9 @@ export async function POST(req: Request) {
           credentialsSentAt: sendCredentials ? new Date() : "",
           accountActivationMailSentAt: new Date(),
           isVerified: true,
+          createdBy: 'client',
+          clientId: userId,
+          invitedBy: userId,
         });
 
         const savedUser = await newUser.save({ session });

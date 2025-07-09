@@ -68,6 +68,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AddClientUser } from "./add-client-user";
+import { AssignClientUserToProject } from "./assign-client-user";
 
 export default function ProjectUsers() {
   const [userData, setUserData] = useState<any>();
@@ -551,7 +552,10 @@ export default function ProjectUsers() {
             )}
 
             {userData?.role === UserRoles.CLIENT && (
-              <AddClientUser refreshUsers={refreshProjectUsers} />
+              <div className="flex items-center space-x-2">
+                <AddClientUser refreshUsers={refreshProjectUsers} />
+                <AssignClientUserToProject refreshProjectUsers={refreshProjectUsers} />
+              </div>
             )}
           </div>
         </div>

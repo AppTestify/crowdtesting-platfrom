@@ -159,3 +159,7 @@ export const GET_PRICING_ENPOINT = (pricingId: string) => {
 export const GET_ADDON_ENPOINT = (addonId: string) => {
   return `${ADDON_ENDPOINT}/${addonId}`;
 };
+
+// Client User Management
+export const CLIENT_USERS_ENDPOINT = "/api/users/client";
+export const CLIENT_USER_ASSIGN_ENDPOINT = (projectId: string) => `/api/project/${projectId}/users/client/assign`;

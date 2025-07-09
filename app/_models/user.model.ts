@@ -24,7 +24,9 @@ export interface IUser extends Document {
   country?: string;
   setuser?: string;
   webAddress?: string;
-  createdBy?: string; // 'self' for self-signup, 'admin' for admin-created
+  createdBy?: string; // 'self' for self-signup, 'admin' for admin-created, 'client' for client-invited
+  invitedBy?: string; // ID of the client who invited this user
+  clientId?: string; // ID of the client who owns this user
 }
 
 const userSchema = new Schema<IUser>(
@@ -104,8 +106,18 @@ const userSchema = new Schema<IUser>(
     },
     createdBy: {
       type: String,
-      enum: ['self', 'admin'],
+      enum: ['self', 'admin', 'client'],
       default: 'self',
+    },
+    invitedBy: {
+      type: String,
+      ref: DBModels.USER,
+      required: false,
+    },
+    clientId: {
+      type: String,
+      ref: DBModels.USER,
+      required: false,
     },
   },
   {
