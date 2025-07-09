@@ -407,9 +407,9 @@ export function InvitePage({
                             <SelectContent>
                               <SelectGroup>
                                 {USER_ROLE_LIST.map((role) => (
-                                  <SelectItem key={role.value} value={role.value}>
+                                  <SelectItem key={role} value={role}>
                                     <div className="flex items-center space-x-2">
-                                      <span>{role.label}</span>
+                                      <span>{role}</span>
                                     </div>
                                   </SelectItem>
                                 ))}
