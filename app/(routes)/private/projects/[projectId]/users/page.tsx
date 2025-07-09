@@ -546,6 +546,10 @@ export default function ProjectUsers() {
               Refresh
             </Button>
 
+            {userData?.role === UserRoles.ADMIN && (
+              <AddProjectUser refreshProjectUsers={refreshProjectUsers} />
+            )}
+
             {userData?.role === UserRoles.CLIENT && (
               <AddClientUser refreshUsers={refreshProjectUsers} />
             )}

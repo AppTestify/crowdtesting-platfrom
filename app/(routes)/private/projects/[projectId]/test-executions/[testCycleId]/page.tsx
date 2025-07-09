@@ -99,6 +99,7 @@ export default function TestCasesInTestExecution() {
 
     const columns: ColumnDef<ITestCaseResult>[] = useMemo(() => [
         {
+            accessorFn: (row) => row.testCaseId?.customId || 0,
             accessorKey: "customId",
             header: ({ column }) => {
                 const isSorted = column.getIsSorted();
