@@ -17,6 +17,7 @@ import { User } from "@/app/_models/user.model";
 import { adminUserCreateSchema } from "@/app/_schemas/auth.schema";
 import mongoose from "mongoose";
 import { z } from "zod";
+import { Package } from "@/app/_models/package.model";
 
 const ObjectId = require("mongodb").ObjectId;
 
@@ -59,6 +60,25 @@ export async function POST(req: Request) {
     }
 
     const { projectId, users } = clientUser.data;
+
+    // --- USER LIMIT ENFORCEMENT ---
+    const project = await Project.findById(projectId).lean();
+    if (!project) {
+      return Response.json({ message: "Project not found" }, { status: 404 });
+    }
+    if (!project.pricingId) {
+      return Response.json({ message: "No pricing plan found for this project." }, { status: 400 });
+    }
+    const pkg = await Package.findById(project.pricingId).lean();
+    if (!pkg) {
+      return Response.json({ message: "Pricing plan not found." }, { status: 400 });
+    }
+    const userLimit = pkg.testers;
+    const currentUserCount = Array.isArray(project.users) ? project.users.length : 0;
+    if (currentUserCount + users.length > userLimit) {
+      return Response.json({ message: `User limit reached for this plan. Max allowed: ${userLimit}` }, { status: 400 });
+    }
+    // --- END USER LIMIT ENFORCEMENT ---
 
     const createdUsers: { userId: string; role: string }[] = [];
 

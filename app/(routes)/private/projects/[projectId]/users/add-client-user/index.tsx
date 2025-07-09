@@ -49,7 +49,11 @@ const userSchema = z.object({
   isVerified: z.boolean(),
 });
 
-export function AddClientUser({ refreshUsers }: { refreshUsers: () => void }) {
+export function AddClientUser({ refreshUsers, userLimit, currentUserCount }: {
+  refreshUsers: () => void,
+  userLimit?: number | null,
+  currentUserCount?: number
+}) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { projectId } = useParams<{ projectId: string }>();
@@ -95,13 +99,20 @@ export function AddClientUser({ refreshUsers }: { refreshUsers: () => void }) {
     form.reset();
   };
 
+  const isLimitReached = userLimit !== null && currentUserCount !== undefined && currentUserCount >= userLimit;
+
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
-        <Button onClick={() => resetForm()}>
+        <Button onClick={() => resetForm()} disabled={isLimitReached}>
           <Plus /> Add User
         </Button>
       </DialogTrigger>
+      {isLimitReached && (
+        <div className="text-red-500 text-xs mt-1">
+          You have reached your user limit for this plan. Please upgrade your plan to add more users.
+        </div>
+      )}
       <DialogContent className="max-w-lg w-full">
         <DialogHeader>
           <DialogTitle>Add new user</DialogTitle>

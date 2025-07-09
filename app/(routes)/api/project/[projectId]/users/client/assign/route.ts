@@ -52,18 +52,17 @@ export async function POST(req: Request) {
       );
     }
 
-    const { projectId } = await req.json();
+    // Only call req.json() once
     const body = await req.json();
-    const validation = AssignClientUserSchema.safeParse(body);
+    const { projectId, userId, role } = body;
+    const validation = AssignClientUserSchema.safeParse({ userId, role });
 
     if (!validation.success) {
       return Response.json(
-        { message: INVALID_INPUT_ERROR_MESSAGE },
+        { message: INVALID_INPUT_ERROR_MESSAGE, errors: validation.error.errors },
         { status: HttpStatusCode.BAD_REQUEST }
       );
     }
-
-    const { userId, role } = validation.data;
 
     // Verify project belongs to the client
     const project = await Project.findById(projectId);
@@ -143,6 +142,8 @@ export async function POST(req: Request) {
       message: "User assigned to project successfully",
     });
   } catch (error: any) {
-    return Response.json({ message: error.message }, { status: 400 });
+    // Improved error logging
+    console.error("Assign user to project error:", error);
+    return Response.json({ message: error.message || "Unknown error", error }, { status: 400 });
   }
 } 

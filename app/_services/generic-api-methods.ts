@@ -28,6 +28,9 @@ export const genericPost = async (
 ): Promise<any> => {
   const config: RequestInit = {
     method: HTTP_METHODS.POST,
+    headers: {
+      'Content-Type': 'application/json',
+    },
     body: JSON.stringify(body),
   };
 

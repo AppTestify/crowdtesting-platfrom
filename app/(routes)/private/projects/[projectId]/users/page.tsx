@@ -69,6 +69,7 @@ import {
 import { cn } from "@/lib/utils";
 import { AddClientUser } from "./add-client-user";
 import { AssignClientUserToProject } from "./assign-client-user";
+import { getViewPricingService } from "@/app/_services/package.service";
 
 export default function ProjectUsers() {
   const [userData, setUserData] = useState<any>();
@@ -84,6 +85,7 @@ export default function ProjectUsers() {
     totalSkills: 0,
     totalLanguages: 0,
   });
+  const [userLimit, setUserLimit] = useState<number | null>(null);
 
   const projectAdmin = checkProjectAdmin(project as IProject, userData);
 
@@ -373,6 +375,16 @@ export default function ProjectUsers() {
     getAllProjectUsers();
   }, []);
 
+  useEffect(() => {
+    if (project?.pricingId) {
+      getViewPricingService(project.pricingId).then((pkg) => {
+        setUserLimit(pkg?.testers ?? null);
+      });
+    }
+  }, [project?.pricingId]);
+
+  const currentUserCount = project?.users?.length || 0;
+
   const calculateStats = (users: IProjectUserDisplay[]) => {
     const verifiedUsers = users.filter(
       (user) => (user as any).isVerify !== false
@@ -553,8 +565,12 @@ export default function ProjectUsers() {
 
             {userData?.role === UserRoles.CLIENT && (
               <div className="flex items-center space-x-2">
-                <AddClientUser refreshUsers={refreshProjectUsers} />
-                <AssignClientUserToProject refreshProjectUsers={refreshProjectUsers} />
+                <AddClientUser
+                  refreshUsers={refreshProjectUsers}
+                  userLimit={userLimit}
+                  currentUserCount={currentUserCount}
+                />
+                {/* <AssignClientUserToProject refreshProjectUsers={refreshProjectUsers} /> */}
               </div>
             )}
           </div>
