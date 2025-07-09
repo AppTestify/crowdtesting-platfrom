@@ -97,7 +97,10 @@ export async function GET(req: Request) {
             const projectCounts = await Project.aggregate([
                 {
                     $match: {
-                        userId: userId,
+                        $or: [
+                            { userId: userId }, // Projects where user is owner
+                            { "users.userId": userId } // Projects where user is team member
+                        ],
                         createdAt: { $gte: sixMonthsAgo },
                     },
                 },
@@ -118,7 +121,13 @@ export async function GET(req: Request) {
                 },
             ]);
 
-            const project = await Project.find({ userId: session.user._id })
+            // Find projects where user is either the owner or a team member
+            const project = await Project.find({
+                $or: [
+                    { userId: session.user._id }, // Projects where user is owner
+                    { "users.userId": session.user._id } // Projects where user is team member
+                ]
+            })
             const issueCounts = await Issue.aggregate([
                 {
                     $match: {

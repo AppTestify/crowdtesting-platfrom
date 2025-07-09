@@ -70,8 +70,15 @@ export async function POST(req: Request) {
     }
 
     const { password: _, ...userWithoutPassword } = existingUser.toObject();
+    
+    // Find projects where user is either the owner or a team member
     const userProjectIds = await Project.find(
-      { userId: new ObjectId(existingUser.id) },
+      {
+        $or: [
+          { userId: new ObjectId(existingUser.id) }, // Projects where user is owner
+          { "users.userId": new ObjectId(existingUser.id) } // Projects where user is team member
+        ]
+      },
       { _id: 1 }
     ).lean();
 
