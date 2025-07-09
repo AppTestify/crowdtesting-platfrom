@@ -32,10 +32,10 @@ export const enum TestCaseStep {
 }
 
 export const enum TestCaseExecutionResult {
-  PASSED = "passed",
-  FAILED = "failed",
-  CAUTION = "caution",
-  BLOCKED = "blocked",
+  PASSED = "Passed",
+  FAILED = "Failed",
+  CAUTION = "Caution",
+  BLOCKED = "Blocked",
 }
 
 export const enum TEST_EXECUTION_TYPE {
