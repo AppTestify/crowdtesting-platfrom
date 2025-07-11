@@ -134,7 +134,8 @@ export async function GET(
 
     // for tester
     const project = await Project.findById(projectId);
-    const testCycleIds = getTestCycleBasedIds(project, session.user?._id);
+    const cycleIds = getTestCycleBasedIds(project, session.user?._id);
+    const testCycleIds = cycleIds || [];
     const issues = await Issue.find({
       testCycle: { $in: testCycleIds },
     });

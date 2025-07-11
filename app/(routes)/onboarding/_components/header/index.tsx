@@ -25,7 +25,7 @@ export default function OnboardingHeader() {
         <div className="flex items-center space-x-3">
           <div className="rounded-lg p-1">
             <Image
-              src="/assets/images/logo.png"
+              src="/assets/images/newLogo.png"
               alt="AppTestify Logo"
               width={120}
               height={40}

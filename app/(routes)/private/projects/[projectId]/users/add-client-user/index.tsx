@@ -104,7 +104,7 @@ export function AddClientUser({ refreshUsers, userLimit, currentUserCount }: {
     form.reset();
   };
 
-  const isLimitReached = userLimit !== null && currentUserCount !== undefined && currentUserCount >= userLimit;
+  const isLimitReached = userLimit !== null && userLimit !== undefined && currentUserCount !== undefined && currentUserCount >= userLimit;
 
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>

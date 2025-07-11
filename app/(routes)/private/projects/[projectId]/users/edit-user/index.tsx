@@ -58,7 +58,7 @@ const EditProjectUser = ({
     const form = useForm<z.infer<typeof projectUserSchema>>({
         resolver: zodResolver(projectUserSchema),
         defaultValues: {
-            userId: projectUser?.userId?._id || projectUser?.userId, // always use MongoDB ObjectId as string
+            userId: typeof projectUser?.userId === 'string' ? projectUser?.userId : projectUser?.userId?._id || '', // always use MongoDB ObjectId as string
             role: role || undefined
         },
     });

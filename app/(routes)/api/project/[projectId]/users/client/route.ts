@@ -63,14 +63,14 @@ export async function POST(req: Request) {
 
     // --- USER LIMIT ENFORCEMENT ---
     const project = await Project.findById(projectId).lean();
-    if (!project) {
+    if (!project || Array.isArray(project)) {
       return Response.json({ message: "Project not found" }, { status: 404 });
     }
     if (!project.pricingId) {
       return Response.json({ message: "No pricing plan found for this project." }, { status: 400 });
     }
     const pkg = await Package.findById(project.pricingId).lean();
-    if (!pkg) {
+    if (!pkg || Array.isArray(pkg)) {
       return Response.json({ message: "Pricing plan not found." }, { status: 400 });
     }
     const userLimit = pkg.testers;

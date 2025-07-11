@@ -38,11 +38,12 @@ export async function GET(req: Request) {
     let projects;
 
     // for assign users
-    let testCycleIds, proj;
+    let testCycleIds: any[] = [], proj;
 
     if (project && project !== "undefined" && project !== "") {
       proj = await Project.findById(project);
-      testCycleIds = getTestCycleBasedIds(proj, session.user?._id);
+      const cycleIds = getTestCycleBasedIds(proj, session.user?._id);
+      testCycleIds = cycleIds || [];
 
       projects = await Project.find({ _id: project });
     } else if (UserRoles.CLIENT) {
@@ -59,7 +60,6 @@ export async function GET(req: Request) {
 
     let filter: any =
       testCycleIds?.length > 0 &&
-      testCycleIds !== "undefined" &&
       session.user?.role === UserRoles.TESTER
         ? {
             testCycle: { $in: testCycleIds },

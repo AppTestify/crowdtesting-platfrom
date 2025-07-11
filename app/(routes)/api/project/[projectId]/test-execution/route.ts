@@ -141,7 +141,8 @@ export async function GET(
 
     // For Testers
     const project = await Project.findById(projectId);
-    const testCycleIds = getTestCycleBasedIds(project, session.user?._id);
+    const cycleIds = getTestCycleBasedIds(project, session.user?._id);
+    const testCycleIds = cycleIds || [];
     const query =
       testCycleIds?.length > 0
         ? {

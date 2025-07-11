@@ -204,7 +204,7 @@ export default function PricingCards({
                     <button
                       type="button"
                       className="mt-1 text-xs text-blue-600 font-semibold cursor-pointer underline underline-offset-2 group-hover:text-blue-800 transition-colors duration-200 bg-transparent border-0 p-0 focus:outline-none"
-                      onClick={e => { e.stopPropagation(); setShowFeaturesFor(plan._id); }}
+                      onClick={e => { e.stopPropagation(); setShowFeaturesFor(plan._id || null); }}
                     >
                       +{features.length - maxFeatures} more
                     </button>

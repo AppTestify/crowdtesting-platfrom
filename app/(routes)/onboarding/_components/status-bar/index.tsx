@@ -48,16 +48,7 @@ export default function SetupSteps({ step }: { step: number }) {
               aria-current={isActive ? "step" : undefined}
               className="flex items-start space-x-4 transform transition-all duration-500"
             >
-              {/* Connector Line */}
-              {index !== allSteps.length - 1 && (
-                <div className="absolute left-6 mt-10 w-0.5 h-12 transition-colors duration-500">
-                  <div 
-                    className={`w-full h-full ${
-                      isCompleted ? "bg-green-500" : "bg-gray-200"
-                    }`}
-                  />
-                </div>
-              )}
+
 
               {/* Icon Container */}
               <div className="flex flex-col items-center relative z-10">

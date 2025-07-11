@@ -41,12 +41,13 @@ export async function GET(req: Request) {
     let totalTestCycles: any[] = [];
 
     // for assign
-    let proj, testCycleIds;
+    let proj, testCycleIds: any[] = [];
 
     // for inside project
     if (project && project !== "undefined") {
       proj = await Project.findById(project);
-      testCycleIds = getTestCycleBasedIds(proj, session.user?._id);
+      const cycleIds = getTestCycleBasedIds(proj, session.user?._id);
+      testCycleIds = cycleIds || [];
 
       let filter: any =
         testCycleIds?.length > 0 && session.user?.role === UserRoles.TESTER
@@ -85,7 +86,6 @@ export async function GET(req: Request) {
     // for assign method
     let issueFilter: any =
       testCycleIds?.length > 0 &&
-      testCycleIds !== "undefined" &&
       session.user?.role === UserRoles.TESTER
         ? {
             testCycle: { $in: testCycleIds },
