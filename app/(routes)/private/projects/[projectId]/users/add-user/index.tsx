@@ -139,6 +139,7 @@ export function AddProjectUser({
       <DialogTrigger asChild>
         <Button 
           onClick={() => resetForm()}
+          className="bg-green-600 hover:bg-green-700 transition-colors"
         >
           <UserPlus className="mr-2 h-4 w-4" />
           Assign User
@@ -301,7 +302,7 @@ export function AddProjectUser({
                   type="submit"
                   size="lg"
                   onClick={() => validateIssue()}
-                  className="px-6 py-2 !bg-gradient-to-r !from-blue-600 !to-purple-600 hover:!from-blue-700 hover:!to-purple-700 !text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                  className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
                 >
                   {isLoading ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

@@ -97,14 +97,13 @@ export function AddUser({ refreshUsers }: { refreshUsers: () => void; }) {
             <DialogTrigger asChild>
                 <Button 
                     onClick={() => resetForm()}
-                    variant="outline"
-                    className="border-2 border-green-200 hover:border-green-300 hover:bg-green-50 text-green-700 transition-all duration-200"
+                    className="bg-green-600 hover:bg-green-700 transition-colors"
                 >
                     <UserPlus className="mr-2 h-4 w-4" />
                     Add User
                 </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl w-full p-0 overflow-hidden">
+            <DialogContent className="max-w-2xl w-full p-0 overflow-hidden animate-in fade-in-0 zoom-in-95 duration-300">
                 <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-6 border-b">
                     <DialogHeader className="space-y-3">
                         <div className="flex items-center space-x-3">
