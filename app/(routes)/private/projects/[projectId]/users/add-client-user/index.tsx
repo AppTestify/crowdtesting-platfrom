@@ -109,8 +109,8 @@ export function AddClientUser({ refreshUsers, userLimit, currentUserCount }: {
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
-        <Button onClick={() => resetForm()} disabled={isLimitReached}>
-          <Plus /> Add User
+        <Button onClick={() => resetForm()} disabled={isLimitReached} className="bg-green-600 hover:bg-green-700 transition-colors">
+          <Plus className="h-4 w-4 mr-2" /> Add User
         </Button>
       </DialogTrigger>
       {isLimitReached && (
@@ -239,7 +239,7 @@ export function AddClientUser({ refreshUsers, userLimit, currentUserCount }: {
                   disabled={isLoading}
                   type="submit"
                   size="lg"
-                  className="w-full md:w-fit"
+                  className="w-full md:w-fit bg-green-600 hover:bg-green-700"
                 >
                   {isLoading && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

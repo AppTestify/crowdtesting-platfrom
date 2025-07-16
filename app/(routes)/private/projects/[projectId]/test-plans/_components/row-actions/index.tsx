@@ -14,8 +14,7 @@ import {
 import { Row } from "@tanstack/react-table";
 import { Edit, Eye, MoreHorizontal, Trash } from "lucide-react";
 import { useState } from "react";
-import { EditTestPlan } from "../edit-test-plan";
-import ViewTestPlan from "../view-test-plan";
+
 
 export function TestPlansRowActions({
   row,
@@ -28,8 +27,6 @@ export function TestPlansRowActions({
   onEditClick: (editPlan: ITestPlan) => void;
   onViewClick: (viewPlan: ITestPlan) => void;
 }) {
-  const [isEditOpen, setIsEditOpen] = useState(false);
-  const [isViewOpen, setIsViewOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const projectId = row.original.projectId as unknown as string;
@@ -55,18 +52,7 @@ export function TestPlansRowActions({
 
   return (
     <>
-      <EditTestPlan
-        testPlan={row.original as ITestPlan}
-        sheetOpen={isEditOpen}
-        setSheetOpen={setIsEditOpen}
-        refreshTestPlans={refreshTestPlans}
-      />
 
-      <ViewTestPlan
-        testPlan={row.original as ITestPlan}
-        sheetOpen={isViewOpen}
-        setSheetOpen={setIsViewOpen}
-      />
 
       <ConfirmationDialog
         isOpen={isDeleteOpen}
@@ -92,7 +78,6 @@ export function TestPlansRowActions({
             className="mb-1"
             onClick={() => {
               onViewClick(row.original);
-              setIsViewOpen(true);
             }}
           >
             <Eye className="h-2 w-2" /> View
@@ -102,7 +87,6 @@ export function TestPlansRowActions({
             className="mb-1"
             onClick={() => {
               onEditClick(row.original);
-              setIsEditOpen(true);
             }}
           >
             <Edit className="h-2 w-2" /> Edit

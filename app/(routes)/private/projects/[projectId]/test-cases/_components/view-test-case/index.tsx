@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import {
   Table,
@@ -19,6 +19,20 @@ import { ITestSuite } from "@/app/_interface/test-suite";
 import ViewRequirement from "../../../requirements/_components/view-requirement";
 import { IRequirement } from "@/app/_interface/requirement";
 import TestCaseAttachments from "../attachments/test-case-attachments";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { 
+  FileText, 
+  CheckCircle, 
+  AlertTriangle, 
+  Info, 
+  Layers, 
+  Target, 
+  Paperclip,
+  Calendar,
+  User,
+  Tag
+} from "lucide-react";
 
 const ViewTestCase = ({
   testCase,
@@ -46,6 +60,36 @@ const ViewTestCase = ({
     setIsRequirementOpen(true);
   }
 
+  const getSeverityColor = (severity: string) => {
+    switch (severity?.toLowerCase()) {
+      case 'critical':
+        return 'bg-red-100 text-red-800 border-red-200';
+      case 'high':
+        return 'bg-orange-100 text-orange-800 border-orange-200';
+      case 'medium':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'low':
+        return 'bg-green-100 text-green-800 border-green-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  const getTestTypeColor = (testType: string) => {
+    switch (testType?.toLowerCase()) {
+      case 'functional':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'non-functional':
+        return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'regression':
+        return 'bg-indigo-100 text-indigo-800 border-indigo-200';
+      case 'smoke':
+        return 'bg-pink-100 text-pink-800 border-pink-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
   return (
     <Dialog open={sheetOpen} onOpenChange={setSheetOpen}>
       {/* test suite */}
@@ -63,143 +107,256 @@ const ViewTestCase = ({
         requirement={requirement as IRequirement}
       />
 
-      <DialogContent className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-semibold">View Test Case</h2>
-              <p className="text-sm text-muted-foreground">
-                Test case details and information
-              </p>
+      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader className="space-y-3">
+          <DialogTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+              <FileText className="h-5 w-5 text-blue-600" />
             </div>
-          </div>
+            Test Case Details
+          </DialogTitle>
+          <DialogDescription className="text-gray-600">
+            Comprehensive view of test case information, steps, data, and related components.
+          </DialogDescription>
         </DialogHeader>
-        <DropdownMenuSeparator className="border-b" />
 
-        <Tabs
-          defaultValue="test-case"
-          value={activeTab}
-          onValueChange={setActiveTab}
-          className="mt-4"
-        >
-          <TabsList>
-            <TabsTrigger value="test-case">Test case</TabsTrigger>
-            <TabsTrigger value="steps">Steps</TabsTrigger>
-            <TabsTrigger value="test-data">Test data</TabsTrigger>
-          </TabsList>
-          <TabsContent value="test-case">
-            <div className="ml-[2px]">
-              <div className="mt-3">
-                <span>Expecetd result</span>
-                <div
-                  className="text-sm leading-relaxed text-gray-700"
-                  dangerouslySetInnerHTML={{
-                    __html: testCase?.expectedResult || "",
-                  }}
-                />
-              </div>
+        <div className="mt-6">
+          <Tabs
+            defaultValue="test-case"
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="w-full"
+          >
+            <TabsList className="grid w-full grid-cols-3 bg-gray-100 p-1">
+              <TabsTrigger value="test-case" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                <FileText className="h-4 w-4 mr-2" />
+                Test Case
+              </TabsTrigger>
+              <TabsTrigger value="steps" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                <Layers className="h-4 w-4 mr-2" />
+                Steps
+              </TabsTrigger>
+              <TabsTrigger value="test-data" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                <Target className="h-4 w-4 mr-2" />
+                Test Data
+              </TabsTrigger>
+            </TabsList>
 
-              {/* test type */}
-              {testCase?.testType &&
-                <div className="mt-3">
-                  <span>Test type</span>
-                  <div className="text-sm leading-relaxed text-gray-700">
-                    {testCase?.testType}
+            <TabsContent value="test-case" className="mt-6 space-y-6">
+              {/* Basic Information Card */}
+              <Card className="border-l-4 border-l-blue-500">
+                <CardHeader>
+                  <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    <FileText className="h-5 w-5 text-blue-600" />
+                    Basic Information
+                  </CardTitle>
+                  <CardDescription>
+                    Essential details about this test case
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-gray-700 min-w-[100px]">ID:</span>
+                      <span className="text-sm text-blue-600 font-semibold">{testCase?.customId}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-gray-700 min-w-[100px]">Title:</span>
+                      <span className="text-sm text-gray-900 font-medium">{testCase?.title}</span>
+                    </div>
                   </div>
-                </div>
-              }
+                  
+                  {testCase?.testType && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-gray-700 min-w-[100px]">Test Type:</span>
+                      <Badge className={getTestTypeColor(testCase.testType)}>
+                        {testCase.testType}
+                      </Badge>
+                    </div>
+                  )}
+                  
+                  {testCase?.severity && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-gray-700 min-w-[100px]">Severity:</span>
+                      <Badge className={getSeverityColor(testCase.severity)}>
+                        {testCase.severity}
+                      </Badge>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
 
-              {/* severity */}
-              {testCase?.severity &&
-                <div className="mt-3">
-                  <span>Severity</span>
-                  <div className="text-sm leading-relaxed text-gray-700">
-                    {testCase?.severity}
-                  </div>
-                </div>
-              }
+              {/* Expected Result Card */}
+              <Card className="border-l-4 border-l-green-500">
+                <CardHeader>
+                  <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    <CheckCircle className="h-5 w-5 text-green-600" />
+                    Expected Result
+                  </CardTitle>
+                  <CardDescription>
+                    The expected outcome when this test case is executed
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div
+                    className="text-sm leading-relaxed text-gray-700 rich-description"
+                    dangerouslySetInnerHTML={{
+                      __html: testCase?.expectedResult || "",
+                    }}
+                  />
+                </CardContent>
+              </Card>
 
-              {/* testSuite */}
-              <div className="mt-4">
-                Test suite
-                <div className="mt-2 rounded-md border">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>ID</TableHead>
-                        <TableHead>Title</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {testCase?.testSuite ? (
-                        <TableRow>
-                          <TableCell className="hover:text-primary hover:cursor-pointer" onClick={() => setIsTestSuiteOpen(true)}>
-                            {testCase?.testSuite?.customId}
-                          </TableCell>
-                          <TableCell>{testCase?.testSuite?.title}</TableCell>
-                        </TableRow>
-                      ) : (
-                        <TableRow>
-                          <TableCell colSpan={2} className="text-center">
-                            No test suite found
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </div>
-              </div>
+              {/* Test Suite Card */}
+              <Card className="border-l-4 border-l-purple-500">
+                <CardHeader>
+                  <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    <Layers className="h-5 w-5 text-purple-600" />
+                    Test Suite
+                  </CardTitle>
+                  <CardDescription>
+                    The test suite this test case belongs to
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {testCase?.testSuite ? (
+                    <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                            <Layers className="h-4 w-4 text-purple-600" />
+                          </div>
+                          <div>
+                            <div className="text-sm font-semibold text-gray-900">
+                              {testCase?.testSuite?.customId}
+                            </div>
+                            <div className="text-sm text-gray-600">
+                              {testCase?.testSuite?.title}
+                            </div>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => setIsTestSuiteOpen(true)}
+                          className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                        >
+                          View Details
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <Layers className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                      <p>No test suite assigned</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
 
-              {/* test suite requirements */}
-              <div className="mt-4">
-                Requirements
-                <div className="mt-2 rounded-md border">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>ID</TableHead>
-                        <TableHead>Title</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {testCase?.requirements?.length ? (
-                        testCase.requirements.map((requirement, index) => (
-                          <TableRow key={index}>
-                            <TableCell className="hover:text-primary hover:cursor-pointer" onClick={() => viewRequirements(requirement)}>
-                              {requirement.customId}
-                            </TableCell>
-                            <TableCell>{requirement.title}</TableCell>
-                          </TableRow>
-                        ))
-                      ) : (
-                        <TableRow>
-                          <TableCell colSpan={2} className="text-center">
-                            No requirements found
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </div>
-              </div>
+              {/* Requirements Card */}
+              <Card className="border-l-4 border-l-orange-500">
+                <CardHeader>
+                  <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    <Target className="h-5 w-5 text-orange-600" />
+                    Requirements
+                  </CardTitle>
+                  <CardDescription>
+                    Requirements associated with this test case
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {testCase?.requirements?.length ? (
+                    <div className="space-y-3">
+                      {testCase.requirements.map((requirement, index) => (
+                        <div key={index} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                                <Target className="h-4 w-4 text-orange-600" />
+                              </div>
+                              <div>
+                                <div className="text-sm font-semibold text-gray-900">
+                                  {requirement.customId}
+                                </div>
+                                <div className="text-sm text-gray-600">
+                                  {requirement.title}
+                                </div>
+                              </div>
+                            </div>
+                            <button
+                              onClick={() => viewRequirements(requirement)}
+                              className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                            >
+                              View Details
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <Target className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                      <p>No requirements found</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
 
-              <div className="mt-4">
-                Attachments
-                <TestCaseAttachments
-                  testCaseId={testCaseId}
-                  isUpdate={false}
-                  isView={true}
-                />
-              </div>
-            </div>
-          </TabsContent>
-          <TabsContent value="steps">
-            <TestCaseStepView testCaseId={testCase?.id} />
-          </TabsContent>
-          <TabsContent value="test-data">
-            <ViewTestCaseData testCaseId={testCase?.id} />
-          </TabsContent>
-        </Tabs>
+              {/* Attachments Card */}
+              <Card className="border-l-4 border-l-indigo-500">
+                <CardHeader>
+                  <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    <Paperclip className="h-5 w-5 text-indigo-600" />
+                    Attachments
+                  </CardTitle>
+                  <CardDescription>
+                    Files and documents related to this test case
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <TestCaseAttachments
+                    testCaseId={testCaseId}
+                    isUpdate={false}
+                    isView={true}
+                  />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="steps" className="mt-6">
+              <Card className="border-l-4 border-l-green-500">
+                <CardHeader>
+                  <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    <Layers className="h-5 w-5 text-green-600" />
+                    Test Steps
+                  </CardTitle>
+                  <CardDescription>
+                    Step-by-step instructions for executing this test case
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <TestCaseStepView testCaseId={testCase?.id} />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="test-data" className="mt-6">
+              <Card className="border-l-4 border-l-purple-500">
+                <CardHeader>
+                  <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    <Target className="h-5 w-5 text-purple-600" />
+                    Test Data
+                  </CardTitle>
+                  <CardDescription>
+                    Data sets and parameters used for testing
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ViewTestCaseData testCaseId={testCase?.id} />
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
       </DialogContent>
     </Dialog>
   );

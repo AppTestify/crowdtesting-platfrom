@@ -14,7 +14,7 @@ import {
 import { Row } from "@tanstack/react-table";
 import { Eye, MoreHorizontal, Trash } from "lucide-react";
 import { useState, useEffect } from "react";
-import TestExecutionView from "../view-test-execution";
+
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
 
@@ -27,7 +27,6 @@ export function TestExecutionRowActions({
     refreshTestExecution: () => void;
     onViewClick:(viewExecution:ITestExecution)=>void;
 }) {
-    const [isViewOpen, setIsViewOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [userData, setUserData] = useState<any>();
@@ -76,7 +75,6 @@ export function TestExecutionRowActions({
                         className="mb-1"
                         onClick={() => {
                             onViewClick(row.original);
-                            setIsViewOpen(true);
                         }}
                     >
                         <Eye className="h-2 w-2" /> View
@@ -88,12 +86,6 @@ export function TestExecutionRowActions({
 
     return (
         <>
-            <TestExecutionView
-                sheetOpen={isViewOpen}
-                setSheetOpen={setIsViewOpen}
-                testExecution={row.original as ITestExecution}
-            />
-
             <ConfirmationDialog
                 isOpen={isDeleteOpen}
                 setIsOpen={setIsDeleteOpen}
@@ -118,7 +110,6 @@ export function TestExecutionRowActions({
                         className="mb-1"
                         onClick={() => {
                             onViewClick(row.original);
-                            setIsViewOpen(true);
                         }}
                     >
                         <Eye className="h-2 w-2" /> View
