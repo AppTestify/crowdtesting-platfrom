@@ -30,7 +30,7 @@ import { useParams } from "next/navigation";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { Calendar } from "@/components/ui/calendar";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ColumnDef, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, SortingState, useReactTable, VisibilityState } from "@tanstack/react-table";
 import { ITestCycle } from "@/app/_interface/test-cycle";
@@ -40,7 +40,7 @@ import { TEST_EXECUTION_TYPE_LIST } from "@/app/_constants/test-case";
 import { addTestExecution } from "@/app/_services/test-execution.service";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Play, FileText, Calendar, Layers, Tag, Plus, Loader2 } from "lucide-react";
+import { Play, FileText, Calendar, Layers, Tag } from "lucide-react";
 
 const testExecutionSchema = z.object({
     projectId: z.string().min(1, 'Required'),
@@ -56,6 +56,8 @@ export function AddTestExecution({ refreshTestExecution }: { refreshTestExecutio
     const [testCycles, setTestCycles] = useState<ITestCycle[]>([]);
     const { projectId } = useParams<{ projectId: string }>();
     const [isTestCycleLoading, setIsTestCycleLoading] = useState<boolean>(false);
+    const [startDateOpen, setStartDateOpen] = useState(false);
+    const [endDateOpen, setEndDateOpen] = useState(false);
 
     const form = useForm<z.infer<typeof testExecutionSchema>>({
         resolver: zodResolver(testExecutionSchema),
@@ -305,7 +307,7 @@ export function AddTestExecution({ refreshTestExecution }: { refreshTestExecutio
                                         render={({ field }) => (
                                             <FormItem className="flex flex-col">
                                                 <FormLabel className="text-sm font-medium text-gray-700">Start Date</FormLabel>
-                                                <Popover>
+                                                <Popover open={startDateOpen} onOpenChange={setStartDateOpen}>
                                                     <PopoverTrigger asChild>
                                                         <FormControl>
                                                             <Button
@@ -325,10 +327,13 @@ export function AddTestExecution({ refreshTestExecution }: { refreshTestExecutio
                                                         </FormControl>
                                                     </PopoverTrigger>
                                                     <PopoverContent className="w-auto p-0" align="start">
-                                                        <Calendar
+                                                        <CalendarComponent
                                                             mode="single"
                                                             selected={field.value || undefined}
-                                                            onSelect={field.onChange}
+                                                            onSelect={(date) => {
+                                                                field.onChange(date);
+                                                                setStartDateOpen(false);
+                                                            }}
                                                             disabled={(date) => date < new Date("1900-01-01")}
                                                             initialFocus
                                                         />
@@ -344,7 +349,7 @@ export function AddTestExecution({ refreshTestExecution }: { refreshTestExecutio
                                         render={({ field }) => (
                                             <FormItem className="flex flex-col">
                                                 <FormLabel className="text-sm font-medium text-gray-700">End Date</FormLabel>
-                                                <Popover>
+                                                <Popover open={endDateOpen} onOpenChange={setEndDateOpen}>
                                                     <PopoverTrigger asChild>
                                                         <FormControl>
                                                             <Button
@@ -364,10 +369,13 @@ export function AddTestExecution({ refreshTestExecution }: { refreshTestExecutio
                                                         </FormControl>
                                                     </PopoverTrigger>
                                                     <PopoverContent className="w-auto p-0" align="start">
-                                                        <Calendar
+                                                        <CalendarComponent
                                                             mode="single"
                                                             selected={field.value || undefined}
-                                                            onSelect={field.onChange}
+                                                            onSelect={(date) => {
+                                                                field.onChange(date);
+                                                                setEndDateOpen(false);
+                                                            }}
                                                             disabled={(date) =>
                                                                 date < (form.watch("startDate") ?? new Date("1900-01-01")) ||
                                                                 date < new Date("1900-01-01")
