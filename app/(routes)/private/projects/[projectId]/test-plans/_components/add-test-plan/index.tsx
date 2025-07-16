@@ -12,7 +12,7 @@ import {
     Settings,
     Trash,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 import toasterService from "@/app/_services/toaster-service";
 import {
@@ -71,6 +71,8 @@ export function AddTestPlan({ refreshTestPlans, userData }: { refreshTestPlans: 
     const [userProjectRole, setUserProjectRole] =
         useState<ProjectUserRoles | null>(null);
     const [users, setUsers] = useState<IProjectUserDisplay[]>([]);
+    const [startDateOpen, setStartDateOpen] = useState(false);
+    const [endDateOpen, setEndDateOpen] = useState(false);
 
     const form = useForm<z.infer<typeof testPlanSchema>>({
         resolver: zodResolver(testPlanSchema),
@@ -290,7 +292,7 @@ export function AddTestPlan({ refreshTestPlans, userData }: { refreshTestPlans: 
                                                     <FormLabel className="text-sm font-medium text-gray-700">
                                                         Start Date
                                                     </FormLabel>
-                                                    <Popover>
+                                                    <Popover open={startDateOpen} onOpenChange={setStartDateOpen}>
                                                         <PopoverTrigger asChild>
                                                             <FormControl>
                                                                 <Button
@@ -313,7 +315,10 @@ export function AddTestPlan({ refreshTestPlans, userData }: { refreshTestPlans: 
                                                             <CalendarComponent
                                                                 mode="single"
                                                                 selected={field.value || undefined}
-                                                                onSelect={field.onChange}
+                                                                onSelect={(date) => {
+                                                                    field.onChange(date);
+                                                                    setStartDateOpen(false);
+                                                                }}
                                                                 disabled={(date) => date < new Date("1900-01-01")}
                                                                 initialFocus
                                                             />
@@ -332,7 +337,7 @@ export function AddTestPlan({ refreshTestPlans, userData }: { refreshTestPlans: 
                                                     <FormLabel className="text-sm font-medium text-gray-700">
                                                         End Date
                                                     </FormLabel>
-                                                    <Popover>
+                                                    <Popover open={endDateOpen} onOpenChange={setEndDateOpen}>
                                                         <PopoverTrigger asChild>
                                                             <FormControl>
                                                                 <Button
@@ -355,7 +360,10 @@ export function AddTestPlan({ refreshTestPlans, userData }: { refreshTestPlans: 
                                                             <CalendarComponent
                                                                 mode="single"
                                                                 selected={field.value || undefined}
-                                                                onSelect={field.onChange}
+                                                                onSelect={(date) => {
+                                                                    field.onChange(date);
+                                                                    setEndDateOpen(false);
+                                                                }}
                                                                 disabled={(date) =>
                                                                     date < (form.watch("startDate") ?? new Date("1900-01-01")) ||
                                                                     date < new Date("1900-01-01")
@@ -466,17 +474,18 @@ export function AddTestPlan({ refreshTestPlans, userData }: { refreshTestPlans: 
                                         </div>
                                     ))}
 
-                                    <Button
-                                        type="button"
-                                        size="sm"
-                                        variant="outline"
-                                        onClick={() => append({ parameter: "", description: "" })}
-                                        disabled={fields.length > 0 && isFieldIncomplete(fields.length - 1)}
-                                        className="w-full border-dashed border-gray-300 hover:border-blue-500"
-                                    >
-                                        <Plus className="h-4 w-4 mr-2" />
-                                        Add New Parameter
-                                    </Button>
+                                    <div className="flex justify-center">
+                                        <Button
+                                            type="button"
+                                            size="sm"
+                                            onClick={() => append({ parameter: "", description: "" })}
+                                            disabled={fields.length > 0 && isFieldIncomplete(fields.length - 1)}
+                                            className="bg-green-600 hover:bg-green-700 text-white"
+                                        >
+                                            <Plus className="h-4 w-4 mr-2" />
+                                            Add Parameter
+                                        </Button>
+                                    </div>
                                 </CardContent>
                             </Card>
 

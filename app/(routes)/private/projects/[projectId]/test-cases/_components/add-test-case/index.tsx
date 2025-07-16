@@ -861,7 +861,7 @@ export function AddTestCase({ refreshTestCases, testSuites }: { refreshTestCases
                                 <Button
                                     type="submit"
                                     disabled={isLoading}
-                                    className="px-6 bg-blue-600 hover:bg-blue-700"
+                                    className="px-6 bg-green-600 hover:bg-green-700"
                                 >
                                     {isLoading ? (
                                         <>
