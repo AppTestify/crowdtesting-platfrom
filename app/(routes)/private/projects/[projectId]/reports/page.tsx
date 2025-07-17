@@ -344,8 +344,8 @@ export default function Report() {
   return (
     <main className="mx-4 mt-2">
       <ViewReport
-        sheetOpen={isViewOpen}
-        setSheetOpen={setIsViewOpen}
+        dialogOpen={isViewOpen}
+        setDialogOpen={setIsViewOpen}
         report={report as IReport}
       />
 
@@ -353,8 +353,8 @@ export default function Report() {
         <EditReport
           key={editReport._id}
           report={editReport as IReport}
-          sheetOpen={isEditOpen}
-          setSheetOpen={setIsEditOpen}
+          dialogOpen={isEditOpen}
+          setDialogOpen={setIsEditOpen}
           refreshReports={refreshReports}
           projectAdmin={projectAdmin}
         />

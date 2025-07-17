@@ -28,6 +28,7 @@ import { getTestCycleService } from "@/app/_services/test-cycle.service";
 import { ITestCycle } from "@/app/_interface/test-cycle";
 import { AddTestCycle } from "./_components/add-test-cycle";
 import { TestCycleRowActions } from "./_components/row-actions";
+import TestCycleView from "./_components/view-test-cycle";
 import { formatDateWithoutTime } from "@/app/_constants/date-formatter";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
@@ -62,6 +63,8 @@ export default function TestCycle() {
   const [userData, setUserData] = useState<any>();
   const [project, setProject] = useState<IProject>();
   const [testCase, setTestCase] = useState<Row<ITestCycle>>();
+  const [isViewOpen, setIsViewOpen] = useState<boolean>(false);
+  const [viewTestCycle, setViewTestCycle] = useState<ITestCycle>();
 
   // Statistics calculations
   const statistics = useMemo(() => {
@@ -145,6 +148,7 @@ export default function TestCycle() {
       cell: ({ row }) => (
         <div
           className="cursor-pointer hover:text-blue-600 max-w-xs"
+          onClick={() => openTestCycleView(row)}
         >
           <div className="font-medium truncate" title={row.getValue("title")}>
             {row.getValue("title")}
@@ -297,6 +301,11 @@ export default function TestCycle() {
     setTestCase(row);
   };
 
+  const openTestCycleView = (row: Row<ITestCycle>) => {
+    setIsViewOpen(true);
+    setViewTestCycle(row.original);
+  };
+
   useEffect(() => {
     if (data) {
       const { user } = data;
@@ -417,6 +426,15 @@ export default function TestCycle() {
 
   return (
     <div className="w-full space-y-6 p-6">
+      {/* View Test Cycle Dialog */}
+      {viewTestCycle && (
+        <TestCycleView
+          dialogOpen={isViewOpen}
+          setDialogOpen={setIsViewOpen}
+          testCycle={viewTestCycle}
+        />
+      )}
+
       <AssignTestCase
         sheetOpen={isAssignOpen}
         setSheetOpen={setIsAssignOpen}
