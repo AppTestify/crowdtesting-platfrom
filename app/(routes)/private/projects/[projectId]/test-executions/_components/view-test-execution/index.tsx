@@ -42,22 +42,7 @@ export default function TestExecutionView({ sheetOpen, setSheetOpen, testExecuti
         }
     };
 
-    const getStatusColor = (status: string) => {
-        switch (status?.toLowerCase()) {
-            case 'passed':
-                return 'bg-green-100 text-green-800 border-green-200';
-            case 'failed':
-                return 'bg-red-100 text-red-800 border-red-200';
-            case 'blocked':
-                return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-            case 'skipped':
-                return 'bg-gray-100 text-gray-800 border-gray-200';
-            case 'in progress':
-                return 'bg-blue-100 text-blue-800 border-blue-200';
-            default:
-                return 'bg-gray-100 text-gray-800 border-gray-200';
-        }
-    };
+
 
     return (
         <Dialog open={sheetOpen} onOpenChange={setSheetOpen}>
@@ -94,20 +79,11 @@ export default function TestExecutionView({ sheetOpen, setSheetOpen, testExecuti
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <span className="text-sm font-medium text-gray-700 min-w-[80px]">Type:</span>
-                                    <Badge className={getExecutionTypeColor(testExecution?.type)}>
-                                        {testExecution?.type}
+                                    <Badge className={getExecutionTypeColor(testExecution?.type || '')}>
+                                        {testExecution?.type || 'Unknown'}
                                     </Badge>
                                 </div>
                             </div>
-                            
-                            {testExecution?.status && (
-                                <div className="flex items-center gap-2">
-                                    <span className="text-sm font-medium text-gray-700 min-w-[80px]">Status:</span>
-                                    <Badge className={getStatusColor(testExecution.status)}>
-                                        {testExecution.status}
-                                    </Badge>
-                                </div>
-                            )}
                         </CardContent>
                     </Card>
 

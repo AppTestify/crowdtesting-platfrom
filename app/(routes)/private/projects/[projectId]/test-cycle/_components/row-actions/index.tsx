@@ -69,8 +69,8 @@ export function TestCycleRowActions({
                     </DialogHeader>
                     <div className="mt-4">
                         <TestCycleView
-                            sheetOpen={isViewOpen}
-                            setSheetOpen={setIsViewOpen}
+                            dialogOpen={isViewOpen}
+                            setDialogOpen={setIsViewOpen}
                             testCycle={row.original as ITestCycle}
                         />
                     </div>
@@ -78,21 +78,13 @@ export function TestCycleRowActions({
             </Dialog>
             
             <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                        <DialogTitle>Edit Test Cycle</DialogTitle>
-                        <DialogDescription>
-                            Update the test cycle details and configuration.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="mt-4">
-                        <EditTestCycle
-                            testCycle={row.original as ITestCycle}
-                            sheetOpen={isEditOpen}
-                            setSheetOpen={setIsEditOpen}
-                            refreshTestCycle={refreshTestCycle}
-                        />
-                    </div>
+                <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto p-0">
+                    <EditTestCycle
+                        testCycle={row.original as ITestCycle}
+                        sheetOpen={isEditOpen}
+                        setSheetOpen={setIsEditOpen}
+                        refreshTestCycle={refreshTestCycle}
+                    />
                 </DialogContent>
             </Dialog>
 

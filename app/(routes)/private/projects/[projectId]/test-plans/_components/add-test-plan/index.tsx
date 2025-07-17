@@ -113,6 +113,8 @@ export function AddTestPlan({ refreshTestPlans, userData }: { refreshTestPlans: 
 
     const resetForm = () => {
         form.reset();
+        setStartDateOpen(false);
+        setEndDateOpen(false);
     };
 
     const { fields, append, remove } = useFieldArray({
@@ -161,6 +163,11 @@ export function AddTestPlan({ refreshTestPlans, userData }: { refreshTestPlans: 
     useEffect(() => {
         if (!dialogOpen) {
             getProjectUsers();
+        }
+        // Reset date picker states when dialog opens
+        if (dialogOpen) {
+            setStartDateOpen(false);
+            setEndDateOpen(false);
         }
     }, [dialogOpen]);
 
