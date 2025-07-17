@@ -94,20 +94,13 @@ export default function TestExecutionView({ sheetOpen, setSheetOpen, testExecuti
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <span className="text-sm font-medium text-gray-700 min-w-[80px]">Type:</span>
-                                    <Badge className={getExecutionTypeColor(testExecution?.type)}>
-                                        {testExecution?.type}
+                                    <Badge className={getExecutionTypeColor(testExecution?.type || "")}>
+                                        {testExecution?.type || "Not specified"}
                                     </Badge>
                                 </div>
                             </div>
                             
-                            {testExecution?.status && (
-                                <div className="flex items-center gap-2">
-                                    <span className="text-sm font-medium text-gray-700 min-w-[80px]">Status:</span>
-                                    <Badge className={getStatusColor(testExecution.status)}>
-                                        {testExecution.status}
-                                    </Badge>
-                                </div>
-                            )}
+
                         </CardContent>
                     </Card>
 
