@@ -79,8 +79,9 @@ export default function TestExecutionView({ sheetOpen, setSheetOpen, testExecuti
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <span className="text-sm font-medium text-gray-700 min-w-[80px]">Type:</span>
-                                    <Badge className={getExecutionTypeColor(testExecution?.type || '')}>
-                                        {testExecution?.type || 'Unknown'}
+
+                                    <Badge className={getExecutionTypeColor(testExecution?.type || "")}>
+                                        {testExecution?.type || "Not specified"}
                                     </Badge>
                                 </div>
                             </div>
