@@ -45,6 +45,9 @@ import {
   Clock,
   Loader2,
   TestTube,
+  TrendingUp,
+  Link,
+  Hash,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
@@ -78,7 +81,7 @@ export default function TestSuite() {
   const [userData, setUserData] = useState<any>();
   const [project, setProject] = useState<IProject>();
 
-  // Statistics calculations
+  // Enhanced statistics calculations
   const statistics = useMemo(() => {
     const total = allTestSuites.length;
     const withRequirements = allTestSuites.filter(
@@ -93,11 +96,19 @@ export default function TestSuite() {
       return suiteDate >= weekAgo;
     }).length;
 
+    // Calculate average requirements per suite
+    const totalRequirements = allTestSuites.reduce((sum, suite) => 
+      sum + (suite.requirements?.length || 0), 0
+    );
+    const avgRequirements = total > 0 ? (totalRequirements / total).toFixed(1) : 0;
+
     return {
       total,
       withRequirements,
       withoutRequirements,
       recentlyCreated,
+      avgRequirements,
+      totalRequirements,
     };
   }, [allTestSuites]);
 
@@ -156,7 +167,7 @@ export default function TestSuite() {
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-              <FileText className="h-4 w-4 text-purple-600" />
+              <Link className="h-4 w-4 text-purple-600" />
             </div>
             <div>
               <div className="text-sm font-medium">
@@ -249,8 +260,7 @@ export default function TestSuite() {
                     setIsEditOpen(true);
                   }}
                   onViewClick={(viewSuite) => {
-                    setTestSuiteData(viewSuite);
-                    setIsViewOpen(true);
+                    getTestSuite(viewSuite);
                   }}
                   refreshTestSuites={refreshTestSuites}
                 />
@@ -432,7 +442,7 @@ export default function TestSuite() {
             )}
         </div>
 
-        {/* Statistics Dashboard */}
+        {/* Enhanced Statistics Dashboard */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <Card className="border-l-4 border-l-blue-500 hover:shadow-md transition-shadow">
             <CardHeader className="pb-3">
@@ -454,7 +464,7 @@ export default function TestSuite() {
           <Card className="border-l-4 border-l-green-500 hover:shadow-md transition-shadow">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
-                <FileText className="h-4 w-4 text-green-500" />
+                <Link className="h-4 w-4 text-green-500" />
                 With Requirements
               </CardTitle>
             </CardHeader>
@@ -500,6 +510,45 @@ export default function TestSuite() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Additional Statistics Row */}
+        {statistics.total > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <Card className="border-l-4 border-l-indigo-500 hover:shadow-md transition-shadow">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4 text-indigo-500" />
+                  Average Requirements
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-gray-900">
+                  {statistics.avgRequirements}
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Per test suite
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-l-4 border-l-teal-500 hover:shadow-md transition-shadow">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-teal-500" />
+                  Total Requirements
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-gray-900">
+                  {statistics.totalRequirements}
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Across all suites
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {/* Main Content Card */}
         <Card className="shadow-sm">

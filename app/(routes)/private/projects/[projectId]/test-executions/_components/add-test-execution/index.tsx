@@ -180,11 +180,16 @@ export function AddTestExecution({ refreshTestExecution }: { refreshTestExecutio
 
     const resetForm = () => {
         form.reset();
+        setStartDateOpen(false);
+        setEndDateOpen(false);
     };
 
     useEffect(() => {
         if (sheetOpen) {
             testCycleList();
+            // Reset date picker states when dialog opens
+            setStartDateOpen(false);
+            setEndDateOpen(false);
         }
     }, [sheetOpen]);
 

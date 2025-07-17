@@ -121,6 +121,8 @@ export function EditTestPlan({
             startDate: testPlan?.startDate ? new Date(testPlan.startDate) : null,
             endDate: testPlan?.endDate ? new Date(testPlan.endDate) : null,
         });
+        setStartDateOpen(false);
+        setEndDateOpen(false);
     };
 
     const getSelectedUser = (field: any) => {
@@ -145,6 +147,9 @@ export function EditTestPlan({
         if (sheetOpen) {
             resetForm();
             getProjectUsers();
+            // Reset date picker states when dialog opens
+            setStartDateOpen(false);
+            setEndDateOpen(false);
         }
     }, [sheetOpen]);
 

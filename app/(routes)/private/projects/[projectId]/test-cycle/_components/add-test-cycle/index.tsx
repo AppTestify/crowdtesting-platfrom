@@ -8,6 +8,12 @@ import {
     Plus,
     Trash,
     TriangleAlert,
+    Play,
+    Calendar,
+    FileText,
+    Globe,
+    Mail,
+    Settings
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -21,14 +27,13 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import {
-    Sheet,
-    SheetClose,
-    SheetContent,
-    SheetDescription,
-    SheetHeader,
-    SheetTitle,
-    SheetTrigger,
-} from "@/components/ui/sheet";
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -38,7 +43,7 @@ import { addTestCycleService, getTestCycleEmailFormatService } from "@/app/_serv
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { Calendar } from "@/components/ui/calendar";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { ColumnDef } from "@tanstack/react-table";
@@ -47,7 +52,8 @@ import { DocumentName } from "@/app/_components/document-name";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { countries } from "@/app/_constants/countries";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import TextEditor from "../../../../_components/text-editor";
 
 const testCycleSchema = z.object({
@@ -95,9 +101,8 @@ export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => voi
         })
     });
 
-
     const [emailFormat, setEmailFormat] = useState<{ subject: string, body: string }>();
-    const [sheetOpen, setSheetOpen] = useState(false);
+    const [dialogOpen, setDialogOpen] = useState(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const { projectId } = useParams<{ projectId: string }>();
     const [attachments, setAttachments] = useState<File[]>([]);
@@ -148,7 +153,7 @@ export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => voi
             toasterService.error();
         } finally {
             setIsModalLoading(false);
-            setSheetOpen(false);
+            setDialogOpen(false);
         }
     }
 
@@ -168,9 +173,10 @@ export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => voi
             toasterService.error();
         } finally {
             setIsLoading(false);
-            setSheetOpen(false);
+            setDialogOpen(false);
         }
     }
+
     const validateTestCycle = async (event?: React.FormEvent) => {
         event?.preventDefault();
         await form.trigger();
@@ -197,7 +203,6 @@ export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => voi
         })();
     };
 
-
     const resetForm = () => {
         form.reset();
     };
@@ -219,7 +224,6 @@ export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => voi
 
                 return updatedAttachments;
             });
-
         }
     };
 
@@ -259,386 +263,483 @@ export function AddTestCycle({ refreshTestCycle }: { refreshTestCycle: () => voi
     }, [emailFormat]);
 
     useEffect(() => {
-        if (sheetOpen) {
+        if (dialogOpen) {
             setAttachments([]);
             setModalOpen(false);
         }
-    }, [sheetOpen])
+    }, [dialogOpen])
 
     return (
-        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-            <SheetTrigger asChild>
-                <Button onClick={() => resetForm()}>
-                    <Plus /> Add test cycle
-                </Button>
-            </SheetTrigger>
-            <SheetContent
-                className="w-full !max-w-full md:w-[580px] md:!max-w-[580px] overflow-y-auto"
-            >
-                <SheetHeader>
-                    <SheetTitle className="text-left">Add new test cycle</SheetTitle>
-                    <SheetDescription className="text-left">
-                        A series of iterative testing phases, including planning, execution, and closure,
-                        to validate product functionality.
-                    </SheetDescription>
-                </SheetHeader>
+        <>
+            <Button onClick={() => {
+                resetForm();
+                setDialogOpen(true);
+            }} className="bg-green-600 hover:bg-green-700 text-white">
+                <Plus className="mr-2 h-4 w-4" />
+                Add Test Cycle
+            </Button>
 
-                {/* start of modal */}
-                <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-                    <DialogContent className="sm:max-w-[700px]" onOpenAutoFocus={(event) => event.preventDefault()}>
-                        <DialogHeader>
-                            <DialogTitle>Email format</DialogTitle>
-                        </DialogHeader>
-                        <Form {...Emailform}>
-                            <form
-                                onSubmit={async (e) => {
-                                    e.preventDefault();
-                                    validateEmail()
-                                }}
-                                className="flex flex-col max-h-[70vh] overflow-y-auto p-2">
-                                <div className="grid grid-cols-1 gap-2 mt-2 mx-2">
-                                    <FormField
-                                        control={Emailform.control}
-                                        name="subject"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Subject</FormLabel>
-                                                <FormControl>
-                                                    <Input {...field} autoFocus={false} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader className="space-y-6">
+                        {/* Enhanced Header with Gradient Background */}
+                        <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-green-50 to-emerald-50 p-6 border border-green-100">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-100/50 to-emerald-100/50 rounded-full -translate-y-16 translate-x-16"></div>
+                            <div className="relative flex items-start gap-4">
+                                <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+                                    <Play className="h-8 w-8 text-white" />
                                 </div>
-
-                                <div className="grid grid-cols-1 gap-2 mt-4 mx-2">
-                                    <FormField
-                                        control={Emailform.control}
-                                        name="body"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel className="flex justify-between">
-                                                    <div>Body</div>
-                                                    <span className="text-xs flex text-destructive">
-                                                        <span className="mr-1">
-                                                            <TriangleAlert className="h-4 w-4" />
-                                                        </span>
-                                                        <span>
-                                                            please do not remove any variables
-                                                        </span>
-                                                    </span>
-                                                </FormLabel>
-                                                <FormControl>
-                                                    <TextEditor
-                                                        markup={field.value || ""}
-                                                        onChange={(value) => {
-                                                            Emailform.setValue("body", value, { shouldDirty: true });
-                                                            Emailform.trigger("body");
-                                                        }} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <Badge variant="outline" className="bg-white/80 border-green-200 text-green-700">
+                                            New Test Cycle
+                                        </Badge>
+                                    </div>
+                                    <DialogTitle className="text-2xl font-bold text-gray-900 mb-3">
+                                        Add New Test Cycle
+                                    </DialogTitle>
+                                    <DialogDescription className="text-gray-600">
+                                        Create a new testing phase with planning, execution, and closure phases to validate product functionality.
+                                    </DialogDescription>
                                 </div>
-                                <div className="mt-6 w-full flex justify-end gap-2" >
-                                    <SheetClose asChild>
-                                        <Button
-                                            disabled={isModalLoading}
-                                            type="button"
-                                            variant={"outline"}
-                                            size="lg"
-                                            className="w-full md:w-fit"
-                                        >
-                                            Cancel
-                                        </Button>
-                                    </SheetClose>
-                                    <Button
-                                        disabled={isModalLoading}
-                                        type="submit"
-                                        size="lg"
-                                        onClick={() => validateEmail()}
-                                        className="w-full md:w-fit"
-                                    >
-                                        {isModalLoading ? (
-                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        ) : null}
-                                        {isModalLoading ? "Sending" : "Send"}
-                                    </Button>
-                                </div>
-                            </form>
-                        </Form>
-                    </DialogContent>
-                </Dialog>
-                {/* end of modal */}
-
-                <div className="mt-4">
-                    <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} method="post">
-                            <div className="grid grid-cols-1 gap-2">
-                                <FormField
-                                    control={form.control}
-                                    name="title"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Test cycle title</FormLabel>
-                                            <FormControl>
-                                                <Input {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
                             </div>
+                        </div>
+                    </DialogHeader>
 
-                            <div className="grid grid-cols-2 gap-2 mt-3">
-                                <FormField
-                                    control={form.control}
-                                    name="startDate"
-                                    render={({ field }) => (
-                                        <FormItem className="flex flex-col">
-                                            <FormLabel>Start date</FormLabel>
-                                            <Popover>
-                                                <PopoverTrigger asChild>
+                    <div className="mt-8 space-y-6">
+                        <Form {...form}>
+                            <form onSubmit={form.handleSubmit(onSubmit)} method="post">
+                                {/* Basic Information Card */}
+                                <Card className="border-0 shadow-sm bg-gradient-to-br from-gray-50 to-white">
+                                    <CardHeader className="pb-4">
+                                        <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                                            <FileText className="h-5 w-5 text-blue-600" />
+                                            Basic Information
+                                        </CardTitle>
+                                        <p className="text-sm text-gray-600">
+                                            Essential details about the test cycle
+                                        </p>
+                                    </CardHeader>
+                                    <CardContent className="space-y-4">
+                                        <FormField
+                                            control={form.control}
+                                            name="title"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel className="text-sm font-medium text-gray-700">
+                                                        Test Cycle Title *
+                                                    </FormLabel>
                                                     <FormControl>
-                                                        <Button
-                                                            variant={"outline"}
-                                                            className={cn(
-                                                                "w-full pl-3 text-left font-normal",
-                                                                !field.value && "text-muted-foreground"
-                                                            )}
-                                                        >
-                                                            {field.value ? (
-                                                                format(field.value, "PPP")
-                                                            ) : (
-                                                                <span>Start date</span>
-                                                            )}
-                                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                                        </Button>
+                                                        <Input 
+                                                            {...field} 
+                                                            placeholder="Enter a descriptive title for the test cycle"
+                                                            className="border-gray-300 focus:border-green-500 focus:ring-green-500"
+                                                        />
                                                     </FormControl>
-                                                </PopoverTrigger>
-                                                <PopoverContent className="w-auto p-0" align="start">
-                                                    <Calendar
-                                                        mode="single"
-                                                        selected={field.value}
-                                                        onSelect={field.onChange}
-                                                        disabled={(date) => date < new Date("1900-01-01") ||
-                                                            date > form.watch('endDate')
-                                                        }
-                                                        initialFocus
-                                                    />
-                                                </PopoverContent>
-                                            </Popover>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
 
-                                <FormField
-                                    control={form.control}
-                                    name="endDate"
-                                    render={({ field }) => (
-                                        <FormItem className="flex flex-col">
-                                            <FormLabel>End date</FormLabel>
-                                            <Popover>
-                                                <PopoverTrigger asChild>
+                                        <FormField
+                                            control={form.control}
+                                            name="description"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel className="text-sm font-medium text-gray-700">
+                                                        Description *
+                                                    </FormLabel>
                                                     <FormControl>
-                                                        <Button
-                                                            variant={"outline"}
-                                                            className={cn(
-                                                                "w-full pl-3 text-left font-normal",
-                                                                !field.value && "text-muted-foreground"
-                                                            )}
-                                                        >
-                                                            {field.value ? (
-                                                                format(field.value, "PPP")
-                                                            ) : (
-                                                                <span>End date</span>
-                                                            )}
-                                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                                        </Button>
+                                                        <Textarea 
+                                                            {...field} 
+                                                            placeholder="Describe the test cycle objectives and scope"
+                                                            className="border-gray-300 focus:border-green-500 focus:ring-green-500"
+                                                        />
                                                     </FormControl>
-                                                </PopoverTrigger>
-                                                <PopoverContent className="w-auto p-0" align="start">
-                                                    <Calendar
-                                                        mode="single"
-                                                        selected={field.value}
-                                                        onSelect={field.onChange}
-                                                        disabled={(date) =>
-                                                            date < form.watch("startDate") ||
-                                                            date < new Date("1900-01-01")
-                                                        }
-                                                        initialFocus
-                                                    />
-                                                </PopoverContent>
-                                            </Popover>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </CardContent>
+                                </Card>
 
-                            <div className="grid grid-cols-1 gap-2 mt-3">
-                                <FormField
-                                    control={form.control}
-                                    name="country"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Country</FormLabel>
-                                            <Select
-                                                onValueChange={field.onChange}
-                                                value={field.value}
-                                            >
-                                                <SelectTrigger className="w-full">
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent className="h-72">
-                                                    <SelectGroup>
-                                                        {countries.map((country) => (
-                                                            <SelectItem value={country?.description}>
-                                                                <div className="flex items-center">
-                                                                    {country?.description}
-                                                                </div>
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectGroup>
-                                                </SelectContent>
-                                            </Select>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
+                                {/* Timeline Card */}
+                                <Card className="border-0 shadow-sm bg-gradient-to-br from-gray-50 to-white">
+                                    <CardHeader className="pb-4">
+                                        <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                                            <Calendar className="h-5 w-5 text-purple-600" />
+                                            Timeline
+                                        </CardTitle>
+                                        <p className="text-sm text-gray-600">
+                                            Set the start and end dates for the test cycle
+                                        </p>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <FormField
+                                                control={form.control}
+                                                name="startDate"
+                                                render={({ field }) => (
+                                                    <FormItem className="flex flex-col">
+                                                        <FormLabel className="text-sm font-medium text-gray-700">Start Date *</FormLabel>
+                                                        <Popover>
+                                                            <PopoverTrigger asChild>
+                                                                <FormControl>
+                                                                    <Button
+                                                                        variant={"outline"}
+                                                                        className={cn(
+                                                                            "w-full pl-3 text-left font-normal border-gray-300 focus:border-green-500 focus:ring-green-500",
+                                                                            !field.value && "text-muted-foreground"
+                                                                        )}
+                                                                    >
+                                                                        {field.value ? (
+                                                                            format(field.value, "PPP")
+                                                                        ) : (
+                                                                            <span>Select start date</span>
+                                                                        )}
+                                                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                                    </Button>
+                                                                </FormControl>
+                                                            </PopoverTrigger>
+                                                            <PopoverContent className="w-auto p-0 z-50" align="start">
+                                                                <CalendarComponent
+                                                                    mode="single"
+                                                                    selected={field.value}
+                                                                    onSelect={field.onChange}
+                                                                    disabled={(date) => date < new Date("1900-01-01") ||
+                                                                        date > form.watch('endDate')
+                                                                    }
+                                                                    initialFocus
+                                                                />
+                                                            </PopoverContent>
+                                                        </Popover>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
 
-                            <div className="grid grid-cols-1 gap-2 mt-3">
-                                <FormField
-                                    control={form.control}
-                                    name="description"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Description</FormLabel>
-                                            <FormControl>
-                                                <Textarea {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-1 gap-2 ">
-                                <div className="w-full mt-3">
-                                    <Label htmlFor="attachments">Attachments</Label>
-                                    <Input
-                                        className="mt-2 opacity-0 cursor-pointer absolute w-0 h-0"
-                                        id="attachments"
-                                        type="file"
-                                        multiple
-                                        ref={inputRef}
-                                        onChange={handleFileChange}
-                                    />
-                                    <label
-                                        htmlFor="attachments"
-                                        className="flex mt-2 h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors cursor-pointer"
-                                    >
-                                        Choose Files
-                                    </label>
-                                    {attachments?.length > 0 && (
-                                        <div className="mt-2">
-                                            New attachments
-                                            <div className="mt-4 rounded-md border">
-                                                <Table>
-                                                    <TableBody>
-                                                        {attachments?.length ? (
-                                                            attachments.map((attachment, index) => (
-                                                                <TableRow key={index}>
-                                                                    <TableCell>
-                                                                        <DocumentName document={attachment} />
-                                                                    </TableCell>
-                                                                    <TableCell className="flex justify-end items-end mr-6">
-                                                                        <Button
-                                                                            type="button"
-                                                                            onClick={() => handleRemoveFile(index)}
-                                                                            variant="ghost"
-                                                                            size="icon"
-                                                                        >
-                                                                            <Trash className="h-4 w-4 text-destructive" />
-                                                                        </Button>
-                                                                    </TableCell>
-                                                                </TableRow>
-                                                            ))
-                                                        ) : (
-                                                            <TableRow>
-                                                                <TableCell
-                                                                    colSpan={columns.length}
-                                                                    className="h-24 text-center"
-                                                                >
-                                                                    No attachments found
-                                                                </TableCell>
-                                                            </TableRow>
-                                                        )}
-                                                    </TableBody>
-                                                </Table>
-                                            </div>
+                                            <FormField
+                                                control={form.control}
+                                                name="endDate"
+                                                render={({ field }) => (
+                                                    <FormItem className="flex flex-col">
+                                                        <FormLabel className="text-sm font-medium text-gray-700">End Date *</FormLabel>
+                                                        <Popover>
+                                                            <PopoverTrigger asChild>
+                                                                <FormControl>
+                                                                    <Button
+                                                                        variant={"outline"}
+                                                                        className={cn(
+                                                                            "w-full pl-3 text-left font-normal border-gray-300 focus:border-green-500 focus:ring-green-500",
+                                                                            !field.value && "text-muted-foreground"
+                                                                        )}
+                                                                    >
+                                                                        {field.value ? (
+                                                                            format(field.value, "PPP")
+                                                                        ) : (
+                                                                            <span>Select end date</span>
+                                                                        )}
+                                                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                                    </Button>
+                                                                </FormControl>
+                                                            </PopoverTrigger>
+                                                            <PopoverContent className="w-auto p-0 z-50" align="start">
+                                                                <CalendarComponent
+                                                                    mode="single"
+                                                                    selected={field.value}
+                                                                    onSelect={field.onChange}
+                                                                    disabled={(date) =>
+                                                                        date < form.watch("startDate") ||
+                                                                        date < new Date("1900-01-01")
+                                                                    }
+                                                                    initialFocus
+                                                                />
+                                                            </PopoverContent>
+                                                        </Popover>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
                                         </div>
-                                    )}
-                                </div>
-                            </div>
+                                    </CardContent>
+                                </Card>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 mt-3">
-                                <FormField
-                                    control={form.control}
-                                    name="isEmailSend"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormControl>
-                                                <div className="flex items-center space-x-2 mt-2">
-                                                    <Checkbox
-                                                        id="terms"
-                                                        className="h-5 w-5 text-blue-500 border-gray-300 "
-                                                        checked={Boolean(field.value)}
-                                                        onCheckedChange={field.onChange}
-                                                    />
-                                                    <Label htmlFor="terms" className="text-gray-600">Send email to all testers from same country to apply?</Label>
+                                {/* Email Configuration Card */}
+                                <Card className="border-0 shadow-sm bg-gradient-to-br from-gray-50 to-white">
+                                    <CardHeader className="pb-4">
+                                        <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                                            <Mail className="h-5 w-5 text-orange-600" />
+                                            Email Configuration
+                                        </CardTitle>
+                                        <p className="text-sm text-gray-600">
+                                            Configure email notifications for testers
+                                        </p>
+                                    </CardHeader>
+                                    <CardContent className="space-y-4">
+                                        <FormField
+                                            control={form.control}
+                                            name="isEmailSend"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormControl>
+                                                        <div className="flex items-center space-x-3">
+                                                            <Checkbox
+                                                                id="emailSend"
+                                                                className="h-5 w-5 text-green-500 border-gray-300"
+                                                                checked={Boolean(field.value)}
+                                                                onCheckedChange={field.onChange}
+                                                            />
+                                                            <Label htmlFor="emailSend" className="text-sm font-medium text-gray-700">
+                                                                Send email to all testers from same country to apply?
+                                                            </Label>
+                                                        </div>
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        {form.watch("isEmailSend") && (
+                                            <FormField
+                                                control={form.control}
+                                                name="country"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                                                            <Globe className="h-4 w-4 text-blue-500" />
+                                                            Country *
+                                                        </FormLabel>
+                                                        <Select
+                                                            onValueChange={field.onChange}
+                                                            value={field.value}
+                                                        >
+                                                            <SelectTrigger className="w-full border-gray-300 focus:border-green-500 focus:ring-green-500">
+                                                                <SelectValue placeholder="Select country for email notifications" />
+                                                            </SelectTrigger>
+                                                            <SelectContent className="h-72">
+                                                                <SelectGroup>
+                                                                    {countries.map((country) => (
+                                                                        <SelectItem key={country?.description} value={country?.description}>
+                                                                            <div className="flex items-center">
+                                                                                {country?.description}
+                                                                            </div>
+                                                                        </SelectItem>
+                                                                    ))}
+                                                                </SelectGroup>
+                                                            </SelectContent>
+                                                        </Select>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        )}
+                                    </CardContent>
+                                </Card>
+
+                                {/* Attachments Card */}
+                                <Card className="border-0 shadow-sm bg-gradient-to-br from-gray-50 to-white">
+                                    <CardHeader className="pb-4">
+                                        <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                                            <FileText className="h-5 w-5 text-blue-600" />
+                                            Attachments
+                                        </CardTitle>
+                                        <p className="text-sm text-gray-600">
+                                            Add supporting files and documents
+                                        </p>
+                                    </CardHeader>
+                                    <CardContent className="space-y-4">
+                                        <div className="w-full">
+                                            <Label htmlFor="attachments" className="text-sm font-medium text-gray-700">
+                                                Supporting Files
+                                            </Label>
+                                            <Input
+                                                className="mt-2 opacity-0 cursor-pointer absolute w-0 h-0"
+                                                id="attachments"
+                                                type="file"
+                                                multiple
+                                                ref={inputRef}
+                                                onChange={handleFileChange}
+                                            />
+                                            <label
+                                                htmlFor="attachments"
+                                                className="flex mt-2 h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm shadow-sm transition-colors cursor-pointer hover:bg-gray-50 focus:border-green-500 focus:ring-green-500"
+                                            >
+                                                Choose Files
+                                            </label>
+                                            {attachments?.length > 0 && (
+                                                <div className="mt-4">
+                                                    <p className="text-sm font-medium text-gray-700 mb-2">Selected Files</p>
+                                                    <div className="rounded-md border">
+                                                        <Table>
+                                                            <TableBody>
+                                                                {attachments?.length ? (
+                                                                    attachments.map((attachment, index) => (
+                                                                        <TableRow key={index}>
+                                                                            <TableCell>
+                                                                                <DocumentName document={attachment} />
+                                                                            </TableCell>
+                                                                            <TableCell className="flex justify-end items-end mr-6">
+                                                                                <Button
+                                                                                    type="button"
+                                                                                    onClick={() => handleRemoveFile(index)}
+                                                                                    variant="ghost"
+                                                                                    size="icon"
+                                                                                >
+                                                                                    <Trash className="h-4 w-4 text-destructive" />
+                                                                                </Button>
+                                                                            </TableCell>
+                                                                        </TableRow>
+                                                                    ))
+                                                                ) : (
+                                                                    <TableRow>
+                                                                        <TableCell
+                                                                            colSpan={columns.length}
+                                                                            className="h-24 text-center"
+                                                                        >
+                                                                            No attachments found
+                                                                        </TableCell>
+                                                                    </TableRow>
+                                                                )}
+                                                            </TableBody>
+                                                        </Table>
+                                                    </div>
                                                 </div>
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
+                                            )}
+                                        </div>
+                                    </CardContent>
+                                </Card>
 
-                            <div className="mt-6 w-full flex justify-end gap-2" >
-                                <SheetClose asChild>
+                                <DialogFooter className="flex flex-col sm:flex-row gap-3 pt-6">
                                     <Button
                                         disabled={isLoading}
                                         type="button"
-                                        variant={"outline"}
+                                        variant="outline"
                                         size="lg"
-                                        className="w-full md:w-fit"
+                                        onClick={() => setDialogOpen(false)}
+                                        className="w-full sm:w-auto border-gray-300 hover:bg-gray-50"
                                     >
                                         Cancel
                                     </Button>
-                                </SheetClose>
+                                    <Button
+                                        disabled={isLoading}
+                                        type="submit"
+                                        size="lg"
+                                        onClick={(e) => validateTestCycle(e)}
+                                        className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white"
+                                    >
+                                        {isLoading ? (
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        ) : (
+                                            <Plus className="mr-2 h-4 w-4" />
+                                        )}
+                                        {isLoading ? "Creating..." : "Create Test Cycle"}
+                                    </Button>
+                                </DialogFooter>
+                            </form>
+                        </Form>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* Email Format Modal */}
+            <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+                <DialogContent className="sm:max-w-[700px]" onOpenAutoFocus={(event) => event.preventDefault()}>
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <Mail className="h-5 w-5 text-orange-600" />
+                            Email Format Configuration
+                        </DialogTitle>
+                        <DialogDescription>
+                            Configure the email template for tester notifications
+                        </DialogDescription>
+                    </DialogHeader>
+                    <Form {...Emailform}>
+                        <form
+                            onSubmit={async (e) => {
+                                e.preventDefault();
+                                validateEmail()
+                            }}
+                            className="flex flex-col max-h-[70vh] overflow-y-auto p-2">
+                            <div className="grid grid-cols-1 gap-2 mt-2 mx-2">
+                                <FormField
+                                    control={Emailform.control}
+                                    name="subject"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="text-sm font-medium text-gray-700">Email Subject *</FormLabel>
+                                            <FormControl>
+                                                <Input 
+                                                    {...field} 
+                                                    autoFocus={false}
+                                                    className="border-gray-300 focus:border-green-500 focus:ring-green-500"
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-1 gap-2 mt-4 mx-2">
+                                <FormField
+                                    control={Emailform.control}
+                                    name="body"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="flex justify-between">
+                                                <div className="text-sm font-medium text-gray-700">Email Body *</div>
+                                                <span className="text-xs flex text-destructive">
+                                                    <span className="mr-1">
+                                                        <TriangleAlert className="h-4 w-4" />
+                                                    </span>
+                                                    <span>
+                                                        Please do not remove any variables
+                                                    </span>
+                                                </span>
+                                            </FormLabel>
+                                            <FormControl>
+                                                <TextEditor
+                                                    markup={field.value || ""}
+                                                    onChange={(value) => {
+                                                        Emailform.setValue("body", value, { shouldDirty: true });
+                                                        Emailform.trigger("body");
+                                                    }} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                            <div className="mt-6 w-full flex justify-end gap-2" >
                                 <Button
-                                    disabled={isLoading}
+                                    disabled={isModalLoading}
+                                    type="button"
+                                    variant={"outline"}
+                                    size="lg"
+                                    className="w-full md:w-fit border-gray-300 hover:bg-gray-50"
+                                    onClick={() => setModalOpen(false)}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    disabled={isModalLoading}
                                     type="submit"
                                     size="lg"
-                                    onClick={(e) => validateTestCycle(e)}
-                                    className="w-full md:w-fit"
+                                    onClick={() => validateEmail()}
+                                    className="w-full md:w-fit bg-green-600 hover:bg-green-700 text-white"
                                 >
-                                    {isLoading ? (
+                                    {isModalLoading ? (
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    ) : null}
-                                    {isLoading ? "Saving" : "Save"}
+                                    ) : (
+                                        <Mail className="mr-2 h-4 w-4" />
+                                    )}
+                                    {isModalLoading ? "Sending..." : "Send Email"}
                                 </Button>
                             </div>
                         </form>
                     </Form>
-                </div>
-
-            </SheetContent>
-        </Sheet >
+                </DialogContent>
+            </Dialog>
+        </>
     );
 }

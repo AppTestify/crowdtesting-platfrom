@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Plus, Trash } from "lucide-react";
+import { Loader2, Plus, Trash, Bug, AlertTriangle, FileText, Users, Smartphone, Calendar, Save } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import toasterService from "@/app/_services/toaster-service";
@@ -18,6 +18,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -59,6 +60,8 @@ import { getUsernameWithUserId } from "@/app/_utils/common";
 import { ProjectUserRoles } from "@/app/_constants/project-user-roles";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const projectSchema = z.object({
   title: z.string().min(1, "Required"),
@@ -282,344 +285,427 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
-        <Button onClick={() => resetForm()}>
-          <Plus /> Add issue
+        <Button 
+          onClick={() => resetForm()}
+          className="bg-green-600 hover:bg-green-700 text-white"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Add Issue
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-left">Add new issue</DialogTitle>
-          <DialogDescription className="text-left">
-            Problems or defects discovered during testing that need resolution
-            before the product is finalized.
-          </DialogDescription>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader className="space-y-6">
+          {/* Enhanced Header with Gradient Background */}
+          <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-red-50 to-orange-50 p-6 border border-red-100">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-red-100/50 to-orange-100/50 rounded-full -translate-y-16 translate-x-16"></div>
+            <div className="relative flex items-start gap-4">
+              <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
+                <Bug className="h-8 w-8 text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-3 mb-2">
+                  <Badge variant="outline" className="bg-white/80 border-red-200 text-red-700">
+                    New Issue
+                  </Badge>
+                </div>
+                <h1 className="text-2xl font-bold text-gray-900 mb-3">
+                  Report New Issue
+                </h1>
+                <p className="text-gray-600">
+                  Document problems or defects discovered during testing that need resolution
+                </p>
+              </div>
+            </div>
+          </div>
         </DialogHeader>
 
-        <div className="mt-4">
+        <div className="mt-8">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} method="post">
-              <div className="grid grid-cols-1 gap-2">
-                <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Issue title</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-2 mt-3">
-                <FormField
-                  control={form.control}
-                  name="severity"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>Severity</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            {SEVERITY_LIST.map((severity) => (
-                              <SelectItem value={severity}>
-                                {severity}
-                              </SelectItem>
-                            ))}
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="priority"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>Priority</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            {PRIORITY_LIST.map((priority) => (
-                              <SelectItem value={priority}>
-                                <div className="flex items-center">
-                                  <span className="mr-1">
-                                    {displayIcon(priority)}
-                                  </span>
-                                  {priority}
-                                </div>
-                              </SelectItem>
-                            ))}
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 gap-2 mt-4">
-                <Label className={isInvalidDevices ? "text-destructive" : ""}>
-                  Devices
-                </Label>
-                <MultiSelect
-                  options={devices?.map((device) => ({
-                    label:
-                      typeof device?.name === "string"
-                        ? `${device?.name} / ${device?.os} / ${device?.version}`
-                        : "",
-                    value: typeof device?.id === "string" ? device.id : "",
-                  }))}
-                  onValueChange={setSelectedDevices}
-                  defaultValue={selectedDevices}
-                  placeholder=""
-                  disabled={devices?.length === 0}
-                  variant="secondary"
-                  animation={2}
-                  maxCount={2}
-                  className="w-full"
-                />
-                {isInvalidDevices ? (
-                  <FormMessage className="mt-2">
-                    Please select at least one device
-                  </FormMessage>
-                ) : null}
-              </div>
-
-              <div className="grid grid-cols-2 gap-2 mt-3">
-                <FormField
-                  control={form.control}
-                  name="issueType"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>Issue type</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            {ISSUE_TYPE_LIST.map((issueType) => (
-                              <SelectItem value={issueType}>
-                                <div className="flex items-center">
-                                  {issueType}
-                                </div>
-                              </SelectItem>
-                            ))}
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="testCycle"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>Test cycle</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            {testCycles.length > 0 ? (
-                              testCycles.map((testCycle) => (
-                                <SelectItem
-                                  key={testCycle._id}
-                                  value={testCycle._id as string}
-                                >
-                                  {testCycle.title}
-                                </SelectItem>
-                              ))
-                            ) : (
-                              <div className="p-1 text-center text-gray-500">
-                                Test cycle not found
-                              </div>
-                            )}
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {userProjectRole === ProjectUserRoles.ADMIN ||
-                userProjectRole === ProjectUserRoles.CLIENT ||
-                userProjectRole === ProjectUserRoles.MANAGER ||
-                userProjectRole === ProjectUserRoles.DEVELOPER ? (
-                <div className="grid grid-cols-1 gap-2 mt-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} method="post" className="space-y-6">
+              {/* Basic Information Card */}
+              <Card className="border-0 shadow-sm bg-gradient-to-br from-gray-50 to-white">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    <FileText className="h-5 w-5 text-blue-600" />
+                    Basic Information
+                  </CardTitle>
+                  <p className="text-sm text-gray-600">
+                    Provide essential details about the issue
+                  </p>
+                </CardHeader>
+                <CardContent className="space-y-4">
                   <FormField
                     control={form.control}
-                    name="assignedTo"
+                    name="title"
                     render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>Assignee</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue>{getSelectedUser(field)}</SelectValue>
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectGroup>
-                              {users.length > 0 ? (
-                                users.map((user) => (
-                                  <SelectItem
-                                    key={user._id}
-                                    value={user?.userId?._id as string}
-                                  >
-                                    {getUsernameWithUserId(user)}
-                                  </SelectItem>
-                                ))
-                              ) : (
-                                <div className="p-1 text-center text-gray-500">
-                                  Users not found
-                                </div>
-                              )}
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium text-gray-700">
+                          Issue Title *
+                        </FormLabel>
+                        <FormControl>
+                          <Input 
+                            {...field} 
+                            placeholder="Enter a descriptive title for the issue"
+                            className="border-gray-300 focus:border-red-500 focus:ring-red-500"
+                          />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="severity"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <FormLabel className="text-sm font-medium text-gray-700">Severity *</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <SelectTrigger className="w-full border-gray-300 focus:border-red-500 focus:ring-red-500">
+                              <SelectValue placeholder="Select severity" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectGroup>
+                                {SEVERITY_LIST.map((severity) => (
+                                  <SelectItem key={severity} value={severity}>
+                                    {severity}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="priority"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <FormLabel className="text-sm font-medium text-gray-700">Priority *</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <SelectTrigger className="w-full border-gray-300 focus:border-red-500 focus:ring-red-500">
+                              <SelectValue placeholder="Select priority" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectGroup>
+                                {PRIORITY_LIST.map((priority) => (
+                                  <SelectItem key={priority} value={priority}>
+                                    <div className="flex items-center">
+                                      <span className="mr-2">
+                                        {displayIcon(priority)}
+                                      </span>
+                                      {priority}
+                                    </div>
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Testing Context Card */}
+              <Card className="border-0 shadow-sm bg-gradient-to-br from-gray-50 to-white">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    <Smartphone className="h-5 w-5 text-purple-600" />
+                    Testing Context
+                  </CardTitle>
+                  <p className="text-sm text-gray-600">
+                    Specify devices and test cycle where the issue was found
+                  </p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label className={`text-sm font-medium ${isInvalidDevices ? "text-red-600" : "text-gray-700"}`}>
+                      Devices *
+                    </Label>
+                    <MultiSelect
+                      options={devices?.map((device) => ({
+                        label:
+                          typeof device?.name === "string"
+                            ? `${device?.name} / ${device?.os} / ${device?.version}`
+                            : "",
+                        value: typeof device?.id === "string" ? device.id : "",
+                      }))}
+                      onValueChange={setSelectedDevices}
+                      defaultValue={selectedDevices}
+                      placeholder="Select devices where issue was found"
+                      disabled={devices?.length === 0}
+                      variant="secondary"
+                      animation={2}
+                      maxCount={3}
+                      className="w-full"
+                    />
+                    {isInvalidDevices ? (
+                      <FormMessage className="mt-2">
+                        Please select at least one device
+                      </FormMessage>
+                    ) : null}
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="issueType"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <FormLabel className="text-sm font-medium text-gray-700">Issue Type *</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <SelectTrigger className="w-full border-gray-300 focus:border-red-500 focus:ring-red-500">
+                              <SelectValue placeholder="Select issue type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectGroup>
+                                {ISSUE_TYPE_LIST.map((issueType) => (
+                                  <SelectItem key={issueType} value={issueType}>
+                                    <div className="flex items-center">
+                                      {issueType}
+                                    </div>
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="testCycle"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <FormLabel className="text-sm font-medium text-gray-700">Test Cycle *</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <SelectTrigger className="w-full border-gray-300 focus:border-red-500 focus:ring-red-500">
+                              <SelectValue placeholder="Select test cycle" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectGroup>
+                                {testCycles.length > 0 ? (
+                                  testCycles.map((testCycle) => (
+                                    <SelectItem
+                                      key={testCycle._id}
+                                      value={testCycle._id as string}
+                                    >
+                                      {testCycle.title}
+                                    </SelectItem>
+                                  ))
+                                ) : (
+                                  <div className="p-1 text-center text-gray-500">
+                                    Test cycle not found
+                                  </div>
+                                )}
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Assignment Card */}
+              {userProjectRole === ProjectUserRoles.ADMIN ||
+                userProjectRole === ProjectUserRoles.CLIENT ||
+                userProjectRole === ProjectUserRoles.MANAGER ||
+                userProjectRole === ProjectUserRoles.DEVELOPER ? (
+                <Card className="border-0 shadow-sm bg-gradient-to-br from-gray-50 to-white">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                      <Users className="h-5 w-5 text-green-600" />
+                      Assignment
+                    </CardTitle>
+                    <p className="text-sm text-gray-600">
+                      Assign the issue to a team member for resolution
+                    </p>
+                  </CardHeader>
+                  <CardContent>
+                    <FormField
+                      control={form.control}
+                      name="assignedTo"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <FormLabel className="text-sm font-medium text-gray-700">Assignee</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <SelectTrigger className="w-full border-gray-300 focus:border-red-500 focus:ring-red-500">
+                              <SelectValue>{getSelectedUser(field)}</SelectValue>
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectGroup>
+                                {users.length > 0 ? (
+                                  users.map((user) => (
+                                    <SelectItem
+                                      key={user._id}
+                                      value={user?.userId?._id as string}
+                                    >
+                                      {getUsernameWithUserId(user)}
+                                    </SelectItem>
+                                  ))
+                                ) : (
+                                  <div className="p-1 text-center text-gray-500">
+                                    Users not found
+                                  </div>
+                                )}
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </CardContent>
+                </Card>
               ) : null}
 
-              <div className="grid grid-cols-1 gap-2 mt-4">
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Description</FormLabel>
-                      <FormControl>
-                        <TextEditor
-                          markup={field.value || ""}
-                          onChange={(value) => {
-                            form.setValue("description", value);
-                            form.trigger("description");
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="grid grid-cols-1 gap-2 ">
-                <div className="w-full mt-3">
-                  <Label htmlFor="attachments">Attachments</Label>
-                  <Input
-                    className="mt-2 opacity-0 cursor-pointer absolute w-0 h-0"
-                    id="attachments"
-                    type="file"
-                    multiple
-                    ref={inputRef}
-                    onChange={handleFileChange}
+              {/* Description Card */}
+              <Card className="border-0 shadow-sm bg-gradient-to-br from-gray-50 to-white">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    <AlertTriangle className="h-5 w-5 text-orange-600" />
+                    Description *
+                  </CardTitle>
+                  <p className="text-sm text-gray-600">
+                    Provide detailed information about the issue
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <TextEditor
+                            markup={field.value || ""}
+                            onChange={(value) => {
+                              form.setValue("description", value);
+                              form.trigger("description");
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                  <label
-                    htmlFor="attachments"
-                    className="flex mt-2 h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors cursor-pointer"
-                  >
-                    Choose Files
-                  </label>
-                  {attachments?.length > 0 && (
-                    <div className="mt-2">
-                      New attachments
-                      <div className="mt-4 rounded-md border">
-                        <Table>
-                          <TableBody>
-                            {attachments?.length ? (
-                              attachments.map((attachment, index) => (
-                                <TableRow key={index}>
-                                  <TableCell>
-                                    <DocumentName document={attachment} />
-                                  </TableCell>
-                                  <TableCell className="flex justify-end items-end mr-6">
-                                    <Button
-                                      type="button"
-                                      onClick={() => handleRemoveFile(index)}
-                                      variant="ghost"
-                                      size="icon"
-                                    >
-                                      <Trash className="h-4 w-4 text-destructive" />
-                                    </Button>
-                                  </TableCell>
-                                </TableRow>
-                              ))
-                            ) : (
-                              <TableRow>
-                                <TableCell
-                                  colSpan={columns.length}
-                                  className="h-24 text-center"
-                                >
-                                  No attachments found
-                                </TableCell>
-                              </TableRow>
-                            )}
-                          </TableBody>
-                        </Table>
-                      </div>
+                </CardContent>
+              </Card>
+
+              {/* Attachments Card */}
+              <Card className="border-0 shadow-sm bg-gradient-to-br from-gray-50 to-white">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    <FileText className="h-5 w-5 text-blue-600" />
+                    Attachments
+                  </CardTitle>
+                  <p className="text-sm text-gray-600">
+                    Add screenshots, logs, or other supporting files
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="w-full">
+                      <Input
+                        className="mt-2 opacity-0 cursor-pointer absolute w-0 h-0"
+                        id="attachments"
+                        type="file"
+                        multiple
+                        ref={inputRef}
+                        onChange={handleFileChange}
+                      />
+                      <label
+                        htmlFor="attachments"
+                        className="flex mt-2 h-12 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm shadow-sm transition-colors cursor-pointer hover:bg-gray-50 items-center justify-center"
+                      >
+                        <FileText className="h-4 w-4 mr-2 text-gray-500" />
+                        Choose Files
+                      </label>
                     </div>
-                  )}
-                </div>
-              </div>
-              <div className="mt-6 w-full flex justify-end gap-2">
+                    
+                    {attachments?.length > 0 && (
+                      <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                        <div className="flex items-center gap-2 mb-3">
+                          <FileText className="h-4 w-4 text-blue-600" />
+                          <span className="text-sm font-medium text-blue-700">
+                            Selected Files ({attachments.length})
+                          </span>
+                        </div>
+                        <div className="space-y-2">
+                          {attachments.map((attachment, index) => (
+                            <div key={index} className="flex items-center justify-between p-3 bg-white rounded-lg border border-blue-200">
+                              <DocumentName document={attachment} />
+                              <Button
+                                type="button"
+                                onClick={() => handleRemoveFile(index)}
+                                variant="ghost"
+                                size="sm"
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                              >
+                                <Trash className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <DialogFooter className="flex flex-col sm:flex-row gap-3 pt-6">
                 <Button
                   disabled={isLoading}
                   type="button"
-                  variant={"outline"}
+                  variant="outline"
                   size="lg"
                   onClick={() => setDialogOpen(false)}
-                  className="w-full md:w-fit"
+                  className="w-full sm:w-auto border-gray-300 hover:bg-gray-50"
                 >
                   Cancel
                 </Button>
                 <Button
                   disabled={isLoading}
-                  type="button"
+                  type="submit"
                   size="lg"
                   onClick={() => validateIssue()}
-                  className="w-full md:w-fit"
+                  className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white"
                 >
                   {isLoading ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : null}
-                  {isLoading ? "Saving" : "Save"}
+                  ) : (
+                    <Save className="mr-2 h-4 w-4" />
+                  )}
+                  {isLoading ? "Creating..." : "Create Issue"}
                 </Button>
-              </div>
+              </DialogFooter>
             </form>
           </Form>
         </div>
