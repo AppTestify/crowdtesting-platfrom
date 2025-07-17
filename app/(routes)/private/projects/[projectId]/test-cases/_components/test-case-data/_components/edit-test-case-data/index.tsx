@@ -273,7 +273,7 @@ export default function EditTestCaseData({ testCaseDataValue, isEditOpen, setIsE
                                     <Button type='button' variant={'outline'} disabled={isLoading} onClick={closeDialog} className='mr-2'>
                                         Cancel
                                     </Button>
-                                    <Button type="submit" disabled={isLoading}>
+                                    <Button type="submit" disabled={isLoading} className="bg-green-600 hover:bg-green-700 text-white">
                                         {isLoading ? (
                                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                         ) : null}

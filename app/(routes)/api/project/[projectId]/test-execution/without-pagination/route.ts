@@ -75,25 +75,34 @@ export async function GET(
     const result = response.map((res) => ({
       ...res,
       testCaseResults: res?.testCaseResults?.map(
-        (testCaseResult: ITestCaseResult) => ({
-          ...testCaseResult,
-          testCaseId: {
-            ...testCaseResult.testCaseId,
-            customId: replaceCustomId(
-              testCaseIdFormat.idFormat,
-              testCaseResult.testCaseId.customId
-            ),
-            requirements: Array.isArray(testCaseResult.testCaseId?.requirements)
-              ? testCaseResult.testCaseId.requirements.map((req) => ({
-                  ...req,
-                  customId: replaceCustomId(
-                    requirementIdFormat.idFormat,
-                    req.customId
-                  ),
-                }))
-              : [],
-          },
-        })
+        (testCaseResult: ITestCaseResult) => {
+          if (!testCaseResult.testCaseId) {
+            // If the test case is missing, skip or return minimal info
+            return {
+              ...testCaseResult,
+              testCaseId: null,
+            };
+          }
+          return {
+            ...testCaseResult,
+            testCaseId: {
+              ...testCaseResult.testCaseId,
+              customId: replaceCustomId(
+                testCaseIdFormat.idFormat,
+                testCaseResult.testCaseId.customId
+              ),
+              requirements: Array.isArray(testCaseResult.testCaseId?.requirements)
+                ? testCaseResult.testCaseId.requirements.map((req) => ({
+                    ...req,
+                    customId: replaceCustomId(
+                      requirementIdFormat.idFormat,
+                      req.customId
+                    ),
+                  }))
+                : [],
+            },
+          };
+        }
       ),
     }));
 
