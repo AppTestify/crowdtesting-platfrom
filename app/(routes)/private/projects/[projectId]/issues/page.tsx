@@ -884,12 +884,7 @@ export default function Issues() {
                       <SelectItem value="All" key="all-status">
                         All Status
                       </SelectItem>
-                      {(userData?.role === UserRoles.CLIENT
-                        ? ISSUE_STATUS_LIST.filter(
-                            (status) => status !== IssueStatus.NEW
-                          )
-                        : ISSUE_STATUS_LIST
-                      ).map((status) => (
+                      {ISSUE_STATUS_LIST.map((status) => (
                         <SelectItem value={status} key={status}>
                           {status}
                         </SelectItem>

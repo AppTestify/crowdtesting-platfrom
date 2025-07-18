@@ -209,7 +209,6 @@ export async function filterIssuesForClient(
     {
       $match: {
         projectId: new ObjectId(projectId),
-        status: { $ne: IssueStatus.NEW },
       },
     },
     ...(severity
