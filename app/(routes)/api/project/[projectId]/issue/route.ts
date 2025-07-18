@@ -333,15 +333,10 @@ export async function GET(
           : null,
       }));
     } else {
-      totalIssues = await Issue.find({
-        status: { $nin: [IssueStatus.NEW] },
-      })
-        .find(filter)
-        .countDocuments();
+      totalIssues = await Issue.find(filter).countDocuments();
 
       const data = addCustomIds(
-        await Issue.find({ status: { $nin: IssueStatus.NEW } })
-          .find(filter)
+        await Issue.find(filter)
           .sort({ createdAt: -1 })
           .skip(skip)
           .limit(Number(limit))
