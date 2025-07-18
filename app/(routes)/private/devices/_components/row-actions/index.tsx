@@ -54,8 +54,8 @@ export function RowActions({
       <EditDevice
         device={row.original as IDevice}
         browsers={browsers}
-        sheetOpen={isEditOpen}
-        setSheetOpen={setIsEditOpen}
+        dialogOpen={isEditOpen}
+        setDialogOpen={setIsEditOpen}
         refreshDevices={refreshDevices}
       />
 

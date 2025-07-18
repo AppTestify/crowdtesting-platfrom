@@ -13,10 +13,12 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/text-area';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2 } from 'lucide-react';
+import { Loader2, CreditCard, User, Building2, DollarSign, FileText, CheckCircle } from 'lucide-react';
 import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
 
 const paymentSchema = z.object({
     receiverId: z.string().min(1, "Required"),
@@ -121,193 +123,310 @@ export default function AddPayment({ isOpen, closeDialog, userId, refreshPayment
     }, [form.watch("receiverId"), isTester]);
 
     return (
-        <div>
-            <Dialog open={isOpen} onOpenChange={closeDialog}>
-                <DialogContent className="sm:max-w-[500px]">
-                    <DialogHeader>
-                        <DialogTitle>Add payment</DialogTitle>
-                    </DialogHeader>
+        <Dialog open={isOpen} onOpenChange={closeDialog}>
+            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto p-0">
+                {/* Balanced Header Design */}
+                <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-green-50 to-emerald-50 p-6 border border-green-100 mb-6">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-green-100/50 to-emerald-100/50 rounded-full -translate-y-12 translate-x-12"></div>
+                    <div className="relative flex items-start gap-4">
+                        <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+                            <CreditCard className="h-6 w-6 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-3 mb-2">
+                                <Badge variant="outline" className="bg-white/80 border-green-200 text-green-700">
+                                    New Payment
+                                </Badge>
+                            </div>
+                            <DialogTitle className="text-xl font-bold text-gray-900 mb-2">
+                                Add Payment
+                            </DialogTitle>
+                            <DialogDescription className="text-gray-600 text-sm">
+                                Create a new payment record for project completion or services rendered
+                            </DialogDescription>
+                        </div>
+                    </div>
+                </div>
+                
+                <div className="px-6 pb-6">
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} method="post">
-                            <div className=" grid grid-cols-1 gap-2">
-                                <FormField
-                                    control={form.control}
-                                    name="receiverId"
-                                    render={({ field }) => (
-                                        <FormItem className="flex flex-col">
-                                            <FormLabel>User</FormLabel>
-                                            <Select
-                                                onValueChange={field.onChange}
-                                                value={field.value}
-                                            >
-                                                <SelectTrigger className="w-full">
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectGroup>
-                                                        {testers.map((tester) => (
-                                                            <SelectItem key={tester?.id} value={tester?.id as string}>
-                                                                <div className="flex items-center">
-                                                                    {getUsernameWithUserId(tester)}
-                                                                </div>
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectGroup>
-                                                </SelectContent>
-                                            </Select>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+                            <div className="space-y-6">
+                                {/* User Selection Section */}
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-2 mb-4">
+                                        <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                                            <User className="h-4 w-4 text-green-600" />
+                                        </div>
+                                        <h3 className="text-lg font-semibold text-gray-900">Recipient Details</h3>
+                                    </div>
+                                    
+                                    <Card>
+                                        <CardContent className="p-6">
+                                            <FormField
+                                                control={form.control}
+                                                name="receiverId"
+                                                render={({ field }) => (
+                                                    <FormItem className="flex flex-col">
+                                                        <FormLabel className="text-sm font-medium text-gray-700 mb-2">Select User</FormLabel>
+                                                        <Select
+                                                            onValueChange={field.onChange}
+                                                            value={field.value}
+                                                        >
+                                                            <SelectTrigger className="w-full h-11">
+                                                                <SelectValue placeholder="Choose a user..." />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                <SelectGroup>
+                                                                    {testers.map((tester) => (
+                                                                        <SelectItem key={tester?.id} value={tester?.id as string}>
+                                                                            <div className="flex items-center">
+                                                                                {getUsernameWithUserId(tester)}
+                                                                            </div>
+                                                                        </SelectItem>
+                                                                    ))}
+                                                                </SelectGroup>
+                                                            </SelectContent>
+                                                        </Select>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </CardContent>
+                                    </Card>
+                                </div>
 
-                                <FormField
-                                    control={form.control}
-                                    name="projectId"
-                                    render={({ field }) => (
-                                        <FormItem className="flex flex-col">
-                                            <FormLabel>Project</FormLabel>
-                                            <Select
-                                                onValueChange={field.onChange}
-                                                value={field.value}
-                                            >
-                                                <SelectTrigger className="w-full">
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {projects.length > 0 ? (
-                                                        <SelectGroup>
-                                                            {projects.map((project) => (
-                                                                <SelectItem value={project?._id as string}>
-                                                                    <div className="flex items-center">
-                                                                        {project?.title}
-                                                                    </div>
-                                                                </SelectItem>
-                                                            ))}
-                                                        </SelectGroup>
-                                                    ) : (
-                                                        <div className="p-2 text-gray-500 text-center">No project assigned</div>
+                                {/* Project Selection Section */}
+                                {!isTester && (
+                                    <div className="space-y-4">
+                                        <div className="flex items-center gap-2 mb-4">
+                                            <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                                <Building2 className="h-4 w-4 text-blue-600" />
+                                            </div>
+                                            <h3 className="text-lg font-semibold text-gray-900">Project Assignment</h3>
+                                        </div>
+                                        
+                                        <Card>
+                                            <CardContent className="p-6">
+                                                <FormField
+                                                    control={form.control}
+                                                    name="projectId"
+                                                    render={({ field }) => (
+                                                        <FormItem className="flex flex-col">
+                                                            <FormLabel className="text-sm font-medium text-gray-700 mb-2">Select Project</FormLabel>
+                                                            <Select
+                                                                onValueChange={field.onChange}
+                                                                value={field.value}
+                                                            >
+                                                                <SelectTrigger className="w-full h-11">
+                                                                    <SelectValue placeholder="Choose a project..." />
+                                                                </SelectTrigger>
+                                                                <SelectContent>
+                                                                    {projects.length > 0 ? (
+                                                                        <SelectGroup>
+                                                                            {projects.map((project) => (
+                                                                                <SelectItem key={project._id} value={project?._id as string}>
+                                                                                    <div className="flex items-center">
+                                                                                        {project?.title}
+                                                                                    </div>
+                                                                                </SelectItem>
+                                                                            ))}
+                                                                        </SelectGroup>
+                                                                    ) : (
+                                                                        <div className="p-3 text-gray-500 text-center text-sm">No projects available</div>
+                                                                    )}
+                                                                </SelectContent>
+                                                            </Select>
+                                                            <FormMessage />
+                                                        </FormItem>
                                                     )}
-                                                </SelectContent>
-                                            </Select>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-
-                                <div className='grid grid-cols-[30%,70%] gap-2'>
-                                    <FormField
-                                        control={form.control}
-                                        name="currency"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Currency</FormLabel>
-                                                <Select
-                                                    onValueChange={field.onChange}
-                                                    value={field.value}
-                                                >
-                                                    <SelectTrigger className="w-full">
-                                                        <SelectValue />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectGroup>
-                                                            {PaymentCurrencyList.map((currency) => (
-                                                                <SelectItem value={currency as string}>
-                                                                    <div className="flex items-center">
-                                                                        {currency}
-                                                                    </div>
-                                                                </SelectItem>
-                                                            ))}
-                                                        </SelectGroup>
-                                                    </SelectContent>
-                                                </Select>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                    <FormField
-                                        control={form.control}
-                                        name="amount"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Amount</FormLabel>
-                                                <FormControl>
-                                                    <Input
-                                                        type={"number"}
-                                                        {...field}
-                                                    />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-
-                                <FormField
-                                    control={form.control}
-                                    name="description"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Description</FormLabel>
-                                            <FormControl>
-                                                <Textarea
-                                                    maxLength={500}
-                                                    onChangeCapture={(e) => handleCharacterCount((e.target as HTMLTextAreaElement).value)}
-                                                    {...field}
                                                 />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <div className='flex justify-end'>
-                                    <span>
-                                        {wordCount}/500
-                                    </span>
+                                            </CardContent>
+                                        </Card>
+                                    </div>
+                                )}
+
+                                {/* Payment Details Section */}
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-2 mb-4">
+                                        <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                                            <DollarSign className="h-4 w-4 text-purple-600" />
+                                        </div>
+                                        <h3 className="text-lg font-semibold text-gray-900">Payment Details</h3>
+                                    </div>
+                                    
+                                    <Card>
+                                        <CardContent className="p-6">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <FormField
+                                                    control={form.control}
+                                                    name="currency"
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel className="text-sm font-medium text-gray-700 mb-2">Currency</FormLabel>
+                                                            <Select
+                                                                onValueChange={field.onChange}
+                                                                value={field.value}
+                                                            >
+                                                                <SelectTrigger className="w-full h-11">
+                                                                    <SelectValue placeholder="Select currency..." />
+                                                                </SelectTrigger>
+                                                                <SelectContent>
+                                                                    <SelectGroup>
+                                                                        {PaymentCurrencyList.map((currency) => (
+                                                                            <SelectItem key={currency} value={currency as string}>
+                                                                                <div className="flex items-center">
+                                                                                    {currency}
+                                                                                </div>
+                                                                            </SelectItem>
+                                                                        ))}
+                                                                    </SelectGroup>
+                                                                </SelectContent>
+                                                            </Select>
+                                                            <FormMessage />
+                                                        </FormItem>
+                                                    )}
+                                                />
+
+                                                <FormField
+                                                    control={form.control}
+                                                    name="amount"
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel className="text-sm font-medium text-gray-700 mb-2">Amount</FormLabel>
+                                                            <FormControl>
+                                                                <Input
+                                                                    type="number"
+                                                                    placeholder="Enter amount..."
+                                                                    className="h-11"
+                                                                    {...field}
+                                                                />
+                                                            </FormControl>
+                                                            <FormMessage />
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                            </div>
+                                        </CardContent>
+                                    </Card>
                                 </div>
 
-                                <FormField
-                                    control={form.control}
-                                    name="status"
-                                    render={({ field }) => (
-                                        <FormItem className="flex flex-col">
-                                            <FormLabel>Status</FormLabel>
-                                            <Select
-                                                onValueChange={field.onChange}
-                                                value={field.value}
-                                            >
-                                                <SelectTrigger className="w-full">
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectGroup>
-                                                        {PaymentStatusList.map((status) => (
-                                                            <SelectItem value={status}>
-                                                                <div className="flex items-center">
-                                                                    {status}
-                                                                </div>
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectGroup>
-                                                </SelectContent>
-                                            </Select>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+                                {/* Description Section */}
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-2 mb-4">
+                                        <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                                            <FileText className="h-4 w-4 text-orange-600" />
+                                        </div>
+                                        <h3 className="text-lg font-semibold text-gray-900">Additional Information</h3>
+                                    </div>
+                                    
+                                    <Card>
+                                        <CardContent className="p-6">
+                                            <FormField
+                                                control={form.control}
+                                                name="description"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel className="text-sm font-medium text-gray-700 mb-2">Description</FormLabel>
+                                                        <FormControl>
+                                                            <Textarea
+                                                                placeholder="Enter payment description..."
+                                                                maxLength={500}
+                                                                onChangeCapture={(e) => handleCharacterCount((e.target as HTMLTextAreaElement).value)}
+                                                                className="min-h-[100px] resize-none"
+                                                                {...field}
+                                                            />
+                                                        </FormControl>
+                                                        <div className="flex justify-end mt-2">
+                                                            <span className="text-xs text-gray-500">
+                                                                {wordCount}/500 characters
+                                                            </span>
+                                                        </div>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </CardContent>
+                                    </Card>
+                                </div>
+
+                                {/* Status Section */}
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-2 mb-4">
+                                        <div className="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
+                                            <CheckCircle className="h-4 w-4 text-indigo-600" />
+                                        </div>
+                                        <h3 className="text-lg font-semibold text-gray-900">Payment Status</h3>
+                                    </div>
+                                    
+                                    <Card>
+                                        <CardContent className="p-6">
+                                            <FormField
+                                                control={form.control}
+                                                name="status"
+                                                render={({ field }) => (
+                                                    <FormItem className="flex flex-col">
+                                                        <FormLabel className="text-sm font-medium text-gray-700 mb-2">Status</FormLabel>
+                                                        <Select
+                                                            onValueChange={field.onChange}
+                                                            value={field.value}
+                                                        >
+                                                            <SelectTrigger className="w-full h-11">
+                                                                <SelectValue placeholder="Select status..." />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                <SelectGroup>
+                                                                    {PaymentStatusList.map((status) => (
+                                                                        <SelectItem key={status} value={status}>
+                                                                            <div className="flex items-center">
+                                                                                {status}
+                                                                            </div>
+                                                                        </SelectItem>
+                                                                    ))}
+                                                                </SelectGroup>
+                                                            </SelectContent>
+                                                        </Select>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </CardContent>
+                                    </Card>
+                                </div>
                             </div>
-                            <DialogFooter className="mt-4">
-                                <Button type="submit" disabled={isLoading}>
+
+                            <DialogFooter className="flex flex-col sm:flex-row gap-3 mt-6">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={closeDialog}
+                                    disabled={isLoading}
+                                    className="w-full sm:w-auto h-11"
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    type="submit"
+                                    disabled={isLoading}
+                                    className="w-full sm:w-auto h-11 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                                >
                                     {isLoading ? (
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    ) : null}
-                                    {isLoading ? "Adding payment" : "Add payment"}
+                                        <>
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            Adding Payment...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <CreditCard className="mr-2 h-4 w-4" />
+                                            Add Payment
+                                        </>
+                                    )}
                                 </Button>
                             </DialogFooter>
                         </form>
                     </Form>
-                </DialogContent>
-            </Dialog>
-        </div>
+                </div>
+            </DialogContent>
+        </Dialog>
     )
 }

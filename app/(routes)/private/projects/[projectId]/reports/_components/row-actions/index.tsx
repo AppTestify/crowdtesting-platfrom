@@ -70,15 +70,15 @@ export function ReportRowActions({
         <>
             <EditReport
                 report={row.original as IReport}
-                sheetOpen={isEditOpen}
-                setSheetOpen={setIsEditOpen}
+                dialogOpen={isEditOpen}
+                setDialogOpen={setIsEditOpen}
                 refreshReports={refreshReports}
                 projectAdmin={projectAdmin}
             />
 
             <ViewReport
-                sheetOpen={isViewOpen}
-                setSheetOpen={setIsViewOpen}
+                dialogOpen={isViewOpen}
+                setDialogOpen={setIsViewOpen}
                 report={row.original as IReport}
             />
 

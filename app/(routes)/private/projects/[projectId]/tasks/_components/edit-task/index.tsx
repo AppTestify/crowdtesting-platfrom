@@ -289,90 +289,90 @@ export function EditTask({
                                     </p>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
-                                    <FormField
-                                        control={form.control}
-                                        name="title"
-                                        render={({ field }) => (
-                                            <FormItem>
+                                <FormField
+                                    control={form.control}
+                                    name="title"
+                                    render={({ field }) => (
+                                        <FormItem>
                                                 <FormLabel className="text-sm font-medium text-gray-700">
                                                     Task Title *
                                                 </FormLabel>
-                                                <FormControl>
+                                            <FormControl>
                                                     <Input 
                                                         {...field} 
                                                         placeholder="Enter a descriptive title for the task"
                                                         className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                                                     />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <FormField
-                                            control={form.control}
-                                            name="priority"
-                                            render={({ field }) => (
-                                                <FormItem className="flex flex-col">
+                                <FormField
+                                    control={form.control}
+                                    name="priority"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-col">
                                                     <FormLabel className="text-sm font-medium text-gray-700">Priority *</FormLabel>
-                                                    <Select
-                                                        onValueChange={field.onChange}
-                                                        value={field.value ?? undefined}
-                                                    >
+                                            <Select
+                                                onValueChange={field.onChange}
+                                                value={field.value ?? undefined}
+                                            >
                                                         <SelectTrigger className="w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500">
                                                             <SelectValue placeholder="Select priority" />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            <SelectGroup>
-                                                                {PRIORITY_LIST.map((priority) => (
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectGroup>
+                                                        {PRIORITY_LIST.map((priority) => (
                                                                     <SelectItem key={priority} value={priority}>
-                                                                        <div className="flex items-center">
+                                                                <div className="flex items-center">
                                                                             <span className="mr-2">
-                                                                                {displayIcon(priority)}
-                                                                            </span>
-                                                                            {priority}
-                                                                        </div>
-                                                                    </SelectItem>
-                                                                ))}
-                                                            </SelectGroup>
-                                                        </SelectContent>
-                                                    </Select>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
+                                                                        {displayIcon(priority)}
+                                                                    </span>
+                                                                    {priority}
+                                                                </div>
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectGroup>
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
 
-                                        <FormField
-                                            control={form.control}
+                                <FormField
+                                    control={form.control}
                                             name="status"
-                                            render={({ field }) => (
-                                                <FormItem className="flex flex-col">
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-col">
                                                     <FormLabel className="text-sm font-medium text-gray-700">Status *</FormLabel>
-                                                    <Select
-                                                        onValueChange={field.onChange}
+                                            <Select
+                                                onValueChange={field.onChange}
                                                         value={field.value}
-                                                    >
+                                            >
                                                         <SelectTrigger className="w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500">
                                                             <SelectValue placeholder="Select status" />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            <SelectGroup>
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectGroup>
                                                                 {TASK_STATUS_LIST.map((status) => (
                                                                     <SelectItem key={status} value={status as string}>
                                                                         <div className="flex items-center">
                                                                             {status}
-                                                                        </div>
-                                                                    </SelectItem>
+                                                                    </div>
+                                                                </SelectItem>
                                                                 ))}
-                                                            </SelectGroup>
-                                                        </SelectContent>
-                                                    </Select>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </div>
+                                                    </SelectGroup>
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
                                 </CardContent>
                             </Card>
 
@@ -389,95 +389,95 @@ export function EditTask({
                                 </CardHeader>
                                 <CardContent>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <FormField
-                                            control={form.control}
-                                            name="startDate"
-                                            render={({ field }) => (
-                                                <FormItem className="flex flex-col">
+                                <FormField
+                                    control={form.control}
+                                    name="startDate"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-col">
                                                     <FormLabel className="text-sm font-medium text-gray-700">Start Date</FormLabel>
                                                     <Popover open={startDateOpen} onOpenChange={setStartDateOpen} modal={true}>
-                                                        <PopoverTrigger asChild>
-                                                            <FormControl>
-                                                                <Button
-                                                                    variant={"outline"}
-                                                                    className={cn(
+                                                <PopoverTrigger asChild>
+                                                    <FormControl>
+                                                        <Button
+                                                            variant={"outline"}
+                                                            className={cn(
                                                                         "w-full pl-3 text-left font-normal border-gray-300 focus:border-blue-500 focus:ring-blue-500",
-                                                                        !field.value && "text-muted-foreground"
-                                                                    )}
-                                                                >
-                                                                    {field.value ? (
-                                                                        format(field.value, "PPP")
-                                                                    ) : (
+                                                                !field.value && "text-muted-foreground"
+                                                            )}
+                                                        >
+                                                            {field.value ? (
+                                                                format(field.value, "PPP")
+                                                            ) : (
                                                                         <span>Select start date</span>
-                                                                    )}
-                                                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                                                </Button>
-                                                            </FormControl>
-                                                        </PopoverTrigger>
+                                                            )}
+                                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                        </Button>
+                                                    </FormControl>
+                                                </PopoverTrigger>
                                                         <PopoverContent className="w-auto p-0 z-50" align="start" side="bottom">
                                                             <CalendarComponent
-                                                                mode="single"
-                                                                selected={field.value || undefined}
+                                                        mode="single"
+                                                        selected={field.value || undefined}
                                                                 onSelect={(date) => {
                                                                     field.onChange(date);
                                                                     setStartDateOpen(false);
                                                                 }}
                                                                 disabled={(date: Date) => date < new Date("1900-01-01")}
-                                                                initialFocus
-                                                            />
-                                                        </PopoverContent>
-                                                    </Popover>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
+                                                        initialFocus
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
 
-                                        <FormField
-                                            control={form.control}
-                                            name="endDate"
-                                            render={({ field }) => (
-                                                <FormItem className="flex flex-col">
+                                <FormField
+                                    control={form.control}
+                                    name="endDate"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-col">
                                                     <FormLabel className="text-sm font-medium text-gray-700">End Date</FormLabel>
                                                     <Popover open={endDateOpen} onOpenChange={setEndDateOpen} modal={true}>
-                                                        <PopoverTrigger asChild>
-                                                            <FormControl>
-                                                                <Button
-                                                                    variant={"outline"}
-                                                                    className={cn(
+                                                <PopoverTrigger asChild>
+                                                    <FormControl>
+                                                        <Button
+                                                            variant={"outline"}
+                                                            className={cn(
                                                                         "w-full pl-3 text-left font-normal border-gray-300 focus:border-blue-500 focus:ring-blue-500",
-                                                                        !field.value && "text-muted-foreground"
-                                                                    )}
-                                                                >
-                                                                    {field.value ? (
-                                                                        format(field.value, "PPP")
-                                                                    ) : (
+                                                                !field.value && "text-muted-foreground"
+                                                            )}
+                                                        >
+                                                            {field.value ? (
+                                                                format(field.value, "PPP")
+                                                            ) : (
                                                                         <span>Select end date</span>
-                                                                    )}
-                                                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                                                </Button>
-                                                            </FormControl>
-                                                        </PopoverTrigger>
+                                                            )}
+                                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                        </Button>
+                                                    </FormControl>
+                                                </PopoverTrigger>
                                                         <PopoverContent className="w-auto p-0 z-50" align="start" side="bottom">
                                                             <CalendarComponent
-                                                                mode="single"
-                                                                selected={field.value || undefined}
+                                                        mode="single"
+                                                        selected={field.value || undefined}
                                                                 onSelect={(date) => {
                                                                     field.onChange(date);
                                                                     setEndDateOpen(false);
                                                                 }}
                                                                 disabled={(date: Date) =>
-                                                                    date < (form.watch("startDate") ?? new Date("1900-01-01")) ||
-                                                                    date < new Date("1900-01-01")
-                                                                }
-                                                                initialFocus
-                                                            />
-                                                        </PopoverContent>
-                                                    </Popover>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </div>
+                                                            date < (form.watch("startDate") ?? new Date("1900-01-01")) ||
+                                                            date < new Date("1900-01-01")
+                                                        }
+                                                        initialFocus
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
                                 </CardContent>
                             </Card>
 
@@ -493,44 +493,44 @@ export function EditTask({
                                     </p>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
-                                    <FormField
-                                        control={form.control}
+                                <FormField
+                                    control={form.control}
                                         name="issueId"
-                                        render={({ field }) => (
-                                            <FormItem className="flex flex-col">
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-col">
                                                 <FormLabel className="text-sm font-medium text-gray-700">Related Issue</FormLabel>
-                                                <Select
-                                                    onValueChange={field.onChange}
+                                            <Select
+                                                onValueChange={field.onChange}
                                                     value={field.value ?? undefined}
-                                                >
+                                            >
                                                     <SelectTrigger className="w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500">
                                                         <SelectValue placeholder="Select related issue (optional)" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectGroup>
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectGroup>
                                                             {issues.length > 0 ? (
                                                                 issues.map((issue) => (
-                                                                    <SelectItem
+                                                            <SelectItem
                                                                         key={issue.id}
                                                                         value={issue.id as string}
-                                                                    >
+                                                            >
                                                                         <div title={issue?.title} className="flex items-center">
                                                                             {issue?.customId} - {issue?.title.length > 30 ? `${issue?.title.substring(0, 30)}...` : issue?.title}
-                                                                        </div>
-                                                                    </SelectItem>
-                                                                ))
+                                                                </div>
+                                                            </SelectItem>
+                                                        ))
                                                             ) : (
                                                                 <div className="p-1 text-center text-gray-500">
                                                                     No issues found
                                                                 </div>
                                                             )}
-                                                        </SelectGroup>
-                                                    </SelectContent>
-                                                </Select>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
+                                                    </SelectGroup>
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
 
                                     <div className="space-y-2">
                                         <Label className="text-sm font-medium text-gray-700">
@@ -619,38 +619,38 @@ export function EditTask({
                                     </p>
                                 </CardHeader>
                                 <CardContent>
-                                    <FormField
-                                        control={form.control}
-                                        name="description"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormControl>
-                                                    <TextEditor
-                                                        markup={field.value || ""}
-                                                        onChange={(value) => {
-                                                            form.setValue("description", value);
-                                                            form.trigger("description");
-                                                        }}
-                                                    />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
+                                <FormField
+                                    control={form.control}
+                                    name="description"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormControl>
+                                                <TextEditor
+                                                    markup={field.value || ""}
+                                                    onChange={(value) => {
+                                                        form.setValue("description", value);
+                                                        form.trigger("description");
+                                                    }}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
                                 </CardContent>
                             </Card>
 
                             <DialogFooter className="flex flex-col sm:flex-row gap-3 pt-6">
-                                <Button
-                                    disabled={isLoading}
-                                    type="button"
+                                    <Button
+                                        disabled={isLoading}
+                                        type="button"
                                     variant="outline"
-                                    size="lg"
+                                        size="lg"
                                     onClick={() => setSheetOpen(false)}
                                     className="w-full sm:w-auto border-gray-300 hover:bg-gray-50"
-                                >
-                                    Cancel
-                                </Button>
+                                    >
+                                        Cancel
+                                    </Button>
                                 <Button
                                     disabled={isLoading}
                                     type="submit"

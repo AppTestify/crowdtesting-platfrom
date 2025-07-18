@@ -82,7 +82,7 @@ export function MailCompose({ refreshMails }: MailComposeProps) {
     const inputHeight = Math.max(40, 30 + Math.ceil(userData?.length / itemsPerRow) * 30);
     const defaultUsers = useMemo(() => users.map((user) => user), [users]);
 
-    const shouldShowAddButton = useMemo(() => {
+    const shouldShowAddButton = useMemo(()=> {
         return searchString && !defaultUsers.some(user => user.email.includes(searchString));
     }, [searchString, defaultUsers]);
 
@@ -154,7 +154,7 @@ export function MailCompose({ refreshMails }: MailComposeProps) {
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full">
-                <div className="flex-1 space-y-4 overflow-y-auto pr-2">
+                <div className="flex-1 space-y-4 overflow-y-auto px-6 pb-4">
                     <FormItem className="flex flex-col gap-2">
                         <FormLabel>Recipients</FormLabel>
                         <Popover>
@@ -272,7 +272,7 @@ export function MailCompose({ refreshMails }: MailComposeProps) {
                             <FormItem>
                                 <FormLabel>Message</FormLabel>
                                 <FormControl>
-                                    <div className="h-[250px]">
+                                    <div className="h-[120px] sm:h-[150px]">
                                         <TextEditor
                                             markup={field.value || ""}
                                             onChange={(value) => {
@@ -288,14 +288,14 @@ export function MailCompose({ refreshMails }: MailComposeProps) {
                     />
                 </div>
                 
-                {/* Fixed button container */}
-                <div className="flex-shrink-0 border-t bg-background pt-4 mt-4">
+                {/* Fixed button container - always visible within card */}
+                <div className="flex-shrink-0 border-t bg-background px-6 py-4">
                     <div className="flex justify-end">
                         <Button 
                             type="submit" 
                             disabled={isLoading} 
                             onClick={validateMail}
-                            className="min-w-[120px] h-10 bg-primary hover:bg-primary/90 text-primary-foreground font-medium shadow-md"
+                            className="min-w-[120px] h-10 bg-green-600 hover:bg-green-700 text-white font-medium shadow-md"
                         >
                             {isLoading ? (
                                 <>
