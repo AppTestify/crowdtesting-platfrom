@@ -566,22 +566,21 @@ const EditRequirement = ({
                         <Separator />
 
                         {/* Action Buttons */}
-                        <div className="flex flex-col sm:flex-row gap-3 pt-4">
+                        <div className="flex justify-end gap-3 pt-4">
                             <Button
                                 type="button"
                                 variant="outline"
                                 onClick={() => setSheetOpen(false)}
                                 disabled={isLoading}
-                                className="flex-1 sm:flex-none border-gray-300 hover:bg-gray-50"
+                                className="border-gray-300 hover:bg-gray-50"
                             >
-                                <X className="h-4 w-4 mr-2" />
                                 Cancel
                             </Button>
                             <Button
                                 type="submit"
                                 onClick={handleSubmit}
                                 disabled={isLoading}
-                                className="flex-1 sm:flex-none bg-green-600 hover:bg-green-700 text-white"
+                                className="bg-green-600 hover:bg-green-700 text-white"
                             >
                                 {isLoading ? (
                                     <>

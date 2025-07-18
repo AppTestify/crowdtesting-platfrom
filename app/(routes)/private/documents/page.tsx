@@ -220,36 +220,10 @@ export default function Documents() {
                             </div>
                             
                             <TabsContent value="verified" className="space-y-4">
-                                <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-                                    <div className="relative flex-1 max-w-sm">
-                                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                                        <Input
-                                            placeholder="Search verified documents..."
-                                            className="pl-9"
-                                        />
-                                    </div>
-                                    <Button variant="outline" size="sm" className="gap-2 flex-shrink-0">
-                                        <Filter className="h-4 w-4" />
-                                        Filter
-                                    </Button>
-                                </div>
                                 <VerifiedDocuments />
                             </TabsContent>
                             
                             <TabsContent value="pending" className="space-y-4">
-                                <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-                                    <div className="relative flex-1 max-w-sm">
-                                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                                        <Input
-                                            placeholder="Search pending documents..."
-                                            className="pl-9"
-                                        />
-                                    </div>
-                                    <Button variant="outline" size="sm" className="gap-2 flex-shrink-0">
-                                        <Filter className="h-4 w-4" />
-                                        Filter
-                                    </Button>
-                                </div>
                                 <NonVerifiedDocument />
                             </TabsContent>
                         </Tabs>
