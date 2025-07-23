@@ -34,7 +34,7 @@ import {
   ExportExcelFile,
   statusBadge,
 } from "@/app/_utils/common-functionality";
-import { ArrowUpDown, Search, Bug, AlertTriangle, User, Calendar, Activity, BarChart3, CheckCircle } from "lucide-react";
+import { ArrowUpDown, Search, Bug, AlertTriangle, User, Calendar, Activity, BarChart3, CheckCircle, X } from "lucide-react";
 import ViewIssue from "./_components/view-issue";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/app/_constants/user-roles";
@@ -420,10 +420,18 @@ export default function Issues() {
   const [issue, setIssue] = useState<IIssue>();
   const [isViewOpen, setIsViewOpen] = useState<boolean>(false);
   const [totalPageCount, setTotalPageCount] = useState(0);
-  const [selectedSeverity, setSelectedSeverity] = useState<string>("");
-  const [selectedPriority, setSelectedPriority] = useState<string>("");
-  const [selectedStatus, setSelectedStatus] = useState<string>("");
-  const [selectedTestCycle, setSelectedTestCycle] = useState<string>("");
+  const [selectedSeverity, setSelectedSeverity] = useState<string>(() => {
+    return localStorage.getItem("selectedSeverity") || "";
+  });
+  const [selectedPriority, setSelectedPriority] = useState<string>(() => {
+    return localStorage.getItem("selectedPriority") || "";
+  });
+  const [selectedStatus, setSelectedStatus] = useState<string>(() => {
+    return localStorage.getItem("selectedStatus") || "";
+  });
+  const [selectedTestCycle, setSelectedTestCycle] = useState<string>(() => {
+    return localStorage.getItem("selectedTestCycle") || "";
+  });
   const [testCycles, setTestCycles] = useState<ITestCycle[]>([]);
   const [editIssue, setEditIssue] = useState<IIssue | null>(null);
   const [isEditOpen, setIsEditOpen] = useState<boolean>(false);
@@ -438,6 +446,7 @@ export default function Issues() {
 
   const [pageSize, setPageSize] = useState(PAGINATION_LIMIT);
   const [isExcelLoading, setIsExcelLoading] = useState<boolean>(false);
+  const [isInitialLoad, setIsInitialLoad] = useState<boolean>(true);
   const { data } = useSession();
 
   useEffect(() => {
@@ -452,6 +461,23 @@ export default function Issues() {
     localStorage.setItem("entity", DBModels.ISSUE);
   }, [pageIndex]);
 
+  // Persist filter states to localStorage
+  useEffect(() => {
+    localStorage.setItem("selectedSeverity", selectedSeverity);
+  }, [selectedSeverity]);
+
+  useEffect(() => {
+    localStorage.setItem("selectedPriority", selectedPriority);
+  }, [selectedPriority]);
+
+  useEffect(() => {
+    localStorage.setItem("selectedStatus", selectedStatus);
+  }, [selectedStatus]);
+
+  useEffect(() => {
+    localStorage.setItem("selectedTestCycle", selectedTestCycle);
+  }, [selectedTestCycle]);
+
   const getProject = async () => {
     setIsLoading(true);
     try {
@@ -465,6 +491,13 @@ export default function Issues() {
   };
 
   const getIssues = async () => {
+    console.log('getIssues called with filters:', {
+      selectedTestCycle,
+      selectedSeverity,
+      selectedPriority,
+      selectedStatus,
+      globalFilter
+    });
     setIsLoading(true);
     try {
       const response = await getIssuesService(
@@ -477,9 +510,12 @@ export default function Issues() {
         selectedStatus,
         selectedTestCycle
       );
+      console.log('API response:', response);
+      console.log('Issues count:', response?.issues?.length);
       setIssues(response?.issues);
       setTotalPageCount(response?.total);
     } catch (error) {
+      console.error('Error fetching issues:', error);
       toasterService.error();
     } finally {
       setIsLoading(false);
@@ -650,6 +686,15 @@ export default function Issues() {
     }
   };
 
+  const clearFilters = () => {
+    setSelectedSeverity("");
+    setSelectedPriority("");
+    setSelectedStatus("");
+    setSelectedTestCycle("");
+    setGlobalFilter([]);
+    setPageIndex(1);
+  };
+
   const getTestCycle = async () => {
     try {
       const response = await getTestCycleListService(projectId);
@@ -681,24 +726,45 @@ export default function Issues() {
   useEffect(() => {
     getProject();
     getTestCycle();
-    getAllIssues();
+    // Don't call getAllIssues and getIssues here - wait for filter states to be restored
   }, []);
 
+  // Initial data fetch after component mounts with restored filter states
   useEffect(() => {
-    const debounceFetch = setTimeout(() => {
+    // This runs after the component mounts and filter states are initialized
+    if (project && testCycles.length > 0 && isInitialLoad) {
+      console.log('Initial load with filters:', {
+        selectedTestCycle,
+        selectedSeverity,
+        selectedPriority,
+        selectedStatus
+      });
+      setIsInitialLoad(false);
       getIssues();
       getAllIssues();
-    }, 500);
-    return () => clearTimeout(debounceFetch);
-  }, [
-    globalFilter,
-    pageIndex,
-    pageSize,
-    selectedSeverity,
-    selectedPriority,
-    selectedStatus,
-    selectedTestCycle,
-  ]);
+    }
+  }, [project, testCycles, isInitialLoad]);
+
+  // Handle filter changes (when user actually changes filters)
+  useEffect(() => {
+    // Only run if we have the project and test cycles loaded, and this is not the initial load
+    if (project && testCycles.length > 0 && !isInitialLoad) {
+      setIsLoading(true);
+      getIssues();
+      getAllIssues();
+    }
+  }, [selectedSeverity, selectedPriority, selectedStatus, selectedTestCycle]);
+
+  // Debounced fetch for search and pagination changes
+  useEffect(() => {
+    if (!isInitialLoad) {
+      const debounceFetch = setTimeout(() => {
+        getIssues();
+        getAllIssues();
+      }, 500);
+      return () => clearTimeout(debounceFetch);
+    }
+  }, [globalFilter, pageIndex, pageSize, isInitialLoad]);
 
   useEffect(() => {
     if (
@@ -708,6 +774,15 @@ export default function Issues() {
       setPageIndex(1);
     }
   }, [globalFilter]);
+
+  // Monitor issues state changes
+  useEffect(() => {
+    console.log('Issues state updated:', {
+      issuesCount: issues.length,
+      selectedTestCycle,
+      isLoading
+    });
+  }, [issues, selectedTestCycle, isLoading]);
 
   // Calculate statistics from allIssues
   const criticalIssues = allIssues.filter(issue => issue.severity === 'Critical').length;
@@ -919,6 +994,38 @@ export default function Issues() {
                   </SelectContent>
                 </Select>
               </div>
+              
+              {/* Clear Filters Button */}
+              {(() => {
+                const hasFilters = 
+                  (selectedSeverity && selectedSeverity !== '') ||
+                  (selectedPriority && selectedPriority !== '') ||
+                  (selectedStatus && selectedStatus !== '') ||
+                  (selectedTestCycle && selectedTestCycle !== '') ||
+                  (globalFilter && Array.isArray(globalFilter) && globalFilter.length > 0) ||
+                  (globalFilter && typeof globalFilter === 'string' && globalFilter.trim() !== '');
+                
+                console.log('Filter values:', {
+                  selectedSeverity,
+                  selectedPriority,
+                  selectedStatus,
+                  selectedTestCycle,
+                  globalFilter,
+                  hasFilters
+                });
+                return hasFilters ? (
+                  <div className="flex justify-end">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={clearFilters}
+                      className="h-8 px-3"
+                    >
+                      Clear Filters
+                    </Button>
+                  </div>
+                ) : null;
+              })()}
             </div>
           </CardContent>
         </Card>
