@@ -32,6 +32,7 @@ const deviceSchema = z.object({
   country: z.string().optional(),
   city: z.string().optional(),
   network: z.string().optional(),
+  browsers: z.array(z.string()).min(1, "At least one browser is required"),
 });
 
 import { countries } from "@/app/_constants/countries";
@@ -73,21 +74,21 @@ export function AddDevice({
       country: "",
       city: "",
       network: "",
+      browsers: [],
     },
   });
 
   async function onSubmit(values: z.infer<typeof deviceSchema>) {
     setIsLoading(true);
     try {
-      const response = await addDeviceService({
-        ...values,
-        browsers: selectedBrowsers,
-      });
+      const response = await addDeviceService(values);
+      
       if (response) {
         refreshDevices();
         toasterService.success(response.message);
       }
     } catch (error) {
+      console.error('Error in onSubmit:', error);
       toasterService.error();
     } finally {
       setDialogOpen(false);
@@ -98,10 +99,13 @@ export function AddDevice({
   const validateBrowsers = () => {
     if (!selectedBrowsers.length) {
       setIsInvalidBrowsers(true);
+      return; // Exit early if no browsers selected
     }
 
-    if (!isInvalidBrowsers && form.formState.isValid) {
-      form.handleSubmit(onSubmit);
+    // If browsers are selected and form is valid, submit
+    if (form.formState.isValid) {
+      const formValues = form.getValues();
+      onSubmit(formValues);
     }
   };
 
@@ -114,8 +118,10 @@ export function AddDevice({
   useEffect(() => {
     if (selectedBrowsers.length) {
       setIsInvalidBrowsers(false);
+      // Update the form's browsers field
+      form.setValue('browsers', selectedBrowsers);
     }
-  }, [selectedBrowsers]);
+  }, [selectedBrowsers, form]);
 
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -150,7 +156,40 @@ export function AddDevice({
         
         <div className="px-6 pb-6">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} method="post" className="space-y-8">
+            <form onSubmit={async (e) => {
+              console.log('=== FORM ONSUBMIT EVENT ===');
+              console.log('Event:', e);
+              e.preventDefault();
+              
+              // Trigger form validation
+              const isValid = await form.trigger();
+              console.log('Form validation result:', isValid);
+              
+              // Get form values manually
+              const formValues = form.getValues();
+              console.log('Form values:', formValues);
+              console.log('Selected browsers:', selectedBrowsers);
+              console.log('Form errors:', form.formState.errors);
+              console.log('Is loading:', isLoading);
+              
+              if (!selectedBrowsers.length) {
+                console.log('No browsers selected, setting invalid state');
+                setIsInvalidBrowsers(true);
+                return;
+              }
+              
+              if (isValid) {
+                console.log('Form is valid, submitting...');
+                const formDataWithBrowsers = {
+                  ...formValues,
+                  browsers: selectedBrowsers,
+                };
+                console.log('Final payload:', formDataWithBrowsers);
+                onSubmit(formDataWithBrowsers);
+              } else {
+                console.log('Form is not valid, errors:', form.formState.errors);
+              }
+            }} method="post" className="space-y-8">
               {/* Device Information */}
               <div className="space-y-6">
                 <div className="flex items-center gap-2 mb-4">
@@ -319,37 +358,38 @@ export function AddDevice({
                   />
                 </div>
               </div>
+
+              <DialogFooter className="flex flex-col sm:flex-row gap-3 px-6 pb-6">
+                <Button
+                  variant="outline"
+                  onClick={() => setDialogOpen(false)}
+                  disabled={isLoading}
+                  className="w-full sm:w-auto h-11"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  onClick={() => console.log('Save Device button clicked!')}
+                  className="w-full sm:w-auto h-11 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Saving Device...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="mr-2 h-4 w-4" />
+                      Save Device
+                    </>
+                  )}
+                </Button>
+              </DialogFooter>
             </form>
           </Form>
         </div>
-
-        <DialogFooter className="flex flex-col sm:flex-row gap-3 px-6 pb-6">
-          <Button
-            variant="outline"
-            onClick={() => setDialogOpen(false)}
-            disabled={isLoading}
-            className="w-full sm:w-auto h-11"
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={() => validateBrowsers()}
-            disabled={isLoading}
-            className="w-full sm:w-auto h-11 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Adding Device...
-              </>
-            ) : (
-              <>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Device
-              </>
-            )}
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

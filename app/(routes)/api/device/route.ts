@@ -19,6 +19,7 @@ import { deviceSchema } from "@/app/_schemas/device.schema";
 import { serverSidePagination } from "@/app/_utils/common-server-side";
 import { normaliseIds, replaceCustomId } from "@/app/_utils/data-formatters";
 import { errorHandler } from "@/app/_utils/error-handler";
+import mongoose from "mongoose";
 
 export async function POST(req: Request) {
   try {
@@ -54,8 +55,13 @@ export async function POST(req: Request) {
       );
     }
 
+    // Convert browser string IDs to ObjectIds
+    const { browsers, ...deviceData } = response.data;
+    const browserObjectIds = browsers.map((browserId: string) => new mongoose.Types.ObjectId(browserId));
+
     const newDevice = new Device({
-      ...response.data,
+      ...deviceData,
+      browsers: browserObjectIds,
       userId: session.user._id,
     });
     const saveDevice = await newDevice.save();
