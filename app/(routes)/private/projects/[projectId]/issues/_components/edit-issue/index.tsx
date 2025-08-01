@@ -124,7 +124,7 @@ const EditIssue = ({
     if (data) {
       const { user } = data;
       setUserData(user);
-      
+
       // Prevent crowd testers from editing issues
       if ((user as any)?.role === UserRoles.CROWD_TESTER) {
         setSheetOpen(false);
@@ -216,7 +216,7 @@ const EditIssue = ({
   }
 
   const uploadAttachment = async () => {
-    setIsLoading(true); 
+    setIsLoading(true);
     try {
       await addIssueAttachmentsService(projectId as string, issueId, {
         attachments,
@@ -402,8 +402,8 @@ const EditIssue = ({
                           Issue Title *
                         </FormLabel>
                         <FormControl>
-                          <Input 
-                            {...field} 
+                          <Input
+                            {...field}
                             placeholder="Enter a descriptive title for the issue"
                             className="border-gray-300 focus:border-orange-500 focus:ring-orange-500"
                           />
@@ -492,17 +492,24 @@ const EditIssue = ({
                             </SelectTrigger>
                             <SelectContent>
                               <SelectGroup>
-                                {checkProjectRole
+                                {ISSUE_STATUS_LIST.map((status) => (
+                                  <SelectItem value={status} key={status}>
+                                    {status}
+                                  </SelectItem>
+                                ))}
+
+                                {/* Show Status Role Wise */}
+                                {/* {checkProjectRole
                                   ? PROJECT_ADMIN_ISSUE_STATUS_LIST.map((status) => (
-                                      <SelectItem key={status} value={status}>
-                                        {status}
-                                      </SelectItem>
-                                    ))
-                                  : ISSUE_TESTER_STATUS_LIST.map((status) => (
-                                      <SelectItem key={status} value={status}>
-                                        {status}
-                                      </SelectItem>
-                                    ))}
+                                    <SelectItem key={status} value={status}>
+                                      {status}
+                                    </SelectItem>
+                                  ))
+                                  : ISSUE_STATUS_LIST.map((status) => (
+                                    <SelectItem key={status} value={status}>
+                                      {status}
+                                    </SelectItem>
+                                  ))} */}
                               </SelectGroup>
                             </SelectContent>
                           </Select>

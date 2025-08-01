@@ -38,6 +38,7 @@ import {
 import {
   ISSUE_TYPE_LIST,
   IssueStatus,
+  ISSUE_STATUS_LIST,
   PRIORITY_LIST,
   SEVERITY_LIST,
 } from "@/app/_constants/issue";
@@ -354,7 +355,7 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
                     )}
                   />
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <FormField
                       control={form.control}
                       name="severity"
@@ -406,6 +407,34 @@ export function AddIssue({ refreshIssues }: { refreshIssues: () => void }) {
                                       </span>
                                       {priority}
                                     </div>
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="status"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <FormLabel className="text-sm font-medium text-gray-700">Status</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <SelectTrigger className="w-full border-gray-300 focus:border-red-500 focus:ring-red-500">
+                              <SelectValue placeholder="Select status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectGroup>
+                                {ISSUE_STATUS_LIST.map((status) => (
+                                  <SelectItem key={status} value={status}>
+                                    {status}
                                   </SelectItem>
                                 ))}
                               </SelectGroup>
