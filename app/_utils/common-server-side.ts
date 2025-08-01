@@ -107,6 +107,21 @@ export const getAllAttachments = async (issue: any) => {
   }
 };
 
+export const getAllAttachmentsLink = async (attachments: any[]) => {
+  try {
+    if (!attachments || !Array.isArray(attachments) || !attachments.length) {
+      return [];
+    }
+
+    const attachmentService = new AttachmentService();
+    const links = await attachmentService.fetchFileLinks(attachments);
+    return links;
+  } catch (error) {
+    console.error("Error occurred while interacting with Google Drive:", error);
+    throw new Error("Failed to get or create file links");
+  }
+};
+
 export const usersWithCustomIds = async (response: any, userIdFormat: any) => {
   if (!response?.users?.length) return [];
 

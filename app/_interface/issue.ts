@@ -37,6 +37,7 @@ export interface IIssueView {
   issueType?: string;
   testCycle: ITestCycle;
   attachments?: IIssueAttachment[];
+  attachmentsList?: IIssueAttachmentDisplay[];
   assignedTo?: any;
 }
 
@@ -70,6 +71,19 @@ export interface IIssueAttachment {
   attachment: any;
   base64: string;
   link: string;
+}
+
+export interface IIssueAttachmentDisplay {
+  attachment: {
+    _id: string;
+    id: string;
+    data: string;
+    name: string;
+    contentType?: string;
+    cloudId: string;
+  };
+  base64: any;
+  link?: string;
 }
 
 export interface IssueAttachmentsProps {
