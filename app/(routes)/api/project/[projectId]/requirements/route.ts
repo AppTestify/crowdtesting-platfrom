@@ -179,8 +179,22 @@ export async function GET(
     const url = new URL(req.url);
     const searchString = url.searchParams.get("searchString");
     const { skip, limit } = serverSidePagination(req);
+    
+    // Parse status filter from search string
+    let statusFilter = null;
+    let cleanSearchString = searchString;
+    
+    if (searchString && searchString.includes('status:')) {
+      const statusMatch = searchString.match(/status:(\w+)/);
+      if (statusMatch) {
+        statusFilter = statusMatch[1];
+        cleanSearchString = searchString.replace(/status:\w+/, '').trim();
+      }
+    }
+    
     const totalRequirements = await Requirement.find({
       projectId: projectId,
+      ...(statusFilter && { status: statusFilter }),
     }).countDocuments();
     const requirementIdFormat = await IdFormat.findOne({
       entity: DBModels.REQUIREMENT,
@@ -189,11 +203,11 @@ export async function GET(
       entity: DBModels.USER,
     });
 
-    if (searchString) {
+    if (cleanSearchString) {
       if (!(await isAdmin(session.user))) {
         const { requirements, totalRequirements } =
           await filterRequirementsNotForAdmin(
-            searchString,
+            searchString, // Pass original searchString to maintain status filter
             skip,
             limit,
             projectId,
@@ -209,7 +223,7 @@ export async function GET(
       } else {
         const { requirements, totalRequirements } =
           await filterRequirementsForAdmin(
-            searchString,
+            searchString, // Pass original searchString to maintain status filter
             skip,
             limit,
             projectId,
@@ -227,7 +241,10 @@ export async function GET(
 
     if (!(await isAdmin(session.user))) {
       const data = addCustomIds(
-        await Requirement.find({ projectId: projectId })
+        await Requirement.find({ 
+          projectId: projectId,
+          ...(statusFilter && { status: statusFilter }),
+        })
           .populate("userId", "firstName lastName")
           .populate("assignedTo", "firstName lastName customId")
           .sort({ createdAt: -1 })
@@ -251,7 +268,10 @@ export async function GET(
       }));
     } else {
       response = addCustomIds(
-        await Requirement.find({ projectId: projectId })
+        await Requirement.find({ 
+          projectId: projectId,
+          ...(statusFilter && { status: statusFilter }),
+        })
           .populate("userId", "firstName lastName")
           .populate("assignedTo", "firstName lastName customId")
           .sort({ createdAt: -1 })
@@ -262,7 +282,10 @@ export async function GET(
       );
     }
 
-    return Response.json({ requirements: response, total: totalRequirements });
+    return Response.json({ 
+      requirements: response, 
+      total: totalRequirements 
+    });
   } catch (error: any) {
     return errorHandler(error);
   }
