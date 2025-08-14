@@ -148,7 +148,7 @@ function SignInWrapper() {
           <div className="relative z-10 flex flex-col min-h-screen lg:min-h-0 lg:h-full">
             {/* Header */}
             <div className="px-4 sm:px-6 pt-4 sm:pt-6 pb-2 flex-shrink-0">
-              <NewBrandLogo className="text-gray-800 w-24 sm:w-28 md:w-32 lg:w-36" />
+              <BrandLogo className="text-gray-800 w-24 sm:w-28 md:w-32 lg:w-36" />
             </div>
 
             {/* Main Content */}
