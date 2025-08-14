@@ -207,7 +207,7 @@ export async function GET(
       if (!(await isAdmin(session.user))) {
         const { requirements, totalRequirements } =
           await filterRequirementsNotForAdmin(
-            searchString, // Pass original searchString to maintain status filter
+            searchString || "", // Pass original searchString to maintain status filter
             skip,
             limit,
             projectId,
@@ -223,7 +223,7 @@ export async function GET(
       } else {
         const { requirements, totalRequirements } =
           await filterRequirementsForAdmin(
-            searchString, // Pass original searchString to maintain status filter
+            searchString || "", // Pass original searchString to maintain status filter
             skip,
             limit,
             projectId,
