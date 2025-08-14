@@ -219,14 +219,15 @@ const ViewIssue = () => {
               </Breadcrumb>
 
               <div className="flex items-center gap-3">
-                <Button
+                {/* Back button commented out since issues now open in new tabs */}
+                {/* <Button
                   variant="outline"
                   onClick={() => window.history.back()}
                   className="flex items-center gap-2"
                 >
                   <ArrowLeft className="h-4 w-4" />
                   Back
-                </Button>
+                </Button> */}
                 {canEdit && (
                   <Button 
                     onClick={() => setIsEditStatusOpen(true)}

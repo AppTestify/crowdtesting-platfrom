@@ -14,7 +14,7 @@ export function NewBrandLogo({ className }: { className: string }) {
   return (
     <div>
       <img
-        src="/assets/images/newLogo.png"
+        src="/assets/images/logo.png"
         className={className}
         alt="AppTestify Logo"
       />

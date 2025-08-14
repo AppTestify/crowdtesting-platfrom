@@ -12,7 +12,7 @@ import { ErrorCode } from "@/app/_constants/error-codes";
 import { useRouter, useSearchParams } from "next/navigation";
 import toasterService from "@/app/_services/toaster-service";
 import { USER_EXISTS_ERROR_MESSAGE } from "@/app/_constants/errors";
-import { NewBrandLogo } from "@/app/_components/brand-logo";
+import { BrandLogo } from "@/app/_components/brand-logo";
 import {
   Shield,
   Users,
@@ -239,7 +239,7 @@ function SignUpWrapper() {
           <div className="relative z-10 flex flex-col min-h-screen lg:min-h-0 lg:h-full">
             {/* Header */}
             <div className="px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 lg:pt-8 pb-2 flex-shrink-0">
-              <NewBrandLogo className="text-gray-800 w-20 sm:w-24 md:w-28 lg:w-32 xl:w-36" />
+              <BrandLogo className="text-gray-800 w-20 sm:w-24 md:w-28 lg:w-32 xl:w-36" />
             </div>
 
             {/* Main Content */}
