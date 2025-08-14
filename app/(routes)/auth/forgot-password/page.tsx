@@ -58,7 +58,8 @@ export default function ForgotPassword() {
 
   return (
     <div className="flex flex-col p-10 h-full">
-      <NewBrandLogo className="text-white w-28 md:w-36 lg:w-40" />
+      {/* <NewBrandLogo className="text-white w-28 md:w-36 lg:w-40" /> */}
+      <BrandLogo className="text-white w-28 md:w-36 lg:w-40" /> 
       <div className="flex items-center justify-center h-4/5 mt-8 md:mt-16 xl:mt-0">
         <FormProvider {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} method="post">
