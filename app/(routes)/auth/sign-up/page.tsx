@@ -60,7 +60,7 @@ function SignUpWrapper() {
                 <span className="block text-green-300">QA Journey</span>
               </h2>
               <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-blue-100 mb-3 sm:mb-4 leading-relaxed">
-                Join thousands of teams who trust QTM for comprehensive test management
+                Join thousands of teams who trust Apptestify for comprehensive test management
               </p>
               
               {/* Statistics */}
@@ -147,7 +147,7 @@ function SignUpWrapper() {
                 ))}
               </div>
               <blockquote className="text-xs sm:text-sm italic mb-1 sm:mb-2">
-                "QTM's free tier was perfect for our startup. As we grew, upgrading was seamless and the value is incredible."
+                "Apptestify's free tier was perfect for our startup. As we grew, upgrading was seamless and the value is incredible."
               </blockquote>
               <cite className="text-green-300 font-semibold text-xs sm:text-sm">
                 — Mike Chen, Lead QA Engineer at StartupXYZ
