@@ -346,7 +346,7 @@ export const PARENT_EMAIL_TEMPLATE = `<!doctype html>
         <td class="container">
             <!-- START HEADER -->
                 <div class="header">
-                <img class="logo" src="https://platform.apptestify.com/assets/images/newLogo.png" width=100 alt="QTM Logo" />
+                <img class="logo" src="https://platform.apptestify.com/assets/images/logo.png" width=100 alt="QTM Logo" />
                 </div>
             <!-- END HEADER -->
           <div class="content">

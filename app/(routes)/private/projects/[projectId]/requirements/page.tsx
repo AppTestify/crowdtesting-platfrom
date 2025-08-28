@@ -122,8 +122,14 @@ export default function Requirements() {
     }
   }, [requirements, projectId]);
 
-  // Filter requirements based on search and status
+  // For table view, use requirements directly since filtering is handled server-side
+  // For grid/kanban view, apply client-side filtering
   const filteredRequirements = useMemo(() => {
+    if (viewMode === 'table') {
+      return requirements; // Use server-side filtered data
+    }
+    
+    // Client-side filtering for grid and kanban views
     return requirements.filter(req => {
       const matchesSearch = !searchTerm || 
         req.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -134,7 +140,7 @@ export default function Requirements() {
       
       return matchesSearch && matchesStatus;
     });
-  }, [requirements, searchTerm, statusFilter]);
+  }, [requirements, searchTerm, statusFilter, viewMode]);
 
   // Group requirements by status for Kanban view - use filtered requirements
   const groupedRequirements = useMemo(() => {
@@ -320,8 +326,18 @@ export default function Requirements() {
       columnVisibility,
       rowSelection,
     },
-    manualPagination: false,
-    pageCount: -1,
+    manualPagination: true,
+    pageCount: Math.ceil(totalPageCount / pageSize),
+    onPaginationChange: (updater) => {
+      if (typeof updater === 'function') {
+        const newState = updater({ pageIndex: pageIndex - 1, pageSize });
+        setPageIndex(newState.pageIndex + 1);
+        setPageSize(newState.pageSize);
+      } else {
+        setPageIndex(updater.pageIndex + 1);
+        setPageSize(updater.pageSize);
+      }
+    },
   });
 
   const getRequirement = useCallback(async (data: IRequirement) => {
@@ -343,7 +359,12 @@ export default function Requirements() {
   const getRequirements = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await getRequirementsService(projectId, pageIndex, pageSize, searchTerm);
+      // For table view, include status filter in server request
+      const searchQuery = viewMode === 'table' && statusFilter !== 'all' 
+        ? `${searchTerm} status:${statusFilter}` 
+        : searchTerm;
+      
+      const response = await getRequirementsService(projectId, pageIndex, pageSize, searchQuery);
       if (response) {
         setRequirements(response.requirements || []);
         setTotalPageCount(response.total || 0);
@@ -353,7 +374,7 @@ export default function Requirements() {
     } finally {
       setIsLoading(false);
     }
-  }, [projectId, pageIndex, pageSize, searchTerm]);
+  }, [projectId, pageIndex, pageSize, searchTerm, statusFilter, viewMode]);
 
   // Fetch all requirements for dashboard stats
   const getAllRequirements = useCallback(async () => {
@@ -398,7 +419,7 @@ export default function Requirements() {
       }, 500);
       return () => clearTimeout(debounceFetch);
     }
-  }, [projectId, pageIndex, pageSize, searchTerm]);
+  }, [projectId, pageIndex, pageSize, searchTerm, statusFilter, viewMode]);
 
   useEffect(() => {
     getAllRequirements();

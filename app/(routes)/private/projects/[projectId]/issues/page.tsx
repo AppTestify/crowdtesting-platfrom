@@ -121,7 +121,11 @@ export default function Issues() {
         );
       },
       cell: ({ row }) => (
-        <Link href={`/private/browse/${projectId}/issue/${row.original?.id}`}>
+        <Link 
+          href={`/private/browse/${projectId}/issue/${row.original?.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           <div className="flex items-center space-x-2 hover:text-primary text-primary cursor-pointer">
             <Bug className="h-3 w-3 flex-shrink-0" />
             <span className="font-medium text-xs">
@@ -154,6 +158,8 @@ export default function Issues() {
           return (
             <Link
               href={`/private/browse/${projectId}/issue/${row.original?.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
             >
               <div
                 title={title}

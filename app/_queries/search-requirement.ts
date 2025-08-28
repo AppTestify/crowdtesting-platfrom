@@ -12,17 +12,30 @@ export async function filterRequirementsNotForAdmin(
   projectId: string,
   idObject: any
 ) {
-  const regex = new RegExp(searchString, "i");
+  // Parse search string for status filter
+  let statusFilter = null;
+  let cleanSearchString = searchString;
+  
+  if (searchString.includes('status:')) {
+    const statusMatch = searchString.match(/status:(\w+)/);
+    if (statusMatch) {
+      statusFilter = statusMatch[1];
+      cleanSearchString = searchString.replace(/status:\w+/, '').trim();
+    }
+  }
+  
+  const regex = new RegExp(cleanSearchString, "i");
   const userIdFormat = await IdFormat.findOne({
     entity: DBModels.USER,
   });
-  const requirementCustomId = customIdForSearch(idObject, searchString);
-  const assigneCustomId = customIdForSearch(userIdFormat, searchString);
+  const requirementCustomId = customIdForSearch(idObject, cleanSearchString);
+  const assigneCustomId = customIdForSearch(userIdFormat, cleanSearchString);
 
   const requirementsPipeline = [
     {
       $match: {
         projectId: new ObjectId(projectId),
+        ...(statusFilter && { status: statusFilter }),
       },
     },
     {
@@ -44,7 +57,7 @@ export async function filterRequirementsNotForAdmin(
         address: "$address",
       },
     },
-    {
+    ...(cleanSearchString ? [{
       $match: {
         $or: [
           { customId: parseInt(requirementCustomId) },
@@ -56,7 +69,7 @@ export async function filterRequirementsNotForAdmin(
           { "assignedTo.lastName": regex },
         ],
       },
-    },
+    }] : []),
     {
       $project: {
         user: 0,
@@ -101,13 +114,26 @@ export async function filterRequirementsForAdmin(
   projectId: string,
   idObject: any
 ) {
-  const regex = new RegExp(searchString, "i");
-  searchString = customIdForSearch(idObject, searchString);
+  // Parse search string for status filter
+  let statusFilter = null;
+  let cleanSearchString = searchString;
+  
+  if (searchString.includes('status:')) {
+    const statusMatch = searchString.match(/status:(\w+)/);
+    if (statusMatch) {
+      statusFilter = statusMatch[1];
+      cleanSearchString = searchString.replace(/status:\w+/, '').trim();
+    }
+  }
+  
+  const regex = new RegExp(cleanSearchString, "i");
+  cleanSearchString = customIdForSearch(idObject, cleanSearchString);
 
   const requirementsPipeline = [
     {
       $match: {
         projectId: new ObjectId(projectId),
+        ...(statusFilter && { status: statusFilter }),
       },
     },
     {
@@ -144,10 +170,10 @@ export async function filterRequirementsForAdmin(
         address: "$address",
       },
     },
-    {
+    ...(cleanSearchString ? [{
       $match: {
         $or: [
-          { customId: parseInt(searchString) },
+          { customId: parseInt(cleanSearchString) },
           { title: regex },
           { "user.firstName": regex },
           { "user.lastName": regex },
@@ -156,7 +182,7 @@ export async function filterRequirementsForAdmin(
           { fullName: regex },
         ],
       },
-    },
+    }] : []),
     {
       $addFields: {
         userId: "$user",
