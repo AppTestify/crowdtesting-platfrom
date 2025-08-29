@@ -25,7 +25,6 @@ import {
 } from "@/app/_queries/search-issues";
 import { issueSchema } from "@/app/_schemas/issue.schema";
 import {
-  getAllAttachmentsLink,
   getFileMetaData,
   getTestCycleBasedIds,
   serverSidePagination,
@@ -289,10 +288,6 @@ export async function GET(
             strictPopulate: false,
           })
           .populate({
-            path: "attachments",
-            strictPopulate: false,
-          })
-          .populate({
             path: "testCycle",
             select: "title",
             strictPopulate: false,
@@ -301,24 +296,6 @@ export async function GET(
           .lean(),
         customIDFormat.idFormat
       );
-// console.log('response',response);
-      for (const issue of response) {
-        const issueAttachments = await IssueAttachment.find({
-          issueId: issue.id,
-        }) // note: issue.id not _id
-          .sort({ createdAt: -1 })
-          .lean();
-// console.log('issueAttachments',issueAttachments);
-        const res = issueAttachments.map((item) => ({
-          cloudId: item.cloudId,
-          name: item.name,
-          contentType: item.contentType,
-          ...item,
-        }));
-
-        issue.attachmentsList = await getAllAttachmentsLink(res);
-      }
-      // console.log('response after attachments',response);
     } else if (await isTester(session.user)) {
       totalIssues = await Issue.find(filter).countDocuments();
       const data = addCustomIds(

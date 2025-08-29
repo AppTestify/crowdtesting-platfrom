@@ -614,7 +614,6 @@ export default function Issues() {
           "Status",
           "Attachments",
         ];
-    console.log('allIssues', allIssues[8]);
     const excelData = allIssues.map((issue) =>
       userData?.role === UserRoles.ADMIN
         ? [
@@ -626,10 +625,11 @@ export default function Issues() {
           issue.issueType || "",
           issue.testCycle?.title || "",
           issue.device?.map((device: any) => device?.name).join(", ") || "",
-          `${issue.userId?.firstName || ""} ${issue.userId?.lastName || ""
-          }`,
+          `${issue.userId?.firstName || ""} ${
+            issue.userId?.lastName || ""
+        }`,
           issue.status || "",
-          issue.attachmentsList?.map((attachment: any) => attachment?.link).join(", ") || "",
+          issue.attachments?.map((attachment: any) => attachment?.name).join(", ") || "",
         ]
         : [
           issue.customId || "",
