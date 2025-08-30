@@ -1,5 +1,5 @@
 import { UserRoles } from "@/app/_constants/user-roles";
-import { BarChart3, FileText, Users, Target, FlaskConical, TestTube, Play, Bug, CheckSquare, Repeat, FileBarChart, GitBranch, Settings, LucideIcon } from 'lucide-react';
+import { BarChart3, FileText, Users, Target, FlaskConical, TestTube, Play, Bug, CheckSquare, Repeat, FileBarChart, GitBranch, Settings, LucideIcon, Key } from 'lucide-react';
 
 export const getProjectTabs = (user: any) => {
   switch (user?.role) {
@@ -18,6 +18,7 @@ export const getProjectTabs = (user: any) => {
         "test cycle",
         "reports",
         "RTM",
+        "tab access",
       ];
     case UserRoles.TESTER:
       return [
@@ -32,6 +33,7 @@ export const getProjectTabs = (user: any) => {
         "tasks",
         "test cycle",
         "reports",
+        "tab access",
       ];
     case UserRoles.CROWD_TESTER:
       return [
@@ -39,6 +41,7 @@ export const getProjectTabs = (user: any) => {
         // "test cases",
         "test executions",
         "issues",
+        "tab access",
       ];
     case UserRoles.CLIENT:
       return [
@@ -55,6 +58,7 @@ export const getProjectTabs = (user: any) => {
         "test cycle",
         "reports",
         "RTM",
+        "tab access",
       ];
     default:
       return [
@@ -68,6 +72,7 @@ export const getProjectTabs = (user: any) => {
         "issues",
         "tasks",
         "reports",
+        "tab access",
       ];
   }
 };
@@ -87,6 +92,7 @@ export const getTabIconComponent = (tabLabel: string): LucideIcon => {
     "Test Cycle": Repeat,
     "Reports": FileBarChart,
     "RTM": GitBranch,
+    "Tab Access": Key,
   };
 
   return iconMap[tabLabel] || Settings;
