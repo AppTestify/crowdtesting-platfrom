@@ -80,14 +80,14 @@ export default function HorizontalBarChart({ title, description, dataKey, chartD
     const formattedData = status
         ? severity && typeof severity === 'object' && !Array.isArray(severity)
             ? Object.entries(severity).map(([key, value]) => ({
-                level: key.charAt(0).toUpperCase() + key.slice(1),
+                level: (key || '').charAt(0).toUpperCase() + (key || '').slice(1),
                 [dataKey]: value,
                 color: getColorForPriority(key),
             }))
             : []
         : chartData && typeof chartData === 'object' && !Array.isArray(chartData)
             ? Object.entries(chartData).map(([key, value]) => ({
-                level: key.charAt(0).toUpperCase() + key.slice(1),
+                level: (key || '').charAt(0).toUpperCase() + (key || '').slice(1),
                 [dataKey]: value,
                 color: getColorForPriority(key),
             }))

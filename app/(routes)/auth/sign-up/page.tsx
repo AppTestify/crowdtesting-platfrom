@@ -60,7 +60,9 @@ function SignUpWrapper() {
                 <span className="block text-green-300">QA Journey</span>
               </h2>
               <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-blue-100 mb-3 sm:mb-4 leading-relaxed">
-                Join thousands of teams who trust Apptestify for comprehensive test management
+
+                Join thousands of teams who trust Platform Apptestify for comprehensive test management
+
               </p>
               
               {/* Statistics */}
@@ -70,7 +72,7 @@ function SignUpWrapper() {
                   <div className="text-xs sm:text-sm text-blue-200">Happy Teams</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-green-300 mb-1">50K+</div>
+                  <div className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-green-300 mb-1">1M+</div>
                   <div className="text-xs sm:text-sm text-blue-200">Test Cases</div>
                 </div>
                 <div className="text-center">

@@ -187,7 +187,7 @@ export function SignInForm({
               Contact Us
             </Link>
           </div>
-          <p className="text-gray-400">QTM is a product of AppTestify Global Services Pvt. Ltd.</p>
+                          <p className="text-gray-400">Apptestify is a product of AppTestify Global Services Pvt. Ltd.</p>
         </div>
       </div>
     </>

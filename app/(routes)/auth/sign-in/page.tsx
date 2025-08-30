@@ -54,7 +54,8 @@ function SignInWrapper() {
                 <span className="block text-green-300">QA Process</span>
               </h2>
               <p className="text-lg xl:text-xl text-blue-100 mb-5 leading-relaxed">
-                Join thousands of teams using Apptestify to deliver high-quality software faster
+                Join thousands of teams using Platform Apptestify to deliver high-quality software faster
+
               </p>
               
               {/* Statistics */}
@@ -64,7 +65,7 @@ function SignInWrapper() {
                   <div className="text-xs text-blue-200">Active Users</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-green-300 mb-1">50K+</div>
+                  <div className="text-2xl font-bold text-green-300 mb-1">1M+</div>
                   <div className="text-xs text-blue-200">Test Cases</div>
                 </div>
                 <div className="text-center">
@@ -160,7 +161,9 @@ function SignInWrapper() {
                     Welcome Back
                   </h1>
                   <p className="text-sm sm:text-base text-gray-600 mb-4">
-                    Sign in to your Apptestify account
+
+                    Sign in to your Platform Apptestify account
+
                   </p>
                   
                   {/* Trust Indicators */}
