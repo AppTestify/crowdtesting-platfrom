@@ -49,15 +49,11 @@ const enhancedColors = {
     active: "#10B981", // Green
     inactive: "#EF4444", // Red
     
-    // Project Types
+    // Project Types & Device Usage (shared colors)
     web: "#3B82F6", // Blue
     mobile: "#8B5CF6", // Purple
     desktop: "#06B6D4", // Cyan
-    
-    // Device Usage
-    desktop: "#3B82F6", // Blue
-    mobile: "#8B5CF6", // Purple
-    tablet: "#06B6D4", // Cyan
+    tablet: "#06B6D4", // Cyan (same as desktop for consistency)
     
     // Default colors for unknown types
     unknown: "#6B7280", // Gray
@@ -185,7 +181,7 @@ export function DonutChart({
     
     // Calculate total for center display
     const total = React.useMemo(() => {
-        return formattedData.reduce((sum, item) => sum + (item[dataKey] || 0), 0);
+        return formattedData.reduce((sum, item) => sum + (Number(item[dataKey]) || 0), 0);
     }, [formattedData, dataKey]);
 
     return (
@@ -236,7 +232,7 @@ export function DonutChart({
                             >
                                 <Label
                                     content={({ viewBox }) => {
-                                        if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                                        if (viewBox && "cx" in viewBox && "cy" in viewBox && typeof viewBox.cx === 'number' && typeof viewBox.cy === 'number') {
                                             return (
                                                 <g>
                                                     {/* Enhanced background circle with gradient */}
@@ -303,6 +299,7 @@ export function DonutChart({
                                                 </g>
                                             )
                                         }
+                                        return null;
                                     }}
                                 />
                             </Pie>
