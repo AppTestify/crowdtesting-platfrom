@@ -86,14 +86,14 @@ export default function Issues() {
   const { projectId } = useParams<{ projectId: string }>();
   const checkProjectRole = checkProjectAdmin(project as IProject, userData);
   const [allIssues, setAllIssues] = useState<IIssueView[]>([]);
-  
+
 
   const showIssueRowActions = (issue: IIssue) => {
     // Crowd testers cannot edit any issues
     if (userData?.role === UserRoles.CROWD_TESTER) {
       return false;
     }
-    
+
     return (
       (checkProjectRole && project?.isActive) ||
       (project?.isActive &&
@@ -202,8 +202,8 @@ export default function Issues() {
           Trivial: "bg-gray-100 text-gray-800 border-gray-200",
         };
         return (
-          <Badge 
-            variant="outline" 
+          <Badge
+            variant="outline"
             className={`text-xs capitalize ${severityColors[severity as keyof typeof severityColors] || 'bg-gray-100 text-gray-800'}`}
           >
             {severity}
@@ -251,97 +251,97 @@ export default function Issues() {
     },
     ...(userData?.role === UserRoles.ADMIN
       ? [
-          {
-            accessorKey: "createdBy",
-            header: ({ column }: { column: any }) => {
-              const isSorted = column.getIsSorted();
-              return (
-                <Button
-                  variant="ghost"
-                  onClick={() => column.toggleSorting(isSorted === "asc")}
-                  className="h-8 px-1 hover:bg-muted/80 hidden md:flex"
-                >
-                  <User className="mr-1 h-3 w-3" />
-                  <span className="font-semibold text-xs">Reporter</span>
-                  <ArrowUpDown className="ml-1 h-3 w-3" />
-                </Button>
-              );
-            },
-            cell: ({ row }: { row: any }) => {
-              const user = row.original?.userId;
-              const firstName = user?.firstName || "";
-              const lastName = user?.lastName || "";
-              const initials = `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`.toUpperCase();
-              const displayName = `${firstName} ${lastName}`.trim();
-
-              return (
-                <div className="items-center space-x-2 hidden md:flex">
-                  <Avatar className="h-6 w-6 flex-shrink-0">
-                    <AvatarFallback className="text-xs bg-muted">
-                      {initials || 'U'}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="text-xs truncate max-w-[100px]">
-                    {displayName || 'Unknown'}
-                  </span>
-                </div>
-              );
-            },
-            size: 130,
+        {
+          accessorKey: "createdBy",
+          header: ({ column }: { column: any }) => {
+            const isSorted = column.getIsSorted();
+            return (
+              <Button
+                variant="ghost"
+                onClick={() => column.toggleSorting(isSorted === "asc")}
+                className="h-8 px-1 hover:bg-muted/80 hidden md:flex"
+              >
+                <User className="mr-1 h-3 w-3" />
+                <span className="font-semibold text-xs">Reporter</span>
+                <ArrowUpDown className="ml-1 h-3 w-3" />
+              </Button>
+            );
           },
-        ]
+          cell: ({ row }: { row: any }) => {
+            const user = row.original?.userId;
+            const firstName = user?.firstName || "";
+            const lastName = user?.lastName || "";
+            const initials = `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`.toUpperCase();
+            const displayName = `${firstName} ${lastName}`.trim();
+
+            return (
+              <div className="items-center space-x-2 hidden md:flex">
+                <Avatar className="h-6 w-6 flex-shrink-0">
+                  <AvatarFallback className="text-xs bg-muted">
+                    {initials || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="text-xs truncate max-w-[100px]">
+                  {displayName || 'Unknown'}
+                </span>
+              </div>
+            );
+          },
+          size: 130,
+        },
+      ]
       : []),
     ...(issues.some((item) => item.assignedTo?._id)
       ? [
-          {
-            accessorKey: "assignedTo",
-            header: ({ column }: { column: any }) => {
-              const isSorted = column.getIsSorted();
-              return (
-                <Button
-                  variant="ghost"
-                  onClick={() => column.toggleSorting(isSorted === "asc")}
-                  className="h-8 px-1 hover:bg-muted/80 hidden lg:flex"
-                >
-                  <User className="mr-1 h-3 w-3" />
-                  <span className="font-semibold text-xs">Assignee</span>
-                  <ArrowUpDown className="ml-1 h-3 w-3" />
-                </Button>
-              );
-            },
-            cell: ({ row }: { row: any }) => {
-              const assignee = row.original?.assignedTo;
-              if (!assignee?._id) {
-                return (
-                  <div className="items-center space-x-2 hidden lg:flex">
-                    <span className="text-xs text-muted-foreground">Unassigned</span>
-                  </div>
-                );
-              }
-
-              const firstName = assignee?.firstName || "";
-              const lastName = assignee?.lastName || "";
-              const initials = `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`.toUpperCase();
-              const displayName = userData?.role === UserRoles.ADMIN 
-                ? `${firstName} ${lastName}`.trim() || NAME_NOT_SPECIFIED_ERROR_MESSAGE
-                : assignee?.customId;
-
+        {
+          accessorKey: "assignedTo",
+          header: ({ column }: { column: any }) => {
+            const isSorted = column.getIsSorted();
+            return (
+              <Button
+                variant="ghost"
+                onClick={() => column.toggleSorting(isSorted === "asc")}
+                className="h-8 px-1 hover:bg-muted/80 hidden lg:flex"
+              >
+                <User className="mr-1 h-3 w-3" />
+                <span className="font-semibold text-xs">Assignee</span>
+                <ArrowUpDown className="ml-1 h-3 w-3" />
+              </Button>
+            );
+          },
+          cell: ({ row }: { row: any }) => {
+            const assignee = row.original?.assignedTo;
+            if (!assignee?._id) {
               return (
                 <div className="items-center space-x-2 hidden lg:flex">
-                  <Avatar className="h-6 w-6 flex-shrink-0">
-                    <AvatarFallback className="text-xs bg-muted">
-                      {initials || 'U'}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="text-xs truncate max-w-[100px]">
-                    {displayName}
-                  </span>
+                  <span className="text-xs text-muted-foreground">Unassigned</span>
                 </div>
               );
-            },
-            size: 130,
+            }
+
+            const firstName = assignee?.firstName || "";
+            const lastName = assignee?.lastName || "";
+            const initials = `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`.toUpperCase();
+            const displayName = userData?.role === UserRoles.ADMIN
+              ? `${firstName} ${lastName}`.trim() || NAME_NOT_SPECIFIED_ERROR_MESSAGE
+              : assignee?.customId;
+
+            return (
+              <div className="items-center space-x-2 hidden lg:flex">
+                <Avatar className="h-6 w-6 flex-shrink-0">
+                  <AvatarFallback className="text-xs bg-muted">
+                    {initials || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="text-xs truncate max-w-[100px]">
+                  {displayName}
+                </span>
+              </div>
+            );
           },
-        ]
+          size: 130,
+        },
+      ]
       : []),
     {
       accessorKey: "createdAt",
@@ -400,7 +400,7 @@ export default function Issues() {
         return (
           <>
             {showIssueRowActions(row.original) &&
-            checkProjectActiveRole(project?.isActive ?? false, userData) ? (
+              checkProjectActiveRole(project?.isActive ?? false, userData) ? (
               <IssueRowActions
                 row={row as unknown as Row<IIssue>}
                 refreshIssues={refreshIssues}
@@ -566,7 +566,7 @@ export default function Issues() {
 
   const generateExcel = async () => {
     setIsExcelLoading(true);
-    
+
     // Fetch all issues without pagination for export
     let allIssues: IIssueView[] = [];
     try {
@@ -590,60 +590,59 @@ export default function Issues() {
     const header =
       userData?.role === UserRoles.ADMIN
         ? [
-            "ID",
-            "Title",
-            "Description",
-            "Severity",
-            "Priority",
-            "Issue Type",
-            "Test Cycle",
-            "Devices Name",
-            "Created By",
-            "Status",
-            "Attachments",
-          ]
+          "ID",
+          "Title",
+          "Description",
+          "Severity",
+          "Priority",
+          "Issue Type",
+          "Test Cycle",
+          "Devices Name",
+          "Created By",
+          "Status",
+          "Attachments",
+        ]
         : [
-            "ID",
-            "Title",
-            "Description",
-            "Severity",
-            "Priority",
-            "Issue Type",
-            "Test Cycle",
-            "Devices Name",
-            "Status",
-            "Attachments",
-          ];
-
+          "ID",
+          "Title",
+          "Description",
+          "Severity",
+          "Priority",
+          "Issue Type",
+          "Test Cycle",
+          "Devices Name",
+          "Status",
+          "Attachments",
+        ];
     const excelData = allIssues.map((issue) =>
       userData?.role === UserRoles.ADMIN
         ? [
-            issue.customId || "",
-            issue.title || "",
-            stripHtmlTags(issue.description || ""),
-            issue.severity || "",
-            issue.priority || "",
-            issue.issueType || "",
-            issue.testCycle?.title || "",
-            issue.device?.map((device: any) => device?.name).join(", ") || "",
-            `${issue.userId?.firstName || ""} ${
-              issue.userId?.lastName || ""
-            }`,
-            issue.status || "",
-            issue.attachments?.map((attachment: any) => attachment?.name).join(", ") || "",
-          ]
+          issue.customId || "",
+          issue.title || "",
+          stripHtmlTags(issue.description || ""),
+          issue.severity || "",
+          issue.priority || "",
+          issue.issueType || "",
+          issue.testCycle?.title || "",
+          issue.device?.map((device: any) => device?.name).join(", ") || "",
+          `${issue.userId?.firstName || ""} ${
+            issue.userId?.lastName || ""
+        }`,
+          issue.status || "",
+          issue.attachments?.map((attachment: any) => attachment?.name).join(", ") || "",
+        ]
         : [
-            issue.customId || "",
-            issue.title || "",
-            stripHtmlTags(issue.description || ""),
-            issue.severity || "",
-            issue.priority || "",
-            issue.issueType || "",
-            issue.testCycle?.title || "",
-            issue.device?.map((device: any) => device?.name).join(", ") || "",
-            issue.status || "",
-            issue.attachments?.map((attachment: any) => attachment?.name).join(", ") || "",
-          ]
+          issue.customId || "",
+          issue.title || "",
+          stripHtmlTags(issue.description || ""),
+          issue.severity || "",
+          issue.priority || "",
+          issue.issueType || "",
+          issue.testCycle?.title || "",
+          issue.device?.map((device: any) => device?.name).join(", ") || "",
+          issue.status || "",
+          issue.attachments?.map((attachment: any) => attachment?.name).join(", ") || "",
+        ]
     );
 
     const ws = XLSX.utils.aoa_to_sheet([header, ...excelData]);
@@ -903,7 +902,7 @@ export default function Issues() {
                   />
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
                 <Select
                   value={selectedSeverity || "All"}
@@ -1000,17 +999,17 @@ export default function Issues() {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               {/* Clear Filters Button */}
               {(() => {
-                const hasFilters = 
+                const hasFilters =
                   (selectedSeverity && selectedSeverity !== '') ||
                   (selectedPriority && selectedPriority !== '') ||
                   (selectedStatus && selectedStatus !== '') ||
                   (selectedTestCycle && selectedTestCycle !== '') ||
                   (globalFilter && Array.isArray(globalFilter) && globalFilter.length > 0) ||
                   (globalFilter && typeof globalFilter === 'string' && globalFilter.trim() !== '');
-                
+
                 console.log('Filter values:', {
                   selectedSeverity,
                   selectedPriority,
@@ -1050,9 +1049,9 @@ export default function Issues() {
                             {header.isPlaceholder
                               ? null
                               : flexRender(
-                                  header.column.columnDef.header,
-                                  header.getContext()
-                                )}
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
                           </TableHead>
                         );
                       })}

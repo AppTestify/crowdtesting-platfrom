@@ -55,6 +55,7 @@ function SignInWrapper() {
               </h2>
               <p className="text-lg xl:text-xl text-blue-100 mb-5 leading-relaxed">
                 Join thousands of teams using Platform Apptestify to deliver high-quality software faster
+
               </p>
               
               {/* Statistics */}
@@ -160,7 +161,9 @@ function SignInWrapper() {
                     Welcome Back
                   </h1>
                   <p className="text-sm sm:text-base text-gray-600 mb-4">
+
                     Sign in to your Platform Apptestify account
+
                   </p>
                   
                   {/* Trust Indicators */}

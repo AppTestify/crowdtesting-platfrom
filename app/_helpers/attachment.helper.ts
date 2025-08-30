@@ -230,6 +230,34 @@ class AttachmentService {
       throw error;
     }
   }
+
+  public async fetchFileLinks(
+    attachments: any[]
+  ): Promise<{ attachment: any; link: string }[]> {
+    try {
+      const links = await Promise.all(
+        attachments.map(async (attachment) => {
+          // First, ensure file is shareable
+          await this.drive.permissions.create({
+            fileId: attachment.cloudId,
+            requestBody: {
+              role: "reader",
+              type: "anyone", // makes it public (view-only)
+            },
+          });
+
+          // Return Google Drive file view link
+          const link = `https://drive.google.com/file/d/${attachment.cloudId}/view`;
+          return { attachment, link };
+        })
+      );
+
+      return links;
+    } catch (error) {
+      console.error("Error generating Google Drive file links:", error);
+      throw error;
+    }
+  }
 }
 
 export default AttachmentService;

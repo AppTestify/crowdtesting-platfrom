@@ -72,6 +72,8 @@ export interface IIssueAttachment {
   link: string;
 }
 
+
+
 export interface IssueAttachmentsProps {
   issueId: string;
   isUpdate: boolean;
