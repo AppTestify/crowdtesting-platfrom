@@ -44,7 +44,7 @@ const chartConfig = {
 } satisfies ChartConfig
 
 const getColorForStatus = (status: string) => {
-    switch (status) {
+    switch (status.toLowerCase()) {
         case IssueStatus.NEW:
             return '#9CA3AF';
         case IssueStatus.FIXED:
@@ -61,8 +61,12 @@ const getColorForStatus = (status: string) => {
             return 'hsl(var(--chart-1))';
         case "active":
             return 'hsl(var(--chart-2))';
-        case "inActive":
+        case "inactive":
             return 'hsl(var(--chart-1))';
+        case "online":
+            return '#10B981'; // Green for online
+        case "offline":
+            return '#EF4444'; // Red for offline
         default:
             return 'hsl(var(--primary))';
     }
@@ -78,7 +82,7 @@ interface HorizontalBarChartProps {
 export default function PieCharts({ title, description, chartData, dataKey }: HorizontalBarChartProps) {
     const formattedData = chartData
         ? Object.entries(chartData).map(([key, value]) => ({
-            level: key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' '),
+            level: (key || '').charAt(0).toUpperCase() + (key || '').slice(1).replace(/_/g, ' '),
             [dataKey]: value,
             fill: getColorForStatus(key),
         }))

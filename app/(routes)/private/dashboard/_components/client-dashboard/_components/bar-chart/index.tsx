@@ -169,7 +169,7 @@ const CustomYAxisTick = ({ x, y, payload, width }: any) => {
 export default function StatusBarChart({ title, description, chartData, dataKey }: HorizontalBarChartProps) {
     const formattedData = chartData
         ? Object.entries(chartData).map(([key, value]) => ({
-            level: key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' '),
+            level: (key || '').charAt(0).toUpperCase() + (key || '').slice(1).replace(/_/g, ' '),
             [dataKey]: value,
             fill: getColorForStatus(key),
         }))

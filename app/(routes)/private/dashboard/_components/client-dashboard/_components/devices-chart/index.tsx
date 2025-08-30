@@ -54,7 +54,7 @@ interface HorizontalBarChartProps {
 export default function DeviceChart({ title, description, dataKey, chartData }: HorizontalBarChartProps) {
     const formattedData = chartData
         ? Object.values(chartData).map((item: any) => ({
-            level: item?.name.charAt(0).toUpperCase() + item?.name.slice(1),
+            level: (item?.name || '').charAt(0).toUpperCase() + (item?.name || '').slice(1),
             [dataKey]: item?.count,
             color: getColorForPriority(item?.name),
         }))

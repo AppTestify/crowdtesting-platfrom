@@ -25,6 +25,18 @@ export const getDashboardClientService = async (
   }
 };
 
+export const getDashboardAdminService = async (): Promise<any> => {
+  try {
+    const response = await genericGet(
+      `${DASHBOARD_ENDPOINT}/admin`
+    );
+    return response || [];
+  } catch (error) {
+    console.error(`Error > getDashboardAdminService:`, error);
+    throw error;
+  }
+};
+
 export const getTesterDashboardService = async (
   projectId?: string
 ): Promise<any> => {
