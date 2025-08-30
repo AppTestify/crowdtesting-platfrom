@@ -74,7 +74,7 @@ function SignUpWrapper() {
                 <span className="block text-green-300">Freelance QA Journey Today</span>
               </h2>
               <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-blue-100 mb-3 sm:mb-4 leading-relaxed">
-                Join AppTestify – Where Testers Shape the Future of Apps!
+                Join Platform AppTestify – Where Testers Shape the Future of Apps!
               </p>
 
               {/* Statistics */}
@@ -221,8 +221,8 @@ function SignUpWrapper() {
                 ))}
               </div>
               <blockquote className="text-xs sm:text-sm italic mb-1 sm:mb-2">
-                “QTM supported my freelance journey perfectly. Scaling up was
-                smooth, and the value is outstanding.”
+                "Apptestify supported my freelance journey perfectly. Scaling up was
+                smooth, and the value is outstanding."
               </blockquote>
               <cite className="text-green-300 font-semibold text-xs sm:text-sm">
                 — Mike Chen, Freelance QA Engineer
